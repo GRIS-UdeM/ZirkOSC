@@ -21,7 +21,8 @@ class ZirkOscjuceAudioProcessorEditor  : public AudioProcessorEditor,
                                          public ButtonListener,
                                          public SliderListener,
                                          public Timer,
-                                         public MouseListener
+                                         public MouseListener,
+                                         public TextEditorListener
 {
 public:
     ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter);
@@ -37,6 +38,8 @@ public:
     void mouseDown (const MouseEvent &event);
  	void mouseDrag (const MouseEvent &event);
  	void mouseUp (const MouseEvent &event);
+    void textEditorReturnKeyPressed (TextEditor &editor);
+    void textEditorFocusLost (TextEditor &editor);
     
 
 private:
@@ -61,6 +64,9 @@ private:
     Label azimuthLabel;
     Label gainLabel;
     Label elevationLabel;
+    
+    TextEditor OSCPortTextEditor;
+    TextEditor NbrSourceTextEditor;
     
     bool draggableSource;
     
