@@ -115,10 +115,10 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
     for(int ch=0;ch<nbrSources;ch++){
-        float azim_osc = tabSource[ch].getAzimuth()/180.;
-        float elev_osc = tabSource[ch].getElevation()/180.;
-        float azimspan_osc = tabSource[ch].getAzimuth_span()/180.;
-        float elevspan_osc = tabSource[ch].getElevation_span()/180.;
+        float azim_osc = PercentToHR(tabSource[ch].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
+        float elev_osc = PercentToHR(tabSource[ch].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
+        float azimspan_osc = PercentToHR(tabSource[ch].getAzimuth_span(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
+        float elevspan_osc = PercentToHR(tabSource[ch].getElevation_span(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
         float gain_osc = tabSource[ch].getGain();
         lo_send(mOsc, "/pan/az", "ifffff", ch, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
     }

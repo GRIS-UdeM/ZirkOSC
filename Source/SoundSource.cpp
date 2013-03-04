@@ -12,7 +12,7 @@
 
 
 SoundSource::SoundSource(){
-    
+
 }
 
 SoundSource::SoundSource(float azimuth, float elevation){
@@ -22,7 +22,7 @@ SoundSource::SoundSource(float azimuth, float elevation){
 }
 
 SoundSource::~SoundSource(){
-    
+
 }
 
 
@@ -45,14 +45,14 @@ inline float SoundSource::radianToDegree(float radian){
 bool SoundSource::contains(Point <float> p){
     return (p.getX()< getX()+5 && p.getX()> getX()-5 && p.getY()< getY()+5 && p.getY()> getY()-5 );
 }
-    
+
 
 
 //getter setter;
 float   SoundSource::getX(){
     float HRAzimuth = PercentToHR(azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    
+
     return (-ZirkOSC_DomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian( HRElevation)));
 }
 void    SoundSource::setPositionXY(Point <float> p){
@@ -68,12 +68,12 @@ void    SoundSource::setPositionXY(Point <float> p){
         HRAzimuth= 360 +HRAzimuth;
     }
     azimuth = HRToPercent(HRAzimuth, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    
+
 }
 float   SoundSource::getY(){
     float HRAzimuth = PercentToHR(azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    
+
     return (-ZirkOSC_DomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 
 }
