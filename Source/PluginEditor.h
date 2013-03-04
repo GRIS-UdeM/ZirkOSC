@@ -31,7 +31,7 @@ public:
     //==============================================================================
     // This is just a standard Juce paint method...
     void paint (Graphics& g);
-    
+
     void buttonClicked (Button* button);
     void sliderValueChanged (Slider* slider);
     void timerCallback();
@@ -40,7 +40,7 @@ public:
  	void mouseUp (const MouseEvent &event);
     void textEditorReturnKeyPressed (TextEditor &editor);
     void textEditorFocusLost (TextEditor &editor);
-    
+
 
 private:
     AudioPlayHead::CurrentPositionInfo lastDisplayedPosition;
@@ -50,33 +50,33 @@ private:
 	uint32_t mChannelCount;
 	uint32_t mOscPort;
 	uint32_t mActive;
-    
-    
+
+
     TextButton* button1;
     Slider gainSlider;
     Slider azimuthSlider;
     Slider azimuthSpanSlider;
     Slider elevationSlider;
     Slider elevationSpanSlider;
-    
+
     Label azimuthSpanLabel;
     Label elevationSpanLabel;
     Label azimuthLabel;
     Label gainLabel;
     Label elevationLabel;
-    
+
     TextEditor OSCPortTextEditor;
     TextEditor NbrSourceTextEditor;
-    
+
     bool draggableSource;
-    
+
     ZirkOscjuceAudioProcessor* getProcessor() const
     {
         return static_cast <ZirkOscjuceAudioProcessor*> (getAudioProcessor());
     }
-    
+
     /*Painting functions*/
-    
+
     void paintSpanArc (Graphics& g);
     void paintSourcePoint (Graphics& g);
     void paintWallCircle (Graphics& g);
@@ -85,14 +85,14 @@ private:
     void paintZenithCircle (Graphics& g);
     void paintCrosshairs (Graphics& g);
     void paintCoordLabels (Graphics& g);
-    
+
     /*Conversion functions*/
-    
+
     Point <float> domeToScreen (Point <float>);
     Point <float> screenToDome (Point <float>);
     inline float degreeToRadian (float);
     inline float radianToDegree (float);
-    
+
 };
 
 float PercentToHR(float , float , float );

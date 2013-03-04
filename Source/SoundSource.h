@@ -16,13 +16,13 @@ public:
     SoundSource();
     SoundSource(float,float);
     ~SoundSource();
-    
-    
+
+
     //getter setter;
     Point<float> getPositionXY();
     int     getChannel();
     void    setChannel(int);
-    float   getX(); 
+    float   getX();
     void    setPositionXY(Point <float>);
     float   getY();
     float   getGain();
@@ -36,7 +36,7 @@ public:
     float   getElevation();
     void    setElevation(float);
     bool    contains(Point<float>);
-    
+
 private:
     Point<float> spherePosition; //x = azimuth; y = elevation
     int channel;

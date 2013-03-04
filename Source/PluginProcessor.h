@@ -28,12 +28,12 @@ public:
     //==============================================================================
     ZirkOscjuceAudioProcessor();
     ~ZirkOscjuceAudioProcessor();
-    
-    
-    
+
+
+
     list<SoundSource> listeSource;
     list<SoundSource>::iterator currentSource;
-    
+
     SoundSource tabSource [8];
     int selectedSource;
     int nbrSources;
@@ -51,8 +51,8 @@ public:
     const String getName() const;
 
     int getNumParameters();
-    
-    
+
+
     float getParameter (int index);
     void setParameter (int index, float newValue);
 
@@ -78,7 +78,7 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData);
     void setStateInformation (const void* data, int sizeInBytes);
-    
+
     AudioPlayHead::CurrentPositionInfo lastPosInfo;
     long int frame = 0;
     enum Parameters
@@ -144,7 +144,7 @@ public:
     float gain, azimuth, elevation, azimuth_delta, elevation_delta, azimuth_span, elevation_span;
     void sendOSCValues();
 
-    
+
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
@@ -152,7 +152,7 @@ private:
     TextButton* button1;
     Slider* slider1;
     Label* label;
-    
+
 };
 
 #endif  // __PLUGINPROCESSOR_H_F70DA35D__
