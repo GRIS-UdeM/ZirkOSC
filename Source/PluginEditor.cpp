@@ -127,8 +127,6 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
         HRElevSpan = PercentToHR(ourProcessor->tabSource[selectedSource].getElevation_span(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max),
         HRAzimSpan = PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth_span(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
 
-
-
     Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
     Point<float> minElev = {HRAzim, HRElev-HRElevSpan/2};
 
@@ -141,7 +139,6 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     Point<float> screenMinElev = domeToScreen(minElev);
     float maxRadius = sqrtf(screenMaxElev.getX()*screenMaxElev.getX() + screenMaxElev.getY()*screenMaxElev.getY());
     float minRadius = sqrtf(screenMinElev.getX()*screenMinElev.getX() + screenMinElev.getY()*screenMinElev.getY());
-
     //drawing the path for spanning
     Path myPath;
     myPath.startNewSubPath(ZirkOSC_Center_X+screenMinElev.getX(),ZirkOSC_Center_Y+screenMinElev.getY());
@@ -173,7 +170,6 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         screen = domeToScreen(Point<float> (HRAzim, HRElev));
         g.drawEllipse(ZirkOSC_Center_X + screen.getX()-4, ZirkOSC_Center_Y + screen.getY()-4, 8, 8,2);
         g.drawText(String(i), ZirkOSC_Center_X + screen.getX()+6, ZirkOSC_Center_Y + screen.getY()-2, 10, 10, Justification::centred, false);
-
     }
    // screen = domeToScreen(mSourcePoint);
     //g.setColour(Colours::blue);
@@ -216,14 +212,12 @@ void ZirkOscjuceAudioProcessorEditor::paintCrosshairs (Graphics& g){
         axis = {cosf(radianAngle), sinf(radianAngle)};
         g.drawLine(ZirkOSC_Center_X+(ZirkOSC_DomeRadius*fraction)*axis.getX(), ZirkOSC_Center_Y+(ZirkOSC_DomeRadius*fraction)*axis.getY(),ZirkOSC_Center_X+(ZirkOSC_DomeRadius)*axis.getX(), ZirkOSC_Center_Y+(ZirkOSC_DomeRadius)*axis.getY(),1.0f);
     }
-
 }
 
 void ZirkOscjuceAudioProcessorEditor::paintCoordLabels (Graphics& g){
     g.setColour(Colours::black);
     g.drawLine(ZirkOSC_Center_X - ZirkOSC_DomeRadius, ZirkOSC_Center_Y, ZirkOSC_Center_X + ZirkOSC_DomeRadius, ZirkOSC_Center_Y ,0.5f);
     g.drawLine(ZirkOSC_Center_X , ZirkOSC_Center_Y - ZirkOSC_DomeRadius, ZirkOSC_Center_X , ZirkOSC_Center_Y + ZirkOSC_DomeRadius,0.5f);
-
 }
 
 
