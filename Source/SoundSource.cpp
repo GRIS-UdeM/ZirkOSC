@@ -17,8 +17,8 @@ SoundSource::SoundSource(){
 
 SoundSource::SoundSource(float azimuth, float elevation){
     SoundSource();
-    this->azimuth=azimuth;
-    this->elevation=elevation;
+    this->azimuth = azimuth;
+    this->elevation = elevation;
 }
 
 SoundSource::~SoundSource(){
