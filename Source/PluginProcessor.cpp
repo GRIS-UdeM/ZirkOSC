@@ -23,8 +23,8 @@ using namespace std;
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor():
 currentSource()
 {
-    nbrSources=2;
-    selectedSource=0;
+    nbrSources      = 8;
+    selectedSource  = 0;
     gain            = ZirkOSC_Gain_Def;
     azimuth         = ZirkOSC_Azim_Def;
     azimuth_delta   = ZirkOSC_AzimDelta_Def;
@@ -34,12 +34,12 @@ currentSource()
     elevation_span  = ZirkOSC_ElevSpan_Def;
     mOsc            = lo_address_new("127.0.0.1", "10029");
     
-    listeSource.push_back(*new SoundSource(10.0,0.0));
-    currentSource = listeSource.begin();
+ //   listeSource.push_back(*new SoundSource(10.0,0.0));
+  //  currentSource = listeSource.begin();
     for(int i=0; i<8; i++)
         tabSource[i]=SoundSource(0.0,0.0);
     sendOSCValues();
-    lastPosInfo.resetToDefault();
+   // lastPosInfo.resetToDefault();
     
 }
 
@@ -74,7 +74,6 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
         else if (ZirkOSC_Gain_Param + (i*7) == index)       return tabSource[i].getGain();
         else;
     }
-    
 }
 
 void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)

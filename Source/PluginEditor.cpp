@@ -220,7 +220,6 @@ void ZirkOscjuceAudioProcessorEditor::paintCoordLabels (Graphics& g){
     g.drawLine(ZirkOSC_Center_X , ZirkOSC_Center_Y - ZirkOSC_DomeRadius, ZirkOSC_Center_X , ZirkOSC_Center_Y + ZirkOSC_DomeRadius,0.5f);
 }
 
-
 /*Conversion function*/
 
 Point <float> ZirkOscjuceAudioProcessorEditor::domeToScreen (Point <float> p){
@@ -260,13 +259,14 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 
     HRValue = PercentToHR(ourProcessor->tabSource[selectedSource].getElevation_span(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     elevationSpanSlider.setValue(HRValue,dontSendNotification);
-
-    if (mSourcePoint.getX() !=  PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max)){
+    
+    repaint();
+/*    if (mSourcePoint.getX() !=  PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max)){
 
         mSourcePoint.x =(PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max));
         mSourcePoint.y = (PercentToHR(ourProcessor->tabSource[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
         repaint();
-    }
+    }*/
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button)
