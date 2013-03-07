@@ -35,11 +35,12 @@ public:
     void    setElevation_span(float);
     float   getElevation();
     void    setElevation(float);
+
     bool    contains(Point<float>);
 
 private:
     Point<float> spherePosition; //x = azimuth; y = elevation
-    int channel;
+    int channel =0;
     float gain=1, azimuth=0, elevation=0, azimuth_span=0, elevation_span=0;
     //Point <float> domeToScreen (Point <float> p);
     inline float degreeToRadian (float );

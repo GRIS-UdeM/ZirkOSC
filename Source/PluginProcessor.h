@@ -63,6 +63,8 @@ public:
     const String getOutputChannelName (int channelIndex) const;
     bool isInputChannelStereoPair (int index) const;
     bool isOutputChannelStereoPair (int index) const;
+    
+    void changeOSCPort(int newPort);
 
     bool acceptsMidi() const;
     bool producesMidi() const;
@@ -81,6 +83,7 @@ public:
 
     AudioPlayHead::CurrentPositionInfo lastPosInfo;
     long int frame = 0;
+    int moscPort;
     enum Parameters
     {
         ZirkOSC_Azim_Param          = 0,

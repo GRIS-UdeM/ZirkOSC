@@ -37,7 +37,11 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     elevationLabel(ZirkOSC_Elev_name[0]),
     gainLabel(ZirkOSC_Gain_name[0]),
     OSCPortTextEditor("OscPort"),
-    NbrSourceTextEditor("NbrSource")
+    NbrSourceTextEditor("NbrSource"),
+    OSCPortLabel("OscPort"),
+    NbrSourceLabel("NbrSources"),
+    channelNumberTextEditor("channelNbr"),
+    channelNumberLabel("channelNbr")
 
 {
     // This is where our plugin's editor size is set.
@@ -71,13 +75,30 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     addAndMakeVisible(&azimuthSpanSlider);
     addAndMakeVisible(&azimuthSpanLabel);
 
-    NbrSourceTextEditor.setBounds(ZirkOSC_Window_Width-70 , 50, 60, 25);
+    NbrSourceLabel.setText("Nbr Sources", false);
+    NbrSourceLabel.setBounds(ZirkOSC_Window_Width-80 , 30, 80, 25);
+    NbrSourceTextEditor.setBounds(ZirkOSC_Window_Width-75 , 50, 60, 25);
+    NbrSourceTextEditor.setText(String(getProcessor()->nbrSources));
+    addAndMakeVisible(&NbrSourceLabel);
     addAndMakeVisible(&NbrSourceTextEditor);
+   
 
-    OSCPortTextEditor.setBounds(ZirkOSC_Window_Width-70 , 85, 60, 25);
+    OSCPortLabel.setText("Port OSC", false);
+    OSCPortLabel.setBounds(ZirkOSC_Window_Width-80 , 80, 60, 25);
+    OSCPortTextEditor.setBounds(ZirkOSC_Window_Width-75 , 100, 60, 25);
+    OSCPortTextEditor.setText(String(getProcessor()->moscPort));
+    addAndMakeVisible(&OSCPortLabel);
     addAndMakeVisible(&OSCPortTextEditor);
-
-
+    
+    channelNumberLabel.setText("Channel nbr", false);
+    channelNumberLabel.setBounds(ZirkOSC_Window_Width-80 , 130, 60, 25);
+    channelNumberTextEditor.setBounds(ZirkOSC_Window_Width-75 , 150, 60, 25);
+    channelNumberTextEditor.setText(String(getProcessor()->tabSource[getProcessor()->selectedSource].getChannel()));
+    addAndMakeVisible(&channelNumberLabel);
+    addAndMakeVisible(&channelNumberTextEditor);
+    
+    channelNumberTextEditor.addListener(this);
+    OSCPortTextEditor.addListener(this);
     NbrSourceTextEditor.addListener(this);
     elevationSlider.addListener(this);
     azimuthSlider.addListener(this);
@@ -108,13 +129,15 @@ void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (Colours::lightgrey);
     paintWallCircle(g);
+    paintCrosshairs(g);
+    paintCoordLabels(g);
+    paintCenterDot(g);
     paintSpanArc(g);
     paintSourcePoint(g);
     paintAzimuthLine(g);
     paintZenithCircle(g);
-    paintCrosshairs(g);
-    paintCoordLabels(g);
-    paintCenterDot(g);
+
+    
 }
 
 
@@ -169,7 +192,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         HRElev = PercentToHR(getProcessor()->tabSource[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         screen = domeToScreen(Point<float> (HRAzim, HRElev));
         g.drawEllipse(ZirkOSC_Center_X + screen.getX()-4, ZirkOSC_Center_Y + screen.getY()-4, 8, 8,2);
-        g.drawText(String(i), ZirkOSC_Center_X + screen.getX()+6, ZirkOSC_Center_Y + screen.getY()-2, 10, 10, Justification::centred, false);
+        g.drawText(String(getProcessor()->tabSource[i].getChannel()), ZirkOSC_Center_X + screen.getX()+6, ZirkOSC_Center_Y + screen.getY()-2, 40, 10, Justification::left, false);
     }
    // screen = domeToScreen(mSourcePoint);
     //g.setColour(Colours::blue);
@@ -260,6 +283,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     HRValue = PercentToHR(ourProcessor->tabSource[selectedSource].getElevation_span(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     elevationSpanSlider.setValue(HRValue,dontSendNotification);
     
+    
     repaint();
 /*    if (mSourcePoint.getX() !=  PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max)){
 
@@ -340,6 +364,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         getProcessor()->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + source*7);
         mSourcePoint.setX(getProcessor()->tabSource[source].getAzimuth());
         mSourcePoint.setY(getProcessor()->tabSource[source].getElevation());
+        channelNumberTextEditor.setText(String(getProcessor()->tabSource[source].getChannel()));
         repaint();
     }
 }
@@ -382,9 +407,32 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &editor){
-
+    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
+    if(&OSCPortTextEditor == &editor )
+    {
+        int newPort = OSCPortTextEditor.getText().getIntValue();
+        ourProcessor->changeOSCPort(newPort);
+        OSCPortTextEditor.setText(String(ourProcessor->moscPort));
+    }
+    if(&NbrSourceTextEditor == &editor )
+    {
+        int newNbrSources = NbrSourceTextEditor.getText().getIntValue();
+        if(newNbrSources >0 && newNbrSources < 9){
+            ourProcessor->nbrSources = newNbrSources;
+        }
+        else{
+            NbrSourceTextEditor.setText(String(ourProcessor->nbrSources));
+        }
+    }
+    if(&channelNumberTextEditor == &editor ){
+        int newChannel = channelNumberTextEditor.getText().getIntValue();
+        ourProcessor->tabSource[ourProcessor->selectedSource].setChannel(newChannel);
+        ourProcessor->sendOSCValues();
+    }
+    
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
-
+    textEditorReturnKeyPressed(editor);
 }
