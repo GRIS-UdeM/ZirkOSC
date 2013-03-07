@@ -64,9 +64,13 @@ private:
     Label azimuthLabel;
     Label gainLabel;
     Label elevationLabel;
+    Label OSCPortLabel;
+    Label NbrSourceLabel;
+    Label channelNumberLabel;
 
     TextEditor OSCPortTextEditor;
     TextEditor NbrSourceTextEditor;
+    TextEditor channelNumberTextEditor;
 
     bool draggableSource;
 
