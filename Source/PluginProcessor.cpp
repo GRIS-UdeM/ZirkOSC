@@ -71,8 +71,8 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     for(int i = 0; i<8;i++){
         if      (ZirkOSC_Azim_Param + (i*7) == index)       return tabSource[i].getAzimuth();
         else if (ZirkOSC_AzimSpan_Param + (i*7) == index)   return tabSource[i].getAzimuth_span();
-        else if (ZirkOSC_Channel_Param + (i*7) == index)    return tabSource[i].getChannel();
-        //else if (ZirkOSC_Elev_Param + (i*7) == index)       return tabSource[i].getElevation();
+        //else if (ZirkOSC_Channel_Param + (i*7) == index)    return tabSource[i].getChannel();
+        else if (ZirkOSC_Elev_Param + (i*7) == index)       return tabSource[i].getElevation();
         else if (ZirkOSC_ElevSpan_Param + (i*7) == index)   return tabSource[i].getElevation_span();
         else if (ZirkOSC_Gain_Param + (i*7) == index)       return tabSource[i].getGain();
         else;

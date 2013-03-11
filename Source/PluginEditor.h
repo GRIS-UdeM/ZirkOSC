@@ -22,7 +22,9 @@ class ZirkOscjuceAudioProcessorEditor  : public AudioProcessorEditor,
                                          public SliderListener,
                                          public Timer,
                                          public MouseListener,
-                                         public TextEditorListener
+                                         public TextEditorListener,
+                                         public ComboBoxListener
+                                         
 {
 public:
     ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter);
@@ -40,9 +42,18 @@ public:
  	void mouseUp (const MouseEvent &event);
     void textEditorReturnKeyPressed (TextEditor &editor);
     void textEditorFocusLost (TextEditor &editor);
-
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
 
 private:
+    
+    enum ConstrainType
+    {
+        Independant = 1,
+        FixedRadius = 2,
+        FixedAngles = 3,
+        FullyFixed  = 4,
+        DeltaLocked = 5
+    };
     AudioPlayHead::CurrentPositionInfo lastDisplayedPosition;
     int getSourceFromPosition(Point<float> p );
     Point <float> mSourcePoint;
@@ -51,6 +62,7 @@ private:
 	uint32_t mOscPort;
 	uint32_t mActive;
 
+    int selectedConstrain;
 
     TextButton* button1;
     Slider gainSlider;
@@ -71,6 +83,8 @@ private:
     TextEditor OSCPortTextEditor;
     TextEditor NbrSourceTextEditor;
     TextEditor channelNumberTextEditor;
+    
+    ComboBox mouvementConstrain;
 
     bool draggableSource;
 
@@ -96,6 +110,7 @@ private:
     Point <float> screenToDome (Point <float>);
     inline float degreeToRadian (float);
     inline float radianToDegree (float);
+    void moveSourcesWithDelta(Point<float>);
 
 };
 
