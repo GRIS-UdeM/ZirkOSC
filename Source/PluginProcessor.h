@@ -1,12 +1,12 @@
 /*
-  ==============================================================================
+ ==============================================================================
 
-    This file was auto-generated!
+ This file was auto-generated!
 
-    It contains the basic startup code for a Juce application.
+ It contains the basic startup code for a Juce application.
 
-  ==============================================================================
-*/
+ ==============================================================================
+ */
 
 #ifndef __PLUGINPROCESSOR_H_F70DA35D__
 #define __PLUGINPROCESSOR_H_F70DA35D__
@@ -21,7 +21,7 @@
 
 //==============================================================================
 /**
-*/
+ */
 class ZirkOscjuceAudioProcessor  : public AudioProcessor
 {
 public:
@@ -63,7 +63,7 @@ public:
     const String getOutputChannelName (int channelIndex) const;
     bool isInputChannelStereoPair (int index) const;
     bool isOutputChannelStereoPair (int index) const;
-    
+
     void changeOSCPort(int newPort);
 
     bool acceptsMidi() const;

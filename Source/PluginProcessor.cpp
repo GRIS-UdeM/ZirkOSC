@@ -1,12 +1,12 @@
 /*
-  ==============================================================================
+ ==============================================================================
 
-    This file was auto-generated!
+ This file was auto-generated!
 
-    It contains the basic startup code for a Juce application.
+ It contains the basic startup code for a Juce application.
 
-  ==============================================================================
-*/
+ ==============================================================================
+ */
 
 //       lo_send(mOsc, "/pan/az", "i", ch);
 
@@ -34,14 +34,14 @@ currentSource()
     elevation_span  = ZirkOSC_ElevSpan_Def;
     mOsc            = lo_address_new("127.0.0.1", "10001");
 
-    
- //   listeSource.push_back(*new SoundSource(10.0,0.0));
-  //  currentSource = listeSource.begin();
+
+    //   listeSource.push_back(*new SoundSource(10.0,0.0));
+    //  currentSource = listeSource.begin();
     for(int i=0; i<8; i++)
         tabSource[i]=SoundSource(0.0,0.0);
-    
-   // lastPosInfo.resetToDefault();
-    
+
+    // lastPosInfo.resetToDefault();
+
 }
 
 ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
@@ -87,7 +87,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     for(int i = 0; i<8;i++){
         if      (ZirkOSC_Azim_Param + (i*7) == index)       {tabSource[i].setAzimuth(newValue); break;}
         else if (ZirkOSC_AzimSpan_Param + (i*7) == index)   {tabSource[i].setAzimuth_span(newValue); break;}
-       // else if (ZirkOSC_Channel_Param + (i*7) == index)    {tabSource[i].setChannel(newValue); break;}
+        // else if (ZirkOSC_Channel_Param + (i*7) == index)    {tabSource[i].setChannel(newValue); break;}
         else if (ZirkOSC_Elev_Param + (i*7) == index)       {tabSource[i].setElevation(newValue); break;}
         else if (ZirkOSC_ElevSpan_Param + (i*7) == index)   {tabSource[i].setElevation_span(newValue); break;}
         else if (ZirkOSC_Gain_Param + (i*7) == index)       {tabSource[i].setGain(newValue); break;}
@@ -108,8 +108,8 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
         else if (ZirkOSC_Gain_Param + (i*7) == index)       return ZirkOSC_Gain_name[i];
         else;
     }
-    
-    
+
+
     return String::empty;
 }
 
@@ -129,7 +129,7 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
 
 
 void ZirkOscjuceAudioProcessor::changeOSCPort(int newPort){
-    
+
     lo_address osc = mOsc;
     moscPort = newPort;
 	mOsc = NULL;
@@ -137,7 +137,7 @@ void ZirkOscjuceAudioProcessor::changeOSCPort(int newPort){
 	char port[32];
 	snprintf(port, sizeof(port), "%d", newPort);
 	mOsc = lo_address_new("127.0.0.1", port);
-    
+
 }
 const String ZirkOscjuceAudioProcessor::getParameterText (int index)
 {
@@ -166,20 +166,20 @@ bool ZirkOscjuceAudioProcessor::isOutputChannelStereoPair (int index) const
 
 bool ZirkOscjuceAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool ZirkOscjuceAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool ZirkOscjuceAudioProcessor::silenceInProducesSilenceOut() const
@@ -241,7 +241,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     {
         buffer.clear (i, 0, buffer.getNumSamples());
     }
-    
+
 }
 
 //==============================================================================
@@ -275,10 +275,10 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-    
+
     // This getXmlFromBinary() helper function retrieves our XML from the binary blob..
     ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
-    
+
     if (xmlState != nullptr)
     {
         // make sure that it's actually our type of XML object..

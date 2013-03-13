@@ -16,8 +16,6 @@ public:
     SoundSource();
     SoundSource(float,float);
     ~SoundSource();
-
-
     //getter setter;
     Point<float> getPositionXY();
     int     getChannel();
@@ -35,9 +33,9 @@ public:
     void    setElevation_span(float);
     float   getElevation();
     void    setElevation(float);
-
+    bool    azim_reverse =false;
     bool    contains(Point<float>);
-
+    
 private:
     Point<float> spherePosition; //x = azimuth; y = elevation
     int channel =0;
@@ -45,6 +43,7 @@ private:
     //Point <float> domeToScreen (Point <float> p);
     inline float degreeToRadian (float );
     inline float radianToDegree (float);
+    
 };
 
 

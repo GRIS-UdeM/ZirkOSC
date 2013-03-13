@@ -90,6 +90,11 @@ float   SoundSource::getAzimuth(){
 }
 
 void    SoundSource::setAzimuth(float azimuth){
+    if (azimuth>1 && !azim_reverse)
+        azimuth = azimuth - 1.0f;
+    else if (azimuth<0.0f){
+        azimuth += 1;
+    }
     this->azimuth=azimuth;
 }
 
@@ -106,6 +111,7 @@ float   SoundSource::getElevation_span(){
 }
 
 void    SoundSource::setElevation_span(float elevation_span){
+    
     this->elevation_span = elevation_span;
 }
 
@@ -114,6 +120,16 @@ float   SoundSource::getElevation(){
 }
 
 void    SoundSource::setElevation(float elevation){
+    if (elevation>1 && !azim_reverse){
+        elevation = (1-(elevation-1));
+        setAzimuth(azimuth - 0.5f);
+        azim_reverse=true;
+    }
+    else if (elevation>1 && azim_reverse){
+        elevation = (1-(elevation-1));
+        setAzimuth(azimuth - 0.5f);
+        azim_reverse=false;
+    }
     this->elevation = elevation;
 }
 
