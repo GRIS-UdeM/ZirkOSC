@@ -32,6 +32,7 @@ public:
     float   getElevation_span();
     void    setElevation_span(float);
     float   getElevation();
+    float   getElevationRawValue();
     void    setElevation(float);
     bool    azim_reverse =false;
     bool    contains(Point<float>);

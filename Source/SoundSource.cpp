@@ -116,6 +116,13 @@ void    SoundSource::setElevation_span(float elevation_span){
 }
 
 float   SoundSource::getElevation(){
+    if (elevation<0.0f){
+        return 0.0f;
+    }
+    else return elevation;
+}
+
+float   SoundSource::getElevationRawValue(){
     return elevation;
 }
 
