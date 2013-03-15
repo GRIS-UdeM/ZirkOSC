@@ -9,4 +9,8 @@ Current project made in the UdeM. Absolutly not finished, we'll make a readme wh
 
 5 march 2013:
 -------------
-Sources indenpendant and can be automatized. 
+Sources indenpendant and can be automatized.
+
+14 march 2013:
+--------------
+Movements implemented : Fixed radius, fixed angle, fully fixed, circular, delta lock.
