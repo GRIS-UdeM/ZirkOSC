@@ -565,11 +565,11 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
                                                  ourProcessor->tabSource[i].getAzimuth()+HRToPercent(deltaCircularMove.getX(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max));
         if(!ourProcessor->tabSource[i].azim_reverse){
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
-                                                     ourProcessor->tabSource[i].getElevation()+HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
+                                                     ourProcessor->tabSource[i].getElevationRawValue()+HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
         }
         else{
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
-                                                     ourProcessor->tabSource[i].getElevation()-HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
+                                                     ourProcessor->tabSource[i].getElevationRawValue()-HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
         }
     }
 }
@@ -589,7 +589,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
         // float HRElevation = PercentToHR(ourProcessor->tabSource[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Min);
         
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
-                                                 ourProcessor->tabSource[i].getElevation());
+                                                 ourProcessor->tabSource[i].getElevationRawValue());
         azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
         ourProcessor->sendOSCValues();
     }
