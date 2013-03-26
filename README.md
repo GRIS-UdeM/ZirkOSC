@@ -1,7 +1,7 @@
 ZirkOSCJUCE
 ===========
 
-ZirkOSC rebuild in JUCE FrameWork. 
+ZirkOSC rebuild in JUCE FrameWork.
 
 1 march 2013 :
 --------------
@@ -14,3 +14,13 @@ Sources indenpendant and can be automatized.
 14 march 2013:
 --------------
 Movements implemented : Fixed radius, fixed angle, fully fixed, circular, delta lock.
+
+
+26 march 2013:
+--------------
+First Version online available for testing :
+
+ - AudioUnit :
+			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.component.zip?raw=true
+ - VST :
+			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.vst.zip?raw=true
