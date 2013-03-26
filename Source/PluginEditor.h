@@ -65,7 +65,7 @@ private:
 
     int selectedConstrain;
 
-    TextButton* button1;
+    ToggleButton linkSpanButton;
     Slider gainSlider;
     Slider azimuthSlider;
     Slider azimuthSpanSlider;
@@ -88,6 +88,7 @@ private:
     ComboBox mouvementConstrain;
 
     bool draggableSource;
+    bool linkSpan = false;
 
     ZirkOscjuceAudioProcessor* getProcessor() const
     {
@@ -117,6 +118,7 @@ private:
     
     void moveCircularWithFixedRadius (Point<float>);
     void moveSourcesWithDelta(Point<float>);
+    void movePointsDeltaLock(Point <float> );
     int * getOrderSources(int, SoundSource[]);
     bool isFixedAngle=false;
 
