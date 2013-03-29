@@ -24,3 +24,8 @@ First Version online available for testing :
 			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.component.zip?raw=true
  - VST :
 			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.vst.zip?raw=true
+
+29 march :
+----------
+ - we can save the presets
+ - adding link span mode (elevation and azimth span)
