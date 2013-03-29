@@ -127,6 +127,7 @@ linkSpanButton("Link Span")
     gainSlider.addListener(this);
     elevationSpanSlider.addListener(this);
     azimuthSpanSlider.addListener(this);
+    this->setFocusContainer(true);
     startTimer (50);
 }
 
@@ -158,8 +159,6 @@ void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g)
     paintSourcePoint(g);
     paintAzimuthLine(g);
     paintZenithCircle(g);
-
-
 }
 
 
@@ -304,7 +303,11 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 
     HRValue = PercentToHR(ourProcessor->tabSource[selectedSource].getElevation_span(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     elevationSpanSlider.setValue(HRValue,dontSendNotification);
-
+    if (ourProcessor->refreshGui){
+        refreshGui();
+        ourProcessor->refreshGui=false;
+    }
+    
     repaint();
     /*    if (mSourcePoint.getX() !=  PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max)){
 
@@ -314,6 +317,14 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
      }*/
 }
 
+
+void ZirkOscjuceAudioProcessorEditor::refreshGui(){
+    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    int selectedSource = ourProcessor->selectedSource;
+    OSCPortTextEditor.setText(String(ourProcessor->moscPort));
+    NbrSourceTextEditor.setText(String(ourProcessor->nbrSources));
+    channelNumberTextEditor.setText(String(ourProcessor->tabSource[selectedSource].getChannel()));
+}
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button)
 {
     if(button == &linkSpanButton){
@@ -372,7 +383,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider)
                                                  percentValue);
             ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param +(selectedSource*7));
         }
-        
+
     }else if (slider == &azimuthSpanSlider) {
         percentValue = HRToPercent((float) azimuthSpanSlider.getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
         if(linkSpan){
@@ -422,6 +433,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         }
         repaint();
     }
+    azimuthSlider.grabKeyboardFocus();
 }
 
 int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
@@ -549,6 +561,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             repaint();
         }
     }
+    azimuthSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::movePointsDeltaLock(Point <float> pointRelativeCenter){
@@ -650,6 +663,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         isFixedAngle=false;
     }
     draggableSource=false;
+    azimuthSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &editor){
@@ -676,13 +690,15 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
         ourProcessor->tabSource[ourProcessor->selectedSource].setChannel(newChannel);
         ourProcessor->sendOSCValues();
     }
+    azimuthSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
-    textEditorReturnKeyPressed(editor);
+    //textEditorReturnKeyPressed(editor);
 }
 
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
     selectedConstrain = comboBoxThatHasChanged->getSelectedId();
+    azimuthSlider.grabKeyboardFocus();
 
 }

@@ -261,14 +261,33 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    XmlElement xml ("MYPLUGINSETTINGS");
+    XmlElement xml ("ZIRKOSCJUCESETTINGS");
     xml.setAttribute("PortOSC", moscPort);
-
+   
     xml.setAttribute("NombreSources", nbrSources);
-    for(int i =0;i<nbrSources;i++){
-        xml.setAttribute(String(i), tabSource[i].getChannel());
+    for(int i =0;i<8;i++){
+        String channel = "Channel";
+        String azimuth = "Azimuth";
+        String elevation = "Elevation";
+        String azimuthSpan = "AzimuthSpan";
+        String elevationSpan = "ElevationSpan";
+        String gain = "Gain";
+        channel.append(String(i), 10);
+        xml.setAttribute(channel, tabSource[i].getChannel());
+        azimuth.append(String(i), 10);
+        xml.setAttribute(azimuth, tabSource[i].getAzimuth());
+        elevation.append(String(i), 10);
+        xml.setAttribute(elevation, tabSource[i].getElevationRawValue());
+        azimuthSpan.append(String(i), 10);
+        xml.setAttribute(azimuthSpan, tabSource[i].getAzimuth_span());
+        elevationSpan.append(String(i), 10);
+        xml.setAttribute(elevationSpan, tabSource[i].getElevation_span());
+        gain.append(String(i), 10);
+        xml.setAttribute(gain, tabSource[i].getChannel());
+        
     }
     copyXmlToBinary (xml, destData);
+    
 }
 
 void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -282,17 +301,38 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
     if (xmlState != nullptr)
     {
         // make sure that it's actually our type of XML object..
-        if (xmlState->hasTagName ("MYPLUGINSETTINGS"))
+        if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
             // ok, now pull out our parameters..
             moscPort = xmlState->getIntAttribute("PortOSC", 20000);
+            if(moscPort<0 || moscPort>100000){
+                moscPort = 20000;
+            }
             nbrSources = xmlState->getIntAttribute("NombreSources", 1);
-
-            for (int i=0;i<nbrSources;i++){
-                tabSource[i].setChannel(xmlState->getIntAttribute(String(i) , 0));
+            
+            for (int i=0;i<8;i++){
+                String channel = "Channel";
+                String azimuth = "Azimuth";
+                String elevation = "Elevation";
+                String azimuthSpan = "AzimuthSpan";
+                String elevationSpan = "ElevationSpan";
+                String gain = "Gain";
+                channel.append(String(i), 10);
+                azimuth.append(String(i), 10);
+                elevation.append(String(i), 10);
+                azimuthSpan.append(String(i), 10);
+                elevationSpan.append(String(i), 10);
+                gain.append(String(i), 10);
+                tabSource[i].setChannel(xmlState->getIntAttribute(channel , 0));
+                tabSource[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
+                tabSource[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                tabSource[i].setAzimuth_span((float) xmlState->getDoubleAttribute(azimuthSpan,0));
+                tabSource[i].setElevation_span((float) xmlState->getDoubleAttribute(elevationSpan,0));
+                tabSource[i].setGain((float) xmlState->getDoubleAttribute(gain,1 ));
             }
             changeOSCPort(moscPort);
             sendOSCValues();
+            refreshGui=true;
         }
     }
 }

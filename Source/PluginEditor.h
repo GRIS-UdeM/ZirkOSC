@@ -42,6 +42,7 @@ public:
  	void mouseUp (const MouseEvent &event);
     void textEditorReturnKeyPressed (TextEditor &editor);
     void textEditorFocusLost (TextEditor &editor);
+    void refreshGui();
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
 
 private:
@@ -115,7 +116,7 @@ private:
     void moveCircular(Point<float> );
     inline float degreeToRadian (float);
     inline float radianToDegree (float);
-    
+
     void moveCircularWithFixedRadius (Point<float>);
     void moveSourcesWithDelta(Point<float>);
     void movePointsDeltaLock(Point <float> );
