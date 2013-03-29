@@ -1,7 +1,15 @@
 ZirkOSCJUCE
 ===========
 
-ZirkOSC rebuild in JUCE FrameWork.
+ZirkOSC rebuild with JUCE FrameWork.
+
+Download links :
+
+- AudioUnit :
+			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.component.zip?raw=true
+- VST :
+			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.vst.zip?raw=true
+
 
 1 march 2013 :
 --------------
@@ -20,12 +28,8 @@ Movements implemented : Fixed radius, fixed angle, fully fixed, circular, delta 
 --------------
 First Version online available for testing :
 
- - AudioUnit :
-			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.component.zip?raw=true
- - VST :
-			https://github.com/ludoviclaffineur/ZirkOSCJUCE/blob/master/bin/ZirkOSCJUCE.vst.zip?raw=true
 
-29 march :
-----------
+29 march 2013:
+--------------
  - we can save the presets
  - adding link span mode (elevation and azimth span)
