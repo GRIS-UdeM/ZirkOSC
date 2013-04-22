@@ -86,15 +86,15 @@ linkSpanButton("Link Span")
     addAndMakeVisible(&NbrSourceTextEditor);
 
 
-    OSCPortLabel.setText("Port OSC", false);
-    OSCPortLabel.setBounds(ZirkOSC_Window_Width-80 , 80, 60, 25);
+    OSCPortLabel.setText("ZKM Port OSC", false);
+    OSCPortLabel.setBounds(ZirkOSC_Window_Width-80 , 80, 80, 25);
     OSCPortTextEditor.setBounds(ZirkOSC_Window_Width-75 , 100, 60, 25);
     OSCPortTextEditor.setText(String(getProcessor()->moscPort));
     addAndMakeVisible(&OSCPortLabel);
     addAndMakeVisible(&OSCPortTextEditor);
 
     channelNumberLabel.setText("Channel nbr", false);
-    channelNumberLabel.setBounds(ZirkOSC_Window_Width-80 , 130, 60, 25);
+    channelNumberLabel.setBounds(ZirkOSC_Window_Width-80 , 130, 80, 25);
     channelNumberTextEditor.setBounds(ZirkOSC_Window_Width-75 , 150, 60, 25);
     channelNumberTextEditor.setText(String(getProcessor()->tabSource[getProcessor()->selectedSource].getChannel()));
     addAndMakeVisible(&channelNumberLabel);
@@ -264,6 +264,7 @@ void ZirkOscjuceAudioProcessorEditor::paintCoordLabels (Graphics& g){
     g.drawLine(ZirkOSC_Center_X , ZirkOSC_Center_Y - ZirkOSC_DomeRadius, ZirkOSC_Center_X , ZirkOSC_Center_Y + ZirkOSC_DomeRadius,0.5f);
 }
 
+
 /*Conversion function*/
 
 Point <float> ZirkOscjuceAudioProcessorEditor::domeToScreen (Point <float> p){
@@ -307,7 +308,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
         refreshGui();
         ourProcessor->refreshGui=false;
     }
-    
+    getProcessor()->sendOSCValues(); 
     repaint();
     /*    if (mSourcePoint.getX() !=  PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max)){
 
@@ -561,6 +562,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             repaint();
         }
     }
+    getProcessor()->sendOSCValues();
     azimuthSlider.grabKeyboardFocus();
 }
 
@@ -690,6 +692,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
         ourProcessor->tabSource[ourProcessor->selectedSource].setChannel(newChannel);
         ourProcessor->sendOSCValues();
     }
+    ourProcessor->sendOSCConfig();
     azimuthSlider.grabKeyboardFocus();
 }
 

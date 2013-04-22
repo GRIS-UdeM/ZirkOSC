@@ -29,8 +29,8 @@ public:
     ZirkOscjuceAudioProcessor();
     ~ZirkOscjuceAudioProcessor();
 
-
-
+    lo_server_thread st;
+    
     list<SoundSource> listeSource;
     list<SoundSource>::iterator currentSource;
 
@@ -41,11 +41,12 @@ public:
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock);
     void releaseResources();
-
+    //static     int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
     void processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
     //==============================================================================
     AudioProcessorEditor* createEditor();
+    AudioProcessorEditor* editor;
     bool hasEditor() const;
 
     //==============================================================================
@@ -66,7 +67,7 @@ public:
     bool isOutputChannelStereoPair (int index) const;
 
     void changeOSCPort(int newPort);
-
+    void sendOSCConfig();
     bool acceptsMidi() const;
     bool producesMidi() const;
     bool silenceInProducesSilenceOut() const;
@@ -84,10 +85,15 @@ public:
 
     AudioPlayHead::CurrentPositionInfo lastPosInfo;
     long int frame = 0;
-    int moscPort;
+    int moscPort; //OSC Port Zirkonium
+    
+    String mOscPortIpadOutgoing = "10111";
+    String mOscAddressIpad = "10.0.0.1";
+    String mOscPortIpadIncoming = "10112";
+    
     enum Parameters
     {
-        ZirkOSC_Azim_Param,
+        ZirkOSC_Azim_Param = 0,
         ZirkOSC_Elev_Param,
         ZirkOSC_Channel_Param,
         ZirkOSC_ElevDelta_Param,
@@ -151,9 +157,12 @@ public:
 
 
 private:
+
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
     lo_address mOsc;
+    lo_address mOscIpad;
     TextButton* button1;
     Slider* slider1;
     Label* label;

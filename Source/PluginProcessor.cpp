@@ -20,6 +20,9 @@
 
 using namespace std;
 //==============================================================================
+void error(int num, const char *m, const char *path);
+int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data);
+
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor():
 currentSource()
 {
@@ -33,22 +36,38 @@ currentSource()
     elevation_delta = ZirkOSC_ElevDelta_Def;
     elevation_span  = ZirkOSC_ElevSpan_Def;
     mOsc            = lo_address_new("127.0.0.1", "10001");
-
+    mOscIpad        = lo_address_new("10.0.1.3", "10114");
+    st              = lo_server_thread_new("10116", error);
+    lo_server_thread_add_method(st, "/pan/az", "ifffff", receivePositionUpdate, this);
 
     //   listeSource.push_back(*new SoundSource(10.0,0.0));
     //  currentSource = listeSource.begin();
     for(int i=0; i<8; i++)
         tabSource[i]=SoundSource(0.0,0.0);
-
+    
+    lo_server_thread_start(st);
     // lastPosInfo.resetToDefault();
 
 }
 
+void error(int num, const char *m, const char *path){
+    printf("liblo server error %d in path %s: %s\n", num, path, m);
+    fflush(stdout);
+}
+
 ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
 {
+    lo_server st2 = st;
+
+    lo_server_thread_stop(st2);
+    lo_server_thread_free(st2);
+    st = NULL;
     lo_address osc = mOsc;
+    lo_address osc2 = mOscIpad;
     mOsc = NULL;
+    mOscIpad = NULL;
     lo_address_free(osc);
+    lo_address_free(osc2);
 }
 
 //==============================================================================
@@ -93,7 +112,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         else if (ZirkOSC_Gain_Param + (i*7) == index)       {tabSource[i].setGain(newValue); break;}
         else;
     }
-    sendOSCValues();
+    //sendOSCValues();
 
 }
 
@@ -124,9 +143,18 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
         int channel_osc = tabSource[i].getChannel()-1;
         float gain_osc = tabSource[i].getGain();
         lo_send(mOsc, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+        azim_osc = azim_osc * M_PI;
+        elev_osc = elev_osc * M_PI;
+        azimspan_osc = azimspan_osc * M_PI;
+        elevspan_osc = elevspan_osc * M_PI;
+        lo_send(mOscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
     }
 }
 
+void ZirkOscjuceAudioProcessor::sendOSCConfig(){
+    lo_send(mOscIpad, "/maxsource", "iiiiiiiii", nbrSources, tabSource[0].getChannel(), tabSource[1].getChannel(), tabSource[2].getChannel(), tabSource[3].getChannel(), tabSource[4].getChannel(), tabSource[5].getChannel(), tabSource[6].getChannel(), tabSource[7].getChannel());
+    
+}
 
 void ZirkOscjuceAudioProcessor::changeOSCPort(int newPort){
 
@@ -227,6 +255,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 {
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
+    
+
     for (int channel = 0; channel < getNumInputChannels(); ++channel)
     {
         float* channelData = buffer.getSampleData (channel);
@@ -252,7 +282,8 @@ bool ZirkOscjuceAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* ZirkOscjuceAudioProcessor::createEditor()
 {
-    return new ZirkOscjuceAudioProcessorEditor (this);
+    editor = new ZirkOscjuceAudioProcessorEditor (this);
+    return editor;
 }
 
 //==============================================================================
@@ -289,6 +320,8 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     copyXmlToBinary (xml, destData);
     
 }
+
+
 
 void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
@@ -335,6 +368,61 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             refreshGui=true;
         }
     }
+}
+
+int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
+ 
+    
+    //channel send begin with 0; ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc); tout les angles en RADIAN
+    ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    int channel_osc = argv[0]->i;
+    int i =0;
+    for(i=0;i<processor->nbrSources;i++){
+        if (processor->tabSource[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->nbrSources){
+        return 0;
+    }
+    float azim_osc = argv[1]->f;
+    float elev_osc = argv[2]->f;
+ //   float azimspan_osc = argv[3]->f;
+   // float elevspan_osc = argv[4]->f;
+   // float gain_osc = argv[5]->f;
+
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
+        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7,
+                                                 HRToPercent(azim_osc, -M_PI, M_PI));
+        processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
+        
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
+        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
+                                              HRToPercent(elev_osc, 0.0, M_PI/2.0));
+        processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
+     /*
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param+ i*7);
+        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param + i*7,
+                                              HRToPercent(elevspan_osc, 0.0, M_PI/2.0));
+        processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param+ i*7);
+        
+        //processor->tabSource[channel_osc].setAzimuth(HRToPercent(azim_osc, -M_PI, M_PI));
+      //  processor->tabSource[channel_osc].setElevation(HRToPercent(elev_osc, 0.0, M_PI/2.0));
+        //processor->tabSource[channel_osc].setElevation_span(HRToPercent(elevspan_osc, 0.0, M_PI/2.0));
+        
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param+ i*7);
+        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + i*7,
+                                              HRToPercent(azimspan_osc, 0.0, 2*M_PI));
+        processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param+ i*7);
+      
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_Param+ i*7);
+        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Gain_Param + i*7,
+                                              gain_osc);
+        processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_Param+ i*7);*/
+    
+    //processor->editor->repaint();
+    processor->sendOSCValues();
+    return 0;
 }
 
 //==============================================================================
