@@ -22,13 +22,13 @@
 //==============================================================================
 /**
  */
-class ZirkOscjuceAudioProcessor  : public AudioProcessor
+class ZirkOscjuceAudioProcessor  : public AudioProcessor,public Timer
 {
 public:
     //==============================================================================
     ZirkOscjuceAudioProcessor();
     ~ZirkOscjuceAudioProcessor();
-
+    void timerCallback();
     lo_server_thread st;
     
     list<SoundSource> listeSource;
@@ -68,16 +68,19 @@ public:
 
     void changeOSCPort(int newPort);
     void sendOSCConfig();
+    void sendOSCMovementType(int movement);
     bool acceptsMidi() const;
     bool producesMidi() const;
     bool silenceInProducesSilenceOut() const;
-
+    Point<float> domeToScreen(Point<float>);
     //==============================================================================
     int getNumPrograms();
     int getCurrentProgram();
     void setCurrentProgram (int index);
     const String getProgramName (int index);
     void changeProgramName (int index, const String& newName);
+    void changeOSCSendIPad(int newPort, String newAddress);
+    void changeOSCPortReceive(int port);
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData);
@@ -87,9 +90,9 @@ public:
     long int frame = 0;
     int moscPort; //OSC Port Zirkonium
     
-    String mOscPortIpadOutgoing = "10111";
-    String mOscAddressIpad = "10.0.0.1";
-    String mOscPortIpadIncoming = "10112";
+    String mOscPortIpadOutgoing = "10112";
+    String mOscAddressIpad = "10.0.1.3";
+    String mOscPortIpadIncoming = "10114";
     
     enum Parameters
     {

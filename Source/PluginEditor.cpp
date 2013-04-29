@@ -44,7 +44,13 @@ NbrSourceLabel("NbrSources"),
 channelNumberTextEditor("channelNbr"),
 channelNumberLabel("channelNbr"),
 mouvementConstrain("MouvemntContrain"),
-linkSpanButton("Link Span")
+linkSpanButton("Link Span"),
+OSCPortIncomingIPadLabel("OSCIpadInco"),
+OSCPortIncomingIPadTextEditor("OSCIpadIncoTE"),
+OSCPortOutgoingIPadLabel("OSCPortOutgoingIPad"),
+OSCPortOutgoingIPadTextEditor("OSCPortOutgoingIPadTE"),
+OSCAdressIPadTextEditor("ipaddress"),
+OSCAdressIPadTextLabel("ipadadressLabel")
 
 {
     // This is where our plugin's editor size is set.
@@ -79,27 +85,48 @@ linkSpanButton("Link Span")
     addAndMakeVisible(&azimuthSpanLabel);
 
     NbrSourceLabel.setText("Nbr Sources", false);
-    NbrSourceLabel.setBounds(ZirkOSC_Window_Width-80 , 30, 80, 25);
-    NbrSourceTextEditor.setBounds(ZirkOSC_Window_Width-75 , 50, 60, 25);
+    NbrSourceLabel.setBounds(ZirkOSC_Window_Width-80 , 10, 80, 25);
+    NbrSourceTextEditor.setBounds(ZirkOSC_Window_Width-75 , 30, 60, 25);
     NbrSourceTextEditor.setText(String(getProcessor()->nbrSources));
     addAndMakeVisible(&NbrSourceLabel);
     addAndMakeVisible(&NbrSourceTextEditor);
 
 
     OSCPortLabel.setText("ZKM Port OSC", false);
-    OSCPortLabel.setBounds(ZirkOSC_Window_Width-80 , 80, 80, 25);
-    OSCPortTextEditor.setBounds(ZirkOSC_Window_Width-75 , 100, 60, 25);
+    OSCPortLabel.setBounds(ZirkOSC_Window_Width-80 , 60, 80, 25);
+    OSCPortTextEditor.setBounds(ZirkOSC_Window_Width-75 , 80, 60, 25);
     OSCPortTextEditor.setText(String(getProcessor()->moscPort));
     addAndMakeVisible(&OSCPortLabel);
     addAndMakeVisible(&OSCPortTextEditor);
 
     channelNumberLabel.setText("Channel nbr", false);
-    channelNumberLabel.setBounds(ZirkOSC_Window_Width-80 , 130, 80, 25);
-    channelNumberTextEditor.setBounds(ZirkOSC_Window_Width-75 , 150, 60, 25);
+    channelNumberLabel.setBounds(ZirkOSC_Window_Width-80 , 110, 80, 25);
+    channelNumberTextEditor.setBounds(ZirkOSC_Window_Width-75 , 130, 60, 25);
     channelNumberTextEditor.setText(String(getProcessor()->tabSource[getProcessor()->selectedSource].getChannel()));
     addAndMakeVisible(&channelNumberLabel);
     addAndMakeVisible(&channelNumberTextEditor);
 
+    OSCPortIncomingIPadLabel.setText("Inc. port", false);
+    OSCPortIncomingIPadLabel.setBounds(ZirkOSC_Window_Width-80 , 160, 80, 25);
+    OSCPortIncomingIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 180, 60, 25);
+    OSCPortIncomingIPadTextEditor.setText(String(getProcessor()->mOscPortIpadIncoming));
+    addAndMakeVisible(&OSCPortIncomingIPadLabel);
+    addAndMakeVisible(&OSCPortIncomingIPadTextEditor);
+    
+    OSCPortOutgoingIPadLabel.setText("Out. port", false);
+    OSCPortOutgoingIPadLabel.setBounds(ZirkOSC_Window_Width-80 , 210, 80, 25);
+    OSCPortOutgoingIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 230, 60, 25);
+    OSCPortOutgoingIPadTextEditor.setText(String(getProcessor()->mOscPortIpadOutgoing));
+    addAndMakeVisible(&OSCPortOutgoingIPadLabel);
+    addAndMakeVisible(&OSCPortOutgoingIPadTextEditor);
+    
+    OSCAdressIPadTextLabel.setText("IP add. iPad", false);
+    OSCAdressIPadTextLabel.setBounds(ZirkOSC_Window_Width-80 , 260, 80, 25);
+    OSCAdressIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 280, 60, 25);
+    OSCAdressIPadTextEditor.setText(String(getProcessor()->mOscAddressIpad));
+    addAndMakeVisible(&OSCAdressIPadTextLabel);
+    addAndMakeVisible(&OSCAdressIPadTextEditor);
+    
     mouvementConstrain.setSize(50, 20);
     mouvementConstrain.setBounds(80, 540, 220, 25);
 
@@ -127,6 +154,9 @@ linkSpanButton("Link Span")
     gainSlider.addListener(this);
     elevationSpanSlider.addListener(this);
     azimuthSpanSlider.addListener(this);
+    OSCPortOutgoingIPadTextEditor.addListener(this);
+    OSCPortIncomingIPadTextEditor.addListener(this);
+    OSCAdressIPadTextEditor.addListener(this);
     this->setFocusContainer(true);
     startTimer (50);
 }
@@ -308,7 +338,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
         refreshGui();
         ourProcessor->refreshGui=false;
     }
-    getProcessor()->sendOSCValues(); 
+    //getProcessor()->sendOSCValues();
     repaint();
     /*    if (mSourcePoint.getX() !=  PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max)){
 
@@ -325,6 +355,9 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     OSCPortTextEditor.setText(String(ourProcessor->moscPort));
     NbrSourceTextEditor.setText(String(ourProcessor->nbrSources));
     channelNumberTextEditor.setText(String(ourProcessor->tabSource[selectedSource].getChannel()));
+    OSCPortIncomingIPadTextEditor.setText(ourProcessor->mOscPortIpadIncoming);
+    OSCPortOutgoingIPadTextEditor.setText(ourProcessor->mOscPortIpadOutgoing);
+    OSCAdressIPadTextEditor.setText(ourProcessor->mOscAddressIpad);
 }
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button)
 {
@@ -534,23 +567,21 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             repaint();
         }
         else if (selectedConstrain == FixedAngles){
-            if (!isFixedAngle){
+            /*if (!isFixedAngle){
                 orderSourcesByAngle(selectedSource,ourProcessor->tabSource);
                 isFixedAngle=true;
             }
-            moveCircular(pointRelativeCenter);
+            moveCircular(pointRelativeCenter);*/
+             moveFixedAngles(pointRelativeCenter);
         }
         else if (selectedConstrain == FixedRadius){
             /*Moyen d'optimiser ici*/
             moveCircularWithFixedRadius(pointRelativeCenter);
-            repaint();
+            //repaint();
         }
         else if (selectedConstrain == FullyFixed){
-            if (!isFixedAngle){
-                orderSourcesByAngle(selectedSource,ourProcessor->tabSource);
-                isFixedAngle=true;
-            }
-            moveCircularWithFixedRadius(pointRelativeCenter);
+            moveFullyFixed(pointRelativeCenter);
+           /* */
         }
         else if (selectedConstrain == DeltaLocked){
             Point<float> DeltaMove = pointRelativeCenter - ourProcessor->tabSource[selectedSource].getPositionXY();
@@ -559,11 +590,28 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         }
         else if (selectedConstrain == Circular){
             moveCircular(pointRelativeCenter);
-            repaint();
+            //repaint();
         }
     }
     getProcessor()->sendOSCValues();
     azimuthSlider.grabKeyboardFocus();
+}
+
+void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
+    int selectedSource = getProcessor()->selectedSource;
+    if (!isFixedAngle){
+        orderSourcesByAngle(selectedSource,getProcessor()->tabSource);
+        isFixedAngle=true;
+    }
+    moveCircular(p);
+}
+
+void ZirkOscjuceAudioProcessorEditor::moveFullyFixed(Point<float> p){
+    if (!isFixedAngle){
+        orderSourcesByAngle(getProcessor()->selectedSource,getProcessor()->tabSource);
+        isFixedAngle=true;
+    }
+    moveCircularWithFixedRadius(p);
 }
 
 void ZirkOscjuceAudioProcessorEditor::movePointsDeltaLock(Point <float> pointRelativeCenter){
@@ -619,7 +667,7 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
     float HRNewAzimuth = PercentToHR(DomeNewPoint.getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
 
     Point<float> deltaCircularMove = Point<float>(HRNewAzimuth-HRAzimuth,HRNewElevation-HRElevation);
-    azimuthLabel.setText(String(deltaCircularMove.getY()),false);
+    //azimuthLabel.setText(String(deltaCircularMove.getY()),false);
     for (int i = 0; i<ourProcessor->nbrSources; i++) {
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7,
                                                  ourProcessor->tabSource[i].getAzimuth()+HRToPercent(deltaCircularMove.getX(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max));
@@ -652,19 +700,21 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
-    if(selectedConstrain == Independant){
-        int selectedSource = getProcessor()->selectedSource;
-        getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ selectedSource*7);
-        getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + selectedSource*7);
-    }
-    else if (selectedConstrain == DeltaLocked || selectedConstrain == Circular || selectedConstrain == FixedRadius || selectedConstrain == FixedAngles || selectedConstrain == FullyFixed){
-        for(int i = 0;i<getProcessor()->nbrSources; i++){
-            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7);
-            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7);
+    if(draggableSource){
+        if(selectedConstrain == Independant){
+            int selectedSource = getProcessor()->selectedSource;
+            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ selectedSource*7);
+            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + selectedSource*7);
         }
-        isFixedAngle=false;
+        else if (selectedConstrain == DeltaLocked || selectedConstrain == Circular || selectedConstrain == FixedRadius || selectedConstrain == FixedAngles || selectedConstrain == FullyFixed){
+            for(int i = 0;i<getProcessor()->nbrSources; i++){
+                getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7);
+                getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7);
+            }
+            isFixedAngle=false;
+        }
+        draggableSource=false;
     }
-    draggableSource=false;
     azimuthSlider.grabKeyboardFocus();
 }
 
@@ -692,7 +742,21 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
         ourProcessor->tabSource[ourProcessor->selectedSource].setChannel(newChannel);
         ourProcessor->sendOSCValues();
     }
+    if (&OSCPortOutgoingIPadTextEditor ==&editor) {
+        int newPort = OSCPortOutgoingIPadTextEditor.getText().getIntValue();
+        ourProcessor->changeOSCSendIPad(newPort, ourProcessor->mOscAddressIpad);
+    }
+    if (&OSCAdressIPadTextEditor ==&editor) {
+        String oscAddress = OSCAdressIPadTextEditor.getText();
+        ourProcessor->changeOSCSendIPad(ourProcessor->mOscPortIpadOutgoing.getIntValue(), oscAddress);
+    }
+    if (&OSCPortIncomingIPadTextEditor ==&editor) {
+        int newPort = OSCPortIncomingIPadTextEditor.getText().getIntValue();
+        ourProcessor->changeOSCPortReceive(newPort);
+    }
     ourProcessor->sendOSCConfig();
+    ourProcessor->sendOSCValues();
+    getProcessor()->sendOSCMovementType(selectedConstrain);
     azimuthSlider.grabKeyboardFocus();
 }
 
@@ -702,6 +766,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
 
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
     selectedConstrain = comboBoxThatHasChanged->getSelectedId();
+    getProcessor()->sendOSCMovementType(selectedConstrain);
     azimuthSlider.grabKeyboardFocus();
 
 }

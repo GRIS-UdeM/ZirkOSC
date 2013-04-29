@@ -44,9 +44,7 @@ public:
     void textEditorFocusLost (TextEditor &editor);
     void refreshGui();
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
-
-private:
-
+    int selectedConstrain=1;
     enum ConstrainType
     {
         Independant = 1,
@@ -56,6 +54,16 @@ private:
         DeltaLocked = 5,
         Circular    = 6
     };
+    void moveCircularWithFixedRadius (Point<float>);
+    void moveSourcesWithDelta(Point<float>);
+    void movePointsDeltaLock(Point <float> );
+    void moveCircular(Point<float> );
+    void moveFixedAngles(Point<float>);
+    void moveFullyFixed(Point<float>);
+    bool isFixedAngle=false;
+private:
+
+    
     AudioPlayHead::CurrentPositionInfo lastDisplayedPosition;
     int getSourceFromPosition(Point<float> p );
     Point <float> mSourcePoint;
@@ -64,7 +72,7 @@ private:
 	uint32_t mOscPort;
 	uint32_t mActive;
 
-    int selectedConstrain;
+
 
     ToggleButton linkSpanButton;
     Slider gainSlider;
@@ -79,12 +87,18 @@ private:
     Label gainLabel;
     Label elevationLabel;
     Label OSCPortLabel;
+    Label OSCPortOutgoingIPadLabel;
+    Label OSCPortIncomingIPadLabel;
     Label NbrSourceLabel;
     Label channelNumberLabel;
+    Label OSCAdressIPadTextLabel;
 
     TextEditor OSCPortTextEditor;
     TextEditor NbrSourceTextEditor;
     TextEditor channelNumberTextEditor;
+    TextEditor OSCPortOutgoingIPadTextEditor;
+    TextEditor OSCAdressIPadTextEditor;
+    TextEditor OSCPortIncomingIPadTextEditor;
 
     ComboBox mouvementConstrain;
 
@@ -113,15 +127,13 @@ private:
 
     Point <float> domeToScreen (Point <float>);
     Point <float> screenToDome (Point <float>);
-    void moveCircular(Point<float> );
+
     inline float degreeToRadian (float);
     inline float radianToDegree (float);
 
-    void moveCircularWithFixedRadius (Point<float>);
-    void moveSourcesWithDelta(Point<float>);
-    void movePointsDeltaLock(Point <float> );
+   
     int * getOrderSources(int, SoundSource[]);
-    bool isFixedAngle=false;
+
 
 };
 
