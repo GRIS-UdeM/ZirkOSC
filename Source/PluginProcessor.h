@@ -30,7 +30,8 @@ public:
     ~ZirkOscjuceAudioProcessor();
     void timerCallback();
     lo_server_thread st;
-    
+    int automatisation = 0;
+    bool beginGesture =false;
     list<SoundSource> listeSource;
     list<SoundSource>::iterator currentSource;
 

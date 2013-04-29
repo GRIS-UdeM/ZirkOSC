@@ -36,6 +36,7 @@ public:
     void    setElevation(float);
     bool    azim_reverse =false;
     bool    contains(Point<float>);
+    bool    beginGesture =false;
     
 private:
     Point<float> spherePosition; //x = azimuth; y = elevation

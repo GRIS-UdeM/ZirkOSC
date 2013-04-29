@@ -38,6 +38,8 @@ currentSource()
     elevation       = ZirkOSC_Elev_Def;
     elevation_delta = ZirkOSC_ElevDelta_Def;
     elevation_span  = ZirkOSC_ElevSpan_Def;
+    for(int i=0; i<8; i++)
+        tabSource[i]=SoundSource(0.0,0.0);
     mOsc            = lo_address_new("127.0.0.1", "10001");
     mOscIpad        = lo_address_new("10.0.1.3", "10114");
     st              = lo_server_thread_new("10116", error);
@@ -49,8 +51,7 @@ currentSource()
     }
     //   listeSource.push_back(*new SoundSource(10.0,0.0));
     //  currentSource = listeSource.begin();
-    for(int i=0; i<8; i++)
-        tabSource[i]=SoundSource(0.0,0.0);
+    
     
     
     startTimer (50);
@@ -65,6 +66,26 @@ void error(int num, const char *m, const char *path){
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
     sendOSCValues();
+    if (automatisation ==1){ //beginGesture
+        for (int j = 0; j<nbrSources ;j++){
+            //printf("Receive BEGIN");
+            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
+            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
+            tabSource[j].beginGesture=true;
+        }
+        beginGesture = true;
+
+    }
+    else if (automatisation ==2){//endGesture
+        for (int j = 0; j<nbrSources ;j++){
+            //printf("Receive BEGIN");
+            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
+            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
+            tabSource[j].beginGesture=false;
+        }
+        automatisation=0;
+        
+    }
 }
 
 
@@ -434,6 +455,9 @@ void ZirkOscjuceAudioProcessor::sendOSCMovementType(int movement){ //should be v
 
 int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data){
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    ZirkOscjuceAudioProcessorEditor* theEditorDC = (ZirkOscjuceAudioProcessorEditor* ) processor->editor;
+    AudioProcessorEditor *theEditor = processor->editor;
+    
     //printf("Receive BEGIN");
     int channel_osc = argv[0]->i;
     int i =0;
@@ -445,29 +469,38 @@ int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int ar
     if (i==processor->nbrSources){
         return 0;
     }
-    for (int j = 0; j<processor->nbrSources ;j++){
-        printf("Receive BEGIN");
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
-
+    
+    if (theEditorDC->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Independant){
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
     }
+    else{
+        for (int j = 0; j<processor->nbrSources ;j++){
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
+            
+        }
+    }
+    
     return 0;
 }
 int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data){
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
     ZirkOscjuceAudioProcessorEditor* theEditor = (ZirkOscjuceAudioProcessorEditor* ) processor->editor;
+    int i =0;
+    printf("Receive END");
+    int channel_osc = argv[0]->i;
+    for(i=0;i<processor->nbrSources;i++){
+        if (processor->tabSource[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->nbrSources){
+        return 0;
+    }
     if (theEditor->selectedConstrain != ZirkOscjuceAudioProcessorEditor::Independant){
-        printf("Receive END");
-        int channel_osc = argv[0]->i;
-        int i =0;
-        for(i=0;i<processor->nbrSources;i++){
-            if (processor->tabSource[i].getChannel() == channel_osc) {
-                break;
-            }
-        }
-        if (i==processor->nbrSources){
-            return 0;
-        }
+        
+        
         for (int j = 0; j<processor->nbrSources ;j++){
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
@@ -476,7 +509,13 @@ int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc
         
         theEditor->isFixedAngle = false;
     }
-   
+    else{
+        if (theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Independant){
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
+            printf("OUT");
+        }
+    }
     return 0;
 }
 
@@ -503,24 +542,24 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
     Point<float> pointRelativeCenter = Point<float>(processor->domeToScreen(Point<float>(azim_osc,elev_osc)));
     ZirkOscjuceAudioProcessorEditor* theEditor =(ZirkOscjuceAudioProcessorEditor*) (processor->editor);
     if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Independant){
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
+        //processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
         processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7,
                                               HRToPercent(azim_osc, -M_PI, M_PI));
-        processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
+        //processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
         
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
+        //processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
         processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
                                               HRToPercent(elev_osc, 0.0, M_PI/2.0));
-        processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
+        //processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
     }
     else{
         processor->selectedSource = i;
-        for (int j = 0; j<processor->nbrSources ;j++){
+        /*for (int j = 0; j<processor->nbrSources ;j++){
             //printf("Receive BEGIN");
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
             
-        }
+        }*/
         if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Circular){
             theEditor->moveCircular(pointRelativeCenter);
             
@@ -538,12 +577,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
         else if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::FullyFixed){
             theEditor->moveFullyFixed(pointRelativeCenter); 
         }
-        for (int j = 0; j<processor->nbrSources ;j++){
-            //printf("Receive BEGIN");
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
-            
-        }
+        
         
     }
     
