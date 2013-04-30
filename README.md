@@ -23,13 +23,17 @@ Sources indenpendant and can be automatized.
 --------------
 Movements implemented : Fixed radius, fixed angle, fully fixed, circular, delta lock.
 
-
 26 march 2013:
 --------------
 First Version online available for testing :
-
 
 29 march 2013:
 --------------
  - we can save the presets
  - adding link span mode (elevation and azimth span)
+
+30 April 2013:
+--------------
+ - OSC communication with an iPad -> Specification to control the plug in with OSC will come later
+ - the iPad application is submitted to the app store
+ - Delta lock still buggy
