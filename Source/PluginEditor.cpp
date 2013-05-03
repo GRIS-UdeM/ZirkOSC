@@ -137,8 +137,8 @@ OSCAdressIPadTextLabel("ipadadressLabel")
     mouvementConstrain.addItem("Fully fixed",   FullyFixed);
     mouvementConstrain.addItem("Delta Lock",    DeltaLocked);
 
-    mouvementConstrain.setSelectedId(Independant);
-    selectedConstrain = Independant;
+    mouvementConstrain.setSelectedId(getProcessor()->getSelectedConstrain());
+    //_selectedConstrain = Independant;
     mouvementConstrain.addListener(this);
     addAndMakeVisible(&mouvementConstrain);
     
@@ -453,7 +453,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
     if(draggableSource){
 
         getProcessor()->selectedSource = source;
-
+        int selectedConstrain = getProcessor()->getSelectedConstrain();
         channelNumberTextEditor.setText(String(getProcessor()->tabSource[source].getChannel()));
         if (selectedConstrain == Independant) {
             mSourcePoint.setX(getProcessor()->tabSource[source].getAzimuth());
@@ -554,6 +554,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
         int selectedSource = ourProcessor->selectedSource;
         Point<float> pointRelativeCenter = Point<float>(event.x-ZirkOSC_Center_X, event.y-ZirkOSC_Center_Y);
+        int selectedConstrain = ourProcessor->getSelectedConstrain();
         if (selectedConstrain == Independant) {
             ourProcessor->tabSource[selectedSource].setPositionXY(pointRelativeCenter);
             float HRAzimuth = PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
@@ -603,17 +604,17 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
 
 void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
     int selectedSource = getProcessor()->selectedSource;
-    if (!isFixedAngle){
+    if (!mFixedAngle){
         orderSourcesByAngle(selectedSource,getProcessor()->tabSource);
-        isFixedAngle=true;
+        mFixedAngle=true;
     }
     moveCircular(p);
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFullyFixed(Point<float> p){
-    if (!isFixedAngle){
+    if (!mFixedAngle){
         orderSourcesByAngle(getProcessor()->selectedSource,getProcessor()->tabSource);
-        isFixedAngle=true;
+        mFixedAngle=true;
     }
     moveCircularWithFixedRadius(p);
 }
@@ -705,6 +706,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
     if(draggableSource){
+        int selectedConstrain = getProcessor()->getSelectedConstrain();
         if(selectedConstrain == Independant){
             int selectedSource = getProcessor()->selectedSource;
             getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ selectedSource*7);
@@ -715,7 +717,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
                 getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7);
                 getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7);
             }
-            isFixedAngle=false;
+            mFixedAngle=false;
         }
         draggableSource=false;
     }
@@ -760,7 +762,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
     }
     ourProcessor->sendOSCConfig();
     ourProcessor->sendOSCValues();
-    getProcessor()->sendOSCMovementType(selectedConstrain);
+    getProcessor()->sendOSCMovementType();
     gainSlider.grabKeyboardFocus();
 }
 
@@ -769,8 +771,18 @@ void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
 }
 
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
-    selectedConstrain = comboBoxThatHasChanged->getSelectedId();
-    getProcessor()->sendOSCMovementType(selectedConstrain);
+    getProcessor()->setSelectedContrain(comboBoxThatHasChanged->getSelectedId());
+    getProcessor()->sendOSCMovementType();
     gainSlider.grabKeyboardFocus();
 
 }
+
+bool ZirkOscjuceAudioProcessorEditor::isFixedAngle(){
+    return mFixedAngle;
+}
+
+void ZirkOscjuceAudioProcessorEditor::setFixedAngle(bool fixedAngle){
+    mFixedAngle = fixedAngle;
+}
+
+

@@ -69,7 +69,7 @@ public:
 
     void changeOSCPort(int newPort);
     void sendOSCConfig();
-    void sendOSCMovementType(int movement);
+    void sendOSCMovementType();
     bool acceptsMidi() const;
     bool producesMidi() const;
     bool silenceInProducesSilenceOut() const;
@@ -158,9 +158,14 @@ public:
 
     float gain, azimuth, elevation, azimuth_delta, elevation_delta, azimuth_span, elevation_span;
     void sendOSCValues();
-
+    //! Getter constrain type
+    int getSelectedConstrain();
+    //! Setter constrain type
+    void setSelectedContrain(int constrain);
+    
 
 private:
+    int _selectedConstrain=1;
 
 
     //==============================================================================

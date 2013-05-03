@@ -27,50 +27,71 @@ public ComboBoxListener
 
 {
 public:
+    //! Constructor
     ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter);
+    //! Destructor
     ~ZirkOscjuceAudioProcessorEditor();
 
-    //==============================================================================
-    // This is just a standard Juce paint method...
+    //! This is just a standard Juce paint method...
     void paint (Graphics& g);
-
-    void buttonClicked (Button* button);
-    void sliderValueChanged (Slider* slider);
-    void timerCallback();
-    void mouseDown (const MouseEvent &event);
- 	void mouseDrag (const MouseEvent &event);
- 	void mouseUp (const MouseEvent &event);
-    void textEditorReturnKeyPressed (TextEditor &editor);
-    void textEditorFocusLost (TextEditor &editor);
+    
+        //! when you want to refresh the TextEditors.
     void refreshGui();
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
-    int selectedConstrain=1;
+    //! Enum of the movement contrains
     enum ConstrainType
     {
-        Independant = 1,
-        FixedRadius = 2,
-        FixedAngles = 3,
-        FullyFixed  = 4,
-        DeltaLocked = 5,
-        Circular    = 6
+        Independant = 1,    /*!< Independant mode */
+        FixedRadius = 2,    /*!< All sources' radius are fixed */
+        FixedAngles = 3,    /*!< Angle between sources are fixed */
+        FullyFixed  = 4,    /*!< FixedRadius and fixedAngles */
+        DeltaLocked = 5,    /*!< Delta lock mode */
+        Circular    = 6     /*!< Circular */
     };
+    
+    //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
+    //! Move sources with a delta x and delta y (delta lock)
     void moveSourcesWithDelta(Point<float>);
+    //! Move sources with a delta x and delta y (delta lock)
     void movePointsDeltaLock(Point <float> );
+    //! Move sources around the center
     void moveCircular(Point<float> );
+    //! Move sources with fixed angle between each source
     void moveFixedAngles(Point<float>);
+    //! Move sources with fixed angles and fixed radius
     void moveFullyFixed(Point<float>);
-    bool isFixedAngle=false;
+    //! Setter FixedAngle
+    void setFixedAngle(bool fixedAngle);
+    //! Getter FixedAngle
+    bool isFixedAngle();
+
 private:
+    
+    //! Called when a comboBox's value has changed
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
+    //! Called when a button is clicked
+    void buttonClicked (Button* button);
+    //! Called when a mouse is clicked
+    void mouseDown (const MouseEvent &event);
+    //! Called when there is a draggin event
+ 	void mouseDrag (const MouseEvent &event);
+    //! Called when the mouse is up
+ 	void mouseUp (const MouseEvent &event);
+    //! Called when a value of a slider has changed
+    void sliderValueChanged (Slider* slider);
+    //! Called every laps of time
+    void timerCallback();
+    //! Called when "enter" is pressed on a TextEditor
+    void textEditorReturnKeyPressed (TextEditor &editor);
+    //! Called when a TextEditor loses focus
+    void textEditorFocusLost (TextEditor &editor);
 
     
+    bool mFixedAngle=false;
     AudioPlayHead::CurrentPositionInfo lastDisplayedPosition;
     int getSourceFromPosition(Point<float> p );
     Point <float> mSourcePoint;
-	uint32_t mChannel;
-	uint32_t mChannelCount;
-	uint32_t mOscPort;
-	uint32_t mActive;
+
 
 
 
@@ -131,7 +152,7 @@ private:
     inline float degreeToRadian (float);
     inline float radianToDegree (float);
 
-   
+
     int * getOrderSources(int, SoundSource[]);
 
 
