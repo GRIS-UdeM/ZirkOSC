@@ -66,26 +66,6 @@ void error(int num, const char *m, const char *path){
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
     sendOSCValues();
-    if (automatisation ==1){ //beginGesture
-        for (int j = 0; j<nbrSources ;j++){
-            //printf("Receive BEGIN");
-            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
-            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
-            tabSource[j].beginGesture=true;
-        }
-        beginGesture = true;
-
-    }
-    else if (automatisation ==2){//endGesture
-        for (int j = 0; j<nbrSources ;j++){
-            //printf("Receive BEGIN");
-            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
-            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
-            tabSource[j].beginGesture=false;
-        }
-        automatisation=0;
-        
-    }
 }
 
 
