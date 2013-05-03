@@ -243,7 +243,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         HRElev = PercentToHR(getProcessor()->tabSource[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         screen = domeToScreen(Point<float> (HRAzim, HRElev));
         g.drawEllipse(ZirkOSC_Center_X + screen.getX()-4, ZirkOSC_Center_Y + screen.getY()-4, 8, 8,2);
-        g.drawText(String(getProcessor()->tabSource[i].getChannel()), ZirkOSC_Center_X + screen.getX()+6, ZirkOSC_Center_Y + screen.getY()-2, 40, 10, Justification::left, false);
+        g.drawText(String(getProcessor()->tabSource[i].getChannel()), ZirkOSC_Center_X + screen.getX()+6, ZirkOSC_Center_Y + screen.getY()-2, 40, 10, Justification::centred, false);
     }
     // screen = domeToScreen(mSourcePoint);
     //g.setColour(Colours::blue);
@@ -339,7 +339,10 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
         ourProcessor->refreshGui=false;
     }
     //getProcessor()->sendOSCValues();
-    repaint();
+    if(!draggableSource){
+          repaint();
+    }
+  
     /*    if (mSourcePoint.getX() !=  PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max)){
 
      mSourcePoint.x =(PercentToHR(ourProcessor->tabSource[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max));
@@ -435,7 +438,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider)
             ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + (selectedSource*7));
         }
     }else;
-    repaint();
+    //repaint();
 
 }
 
@@ -465,9 +468,9 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
                 getProcessor()->tabSource[i].azim_reverse=false;
             }
         }
-        repaint();
+        //repaint();
     }
-    azimuthSlider.grabKeyboardFocus();
+    gainSlider.grabKeyboardFocus();
 }
 
 int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
@@ -564,7 +567,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
                                                      ourProcessor->tabSource[selectedSource].getElevation());
             ourProcessor->sendOSCValues();
 
-            repaint();
+            //repaint();
         }
         else if (selectedConstrain == FixedAngles){
             /*if (!isFixedAngle){
@@ -592,9 +595,10 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             moveCircular(pointRelativeCenter);
             //repaint();
         }
+        repaint();
     }
     getProcessor()->sendOSCValues();
-    azimuthSlider.grabKeyboardFocus();
+    gainSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
@@ -693,10 +697,10 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
                                                  ourProcessor->tabSource[i].getAzimuth());
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
                                                  ourProcessor->tabSource[i].getElevationRawValue());
-        azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
+        //azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
         ourProcessor->sendOSCValues();
     }
-    repaint();
+    //repaint();
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
@@ -715,7 +719,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         }
         draggableSource=false;
     }
-    azimuthSlider.grabKeyboardFocus();
+    gainSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &editor){
@@ -757,7 +761,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
     ourProcessor->sendOSCConfig();
     ourProcessor->sendOSCValues();
     getProcessor()->sendOSCMovementType(selectedConstrain);
-    azimuthSlider.grabKeyboardFocus();
+    gainSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
@@ -767,6 +771,6 @@ void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
     selectedConstrain = comboBoxThatHasChanged->getSelectedId();
     getProcessor()->sendOSCMovementType(selectedConstrain);
-    azimuthSlider.grabKeyboardFocus();
+    gainSlider.grabKeyboardFocus();
 
 }
