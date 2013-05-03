@@ -73,6 +73,7 @@
 		F3A42555567CF8C242701B02 /* CAMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30A07B6D48F76134466888BC /* CAMutex.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		F7B755A0A93AEBD7614AE4D5 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 883DF696460D914404CCC4AA /* Carbon.framework */; };
 		FE3CE56F173412AC00E65A74 /* Osc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE3CE56D173412AC00E65A74 /* Osc.cpp */; };
+		FE3CE5721734229B00E65A74 /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE3CE5701734229B00E65A74 /* Tools.cpp */; };
 		FE69C81616E111AF0037A34C /* SoundSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE69C81416E111AF0037A34C /* SoundSource.cpp */; };
 		FE6FE7FF16D5611800DC06DF /* address.c in Sources */ = {isa = PBXBuildFile; fileRef = FE6FE7F216D5611800DC06DF /* address.c */; };
 		FE6FE80016D5611800DC06DF /* blob.c in Sources */ = {isa = PBXBuildFile; fileRef = FE6FE7F316D5611800DC06DF /* blob.c */; };
@@ -988,6 +989,8 @@
 		FE1A98942DF035F89F0D5431 /* juce_MultiDocumentPanel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_MultiDocumentPanel.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/layout/juce_MultiDocumentPanel.cpp; sourceTree = SOURCE_ROOT; };
 		FE3CE56D173412AC00E65A74 /* Osc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Osc.cpp; path = ../../Source/Osc.cpp; sourceTree = "<group>"; };
 		FE3CE56E173412AC00E65A74 /* Osc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Osc.h; path = ../../Source/Osc.h; sourceTree = "<group>"; };
+		FE3CE5701734229B00E65A74 /* Tools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Tools.cpp; path = ../../Source/Tools.cpp; sourceTree = "<group>"; };
+		FE3CE5711734229B00E65A74 /* Tools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = ../../Source/Tools.h; sourceTree = "<group>"; };
 		FE4C50AB16D7CED600DDB6BD /* ZirkConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ZirkConstants.h; path = ../../Source/ZirkConstants.h; sourceTree = "<group>"; };
 		FE69C81416E111AF0037A34C /* SoundSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoundSource.cpp; path = ../../Source/SoundSource.cpp; sourceTree = "<group>"; };
 		FE69C81516E111AF0037A34C /* SoundSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoundSource.h; path = ../../Source/SoundSource.h; sourceTree = "<group>"; };
@@ -2838,6 +2841,8 @@
 			children = (
 				FE3CE56D173412AC00E65A74 /* Osc.cpp */,
 				FE3CE56E173412AC00E65A74 /* Osc.h */,
+				FE3CE5701734229B00E65A74 /* Tools.cpp */,
+				FE3CE5711734229B00E65A74 /* Tools.h */,
 			);
 			name = Modules;
 			sourceTree = "<group>";
@@ -3047,6 +3052,7 @@
 				FE6FE80916D5611800DC06DF /* timetag.c in Sources */,
 				FE69C81616E111AF0037A34C /* SoundSource.cpp in Sources */,
 				FE3CE56F173412AC00E65A74 /* Osc.cpp in Sources */,
+				FE3CE5721734229B00E65A74 /* Tools.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
