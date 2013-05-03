@@ -427,16 +427,14 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
     }
 }
 
-void ZirkOscjuceAudioProcessor::sendOSCMovementType(int movement){ //should be void with no argument if movement is included in the processor!!!!!
-    lo_send(mOscIpad, "/movementmode", "i", movement);
+void ZirkOscjuceAudioProcessor::sendOSCMovementType(){ //should be void with no argument if movement is included in the processor!!!!!
+    lo_send(mOscIpad, "/movementmode", "i", _selectedConstrain);
     
 }
 
 
 int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data){
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
-    ZirkOscjuceAudioProcessorEditor* theEditorDC = (ZirkOscjuceAudioProcessorEditor* ) processor->editor;
-    AudioProcessorEditor *theEditor = processor->editor;
     
     //printf("Receive BEGIN");
     int channel_osc = argv[0]->i;
@@ -450,7 +448,7 @@ int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int ar
         return 0;
     }
     
-    if (theEditorDC->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Independant){
+    if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
         processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
         processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
     }
@@ -478,7 +476,7 @@ int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc
     if (i==processor->nbrSources){
         return 0;
     }
-    if (theEditor->selectedConstrain != ZirkOscjuceAudioProcessorEditor::Independant){
+    if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
         
         
         for (int j = 0; j<processor->nbrSources ;j++){
@@ -487,10 +485,10 @@ int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc
             
         }
         
-        theEditor->isFixedAngle = false;
+        theEditor->setFixedAngle(false);
     }
     else{
-        if (theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Independant){
+        if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
             printf("OUT");
@@ -521,7 +519,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
    // float gain_osc = argv[5]->f;
     Point<float> pointRelativeCenter = Point<float>(processor->domeToScreen(Point<float>(azim_osc,elev_osc)));
     ZirkOscjuceAudioProcessorEditor* theEditor =(ZirkOscjuceAudioProcessorEditor*) (processor->editor);
-    if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Independant){
+    if(processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
         //processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
         processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7,
                                               HRToPercent(azim_osc, -M_PI, M_PI));
@@ -540,21 +538,21 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
             
         }*/
-        if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::Circular){
+        if(processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Circular){
             theEditor->moveCircular(pointRelativeCenter);
             
         }
-        else if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::DeltaLocked){
+        else if(processor->getSelectedConstrain()  == ZirkOscjuceAudioProcessorEditor::DeltaLocked){
             Point<float> DeltaMove = pointRelativeCenter - processor->tabSource[processor->selectedSource].getPositionXY();
             theEditor->moveSourcesWithDelta(DeltaMove);
         }
-        else if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::FixedAngles){
+        else if(processor->getSelectedConstrain()  == ZirkOscjuceAudioProcessorEditor::FixedAngles){
             theEditor->moveFixedAngles(pointRelativeCenter);
         }
-        else if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::FixedRadius){
+        else if(processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::FixedRadius){
             theEditor->moveCircularWithFixedRadius(pointRelativeCenter);
         }
-        else if(theEditor->selectedConstrain == ZirkOscjuceAudioProcessorEditor::FullyFixed){
+        else if(processor->getSelectedConstrain()  == ZirkOscjuceAudioProcessorEditor::FullyFixed){
             theEditor->moveFullyFixed(pointRelativeCenter); 
         }
         
@@ -599,4 +597,14 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new ZirkOscjuceAudioProcessor();
 
+}
+
+int ZirkOscjuceAudioProcessor::getSelectedConstrain(){
+    return _selectedConstrain;
+}
+
+void ZirkOscjuceAudioProcessor::setSelectedContrain(int constrain){
+    if (constrain<7 && constrain>0){
+        _selectedConstrain = constrain;
+    }
 }

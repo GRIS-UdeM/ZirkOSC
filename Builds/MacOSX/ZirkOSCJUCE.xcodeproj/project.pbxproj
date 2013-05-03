@@ -988,7 +988,7 @@
 		FDCE6CE11565AA45F149EDD7 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		FE1A98942DF035F89F0D5431 /* juce_MultiDocumentPanel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_MultiDocumentPanel.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/layout/juce_MultiDocumentPanel.cpp; sourceTree = SOURCE_ROOT; };
 		FE3CE56D173412AC00E65A74 /* Osc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Osc.cpp; path = ../../Source/Osc.cpp; sourceTree = "<group>"; };
-		FE3CE56E173412AC00E65A74 /* Osc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Osc.h; path = ../../Source/Osc.h; sourceTree = "<group>"; };
+		FE3CE56E173412AC00E65A74 /* Osc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Osc.h; path = ../../Source/Osc.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		FE3CE5701734229B00E65A74 /* Tools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Tools.cpp; path = ../../Source/Tools.cpp; sourceTree = "<group>"; };
 		FE3CE5711734229B00E65A74 /* Tools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = ../../Source/Tools.h; sourceTree = "<group>"; };
 		FE4C50AB16D7CED600DDB6BD /* ZirkConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ZirkConstants.h; path = ../../Source/ZirkConstants.h; sourceTree = "<group>"; };
