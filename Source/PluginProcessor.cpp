@@ -30,25 +30,19 @@ ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 //currentSource()
 {
     printf("Processor Constructor");
-    nbrSources      = 1;
-    selectedSource  = 0;
-    gain            = ZirkOSC_Gain_Def;
-    azimuth         = ZirkOSC_Azim_Def;
-    azimuth_delta   = ZirkOSC_AzimDelta_Def;
-    azimuth_span    = ZirkOSC_AzimSpan_Def;
-    elevation       = ZirkOSC_Elev_Def;
-    elevation_delta = ZirkOSC_ElevDelta_Def;
-    elevation_span  = ZirkOSC_ElevSpan_Def;
+    _NbrSources      = 1;
+    _SelectedSource  = 0;
+
     for(int i=0; i<8; i++)
-        tabSource[i]=SoundSource(0.0+((float)i/10.0),0.0);
-    mOsc            = lo_address_new("127.0.0.1", "10001");
-    mOscIpad        = lo_address_new("10.0.1.3", "10114");
-    st              = lo_server_thread_new("10116", error);
-    if(st){
-        lo_server_thread_add_method(st, "/pan/az", "ifffff", receivePositionUpdate, this);
-        lo_server_thread_add_method(st, "/begintouch", "i", receiveBeginTouch, this);
-        lo_server_thread_add_method(st, "/endtouch", "i", receiveEndTouch, this);
-        lo_server_thread_start(st);
+        _TabSource[i]=SoundSource(0.0+((float)i/10.0),0.0);
+    _OscZirkonium   = lo_address_new("127.0.0.1", "10001");
+    _OscIpad        = lo_address_new("10.0.1.3", "10114");
+    _St             = lo_server_thread_new("10116", error);
+    if(_St){
+        lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
+        lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
+        lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
+        lo_server_thread_start(_St);
     }
     //   listeSource.push_back(*new SoundSource(10.0,0.0));
     //  currentSource = listeSource.begin();
@@ -72,22 +66,22 @@ void ZirkOscjuceAudioProcessor::timerCallback(){
 
 ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
 {
-    if (st){
-        lo_server st2 = st;
+    if (_St){
+        lo_server st2 = _St;
         lo_server_thread_stop(st2);
         lo_server_thread_free(st2);
-        st = NULL;
+        _St = NULL;
     }
-    lo_address osc = mOsc;
-    lo_address osc2 = mOscIpad;
+    lo_address osc = _OscZirkonium;
+    lo_address osc2 = _OscIpad;
     if (osc){
         lo_address_free(osc);
     }
     if (osc2){
         lo_address_free(osc2);
     }
-    mOsc = NULL;
-    mOscIpad = NULL;
+    _OscZirkonium = NULL;
+    _OscIpad = NULL;
    
     
     //stopTimer();
@@ -111,12 +105,12 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     // it's absolutely time-critical. Don't use critical sections or anything
     // UI-related, or anything at all that may block in any way!
     for(int i = 0; i<8;i++){
-        if      (ZirkOSC_Azim_Param + (i*7) == index)       return tabSource[i].getAzimuth();
-        else if (ZirkOSC_AzimSpan_Param + (i*7) == index)   return tabSource[i].getAzimuthSpan();
+        if      (ZirkOSC_Azim_Param + (i*7) == index)       return _TabSource[i].getAzimuth();
+        else if (ZirkOSC_AzimSpan_Param + (i*7) == index)   return _TabSource[i].getAzimuthSpan();
         //else if (ZirkOSC_Channel_Param + (i*7) == index)    return tabSource[i].getChannel();
-        else if (ZirkOSC_Elev_Param + (i*7) == index)       return tabSource[i].getElevation();
-        else if (ZirkOSC_ElevSpan_Param + (i*7) == index)   return tabSource[i].getElevationSpan();
-        else if (ZirkOSC_Gain_Param + (i*7) == index)       return tabSource[i].getGain();
+        else if (ZirkOSC_Elev_Param + (i*7) == index)       return _TabSource[i].getElevation();
+        else if (ZirkOSC_ElevSpan_Param + (i*7) == index)   return _TabSource[i].getElevationSpan();
+        else if (ZirkOSC_Gain_Param + (i*7) == index)       return _TabSource[i].getGain();
         else;
     }
 }
@@ -128,12 +122,12 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     // it's absolutely time-critical. Don't use critical sections or anything
     // UI-related, or anything at all that may block in any way!
     for(int i = 0; i<8;i++){
-        if      (ZirkOSC_Azim_Param + (i*7) == index)       {tabSource[i].setAzimuth(newValue); break;}
-        else if (ZirkOSC_AzimSpan_Param + (i*7) == index)   {tabSource[i].setAzimuthSpan(newValue); break;}
+        if      (ZirkOSC_Azim_Param + (i*7) == index)       {_TabSource[i].setAzimuth(newValue); break;}
+        else if (ZirkOSC_AzimSpan_Param + (i*7) == index)   {_TabSource[i].setAzimuthSpan(newValue); break;}
         // else if (ZirkOSC_Channel_Param + (i*7) == index)    {tabSource[i].setChannel(newValue); break;}
-        else if (ZirkOSC_Elev_Param + (i*7) == index)       {tabSource[i].setElevation(newValue); break;}
-        else if (ZirkOSC_ElevSpan_Param + (i*7) == index)   {tabSource[i].setElevationSpan(newValue); break;}
-        else if (ZirkOSC_Gain_Param + (i*7) == index)       {tabSource[i].setGain(newValue); break;}
+        else if (ZirkOSC_Elev_Param + (i*7) == index)       {_TabSource[i].setElevation(newValue); break;}
+        else if (ZirkOSC_ElevSpan_Param + (i*7) == index)   {_TabSource[i].setElevationSpan(newValue); break;}
+        else if (ZirkOSC_Gain_Param + (i*7) == index)       {_TabSource[i].setGain(newValue); break;}
         else;
     }
     //sendOSCValues();
@@ -159,43 +153,42 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 
 
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
-    for(int i=0;i<nbrSources;i++){
-        float azim_osc = PercentToHR(tabSource[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
-        float elev_osc = PercentToHR(tabSource[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
-        float azimspan_osc = PercentToHR(tabSource[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
-        float elevspan_osc = PercentToHR(tabSource[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
-        int channel_osc = tabSource[i].getChannel()-1;
-        float gain_osc = tabSource[i].getGain();
-        lo_send(mOsc, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+    for(int i=0;i<_NbrSources;i++){
+        float azim_osc = PercentToHR(_TabSource[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
+        float elev_osc = PercentToHR(_TabSource[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
+        float azimspan_osc = PercentToHR(_TabSource[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
+        float elevspan_osc = PercentToHR(_TabSource[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
+        int channel_osc = _TabSource[i].getChannel()-1;
+        float gain_osc = _TabSource[i].getGain();
+        lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
         azim_osc = azim_osc * M_PI;
         elev_osc = elev_osc * M_PI;
         azimspan_osc = azimspan_osc * M_PI;
         elevspan_osc = elevspan_osc * M_PI;
-        lo_send(mOscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+        lo_send(_OscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
     }
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCConfig(){
-    lo_send(mOscIpad, "/maxsource", "iiiiiiiii", nbrSources, tabSource[0].getChannel(), tabSource[1].getChannel(), tabSource[2].getChannel(), tabSource[3].getChannel(), tabSource[4].getChannel(), tabSource[5].getChannel(), tabSource[6].getChannel(), tabSource[7].getChannel());
+    lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _TabSource[0].getChannel(), _TabSource[1].getChannel(), _TabSource[2].getChannel(), _TabSource[3].getChannel(), _TabSource[4].getChannel(), _TabSource[5].getChannel(), _TabSource[6].getChannel(), _TabSource[7].getChannel());
     
 }
 
 void ZirkOscjuceAudioProcessor::changeOSCPort(int newPort){
-
-    lo_address osc = mOsc;
-    moscPort = newPort;
-	mOsc = NULL;
+    lo_address osc = _OscZirkonium;
+    _OscPortZirkonium = newPort;
+	_OscZirkonium = NULL;
     lo_address_free(osc);
 	char port[32];
 	snprintf(port, sizeof(port), "%d", newPort);
-	mOsc = lo_address_new("127.0.0.1", port);
+	_OscZirkonium = lo_address_new("127.0.0.1", port);
 
 }
 
 void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress){
-    lo_address osc = mOscIpad;
-    mOscPortIpadOutgoing = String(newPort);
-	mOscIpad = NULL;
+    lo_address osc = _OscIpad;
+    _OscPortIpadOutgoing = String(newPort);
+    _OscIpad = NULL;
     lo_address_free(osc);
 	char port[32];
 	snprintf(port, sizeof(port), "%d", newPort);
@@ -204,26 +197,26 @@ void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress
     reti = regcomp(&regex, "\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", 0);
     reti = regexec(&regex, newAddress.toUTF8(), 0, NULL, 0);
     //if( !reti ){
-         mOscAddressIpad = newAddress;
+         _OscAddressIpad = newAddress;
     //}
-	mOscIpad = lo_address_new(mOscAddressIpad.toUTF8(), port);
+	_OscIpad = lo_address_new(_OscAddressIpad.toUTF8(), port);
 }
 
 void ZirkOscjuceAudioProcessor::changeOSCPortReceive(int newPort){
-    if(st){
-        lo_server st2 = st;
+    if(_St){
+        lo_server st2 = _St;
         lo_server_thread_stop(st2);
         lo_server_thread_free(st2);
     }
-    mOscPortIpadIncoming = String(newPort);
+    _OscPortIpadIncoming = String(newPort);
     char port[32];
 	snprintf(port, sizeof(port), "%d", newPort);
-    st = lo_server_thread_new(port, error);
-    if (st){
-        lo_server_thread_add_method(st, "/pan/az", "ifffff", receivePositionUpdate, this);
-        lo_server_thread_add_method(st, "/begintouch", "i", receiveBeginTouch, this);
-        lo_server_thread_add_method(st, "/endtouch", "i", receiveEndTouch, this);
-        lo_server_thread_start(st);
+    _St = lo_server_thread_new(port, error);
+    if (_St){
+        lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
+        lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
+        lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
+        lo_server_thread_start(_St);
     }
     
 }
@@ -342,8 +335,8 @@ bool ZirkOscjuceAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* ZirkOscjuceAudioProcessor::createEditor()
 {
-    editor = new ZirkOscjuceAudioProcessorEditor (this);
-    return editor;
+    _Editor = new ZirkOscjuceAudioProcessorEditor (this);
+    return _Editor;
 }
 
 //==============================================================================
@@ -353,11 +346,11 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
-    xml.setAttribute("PortOSC", moscPort);
-    xml.setAttribute("IncPort", mOscPortIpadIncoming);
-    xml.setAttribute("OutPort", mOscPortIpadOutgoing);
-    xml.setAttribute("AddIpad", mOscAddressIpad);
-    xml.setAttribute("NombreSources", nbrSources);
+    xml.setAttribute("PortOSC", _OscPortZirkonium);
+    xml.setAttribute("IncPort", _OscPortIpadIncoming);
+    xml.setAttribute("OutPort", _OscPortIpadOutgoing);
+    xml.setAttribute("AddIpad", _OscAddressIpad);
+    xml.setAttribute("NombreSources", _NbrSources);
     for(int i =0;i<8;i++){
         String channel = "Channel";
         String azimuth = "Azimuth";
@@ -366,17 +359,17 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         String elevationSpan = "ElevationSpan";
         String gain = "Gain";
         channel.append(String(i), 10);
-        xml.setAttribute(channel, tabSource[i].getChannel());
+        xml.setAttribute(channel, _TabSource[i].getChannel());
         azimuth.append(String(i), 10);
-        xml.setAttribute(azimuth, tabSource[i].getAzimuth());
+        xml.setAttribute(azimuth, _TabSource[i].getAzimuth());
         elevation.append(String(i), 10);
-        xml.setAttribute(elevation, tabSource[i].getElevationRawValue());
+        xml.setAttribute(elevation, _TabSource[i].getElevationRawValue());
         azimuthSpan.append(String(i), 10);
-        xml.setAttribute(azimuthSpan, tabSource[i].getAzimuthSpan());
+        xml.setAttribute(azimuthSpan, _TabSource[i].getAzimuthSpan());
         elevationSpan.append(String(i), 10);
-        xml.setAttribute(elevationSpan, tabSource[i].getElevationSpan());
+        xml.setAttribute(elevationSpan, _TabSource[i].getElevationSpan());
         gain.append(String(i), 10);
-        xml.setAttribute(gain, tabSource[i].getChannel());
+        xml.setAttribute(gain, _TabSource[i].getChannel());
         
     }
     copyXmlToBinary (xml, destData);
@@ -399,14 +392,14 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
             // ok, now pull out our parameters..
-            moscPort = xmlState->getIntAttribute("PortOSC", 20000);
-            if(moscPort<0 || moscPort>100000){
-                moscPort = 20000;
+            _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 20000);
+            if(_OscPortZirkonium<0 || _OscPortZirkonium>100000){
+                _OscPortZirkonium = 20000;
             }
-            mOscPortIpadIncoming = xmlState->getStringAttribute("IncPort", "10002");
-            mOscPortIpadOutgoing = xmlState->getStringAttribute("OutPort", "10004");
-            mOscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
-            nbrSources = xmlState->getIntAttribute("NombreSources", 1);
+            _OscPortIpadIncoming = xmlState->getStringAttribute("IncPort", "10002");
+            _OscPortIpadOutgoing = xmlState->getStringAttribute("OutPort", "10004");
+            _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
+            _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
             ;            for (int i=0;i<8;i++){
                 String channel = "Channel";
                 String azimuth = "Azimuth";
@@ -420,41 +413,41 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 azimuthSpan.append(String(i), 10);
                 elevationSpan.append(String(i), 10);
                 gain.append(String(i), 10);
-                tabSource[i].setChannel(xmlState->getIntAttribute(channel , 0));
-                tabSource[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
-                tabSource[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
-                tabSource[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
-                tabSource[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
-                tabSource[i].setGain((float) xmlState->getDoubleAttribute(gain,1 ));
+                _TabSource[i].setChannel(xmlState->getIntAttribute(channel , 0));
+                _TabSource[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
+                _TabSource[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                _TabSource[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
+                _TabSource[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
+                _TabSource[i].setGain((float) xmlState->getDoubleAttribute(gain,1 ));
             }
             
-            changeOSCPort(moscPort);
-            changeOSCPortReceive(mOscPortIpadIncoming.getIntValue());
-            changeOSCSendIPad(mOscPortIpadOutgoing.getIntValue(), mOscAddressIpad);
+            changeOSCPort(_OscPortZirkonium);
+            changeOSCPortReceive(_OscPortIpadIncoming.getIntValue());
+            changeOSCSendIPad(_OscPortIpadOutgoing.getIntValue(), _OscAddressIpad);
             sendOSCValues();
-            refreshGui=true;
+            _RefreshGui=true;
         }
     }
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCMovementType(){ //should be void with no argument if movement is included in the processor!!!!!
-    lo_send(mOscIpad, "/movementmode", "i", _selectedConstrain);
+    lo_send(_OscIpad, "/movementmode", "i", _SelectedConstrain);
     
 }
 
 
 int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data){
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
-    ZirkOscjuceAudioProcessorEditor* editor = (ZirkOscjuceAudioProcessorEditor*) processor->editor;
+    ZirkOscjuceAudioProcessorEditor* editor = (ZirkOscjuceAudioProcessorEditor*) processor->getEditor();
     //printf("Receive BEGIN");
     int channel_osc = argv[0]->i;
     int i =0;
-    for(i=0;i<processor->nbrSources;i++){
-        if (processor->tabSource[i].getChannel() == channel_osc) {
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
     }
-    if (i==processor->nbrSources){
+    if (i==processor->getNbrSources()){
         return 0;
     }
     
@@ -463,7 +456,7 @@ int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int ar
         processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
     }
     else{
-        for (int j = 0; j<processor->nbrSources ;j++){
+        for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
             
@@ -475,22 +468,22 @@ int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int ar
 }
 int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data){
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
-    ZirkOscjuceAudioProcessorEditor* theEditor = (ZirkOscjuceAudioProcessorEditor* ) processor->editor;
+    ZirkOscjuceAudioProcessorEditor* theEditor = (ZirkOscjuceAudioProcessorEditor* ) processor->getEditor();
     int i =0;
     printf("Receive END");
     int channel_osc = argv[0]->i;
-    for(i=0;i<processor->nbrSources;i++){
-        if (processor->tabSource[i].getChannel() == channel_osc) {
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
     }
-    if (i==processor->nbrSources){
+    if (i==processor->getNbrSources()){
         return 0;
     }
     if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
         
         
-        for (int j = 0; j<processor->nbrSources ;j++){
+        for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ j*7);
             
@@ -516,12 +509,12 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
     int channel_osc = argv[0]->i;
     int i =0;
-    for(i=0;i<processor->nbrSources;i++){
-        if (processor->tabSource[i].getChannel() == channel_osc) {
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
     }
-    if (i==processor->nbrSources){
+    if (i==processor->getNbrSources()){
         return 0;
     }
     float azim_osc = argv[1]->f;
@@ -530,7 +523,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
    // float elevspan_osc = argv[4]->f;
    // float gain_osc = argv[5]->f;
     Point<float> pointRelativeCenter = Point<float>(processor->domeToScreen(Point<float>(azim_osc,elev_osc)));
-    ZirkOscjuceAudioProcessorEditor* theEditor =(ZirkOscjuceAudioProcessorEditor*) (processor->editor);
+    ZirkOscjuceAudioProcessorEditor* theEditor =(ZirkOscjuceAudioProcessorEditor*) (processor->getEditor());
     if(processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
         //processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ i*7);
         processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7,
@@ -543,7 +536,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
         //processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param+ i*7);
     }
     else{
-        processor->selectedSource = i;
+        processor->setSelectedSource(i);
         /*for (int j = 0; j<processor->nbrSources ;j++){
             //printf("Receive BEGIN");
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param+ j*7);
@@ -555,7 +548,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
             
         }
         else if(processor->getSelectedConstrain()  == ZirkOscjuceAudioProcessorEditor::DeltaLocked){
-            Point<float> DeltaMove = pointRelativeCenter - processor->tabSource[processor->selectedSource].getPositionXY();
+            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getPositionXY();
             theEditor->moveSourcesWithDelta(DeltaMove);
         }
         else if(processor->getSelectedConstrain()  == ZirkOscjuceAudioProcessorEditor::FixedAngles){
@@ -613,11 +606,11 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 }
 
 int ZirkOscjuceAudioProcessor::getSelectedConstrain(){
-    return _selectedConstrain;
+    return _SelectedConstrain;
 }
 
 void ZirkOscjuceAudioProcessor::setSelectedContrain(int constrain){
     if (constrain<7 && constrain>0){
-        _selectedConstrain = constrain;
+        _SelectedConstrain = constrain;
     }
 }
