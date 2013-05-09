@@ -14,10 +14,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "ZirkConstants.h"
-#include "lo.h"
-#include <list.h>
-
-#include "SoundSource.h";
+#include "lo.h"     
+#include "SoundSource.h"
 
 //==============================================================================
 /**
@@ -26,19 +24,16 @@ class ZirkOscjuceAudioProcessor  : public AudioProcessor,public Timer
 {
 public:
     //==============================================================================
+    //! Constructeur
     ZirkOscjuceAudioProcessor();
+    //! Destructeur
     ~ZirkOscjuceAudioProcessor();
+    
+    //! Called every 50ms;
     void timerCallback();
-    lo_server_thread st;
-    int automatisation = 0;
-    bool beginGesture =false;
-    list<SoundSource> listeSource;
-    list<SoundSource>::iterator currentSource;
-
-    bool refreshGui = false;
-    SoundSource tabSource [8];
-    int selectedSource;
-    int nbrSources;
+    
+    
+    //bool beginGesture =false;
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock);
     void releaseResources();
@@ -47,7 +42,7 @@ public:
 
     //==============================================================================
     AudioProcessorEditor* createEditor();
-    AudioProcessorEditor* editor;
+    
     bool hasEditor() const;
 
     //==============================================================================
@@ -67,9 +62,7 @@ public:
     bool isInputChannelStereoPair (int index) const;
     bool isOutputChannelStereoPair (int index) const;
 
-    void changeOSCPort(int newPort);
-    void sendOSCConfig();
-    void sendOSCMovementType();
+
     bool acceptsMidi() const;
     bool producesMidi() const;
     bool silenceInProducesSilenceOut() const;
@@ -80,20 +73,16 @@ public:
     void setCurrentProgram (int index);
     const String getProgramName (int index);
     void changeProgramName (int index, const String& newName);
-    void changeOSCSendIPad(int newPort, String newAddress);
-    void changeOSCPortReceive(int port);
+
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData);
     void setStateInformation (const void* data, int sizeInBytes);
 
     AudioPlayHead::CurrentPositionInfo lastPosInfo;
-    long int frame = 0;
-    int moscPort; //OSC Port Zirkonium
+     //OSC Port Zirkonium
     
-    String mOscPortIpadOutgoing = "10112";
-    String mOscAddressIpad = "10.0.1.3";
-    String mOscPortIpadIncoming = "10114";
+    
     
     enum Parameters
     {
@@ -155,26 +144,44 @@ public:
         ZirkOSC_Gain_Param_7,
         totalNumParams
     };
-
-    float gain, azimuth, elevation, azimuth_delta, elevation_delta, azimuth_span, elevation_span;
     void sendOSCValues();
     //! Getter constrain type
     int getSelectedConstrain();
     //! Setter constrain type
     void setSelectedContrain(int constrain);
+    void changeOSCPort(int newPort);
+    void sendOSCConfig();
+    void sendOSCMovementType();
     
+    void changeOSCSendIPad(int newPort, String newAddress);
+    void changeOSCPortReceive(int port);
 
 private:
-    int _selectedConstrain=1;
-
+    
+    
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
-    lo_address mOsc;
-    lo_address mOscIpad;
-    TextButton* button1;
+    bool _RefreshGui = false;
+    
+    int _NbrSources;
+    int _SelectedConstrain=1;
+    int _SelectedSource;
+    
+    int _OscPortZirkonium;
+    
+    AudioProcessorEditor* _Editor;
+    
+    SoundSource _TabSource [8];
+    lo_server_thread _St;
+    lo_address _OscZirkonium;
+    lo_address _OscIpad;
+    String _OscPortIpadOutgoing = "10112";
+    String _OscAddressIpad = "10.0.1.3";
+    String _OscPortIpadIncoming = "10114";
+   /* TextButton* button1;
     Slider* slider1;
-    Label* label;
+    Label* label;*/
 
 };
 

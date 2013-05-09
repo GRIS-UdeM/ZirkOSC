@@ -17,8 +17,8 @@ SoundSource::SoundSource(){
 
 SoundSource::SoundSource(float azimuth, float elevation){
     SoundSource();
-    this->azimuth = azimuth;
-    this->elevation = elevation;
+    this->_Azimuth = azimuth;
+    this->_Elevation = elevation;
 }
 
 SoundSource::~SoundSource(){
@@ -50,100 +50,107 @@ bool    SoundSource::contains(Point <float> p){
 
 //getter setter;
 float   SoundSource::getX(){
-    float HRAzimuth = PercentToHR(azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
-    float HRElevation = PercentToHR(elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    float HRAzimuth = PercentToHR(_Azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
+    float HRElevation = PercentToHR(_Elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     return (-ZirkOSC_DomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
 
 void    SoundSource::setPositionXY(Point <float> p){
     float dist= sqrt(p.getX()* p.getX() + p.getY()*p.getY());
     if (fabs(dist)> ZirkOSC_DomeRadius){
-        elevation = 0.0f;
+        _Elevation = 0.0f;
     }
     else{
-        elevation = HRToPercent(radianToDegree(acos(dist/ZirkOSC_DomeRadius)), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max) ;
+        _Elevation = HRToPercent(radianToDegree(acos(dist/ZirkOSC_DomeRadius)), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max) ;
     }
     float HRAzimuth = - radianToDegree(M_PI/2 + atan2(p.getY(),p.getX()));
     if(HRAzimuth< -180){
         HRAzimuth= 360 +HRAzimuth;
     }
-    azimuth = HRToPercent(HRAzimuth, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    _Azimuth = HRToPercent(HRAzimuth, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
 
 }
 
 float   SoundSource::getY(){
-    float HRAzimuth = PercentToHR(azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
-    float HRElevation = PercentToHR(elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    float HRAzimuth = PercentToHR(_Azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
+    float HRElevation = PercentToHR(_Elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     return (-ZirkOSC_DomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
 
 float   SoundSource::getGain(){
-    return gain;
+    return _Gain;
 }
 
 void    SoundSource::setGain(float gain){
-    this->gain=gain;
+    _Gain=gain;
 }
 
 float   SoundSource::getAzimuth(){
-    return azimuth;
+    return _Azimuth;
 }
 
 void    SoundSource::setAzimuth(float azimuth){
-    if (azimuth>1 && !azim_reverse)
+    if (azimuth>1 && !_AzimReverse)
         azimuth = azimuth - 1.0f;
     else if (azimuth<0.0f){
         azimuth += 1;
     }
-    this->azimuth=azimuth;
+    this->_Azimuth=azimuth;
 }
 
-float   SoundSource::getAzimuth_span(){
-    return azimuth_span;
+float   SoundSource::getAzimuthSpan(){
+    return _AzimuthSpan;
 }
 
-void    SoundSource::setAzimuth_span(float azimuth_span){
-    this->azimuth_span=azimuth_span;
+void    SoundSource::setAzimuthSpan(float azimuth_span){
+    this->_AzimuthSpan=azimuth_span;
 }
 
-float   SoundSource::getElevation_span(){
-    return elevation_span;
+float   SoundSource::getElevationSpan(){
+    return _ElevationSpan;
 }
 
-void    SoundSource::setElevation_span(float elevation_span){
+void    SoundSource::setElevationSpan(float elevation_span){
     
-    this->elevation_span = elevation_span;
+    this->_ElevationSpan = elevation_span;
 }
 
 float   SoundSource::getElevation(){
-    if (elevation<0.0f){
+    if (_Elevation<0.0f){
         return 0.0f;
     }
-    else return elevation;
+    else return _Elevation;
 }
 
 float   SoundSource::getElevationRawValue(){
-    return elevation;
+    return _Elevation;
 }
 
 void    SoundSource::setElevation(float elevation){
-    if (elevation>1 && !azim_reverse){
+    if (elevation>1 && !_AzimReverse){
         elevation = (1-(elevation-1));
-        setAzimuth(azimuth - 0.5f);
-        azim_reverse=true;
+        setAzimuth(_Azimuth - 0.5f);
+        _AzimReverse=true;
     }
-    else if (elevation>1 && azim_reverse){
+    else if (elevation>1 && _AzimReverse){
         elevation = (1-(elevation-1));
-        setAzimuth(azimuth - 0.5f);
-        azim_reverse=false;
+        setAzimuth(_Azimuth - 0.5f);
+        _AzimReverse=false;
     }
-    this->elevation = elevation;
+    this->_Elevation = elevation;
 }
 
 int   SoundSource::getChannel(){
-    return channel;
+    return _Channel;
 }
 
 void    SoundSource::setChannel(int channel){
-    this->channel = channel;
+    this->_Channel = channel;
+}
+
+bool    SoundSource::isAzimReverse(){
+    return _AzimReverse;
+}
+void    SoundSource::setAzimReverse(bool azimr){
+    _AzimReverse = azimr;
 }
