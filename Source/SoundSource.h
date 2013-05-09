@@ -27,23 +27,36 @@ public:
     void    setGain(float);
     float   getAzimuth();
     void    setAzimuth(float);
-    float   getAzimuth_span();
-    void    setAzimuth_span(float);
-    float   getElevation_span();
-    void    setElevation_span(float);
+    float   getAzimuthSpan();
+    void    setAzimuthSpan(float);
+    float   getElevationSpan();
+    void    setElevationSpan(float);
     float   getElevation();
     float   getElevationRawValue();
     void    setElevation(float);
-    bool    azim_reverse =false;
+    //! returns true if the point is inside the source. Point is relative to the center of the dome
     bool    contains(Point<float>);
-    bool    beginGesture =false;
-    
+    bool    isAzimReverse();
+    void    setAzimReverse(bool);
+        
 private:
-    Point<float> spherePosition; //x = azimuth; y = elevation
-    int channel =0;
-    float gain=1, azimuth=0, elevation=0, azimuth_span=0, elevation_span=0;
-    //Point <float> domeToScreen (Point <float> p);
-    inline float degreeToRadian (float );
+    //! If source Elevation is over 90° you have to reverse the azim
+    bool _AzimReverse =false;
+    //! Source channel id id send to Zirkonium
+    int _Channel =0;
+    //! Gain parameter stored in percent (see HRToPercent function).
+    float _Gain=1;
+    //! Azimuth parameter stored in percent (see HRToPercent function).
+    float _Azimuth=0;
+    //! Elevation parameter stored in percent (see HRToPercent function).
+    float _Elevation=0;
+    //! Azimuth Span parameter stored in percent (see HRToPercent function).
+    float _AzimuthSpan=0;
+    //! Elevation Span parameter stored in percent (see HRToPercent function).
+    float _ElevationSpan=0;
+    //! Convert degreeToRadian
+    inline float degreeToRadian (float);
+    //! Convert radianToDegree
     inline float radianToDegree (float);
     
 };

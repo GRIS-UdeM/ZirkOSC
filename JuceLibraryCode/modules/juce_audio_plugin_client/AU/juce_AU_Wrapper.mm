@@ -1198,7 +1198,7 @@ public:
     ComponentResult CreateUI (Float32 /*inXOffset*/, Float32 /*inYOffset*/)
     {
         JUCE_AUTORELEASEPOOL
-
+        printf("CreateUI");
         if (juceFilter == nullptr)
         {
             void* pointers[2];
