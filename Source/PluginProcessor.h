@@ -79,6 +79,21 @@ public:
     void getStateInformation (MemoryBlock& destData);
     void setStateInformation (const void* data, int sizeInBytes);
 
+    SoundSource* getSources(){ return _TabSource; }
+    int getNbrSources() { return _NbrSources; }
+    void setNbrSources(int newValue) { if ( newValue >-1 && newValue < 8) _NbrSources= newValue; }
+    
+    
+    int getSelectedSource() { return _SelectedSource; }
+    void setSelectedSource(int selected){ if ( selected >-1 && selected < 8) _SelectedSource= selected;};
+    
+    int getOscPortZirkonium(){return _OscPortZirkonium;}
+    
+    String getOscPortIpadIncoming(){ return _OscPortIpadIncoming;}
+    
+    String getOscPortIpadOutgoing(){ return _OscPortIpadOutgoing;}
+    
+    String getOscAddressIpad() {return _OscAddressIpad; }
     AudioPlayHead::CurrentPositionInfo lastPosInfo;
      //OSC Port Zirkonium
     
@@ -149,13 +164,17 @@ public:
     int getSelectedConstrain();
     //! Setter constrain type
     void setSelectedContrain(int constrain);
+    
+    bool hasToRefreshGui(){return _RefreshGui;};
+    void setRefreshGui(bool gui) { _RefreshGui = gui;};
     void changeOSCPort(int newPort);
     void sendOSCConfig();
     void sendOSCMovementType();
     
     void changeOSCSendIPad(int newPort, String newAddress);
     void changeOSCPortReceive(int port);
-
+    AudioProcessorEditor* getEditor() {return _Editor;};
+    
 private:
     
     
