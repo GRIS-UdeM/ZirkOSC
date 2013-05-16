@@ -131,8 +131,6 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
         else if (ZirkOSC_Gain_Param + (i*7) == index)       return ZirkOSC_Gain_name[i];
         else;
     }
-
-
     return String::empty;
 }
 
@@ -517,7 +515,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
         
     }
     theEditor->repaint();
-    processor->sendOSCValues();
+    //processor->sendOSCValues();
     return 0;
 }
 

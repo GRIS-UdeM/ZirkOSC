@@ -48,7 +48,6 @@ public:
         DeltaLocked = 5,    /*!< Delta lock mode */
         Circular    = 6     /*!< Circular */
     };
-    
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
     //! Move sources with a delta x and delta y (delta lock)
