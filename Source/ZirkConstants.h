@@ -3,7 +3,7 @@
 //  ZirkOSCJUCE
 //
 //  Created by Lud's on 21/02/13.
-//
+//  Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
 //
 
 #ifndef ZirkOSCJUCE_ZirkConstants_h

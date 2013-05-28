@@ -2,7 +2,7 @@
  ==============================================================================
 
  Developer : Ludovic LAFFINEUR (ludovic.laffineur@gmail.com)
-
+ Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
  Lexic :
  - all parameter preceeded by HR are Human Readable
  - parameter without HR are in percent
@@ -51,7 +51,6 @@ _OscPortOutgoingIPadLabel("OSCPortOutgoingIPad"),
 _OscPortOutgoingIPadTextEditor("OSCPortOutgoingIPadTE"),
 _OscAdressIPadTextEditor("ipaddress"),
 _OscAdressIPadTextLabel("ipadadressLabel")
-
 {
     printf("ZirkOscjuceAudioProcessorEditor() constructor");
     // This is where our plugin's editor size is set.
@@ -113,21 +112,21 @@ _OscAdressIPadTextLabel("ipadadressLabel")
     _OscPortIncomingIPadTextEditor.setText(String(getProcessor()->getOscPortIpadIncoming()));
     addAndMakeVisible(&_OscPortIncomingIPadLabel);
     addAndMakeVisible(&_OscPortIncomingIPadTextEditor);
-    
+
     _OscPortOutgoingIPadLabel.setText("Out. port", false);
     _OscPortOutgoingIPadLabel.setBounds(ZirkOSC_Window_Width-80 , 210, 80, 25);
     _OscPortOutgoingIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 230, 60, 25);
     _OscPortOutgoingIPadTextEditor.setText(String(getProcessor()->getOscPortIpadOutgoing()));
     addAndMakeVisible(&_OscPortOutgoingIPadLabel);
     addAndMakeVisible(&_OscPortOutgoingIPadTextEditor);
-    
+
     _OscAdressIPadTextLabel.setText("IP add. iPad", false);
     _OscAdressIPadTextLabel.setBounds(ZirkOSC_Window_Width-80 , 260, 80, 25);
     _OscAdressIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 280, 60, 25);
     _OscAdressIPadTextEditor.setText(String(getProcessor()->getOscAddressIpad()));
     addAndMakeVisible(&_OscAdressIPadTextLabel);
     addAndMakeVisible(&_OscAdressIPadTextEditor);
-    
+
     _MouvementConstrain.setSize(50, 20);
     _MouvementConstrain.setBounds(80, 540, 220, 25);
 
@@ -142,7 +141,7 @@ _OscAdressIPadTextLabel("ipadadressLabel")
     //_selectedConstrain = Independant;
     _MouvementConstrain.addListener(this);
     addAndMakeVisible(&_MouvementConstrain);
-    
+
     _LinkSpanButton.setBounds(300, 300, 80, 30);
     addAndMakeVisible(&_LinkSpanButton);
     _LinkSpanButton.addListener(this);
@@ -258,7 +257,6 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         if(!_DraggableSource){
              g.drawText(String(getProcessor()->getSources()[i].getChannel()), ZirkOSC_Center_X + screen.getX()+6, ZirkOSC_Center_Y + screen.getY()-2, 40, 10, Justification::centred, false);
         }
-       
     }
 }
 
@@ -462,7 +460,6 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider)
         }
     }else;
     //repaint();
-
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){

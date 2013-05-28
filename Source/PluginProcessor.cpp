@@ -1,9 +1,6 @@
 /*
  ==============================================================================
-
- This file was auto-generated!
-
- It contains the basic startup code for a Juce application.
+Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
 
  ==============================================================================
  */
@@ -25,6 +22,12 @@ void error(int num, const char *m, const char *path);
 int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data);
 int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data);
 int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data);
+int receiveAzimuthSpanUpdate(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
+int receiveAzimuthSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
+int receiveAzimuthSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
+int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
+int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
+int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 {
@@ -41,6 +44,13 @@ ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
         lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
         lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
         lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
+        lo_server_thread_add_method(_St, "/moveAzimSpan", "if", receiveAzimuthSpanUpdate, this);
+        lo_server_thread_add_method(_St, "/beginAzimSpanMove", "i", receiveAzimuthSpanBegin, this);
+        lo_server_thread_add_method(_St, "/endAzimSpanMove", "i", receiveAzimuthSpanEnd, this);
+        lo_server_thread_add_method(_St, "/moveElevSpan", "if", receiveElevationSpanUpdate, this);
+        lo_server_thread_add_method(_St, "/beginElevSpanMove", "i", receiveElevationSpanBegin, this);
+        lo_server_thread_add_method(_St, "/endElevSpanMove", "i", receiveElevationSpanEnd, this);
+        
         lo_server_thread_start(_St);
     }
     startTimer (50);
@@ -52,6 +62,7 @@ void error(int num, const char *m, const char *path){
 }
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
+    const MessageManagerLock mmLock;
     sendOSCValues();
 }
 
@@ -200,6 +211,12 @@ void ZirkOscjuceAudioProcessor::changeOSCPortReceive(int newPort){
         lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
         lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
         lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
+        lo_server_thread_add_method(_St, "/moveAzimSpan", "if", receiveAzimuthSpanUpdate, this);
+        lo_server_thread_add_method(_St, "/beginAzimSpanMove", "i", receiveAzimuthSpanBegin, this);
+        lo_server_thread_add_method(_St, "/endAzimSpanMove", "i", receiveAzimuthSpanEnd, this);
+        lo_server_thread_add_method(_St, "/moveElevSpan", "if", receiveElevationSpanUpdate, this);
+        lo_server_thread_add_method(_St, "/beginElevSpanMove", "i", receiveElevationSpanBegin, this);
+        lo_server_thread_add_method(_St, "/endElevSpanMove", "i", receiveElevationSpanEnd, this);
         lo_server_thread_start(_St);
     }
     
@@ -467,6 +484,176 @@ int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc
     return 0;
 }
 
+int receiveAzimuthSpanUpdate(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
+    ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    int channel_osc = argv[0]->i;
+    int i;
+    float value = argv[1]->f;
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->getNbrSources()){
+        return 0;
+    }
+    if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
+        
+        for (int j = 0; j<processor->getNbrSources() ;j++){
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + j*7,
+                                                  HRToPercent(value, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max));
+            
+        }
+    }
+    else{
+        if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + i*7,
+                                                  HRToPercent(value, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max));
+            printf("I am right there : %d, %f", channel_osc,value);
+        }
+    }
+    return 0;
+}
+
+int receiveAzimuthSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
+    ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    int channel_osc = argv[0]->i;
+    int i;
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->getNbrSources()){
+        return 0;
+    }
+    if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
+        
+        for (int j = 0; j<processor->getNbrSources() ;j++){
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + j*7);
+            
+        }
+    }
+    else{
+        if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + i*7);
+        }
+    }
+    return 0;
+}
+
+int receiveAzimuthSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
+    ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    int channel_osc = argv[0]->i;
+    int i;
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->getNbrSources()){
+        return 0;
+    }
+    if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
+        
+        for (int j = 0; j<processor->getNbrSources() ;j++){
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + j*7);
+            
+        }
+    }
+    else{
+        if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_Param + i*7);
+        }
+    }
+    return 0;
+}
+
+int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
+    ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    int channel_osc = argv[0]->i;
+    int i;
+    float value = argv[1]->f;
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->getNbrSources()){
+        return 0;
+    }
+    if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
+        
+        for (int j = 0; j<processor->getNbrSources() ;j++){
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param + j*7,
+                                                  HRToPercent(value, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max));
+            
+        }
+    }
+    else{
+        if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param + i*7,
+                                                  HRToPercent(value, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max));
+        }
+    }
+    return 0;
+
+}
+
+int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
+    ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    int channel_osc = argv[0]->i;
+    int i;
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->getNbrSources()){
+        return 0;
+    }
+    if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
+        
+        for (int j = 0; j<processor->getNbrSources() ;j++){
+            processor->beginParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param + j*7);
+        }
+    }
+    else{
+        if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
+            processor->beginParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param + i*7);
+        }
+    }
+    return 0;
+    
+
+}
+
+int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
+    ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
+    int channel_osc = argv[0]->i;
+    int i;
+    for(i=0;i<processor->getNbrSources();i++){
+        if (processor->getSources()[i].getChannel() == channel_osc) {
+            break;
+        }
+    }
+    if (i==processor->getNbrSources()){
+        return 0;
+    }
+    if (processor->getSelectedConstrain() != ZirkOscjuceAudioProcessorEditor::Independant){
+        
+        for (int j = 0; j<processor->getNbrSources() ;j++){
+            processor->endParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param + j*7);
+        }
+    }
+    else{
+        if (processor->getSelectedConstrain() == ZirkOscjuceAudioProcessorEditor::Independant){
+            processor->endParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_Param + i*7);
+        }
+    }
+    return 0;
+}
+
 int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
  
     
@@ -514,6 +701,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
         }
         
     }
+    const MessageManagerLock mmLock;
     theEditor->repaint();
     //processor->sendOSCValues();
     return 0;
