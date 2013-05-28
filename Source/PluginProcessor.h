@@ -4,7 +4,7 @@
  This file was auto-generated!
 
  It contains the basic startup code for a Juce application.
-
+ Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
  ==============================================================================
  */
 
