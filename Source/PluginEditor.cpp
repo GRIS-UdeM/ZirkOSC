@@ -664,15 +664,21 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
     int nbrSources = ourProcessor->getNbrSources();
     Point<float> currentPosition;
-    for(int i=0;i<nbrSources;i++){
-        currentPosition = ourProcessor->getSources()[i].getPositionXY();
-        ourProcessor->getSources()[i].setPositionXY(currentPosition + DeltaMove);
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7,
-                                                 ourProcessor->getSources()[i].getAzimuth());
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
-                                                 ourProcessor->getSources()[i].getElevationRawValue());
-        //azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
-        ourProcessor->sendOSCValues();
+    bool inTheDome = true;
+    for (int i =0; i<ourProcessor->getNbrSources()&&inTheDome; i++) {
+         inTheDome=ourProcessor->getSources()[i].isStillInTheDome(DeltaMove);
+    }
+    if (inTheDome){
+        for(int i=0;i<nbrSources;i++){
+            currentPosition = ourProcessor->getSources()[i].getPositionXY();
+            ourProcessor->getSources()[i].setPositionXY(currentPosition + DeltaMove);
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + i*7,
+                                                     ourProcessor->getSources()[i].getAzimuth());
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + i*7,
+                                                     ourProcessor->getSources()[i].getElevationRawValue());
+            //azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
+            ourProcessor->sendOSCValues();
+        }
     }
     //repaint();
 }
