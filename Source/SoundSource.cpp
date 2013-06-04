@@ -85,6 +85,12 @@ void    SoundSource::setGain(float gain){
     _Gain=gain;
 }
 
+bool    SoundSource::isStillInTheDome(Point<float> move){
+    Point<float> p = Point<float>(this->getX() + move.getX(), this->getY() + move.getY());
+    float dist= sqrt(p.getX()* p.getX() + p.getY()*p.getY());
+    return (fabs(dist)< ZirkOSC_DomeRadius);
+}
+
 float   SoundSource::getAzimuth(){
     return _Azimuth;
 }
