@@ -3,7 +3,9 @@ ZirkOSCJUCE
 
 ZirkOSC rebuild with JUCE FrameWork.
 
-Documentation link : http://ludoviclaffineur.github.io/ZirkOSCJUCE/
+Manuel : https://github.com/ludoviclaffineur/ZirkOSCJUCE/raw/master/bin/ZirkOSCJuce_Setup_13-08-14.pdf
+
+Code documentation link : http://ludoviclaffineur.github.io/ZirkOSCJUCE/
 
 Download links :
 
