@@ -31,7 +31,7 @@ int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, 
 
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 {
-    printf("Processor Constructor");
+
     _NbrSources      = 1;
     _SelectedSource  = 0;
 

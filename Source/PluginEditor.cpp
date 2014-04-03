@@ -6,7 +6,7 @@
  Lexic :
  - all parameter preceeded by HR are Human Readable
  - parameter without HR are in percent
- - Points in spheric coord  : x -> azimuth, y -> elevation
+ - Points in spheric coordinates  : x -> azimuth, y -> elevation
 
  ==============================================================================
  */
@@ -52,7 +52,7 @@ _OscPortOutgoingIPadTextEditor("OSCPortOutgoingIPadTE"),
 _OscAdressIPadTextEditor("ipaddress"),
 _OscAdressIPadTextLabel("ipadadressLabel")
 {
-    printf("ZirkOscjuceAudioProcessorEditor() constructor");
+
     // This is where our plugin's editor size is set.
     setSize (ZirkOSC_Window_Width, ZirkOSC_Window_Height);
     /*  button1 = new TextButton("Button1");*/
@@ -347,8 +347,14 @@ inline float ZirkOscjuceAudioProcessorEditor::radianToDegree(float radian){
  * repaint only if the user doesn't move any source (_DraggableSource)
  */
 void ZirkOscjuceAudioProcessorEditor::timerCallback(){
+    
+    //get ref to our processor, WHY DO THAT EVERYTIME?
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
+    //ref to currently selected source
     int selectedSource = ourProcessor->getSelectedSource();
+    
+    //based on selected source, update all sliders
     _GainSlider.setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
 
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
@@ -362,6 +368,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     _ElevationSpanSlider.setValue(HRValue,dontSendNotification);
+    
     if (ourProcessor->hasToRefreshGui()){
         refreshGui();
         ourProcessor->setRefreshGui(false);

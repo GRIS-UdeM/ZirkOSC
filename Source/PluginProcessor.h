@@ -211,7 +211,7 @@ private:
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
-    //! If the editor has to refresh the GUI
+    //! Whether the editor has to refresh the GUI
     bool _RefreshGui = false;
     //! Current number of sources on the screnn
     int _NbrSources;
