@@ -37,16 +37,17 @@ public:
     void paint (Graphics& g);
     
     //! when you want to refresh the TextEditors.
-    void refreshGui();  
-    //! Enum of the movement contrains
-    enum ConstrainType
+    void refreshGui();
+    
+    //! Enum of the movement constraints
+    enum AllConstraints
     {
-        Independant = 1,    /*!< Independant mode */
-        FixedRadius = 2,    /*!< All sources' radius are fixed */
-        FixedAngles = 3,    /*!< Angle between sources are fixed */
-        FullyFixed  = 4,    /*!< FixedRadius and fixedAngles */
-        DeltaLocked = 5,    /*!< Delta lock mode */
-        Circular    = 6     /*!< Circular */
+        Independant = 1,/*!< Independant mode */
+        FixedRadius,    /*!< All sources' radius are fixed */
+        FixedAngles,    /*!< Angle between sources are fixed */
+        FullyFixed,     /*!< FixedRadius and fixedAngles */
+        DeltaLocked,    /*!< Delta lock mode */
+        Circular        /*!< Circular */
     };
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
