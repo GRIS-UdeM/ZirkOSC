@@ -53,6 +53,11 @@ ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
         
         lo_server_thread_start(_St);
     }
+    
+    //default values for ui dimensions
+    lastUIWidth = ZirkOSC_Window_Width;
+    lastUIHeight = ZirkOSC_Window_Height;
+    
     startTimer (50);
 }
 
@@ -330,6 +335,8 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
+    xml.setAttribute ("uiWidth", lastUIWidth);
+    xml.setAttribute ("uiHeight", lastUIHeight);
     xml.setAttribute("PortOSC", _OscPortZirkonium);
     xml.setAttribute("IncPort", _OscPortIpadIncoming);
     xml.setAttribute("OutPort", _OscPortIpadOutgoing);
@@ -376,6 +383,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
             // ok, now pull out our parameters..
+            lastUIWidth  = xmlState->getIntAttribute ("uiWidth", lastUIWidth);
+            lastUIHeight = xmlState->getIntAttribute ("uiHeight", lastUIHeight);
             _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 20000);
             if(_OscPortZirkonium<0 || _OscPortZirkonium>100000){
                 _OscPortZirkonium = 20000;

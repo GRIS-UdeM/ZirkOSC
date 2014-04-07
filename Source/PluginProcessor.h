@@ -34,7 +34,6 @@ public:
     void timerCallback();
     
     
-    //bool beginGesture =false;
     //==============================================================================
     //! Called before playback starts, to let the filter prepare itself. 
     void prepareToPlay (double sampleRate, int samplesPerBlock);
@@ -204,6 +203,10 @@ public:
     void changeOSCPortReceive(int port);
     //! Returns the Editor.
     AudioProcessorEditor* getEditor() {return _Editor;};
+    
+    //! memory for last saved ui dimensions
+    int lastUIWidth, lastUIHeight;
+
     
 private:
     

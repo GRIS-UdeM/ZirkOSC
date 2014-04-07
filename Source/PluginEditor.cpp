@@ -52,15 +52,7 @@ _OscPortOutgoingIPadTextEditor("OSCPortOutgoingIPadTE"),
 _OscAdressIPadTextEditor("ipaddress"),
 _OscAdressIPadTextLabel("ipadadressLabel")
 {
-
-    // This is where our plugin's editor size is set.
-    setSize (ZirkOSC_Window_Width, ZirkOSC_Window_Height);
-    /*  button1 = new TextButton("Button1");*/
-
-    // button1->setBounds (20, 70, 260, 20);*/
-    //_SourcePoint.setX(0.0f);
-    //_SourcePoint.setY (0.0f);
-
+  
 
     setSliderAndLabel(20,340, 360, 20, "Gain", &_GainSlider,&_GainLabel, 0.0, 1.0);
     addAndMakeVisible(&_GainSlider);
@@ -90,7 +82,6 @@ _OscAdressIPadTextLabel("ipadadressLabel")
     _NbrSourceTextEditor.setText(String(getProcessor()->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
-
 
     _OscPortLabel.setText("ZKM Port OSC", false);
     _OscPortLabel.setBounds(ZirkOSC_Window_Width-80 , 60, 80, 25);
@@ -145,6 +136,12 @@ _OscAdressIPadTextLabel("ipadadressLabel")
     _LinkSpanButton.setBounds(300, 300, 80, 30);
     addAndMakeVisible(&_LinkSpanButton);
     _LinkSpanButton.addListener(this);
+    
+    // add the triangular resizer component for the bottom-right of the UI
+    addAndMakeVisible (resizer = new ResizableCornerComponent (this, &resizeLimits));
+    resizeLimits.setSizeLimits (150, 150, ZirkOSC_Window_Width, ZirkOSC_Window_Height);
+    // set our component's initial size to be the last one that was stored in the filter's settings
+    setSize (ownerFilter->lastUIWidth, ownerFilter->lastUIHeight);
 
     _ChannelNumberTextEditor.addListener(this);
     _OscPortTextEditor.addListener(this);
@@ -165,6 +162,19 @@ ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor()
 {
     //stopTimer();
 }
+
+
+
+void ZirkOscjuceAudioProcessorEditor::resized()
+{
+    resizer->setBounds (getWidth() - 16, getHeight() - 16, 16, 16);
+    
+    getProcessor()->lastUIWidth = getWidth();
+    getProcessor()->lastUIHeight = getHeight();
+    
+}
+
+
 
 
 //Automatic function to set label and Slider
