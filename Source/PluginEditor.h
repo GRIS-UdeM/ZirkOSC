@@ -28,6 +28,13 @@ public ComboBoxListener
 
 {
 public:
+    
+    // these are used to persist the UI's size - the values are stored along with the
+    // filter's other parameters, and the UI component will update them when it gets
+    // resized.
+    int lastUIWidth, lastUIHeight;
+    
+    
     //! Constructor
     ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter);
     //! Destructor
@@ -38,6 +45,9 @@ public:
     
     //! when you want to refresh the TextEditors.
     void refreshGui();
+    
+    //! called when window is resized
+    void resized() override;
     
     //! Enum of the movement constraints
     enum AllConstraints
@@ -92,6 +102,12 @@ private:
     void setSliderAndLabel(int x, int y, int width, int height, String labelText, Slider* slider, Label* label, float min, float max);
     //! Return the position of the source at the position p if no source returns -1
     int getSourceFromPosition(Point<float> p );
+
+    //! Resizable corner to allow plugin window to be resized
+    ScopedPointer<ResizableCornerComponent> resizer;
+    
+    //! Bounds of the resizable window
+    ComponentBoundsConstrainer resizeLimits;
 
     //! Toggle Button to link the span
     ToggleButton _LinkSpanButton;
