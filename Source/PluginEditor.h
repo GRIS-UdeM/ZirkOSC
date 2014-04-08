@@ -160,7 +160,7 @@ private:
     TextEditor _OscPortIncomingIPadTextEditor;
 
     //! Combobox to choose constrain type
-    ComboBox _MovementConstraint;
+    ComboBox _MovementConstraintComboBox;
 
     //! If there is a source beeing drag
     bool _DraggableSource = false;
