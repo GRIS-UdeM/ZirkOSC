@@ -187,7 +187,7 @@ public:
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     //! Getter constrain type
-    int getSelectedMovementConstraint();
+    int getSelectedMovementConstraint() {return _SelectedMovementConstraint;};
     
     //! Setter constrain type
     //void setSelectedContrain(int constrain);

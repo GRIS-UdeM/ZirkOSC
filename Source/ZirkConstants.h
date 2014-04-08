@@ -46,6 +46,8 @@ const float  ZirkOSC_Gain_Min = 0.0f;
 const float  ZirkOSC_Gain_Max = 1.0f;
 const float  ZirkOSC_Gain_Def = 1.0f;
 
+const String ZirkOSC_Movement_Constraint_name = "Move_Constraint";
+
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 
 const int ZirkOSC_Window_Width  = 400;

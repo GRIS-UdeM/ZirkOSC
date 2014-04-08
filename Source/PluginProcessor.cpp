@@ -150,6 +150,10 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
 
 const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 {
+    if (ZirkOSC_MovementConstraint_ParamId == index){
+        return ZirkOSC_Movement_Constraint_name;
+    }
+    
     for(int i = 0; i<8;i++){
         if      (ZirkOSC_Azim_ParamId + (i*7) == index)       return ZirkOSC_Azim_name[i];
         else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   return ZirkOSC_AzimSpan_name[i];
@@ -374,6 +378,7 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("OutPort", _OscPortIpadOutgoing);
     xml.setAttribute("AddIpad", _OscAddressIpad);
     xml.setAttribute("NombreSources", _NbrSources);
+    xml.setAttribute("MovementConstraint", _SelectedMovementConstraint);
     for(int i =0;i<8;i++){
         String channel = "Channel";
         String azimuth = "Azimuth";
@@ -414,7 +419,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         // make sure that it's actually our type of XML object..
         if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
-            // ok, now pull out our parameters..
+            // ok, now pull out our parameters. format is getIntAttribute("AttributeName: defaultValue);
             _LastUiWidth  = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
             _LastUiHeight = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
             _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 20000);
@@ -425,7 +430,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _OscPortIpadOutgoing = xmlState->getStringAttribute("OutPort", "10004");
             _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
             _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
-            ;            for (int i=0;i<8;i++){
+            _SelectedMovementConstraint = xmlState->getIntAttribute("MovementConstraint", 1);
+            for (int i=0;i<8;i++){
                 String channel = "Channel";
                 String azimuth = "Azimuth";
                 String elevation = "Elevation";
@@ -762,12 +768,5 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedMovementConstraint(){
-    return _SelectedMovementConstraint;
-}
-//
-//void ZirkOscjuceAudioProcessor::setSelectedContrain(int constrain){
-//    if (constrain<7 && constrain>0){
-//        _SelectedConstrain = constrain;
-//    }
-//}
+
+
