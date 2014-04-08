@@ -203,15 +203,18 @@ public:
     void changeOSCPortReceive(int port);
     //! Returns the Editor.
     AudioProcessorEditor* getEditor() {return _Editor;};
+    //! Set the width that the UI was last set to
+    void setLastUiWidth(int lastUiWidth);
+    //! Get the width that the UI was last set to
+    int getLastUiWidth();
+    //! Set the height that the UI was last set to
+    void setLastUiHeight(int lastUiHeight);
+    //! Return the height that the UI was last set to
+    int getLastUiHeight();
     
-    //! memory for last saved ui dimensions
-    int lastUIWidth, lastUIHeight;
-
     
 private:
     
-    
-
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
     //! Whether the editor has to refresh the GUI
@@ -240,6 +243,10 @@ private:
     String _OscAddressIpad = "10.0.1.3";
     //! Zirkonium incoming port
     String _OscPortIpadIncoming = "10114";
+    //! last saved ui width
+    int _LastUiWidth;
+    //! last saved ui height
+    int _LastUiHeight;
 
 };
 

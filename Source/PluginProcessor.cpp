@@ -55,8 +55,8 @@ ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
     }
     
     //default values for ui dimensions
-    lastUIWidth = ZirkOSC_Window_Width;
-    lastUIHeight = ZirkOSC_Window_Height;
+    _LastUiWidth = ZirkOSC_Window_Width;
+    _LastUiHeight = ZirkOSC_Window_Height;
     
     startTimer (50);
 }
@@ -328,6 +328,26 @@ AudioProcessorEditor* ZirkOscjuceAudioProcessor::createEditor()
     return _Editor;
 }
 
+
+void ZirkOscjuceAudioProcessor::setLastUiWidth(int lastUiWidth)
+{
+    _LastUiWidth = lastUiWidth;
+}
+
+int ZirkOscjuceAudioProcessor::getLastUiWidth()
+{
+    return _LastUiWidth;
+}
+void ZirkOscjuceAudioProcessor::setLastUiHeight(int lastUiHeight)
+{
+    _LastUiHeight = lastUiHeight;
+}
+
+int ZirkOscjuceAudioProcessor::getLastUiHeight()
+{
+    return _LastUiHeight;
+}
+
 //==============================================================================
 void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
@@ -335,8 +355,8 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
-    xml.setAttribute ("uiWidth", lastUIWidth);
-    xml.setAttribute ("uiHeight", lastUIHeight);
+    xml.setAttribute ("uiWidth", _LastUiWidth);
+    xml.setAttribute ("uiHeight", _LastUiHeight);
     xml.setAttribute("PortOSC", _OscPortZirkonium);
     xml.setAttribute("IncPort", _OscPortIpadIncoming);
     xml.setAttribute("OutPort", _OscPortIpadOutgoing);
@@ -383,8 +403,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
             // ok, now pull out our parameters..
-            lastUIWidth  = xmlState->getIntAttribute ("uiWidth", lastUIWidth);
-            lastUIHeight = xmlState->getIntAttribute ("uiHeight", lastUIHeight);
+            _LastUiWidth  = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
+            _LastUiHeight = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
             _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 20000);
             if(_OscPortZirkonium<0 || _OscPortZirkonium>100000){
                 _OscPortZirkonium = 20000;

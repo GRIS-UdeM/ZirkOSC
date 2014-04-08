@@ -29,12 +29,6 @@ public ComboBoxListener
 {
 public:
     
-    // these are used to persist the UI's size - the values are stored along with the
-    // filter's other parameters, and the UI component will update them when it gets
-    // resized.
-    int lastUIWidth, lastUIHeight;
-    
-    
     //! Constructor
     ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter);
     //! Destructor
@@ -84,6 +78,9 @@ private:
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     //! Called when a button is clicked
     void buttonClicked (Button* button);
+
+    
+    //METHODS FOR DEALING WITH DIRECT WALLCIRCLE INTERACTIONS
     //! Called when a mouse is clicked
     void mouseDown (const MouseEvent &event);
     //! Called when there is a draggin event
@@ -91,6 +88,8 @@ private:
     //! Called when the mouse is up
  	void mouseUp (const MouseEvent &event);
     //! Called when a value of a slider has changed
+    
+    
     void sliderValueChanged (Slider* slider);
     //! Called every laps of time
     void timerCallback();
@@ -104,11 +103,11 @@ private:
     int getSourceFromPosition(Point<float> p );
 
     //! Resizable corner to allow plugin window to be resized
-    ScopedPointer<ResizableCornerComponent> resizer;
+    ScopedPointer<ResizableCornerComponent> _Resizer;
     
     //! Bounds of the resizable window
-    ComponentBoundsConstrainer resizeLimits;
-
+    ComponentBoundsConstrainer _ResizeLimits;
+    
     //! Toggle Button to link the span
     ToggleButton _LinkSpanButton;
     
@@ -161,7 +160,7 @@ private:
     TextEditor _OscPortIncomingIPadTextEditor;
 
     //! Combobox to choose constrain type
-    ComboBox _MouvementConstrain;
+    ComboBox _MovementConstraint;
 
     //! If there is a source beeing drag
     bool _DraggableSource = false;
@@ -192,7 +191,7 @@ private:
     void paintSourcePoint (Graphics& g);
     //! Paint the span arc
     void paintSpanArc (Graphics& g);
-    //! Paint the wall circle
+    //! Paint the wall circle, ie the main circle in the gui
     void paintWallCircle (Graphics& g);
     //! Paint the Zenith circle, circle on the selected source
     void paintZenithCircle (Graphics& g);

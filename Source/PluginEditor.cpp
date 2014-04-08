@@ -43,7 +43,7 @@ _OscPortLabel("OscPort"),
 _NbrSourceLabel("NbrSources"),
 _ChannelNumberTextEditor("channelNbr"),
 _ChannelNumberLabel("channelNbr"),
-_MouvementConstrain("MouvemntContrain"),
+_MovementConstraint("MouvemntContrain"),
 _LinkSpanButton("Link Span"),
 _OscPortIncomingIPadLabel("OSCIpadInco"),
 _OscPortIncomingIPadTextEditor("OSCIpadIncoTE"),
@@ -118,30 +118,32 @@ _OscAdressIPadTextLabel("ipadadressLabel")
     addAndMakeVisible(&_OscAdressIPadTextLabel);
     addAndMakeVisible(&_OscAdressIPadTextEditor);
 
-    _MouvementConstrain.setSize(50, 20);
-    _MouvementConstrain.setBounds(80, 540, 220, 25);
+    _MovementConstraint.setSize(50, 20);
+    _MovementConstraint.setBounds(80, 540, 220, 25);
 
-    _MouvementConstrain.addItem("Independant",   Independant);
-    _MouvementConstrain.addItem("Circular",      Circular);
-    _MouvementConstrain.addItem("Fixed Radius",  FixedRadius);
-    _MouvementConstrain.addItem("Fixed Angle",   FixedAngles);
-    _MouvementConstrain.addItem("Fully fixed",   FullyFixed);
-    _MouvementConstrain.addItem("Delta Lock",    DeltaLocked);
+    _MovementConstraint.addItem("Independant",   Independant);
+    _MovementConstraint.addItem("Circular",      Circular);
+    _MovementConstraint.addItem("Fixed Radius",  FixedRadius);
+    _MovementConstraint.addItem("Fixed Angle",   FixedAngles);
+    _MovementConstraint.addItem("Fully fixed",   FullyFixed);
+    _MovementConstraint.addItem("Delta Lock",    DeltaLocked);
 
-    _MouvementConstrain.setSelectedId(getProcessor()->getSelectedConstrain());
+    _MovementConstraint.setSelectedId(getProcessor()->getSelectedConstrain());
     //_selectedConstrain = Independant;
-    _MouvementConstrain.addListener(this);
-    addAndMakeVisible(&_MouvementConstrain);
+    _MovementConstraint.addListener(this);
+    addAndMakeVisible(&_MovementConstraint);
 
-    _LinkSpanButton.setBounds(300, 300, 80, 30);
+    _LinkSpanButton.setBounds(ZirkOSC_Window_Width-80, 310, 80, 30);
     addAndMakeVisible(&_LinkSpanButton);
     _LinkSpanButton.addListener(this);
     
     // add the triangular resizer component for the bottom-right of the UI
-    addAndMakeVisible (resizer = new ResizableCornerComponent (this, &resizeLimits));
-    resizeLimits.setSizeLimits (150, 150, ZirkOSC_Window_Width, ZirkOSC_Window_Height);
+    addAndMakeVisible (_Resizer = new ResizableCornerComponent (this, &_ResizeLimits));
+    //min dimensions are wallCircle radius (300) + offset in display (10,30) + padding (10)
+    _ResizeLimits.setSizeLimits (320, 340, ZirkOSC_Window_Width, ZirkOSC_Window_Height);
+    
     // set our component's initial size to be the last one that was stored in the filter's settings
-    setSize (ownerFilter->lastUIWidth, ownerFilter->lastUIHeight);
+    setSize (ownerFilter->getLastUiWidth(), ownerFilter->getLastUiHeight());
 
     _ChannelNumberTextEditor.addListener(this);
     _OscPortTextEditor.addListener(this);
@@ -167,10 +169,10 @@ ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor()
 
 void ZirkOscjuceAudioProcessorEditor::resized()
 {
-    resizer->setBounds (getWidth() - 16, getHeight() - 16, 16, 16);
+    _Resizer->setBounds (getWidth() - 16, getHeight() - 16, 16, 16);
     
-    getProcessor()->lastUIWidth = getWidth();
-    getProcessor()->lastUIHeight = getHeight();
+    getProcessor()->setLastUiWidth(getWidth());
+    getProcessor()->setLastUiHeight(getHeight());
     
 }
 
@@ -202,7 +204,7 @@ void ZirkOscjuceAudioProcessorEditor::setSliderAndLabel(int x, int y, int width,
 void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (Colours::lightgrey);
-    paintWallCircle(g);
+    paintWallCircle(g);     //this is the big, main circle in the gui
     paintCrosshairs(g);
     paintCoordLabels(g);
     paintCenterDot(g);
@@ -575,12 +577,12 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         int selectedConstrain = ourProcessor->getSelectedConstrain();
         if (selectedConstrain == Independant) {
             ourProcessor->getSources()[selectedSource].setPositionXY(pointRelativeCenter);
-            float HRAzimuth = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+            //float HRAzimuth = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
             //_SourcePoint.setX(HRAzimuth);
 
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_Param + selectedSource*7,
                                                      ourProcessor->getSources()[selectedSource].getAzimuth());
-            float HRElevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Min);
+            //float HRElevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Min);
             //_SourcePoint.setY(HRElevation);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_Param + selectedSource*7,
                                                      ourProcessor->getSources()[selectedSource].getElevation());
