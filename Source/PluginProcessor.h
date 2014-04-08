@@ -82,6 +82,8 @@ public:
     bool silenceInProducesSilenceOut() const;
     //! Projects sphere coords to polar coords 
     Point<float> domeToScreen(Point<float>);
+    
+    
     //==============================================================================
     //! Returns the number of preset programs the filter supports. 
     int getNumPrograms();
@@ -121,72 +123,75 @@ public:
     //! Returns the iPad's IP address.
     String getOscAddressIpad() {return _OscAddressIpad; }
     
-    enum Parameters
+    enum ParameterIds
     {
-        ZirkOSC_Azim_Param = 0,
-        ZirkOSC_Elev_Param,
-        ZirkOSC_Channel_Param,
-        ZirkOSC_ElevDelta_Param,
-        ZirkOSC_AzimSpan_Param,
-        ZirkOSC_ElevSpan_Param,
-        ZirkOSC_Gain_Param,
-        ZirkOSC_Azim_Param_1,
-        ZirkOSC_Elev_Param_1,
-        ZirkOSC_Channel_Param_1,
-        ZirkOSC_ElevDelta_Param_1,
-        ZirkOSC_AzimSpan_Param_1,
-        ZirkOSC_ElevSpan_Param_1,
-        ZirkOSC_Gain_Param_1,
-        ZirkOSC_Azim_Param_2,
-        ZirkOSC_Elev_Param_2,
-        ZirkOSC_Channel_Param_2,
-        ZirkOSC_ElevDelta_Param_2,
-        ZirkOSC_AzimSpan_Param_2,
-        ZirkOSC_ElevSpan_Param_2,
-        ZirkOSC_Gain_Param_2,
-        ZirkOSC_Azim_Param_3,
-        ZirkOSC_Elev_Param_3,
-        ZirkOSC_Channel_Param_3,
-        ZirkOSC_ElevDelta_Param_3,
-        ZirkOSC_AzimSpan_Param_3,
-        ZirkOSC_ElevSpan_Param_3,
-        ZirkOSC_Gain_Param_3,
-        ZirkOSC_Azim_Param_4,
-        ZirkOSC_Elev_Param_4,
-        ZirkOSC_Channel_Param_4,
-        ZirkOSC_ElevDelta_Param_4,
-        ZirkOSC_AzimSpan_Param_4,
-        ZirkOSC_ElevSpan_Param_4,
-        ZirkOSC_Gain_Param_4,
-        ZirkOSC_Azim_Param_5,
-        ZirkOSC_Elev_Param_5,
-        ZirkOSC_Channel_Param_5,
-        ZirkOSC_ElevDelta_Param_5,
-        ZirkOSC_AzimSpan_Param_5,
-        ZirkOSC_ElevSpan_Param_5,
-        ZirkOSC_Gain_Param_5,
-        ZirkOSC_Azim_Param_6,
-        ZirkOSC_Elev_Param_6,
-        ZirkOSC_Channel_Param_6,
-        ZirkOSC_ElevDelta_Param_6,
-        ZirkOSC_AzimSpan_Param_6,
-        ZirkOSC_ElevSpan_Param_6,
-        ZirkOSC_Gain_Param_6,
-        ZirkOSC_Azim_Param_7,
-        ZirkOSC_Elev_Param_7,
-        ZirkOSC_Channel_Param_7,
-        ZirkOSC_ElevDelta_Param_7,
-        ZirkOSC_AzimSpan_Param_7,
-        ZirkOSC_ElevSpan_Param_7,
-        ZirkOSC_Gain_Param_7,
+        ZirkOSC_Azim_ParamId = 0,
+        ZirkOSC_Elev_ParamId,
+        ZirkOSC_Channel_ParamId,
+        ZirkOSC_ElevDelta_ParamId,
+        ZirkOSC_AzimSpan_ParamId,
+        ZirkOSC_ElevSpan_ParamId,
+        ZirkOSC_Gain_ParamId,
+        ZirkOSC_Azim_ParamId_1,
+        ZirkOSC_Elev_ParamId_1,
+        ZirkOSC_Channel_ParamId_1,
+        ZirkOSC_ElevDelta_ParamId_1,
+        ZirkOSC_AzimSpan_ParamId_1,
+        ZirkOSC_ElevSpan_ParamId_1,
+        ZirkOSC_Gain_ParamId_1,
+        ZirkOSC_Azim_ParamId_2,
+        ZirkOSC_Elev_ParamId_2,
+        ZirkOSC_Channel_ParamId_2,
+        ZirkOSC_ElevDelta_ParamId_2,
+        ZirkOSC_AzimSpan_ParamId_2,
+        ZirkOSC_ElevSpan_ParamId_2,
+        ZirkOSC_Gain_ParamId_2,
+        ZirkOSC_Azim_ParamId_3,
+        ZirkOSC_Elev_ParamId_3,
+        ZirkOSC_Channel_ParamId_3,
+        ZirkOSC_ElevDelta_ParamId_3,
+        ZirkOSC_AzimSpan_ParamId_3,
+        ZirkOSC_ElevSpan_ParamId_3,
+        ZirkOSC_Gain_ParamId_3,
+        ZirkOSC_Azim_ParamId_4,
+        ZirkOSC_Elev_ParamId_4,
+        ZirkOSC_Channel_ParamId_4,
+        ZirkOSC_ElevDelta_ParamId_4,
+        ZirkOSC_AzimSpan_ParamId_4,
+        ZirkOSC_ElevSpan_ParamId_4,
+        ZirkOSC_Gain_ParamId_4,
+        ZirkOSC_Azim_ParamId_5,
+        ZirkOSC_Elev_ParamId_5,
+        ZirkOSC_Channel_ParamId_5,
+        ZirkOSC_ElevDelta_ParamId_5,
+        ZirkOSC_AzimSpan_ParamId_5,
+        ZirkOSC_ElevSpan_ParamId_5,
+        ZirkOSC_Gain_ParamId_5,
+        ZirkOSC_Azim_ParamId_6,
+        ZirkOSC_Elev_ParamId_6,
+        ZirkOSC_Channel_ParamId_6,
+        ZirkOSC_ElevDelta_ParamId_6,
+        ZirkOSC_AzimSpan_ParamId_6,
+        ZirkOSC_ElevSpan_ParamId_6,
+        ZirkOSC_Gain_ParamId_6,
+        ZirkOSC_Azim_ParamId_7,
+        ZirkOSC_Elev_ParamId_7,
+        ZirkOSC_Channel_ParamId_7,
+        ZirkOSC_ElevDelta_ParamId_7,
+        ZirkOSC_AzimSpan_ParamId_7,
+        ZirkOSC_ElevSpan_ParamId_7,
+        ZirkOSC_Gain_ParamId_7,
+        ZirkOSC_MovementConstraint_ParamId,
         totalNumParams
     };
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     //! Getter constrain type
-    int getSelectedConstrain();
+    int getSelectedMovementConstraint();
+    
     //! Setter constrain type
-    void setSelectedContrain(int constrain);
+    //void setSelectedContrain(int constrain);
+    
     //! Retunrs true if the Editor has to refresh the Gui.
     bool hasToRefreshGui(){return _RefreshGui;};
     //! If you want to refresh the Gui from the Processor.
@@ -221,8 +226,8 @@ private:
     bool _RefreshGui = false;
     //! Current number of sources on the screnn
     int _NbrSources;
-    //! ID of the selected constrain
-    int _SelectedConstrain=1;
+    //! ID of the selected movement constraint
+    int _SelectedMovementConstraint=1;
     //! Tab position of the selected source
     int _SelectedSource;
     //! Osc port to send to the Zirkonium 
