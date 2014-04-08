@@ -36,7 +36,7 @@ ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
     _SelectedSource  = 0;
 
     for(int i=0; i<8; i++)
-        _TabSource[i]=SoundSource(0.0+((float)i/10.0),0.0);
+        _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
     _OscZirkonium   = lo_address_new("127.0.0.1", "10001");
     _OscIpad        = lo_address_new("10.0.1.3", "10114");
     _St             = lo_server_thread_new("10116", error);
@@ -113,12 +113,12 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     }
     
     for(int i = 0; i<8;i++){
-        if      (ZirkOSC_Azim_ParamId + (i*7) == index)       return _TabSource[i].getAzimuth();
-        else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   return _TabSource[i].getAzimuthSpan();
+        if      (ZirkOSC_Azim_ParamId + (i*7) == index)       return _AllSources[i].getAzimuth();
+        else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   return _AllSources[i].getAzimuthSpan();
         //else if (ZirkOSC_Channel_ParamId + (i*7) == index)    return tabSource[i].getChannel();
-        else if (ZirkOSC_Elev_ParamId + (i*7) == index)       return _TabSource[i].getElevation();
-        else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   return _TabSource[i].getElevationSpan();
-        else if (ZirkOSC_Gain_ParamId + (i*7) == index)       return _TabSource[i].getGain();
+        else if (ZirkOSC_Elev_ParamId + (i*7) == index)       return _AllSources[i].getElevation();
+        else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   return _AllSources[i].getElevationSpan();
+        else if (ZirkOSC_Gain_ParamId + (i*7) == index)       return _AllSources[i].getGain();
         else;
     }
     cout << endl << "wrong parameter id: " << index << "in ZirkOscjuceAudioProcessor::getParameter" << endl;
@@ -137,12 +137,12 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     }
     
     for(int i = 0; i<8;i++){
-        if      (ZirkOSC_Azim_ParamId + (i*7) == index)       {_TabSource[i].setAzimuth(newValue); break;}
-        else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   {_TabSource[i].setAzimuthSpan(newValue); break;}
+        if      (ZirkOSC_Azim_ParamId + (i*7) == index)       {_AllSources[i].setAzimuth(newValue); break;}
+        else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   {_AllSources[i].setAzimuthSpan(newValue); break;}
         // else if (ZirkOSC_Channel_ParamId + (i*7) == index)    {tabSource[i].setChannel(newValue); break;}
-        else if (ZirkOSC_Elev_ParamId + (i*7) == index)       {_TabSource[i].setElevation(newValue); break;}
-        else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   {_TabSource[i].setElevationSpan(newValue); break;}
-        else if (ZirkOSC_Gain_ParamId + (i*7) == index)       {_TabSource[i].setGain(newValue); break;}
+        else if (ZirkOSC_Elev_ParamId + (i*7) == index)       {_AllSources[i].setElevation(newValue); break;}
+        else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   {_AllSources[i].setElevationSpan(newValue); break;}
+        else if (ZirkOSC_Gain_ParamId + (i*7) == index)       {_AllSources[i].setGain(newValue); break;}
         else;
     }
      cout << endl << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter" << endl;
@@ -166,12 +166,12 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
     for(int i=0;i<_NbrSources;i++){
-        float azim_osc = PercentToHR(_TabSource[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
-        float elev_osc = PercentToHR(_TabSource[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
-        float azimspan_osc = PercentToHR(_TabSource[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
-        float elevspan_osc = PercentToHR(_TabSource[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
-        int channel_osc = _TabSource[i].getChannel()-1;
-        float gain_osc = _TabSource[i].getGain();
+        float azim_osc = PercentToHR(_AllSources[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
+        float elev_osc = PercentToHR(_AllSources[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
+        float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
+        float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
+        int channel_osc = _AllSources[i].getChannel()-1;
+        float gain_osc = _AllSources[i].getGain();
         lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
         azim_osc = azim_osc * M_PI;
         elev_osc = elev_osc * M_PI;
@@ -182,7 +182,7 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCConfig(){
-    lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _TabSource[0].getChannel(), _TabSource[1].getChannel(), _TabSource[2].getChannel(), _TabSource[3].getChannel(), _TabSource[4].getChannel(), _TabSource[5].getChannel(), _TabSource[6].getChannel(), _TabSource[7].getChannel());
+    lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _AllSources[0].getChannel(), _AllSources[1].getChannel(), _AllSources[2].getChannel(), _AllSources[3].getChannel(), _AllSources[4].getChannel(), _AllSources[5].getChannel(), _AllSources[6].getChannel(), _AllSources[7].getChannel());
     
 }
 
@@ -382,17 +382,17 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         String elevationSpan = "ElevationSpan";
         String gain = "Gain";
         channel.append(String(i), 10);
-        xml.setAttribute(channel, _TabSource[i].getChannel());
+        xml.setAttribute(channel, _AllSources[i].getChannel());
         azimuth.append(String(i), 10);
-        xml.setAttribute(azimuth, _TabSource[i].getAzimuth());
+        xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
         elevation.append(String(i), 10);
-        xml.setAttribute(elevation, _TabSource[i].getElevationRawValue());
+        xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
         azimuthSpan.append(String(i), 10);
-        xml.setAttribute(azimuthSpan, _TabSource[i].getAzimuthSpan());
+        xml.setAttribute(azimuthSpan, _AllSources[i].getAzimuthSpan());
         elevationSpan.append(String(i), 10);
-        xml.setAttribute(elevationSpan, _TabSource[i].getElevationSpan());
+        xml.setAttribute(elevationSpan, _AllSources[i].getElevationSpan());
         gain.append(String(i), 10);
-        xml.setAttribute(gain, _TabSource[i].getChannel());
+        xml.setAttribute(gain, _AllSources[i].getChannel());
         
     }
     copyXmlToBinary (xml, destData);
@@ -438,12 +438,12 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 azimuthSpan.append(String(i), 10);
                 elevationSpan.append(String(i), 10);
                 gain.append(String(i), 10);
-                _TabSource[i].setChannel(xmlState->getIntAttribute(channel , 0));
-                _TabSource[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
-                _TabSource[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
-                _TabSource[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
-                _TabSource[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
-                _TabSource[i].setGain((float) xmlState->getDoubleAttribute(gain,1 ));
+                _AllSources[i].setChannel(xmlState->getIntAttribute(channel , 0));
+                _AllSources[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
+                _AllSources[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                _AllSources[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
+                _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
+                _AllSources[i].setGain((float) xmlState->getDoubleAttribute(gain,1 ));
             }
             
             changeOSCPort(_OscPortZirkonium);
