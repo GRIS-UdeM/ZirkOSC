@@ -104,7 +104,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes);
     
     //! returns the sources
-    SoundSource* getSources(){ return _TabSource; }
+    SoundSource* getSources(){ return _AllSources; }
     //! returns the number of sources on the screen.
     int getNbrSources() { return _NbrSources; }
     //! Set the number of sources.
@@ -234,8 +234,8 @@ private:
     int _OscPortZirkonium;
     //! The editor
     AudioProcessorEditor* _Editor;
-    //! Sources tab
-    SoundSource _TabSource [8];
+    //! Sources array
+    SoundSource _AllSources [8];
     //! Osc Sever thread (receiving)
     lo_server_thread _St;
     //! Zirkonium OSC address (sending)
