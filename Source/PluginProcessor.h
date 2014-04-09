@@ -187,7 +187,7 @@ public:
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     //! Getter constrain type
-    int getSelectedMovementConstraint() {return _SelectedMovementConstraint;};
+    float getSelectedMovementConstraint() {return _SelectedMovementConstraint;};
     
     //! Setter constrain type
     //void setSelectedContrain(int constrain);
@@ -227,7 +227,7 @@ private:
     //! Current number of sources on the screnn
     int _NbrSources;
     //! ID of the selected movement constraint
-    int _SelectedMovementConstraint=1;
+    float _SelectedMovementConstraint;
     //! Tab position of the selected source
     int _SelectedSource;
     //! Osc port to send to the Zirkonium 
@@ -243,11 +243,11 @@ private:
     //! Ipad OSC address (sending)
     lo_address _OscIpad;
     //! Outgoing port to the iPad 
-    String _OscPortIpadOutgoing = "10112";
+    String _OscPortIpadOutgoing;
     //! iPad address
-    String _OscAddressIpad = "10.0.1.3";
+    String _OscAddressIpad;
     //! Zirkonium incoming port
-    String _OscPortIpadIncoming = "10114";
+    String _OscPortIpadIncoming;
     //! last saved ui width
     int _LastUiWidth;
     //! last saved ui height

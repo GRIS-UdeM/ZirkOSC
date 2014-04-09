@@ -30,13 +30,18 @@ int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv
 int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
+:_NbrSources(1),
+_SelectedMovementConstraint(.2f),
+_SelectedSource(0),
+_OscPortIpadOutgoing("10112"),
+_OscAddressIpad("10.0.1.3"),
+_OscPortIpadIncoming("10114")
 {
 
-    _NbrSources      = 1;
-    _SelectedSource  = 0;
 
-    for(int i=0; i<8; i++)
+    for(int i=0; i<8; i++){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
+    }
     _OscZirkonium   = lo_address_new("127.0.0.1", "10001");
     _OscIpad        = lo_address_new("10.0.1.3", "10114");
     _St             = lo_server_thread_new("10116", error);
@@ -430,7 +435,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _OscPortIpadOutgoing = xmlState->getStringAttribute("OutPort", "10004");
             _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
             _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
-            _SelectedMovementConstraint = xmlState->getIntAttribute("MovementConstraint", 1);
+            _SelectedMovementConstraint = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
             for (int i=0;i<8;i++){
                 String channel = "Channel";
                 String azimuth = "Azimuth";
@@ -767,6 +772,4 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new ZirkOscjuceAudioProcessor();
 
 }
-
-
 
