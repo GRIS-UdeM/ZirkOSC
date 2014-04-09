@@ -39,6 +39,7 @@ _AzimuthLabel(ZirkOSC_Azim_name[0]),
 _AzimuthSpanLabel(ZirkOSC_AzimSpan_name[0]),
 _ElevationLabel(ZirkOSC_Elev_name[0]),
 _GainLabel(ZirkOSC_Gain_name[0]),
+//strings in parameters are all used as component names
 _ChannelNumberLabel("channelNbr"),
 _OscPortLabel("OscPort"),
 _OscPortOutgoingIPadLabel("OSCPortOutgoingIPad"),
@@ -129,8 +130,8 @@ _MovementConstraintComboBox("MovementConstraint")
     _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
 
     //_MovementConstraintComboBox.setSelectedId(getProcessor()->getSelectedConstrain());
-    _MovementConstraintComboBox.setSelectedId(
-                    getProcessor()->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId));
+    int selected_id = PercentToInt(getProcessor()->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId), 1, 6);
+    _MovementConstraintComboBox.setSelectedId(selected_id);
 
     //_selectedConstrain = Independant;
     _MovementConstraintComboBox.addListener(this);
@@ -403,6 +404,7 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _OscPortIncomingIPadTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
     _OscPortOutgoingIPadTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     _OscAdressIPadTextEditor.setText(ourProcessor->getOscAddressIpad());
+    _MovementConstraintComboBox.setSelectedId(PercentToInt(ourProcessor->getSelectedMovementConstraint(), 1, 6));
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button)
@@ -419,6 +421,17 @@ float PercentToHR(float percent, float min, float max){
 float HRToPercent(float HRValue, float min, float max){
     return (HRValue-min)/(max-min);
 }
+
+int PercentToInt(float percent, int min, int max){
+    return percent * (max-min) + min;
+}
+
+//min and max here represent the total range of numbers
+float IntToPercent(int integer, int min, int max){
+    return static_cast<float>((integer-min)) / (max - min);
+}
+
+
 
 void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider)
 {
@@ -775,7 +788,7 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
     //getProcessor()->setSelectedContrain(comboBoxThatHasChanged->getSelectedId());
     ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId,
-                                            comboBoxThatHasChanged->getSelectedId());
+                                            IntToPercent(comboBoxThatHasChanged->getSelectedId(), 1,6));
 
     
     ourProcessor->sendOSCMovementType();
