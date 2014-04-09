@@ -186,11 +186,10 @@ public:
     };
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
-    //! Getter constrain type
-    float getSelectedMovementConstraint() {return _SelectedMovementConstraint;};
     
-    //! Setter constrain type
-    //void setSelectedContrain(int constrain);
+    //! Getter constrain type as integer. Min and max are the boundaries of t
+    int getSelectedMovementConstraintAsInteger();
+
     
     //! Retunrs true if the Editor has to refresh the Gui.
     bool hasToRefreshGui(){return _RefreshGui;};
