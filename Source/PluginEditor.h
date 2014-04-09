@@ -47,11 +47,12 @@ public:
     enum AllConstraints
     {
         Independant = 1,/*!< Independant mode */
+        Circular,        /*!< Circular */
         FixedRadius,    /*!< All sources' radius are fixed */
         FixedAngles,    /*!< Angle between sources are fixed */
         FullyFixed,     /*!< FixedRadius and fixedAngles */
         DeltaLocked,    /*!< Delta lock mode */
-        Circular        /*!< Circular */
+        TotalNumberConstraints
     };
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
@@ -214,8 +215,8 @@ float PercentToHR(float , float , float );
 //! Conversion of human readable value to percent value
 float HRToPercent(float , float , float );
 //! Conversion of percent value to integer. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-int PercentToInt(float percent, int min, int max);
+int PercentToInt(float percent, int max=ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints);
 //! Conversion of integer value to percent. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-float IntToPercent(int integer, int min, int max);
+float IntToPercent(int integer, int max=ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints);
 
 #endif  // __PLUGINEDITOR_H_4624BC76__
