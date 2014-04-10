@@ -782,7 +782,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
-    //textEditorReturnKeyPressed(editor);
+    textEditorReturnKeyPressed(editor);
 }
 
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
