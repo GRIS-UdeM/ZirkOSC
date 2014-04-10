@@ -11,6 +11,11 @@
  ==============================================================================
  */
 
+#ifndef DEBUG
+    #define DEBUG
+#endif
+#undef DEBUG
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <cstdlib>
@@ -19,6 +24,7 @@
 #include <sstream>
 #include <istream>
 #include <math.h>
+#include <ctime>
 
 using namespace std;
 
@@ -162,7 +168,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _OscPortIncomingIPadTextEditor.addListener(this);
     _OscAdressIPadTextEditor.addListener(this);
     this->setFocusContainer(true);
-    startTimer (50);
+    startTimer (100);
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor()
@@ -365,9 +371,16 @@ inline float ZirkOscjuceAudioProcessorEditor::radianToDegree(float radian){
  */
 void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     
+#if defined(DEBUG)
+    clock_t begin = clock();
+#endif
+    
     //get ref to our processor, WHY DO THAT EVERYTIME?
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
-    
+
+#if defined(DEBUG)
+    clock_t proc = clock();
+#endif
     //ref to currently selected source
     int selectedSource = ourProcessor->getSelectedSource();
     
@@ -385,15 +398,32 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     _ElevationSpanSlider.setValue(HRValue,dontSendNotification);
-    
+
+#if defined(DEBUG)
+    clock_t sliders = clock();
+#endif
     if (ourProcessor->hasToRefreshGui()){
         refreshGui();
         ourProcessor->setRefreshGui(false);
     }
-    //getProcessor()->sendOSCValues();
+    
+#if defined(DEBUG)
+    clock_t gui = clock();
+#endif
+    
     if(!_DraggableSource){
           repaint();
     }
+    
+#if defined(DEBUG)
+    clock_t end = clock();
+    cout << "processor:\t" << proc - begin <<"ms"<< endl;
+    cout << "sliders:\t" << sliders - proc <<"ms"<< endl;
+    cout << "ref gui:\t" << gui - sliders <<"ms"<< endl;
+    cout << "repaint:\t" << end - gui <<"ms"<< endl;
+    cout << "whole thing:\t" << end - begin <<"ms"<< endl;
+#endif
+    
 }
 
 void ZirkOscjuceAudioProcessorEditor::refreshGui(){
