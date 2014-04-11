@@ -94,10 +94,8 @@ private:
     void sliderValueChanged (Slider* slider);
     //! Called every laps of time
     void timerCallback();
-    //! Called when "enter" is pressed on a TextEditor
+    //! Called when enter is pressed in a TextEditor
     void textEditorReturnKeyPressed (TextEditor &editor);
-    //! Called when a TextEditor loses focus
-    void textEditorFocusLost (TextEditor &editor);
     //! Function to set the combination of Slider and Label.
     void setSliderAndLabel(int x, int y, int width, int height, String labelText, Slider* slider, Label* label, float min, float max);
     //! Return the position of the source at the position p if no source returns -1

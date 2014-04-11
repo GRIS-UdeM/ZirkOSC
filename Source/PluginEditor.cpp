@@ -135,12 +135,9 @@ _MovementConstraintComboBox("MovementConstraint")
     _MovementConstraintComboBox.addItem("Fully fixed",   FullyFixed);
     _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
 
-    //_MovementConstraintComboBox.setSelectedId(getProcessor()->getSelectedConstrain());
-    //int selected_id = PercentToInt(getProcessor()->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId), 1, TotalNumberConstraints);
     int selected_id = getProcessor()->getSelectedMovementConstraintAsInteger();
     _MovementConstraintComboBox.setSelectedId(selected_id);
 
-    //_selectedConstrain = Independant;
     _MovementConstraintComboBox.addListener(this);
     addAndMakeVisible(&_MovementConstraintComboBox);
 
@@ -770,39 +767,45 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &editor){
+    
+    String text = editor.getText();
+    int intValue = editor.getText().getIntValue();
+    
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
 
+    //osc port was changed
     if(&_OscPortTextEditor == &editor )
     {
-        int newPort = _OscPortTextEditor.getText().getIntValue();
+        int newPort = intValue;
         ourProcessor->changeOSCPort(newPort);
         _OscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     }
-    if(&_NbrSourceTextEditor == &editor )
+    if(&_NbrSourceTextEditor == &editor)
     {
-        int newNbrSources = _NbrSourceTextEditor.getText().getIntValue();
-        if(newNbrSources >0 && newNbrSources < 9){
-            ourProcessor->setNbrSources(newNbrSources);
+        //if we have a valid number of sources, set it in processor
+        if(intValue >=1 && intValue <= 8){
+            ourProcessor->setNbrSources(intValue);
         }
+        //otherwise just ignore new value
         else{
             _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
         }
     }
     if(&_ChannelNumberTextEditor == &editor ){
-        int newChannel = _ChannelNumberTextEditor.getText().getIntValue();
+        int newChannel = intValue;
         ourProcessor->getSources()[ourProcessor->getSelectedSource()].setChannel(newChannel);
         ourProcessor->sendOSCValues();
     }
-    if (&_OscPortOutgoingIPadTextEditor ==&editor) {
-        int newPort = _OscPortOutgoingIPadTextEditor.getText().getIntValue();
+    if (&_OscPortOutgoingIPadTextEditor == &editor) {
+        int newPort = intValue;
         ourProcessor->changeOSCSendIPad(newPort, ourProcessor->getOscAddressIpad());
     }
-    if (&_OscAdressIPadTextEditor ==&editor) {
-        String oscAddress = _OscAdressIPadTextEditor.getText();
+    if (&_OscAdressIPadTextEditor == &editor) {
+        String oscAddress = text;
         ourProcessor->changeOSCSendIPad(ourProcessor->getOscPortIpadOutgoing().getIntValue(), oscAddress);
     }
-    if (&_OscPortIncomingIPadTextEditor ==&editor) {
-        int newPort = _OscPortIncomingIPadTextEditor.getText().getIntValue();
+    if (&_OscPortIncomingIPadTextEditor == &editor) {
+        int newPort = intValue;
         ourProcessor->changeOSCPortReceive(newPort);
     }
     ourProcessor->sendOSCConfig();
@@ -811,13 +814,8 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
     _GainSlider.grabKeyboardFocus();
 }
 
-void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &editor){
-    textEditorReturnKeyPressed(editor);
-}
-
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
-    //getProcessor()->setSelectedContrain(comboBoxThatHasChanged->getSelectedId());
     ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId,
                                             IntToPercent(comboBoxThatHasChanged->getSelectedId()));
 

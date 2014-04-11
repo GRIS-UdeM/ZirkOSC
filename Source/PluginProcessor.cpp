@@ -31,7 +31,7 @@ int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, 
 
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :_NbrSources(1),
-_SelectedMovementConstraint(.2f),
+_SelectedMovementConstraint(.0f),
 _SelectedSource(0),
 _OscPortIpadOutgoing("10112"),
 _OscAddressIpad("10.0.1.3"),
@@ -108,11 +108,11 @@ int ZirkOscjuceAudioProcessor::getNumParameters()
     return totalNumParams;
 }
 
+// This method will be called by the host, probably on the audio thread, so
+// it's absolutely time-critical. Don't use critical sections or anything
+// UI-related, or anything at all that may block in any way!
 float ZirkOscjuceAudioProcessor::getParameter (int index)
 {
-    // This method will be called by the host, probably on the audio thread, so
-    // it's absolutely time-critical. Don't use critical sections or anything
-    // UI-related, or anything at all that may block in any way!
     if (ZirkOSC_MovementConstraint_ParamId == index){
         return _SelectedMovementConstraint;
     }
@@ -120,7 +120,6 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     for(int i = 0; i<8;i++){
         if      (ZirkOSC_Azim_ParamId + (i*7) == index)       return _AllSources[i].getAzimuth();
         else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   return _AllSources[i].getAzimuthSpan();
-        //else if (ZirkOSC_Channel_ParamId + (i*7) == index)    return tabSource[i].getChannel();
         else if (ZirkOSC_Elev_ParamId + (i*7) == index)       return _AllSources[i].getElevation();
         else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   return _AllSources[i].getElevationSpan();
         else if (ZirkOSC_Gain_ParamId + (i*7) == index)       return _AllSources[i].getGain();
@@ -129,25 +128,23 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     cout << endl << "wrong parameter id: " << index << "in ZirkOscjuceAudioProcessor::getParameter" << endl;
 }
 
-
+// This method will be called by the host, probably on the audio thread, so
+// it's absolutely time-critical. Don't use critical sections or anything
+// UI-related, or anything at all that may block in any way!
 void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
 {
-    // This method will be called by the host, probably on the audio thread, so
-    // it's absolutely time-critical. Don't use critical sections or anything
-    // UI-related, or anything at all that may block in any way!
     
-    if (ZirkOSC_MovementConstraint_ParamId == index && newValue<7 && newValue>0){
+    if (ZirkOSC_MovementConstraint_ParamId == index){
         _SelectedMovementConstraint = newValue;
         return;
     }
     
     for(int i = 0; i<8;i++){
-        if      (ZirkOSC_Azim_ParamId + (i*7) == index)       {_AllSources[i].setAzimuth(newValue); break;}
-        else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   {_AllSources[i].setAzimuthSpan(newValue); break;}
-        // else if (ZirkOSC_Channel_ParamId + (i*7) == index)    {tabSource[i].setChannel(newValue); break;}
-        else if (ZirkOSC_Elev_ParamId + (i*7) == index)       {_AllSources[i].setElevation(newValue); break;}
-        else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   {_AllSources[i].setElevationSpan(newValue); break;}
-        else if (ZirkOSC_Gain_ParamId + (i*7) == index)       {_AllSources[i].setGain(newValue); break;}
+        if      (ZirkOSC_Azim_ParamId + (i*7) == index)       {_AllSources[i].setAzimuth(newValue); return;}
+        else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   {_AllSources[i].setAzimuthSpan(newValue); return;}
+        else if (ZirkOSC_Elev_ParamId + (i*7) == index)       {_AllSources[i].setElevation(newValue); return;}
+        else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   {_AllSources[i].setElevationSpan(newValue); return;}
+        else if (ZirkOSC_Gain_ParamId + (i*7) == index)       {_AllSources[i].setGain(newValue); return;}
         else;
     }
      cout << endl << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter" << endl;
@@ -162,7 +159,6 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     for(int i = 0; i<8;i++){
         if      (ZirkOSC_Azim_ParamId + (i*7) == index)       return ZirkOSC_Azim_name[i];
         else if (ZirkOSC_AzimSpan_ParamId + (i*7) == index)   return ZirkOSC_AzimSpan_name[i];
-        //else if (ZirkOSC_Channel_ParamId + (i*7) == index)    return ZirkOSC_Channel_name[i];
         else if (ZirkOSC_Elev_ParamId + (i*7) == index)       return ZirkOSC_Elev_name[i];
         else if (ZirkOSC_ElevSpan_ParamId + (i*7) == index)   return ZirkOSC_ElevSpan_name[i];
         else if (ZirkOSC_Gain_ParamId + (i*7) == index)       return ZirkOSC_Gain_name[i];
