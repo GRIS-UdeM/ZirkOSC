@@ -621,18 +621,12 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         int selectedConstrain = ourProcessor->getSelectedMovementConstraintAsInteger();
         if (selectedConstrain == Independant) {
             ourProcessor->getSources()[selectedSource].setPositionXY(pointRelativeCenter);
-            //float HRAzimuth = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-            //_SourcePoint.setX(HRAzimuth);
-
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + selectedSource*7,
                                                      ourProcessor->getSources()[selectedSource].getAzimuth());
-            //float HRElevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Min);
-            //_SourcePoint.setY(HRElevation);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*7,
                                                      ourProcessor->getSources()[selectedSource].getElevation());
             ourProcessor->sendOSCValues();
 
-            //repaint();
         }
         else if (selectedConstrain == FixedAngles){
              moveFixedAngles(pointRelativeCenter);
