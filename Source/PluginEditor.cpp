@@ -84,42 +84,42 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_AzimuthSpanLabel);
 
     _NbrSourceLabel.setText("Nbr Sources", false);
-    _NbrSourceLabel.setBounds(ZirkOSC_Window_Width-80 , 10, 80, 25);
+    _NbrSourceLabel.setBounds     (ZirkOSC_Window_Width-80 , 10, 80, 25);
     _NbrSourceTextEditor.setBounds(ZirkOSC_Window_Width-75 , 30, 60, 25);
     _NbrSourceTextEditor.setText(String(getProcessor()->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
 
-    _OscPortLabel.setText("ZKM Port OSC", false);
-    _OscPortLabel.setBounds(ZirkOSC_Window_Width-80 , 60, 80, 25);
-    _OscPortTextEditor.setBounds(ZirkOSC_Window_Width-75 , 80, 60, 25);
+    _ChannelNumberLabel.setText("1st source ID", false);
+    _ChannelNumberLabel.setBounds     (ZirkOSC_Window_Width-80 , 60, 80, 25);
+    _ChannelNumberTextEditor.setBounds(ZirkOSC_Window_Width-75 , 80, 60, 25);
+    _ChannelNumberTextEditor.setText(String(getProcessor()->getSources()[getProcessor()->getSelectedSource()].getChannel()));
+    addAndMakeVisible(&_ChannelNumberLabel);
+    addAndMakeVisible(&_ChannelNumberTextEditor);
+    
+    _OscPortLabel.setText("ZKM OSC Port", false);
+    _OscPortLabel.setBounds     (ZirkOSC_Window_Width-80 , 110, 80, 25);
+    _OscPortTextEditor.setBounds(ZirkOSC_Window_Width-75 , 130, 60, 25);
     _OscPortTextEditor.setText(String(getProcessor()->getOscPortZirkonium()));
     addAndMakeVisible(&_OscPortLabel);
     addAndMakeVisible(&_OscPortTextEditor);
 
-    _ChannelNumberLabel.setText("Channel nbr", false);
-    _ChannelNumberLabel.setBounds(ZirkOSC_Window_Width-80 , 110, 80, 25);
-    _ChannelNumberTextEditor.setBounds(ZirkOSC_Window_Width-75 , 130, 60, 25);
-    _ChannelNumberTextEditor.setText(String(getProcessor()->getSources()[getProcessor()->getSelectedSource()].getChannel()));
-    addAndMakeVisible(&_ChannelNumberLabel);
-    addAndMakeVisible(&_ChannelNumberTextEditor);
-
     _OscPortIncomingIPadLabel.setText("Inc. port", false);
-    _OscPortIncomingIPadLabel.setBounds(ZirkOSC_Window_Width-80 , 160, 80, 25);
+    _OscPortIncomingIPadLabel.setBounds     (ZirkOSC_Window_Width-80 , 160, 80, 25);
     _OscPortIncomingIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 180, 60, 25);
     _OscPortIncomingIPadTextEditor.setText(String(getProcessor()->getOscPortIpadIncoming()));
     addAndMakeVisible(&_OscPortIncomingIPadLabel);
     addAndMakeVisible(&_OscPortIncomingIPadTextEditor);
 
     _OscPortOutgoingIPadLabel.setText("Out. port", false);
-    _OscPortOutgoingIPadLabel.setBounds(ZirkOSC_Window_Width-80 , 210, 80, 25);
+    _OscPortOutgoingIPadLabel.setBounds     (ZirkOSC_Window_Width-80 , 210, 80, 25);
     _OscPortOutgoingIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 230, 60, 25);
     _OscPortOutgoingIPadTextEditor.setText(String(getProcessor()->getOscPortIpadOutgoing()));
     addAndMakeVisible(&_OscPortOutgoingIPadLabel);
     addAndMakeVisible(&_OscPortOutgoingIPadTextEditor);
 
     _OscAdressIPadTextLabel.setText("IP add. iPad", false);
-    _OscAdressIPadTextLabel.setBounds(ZirkOSC_Window_Width-80 , 260, 80, 25);
+    _OscAdressIPadTextLabel.setBounds (ZirkOSC_Window_Width-80 , 260, 80, 25);
     _OscAdressIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 280, 60, 25);
     _OscAdressIPadTextEditor.setText(String(getProcessor()->getOscAddressIpad()));
     addAndMakeVisible(&_OscAdressIPadTextLabel);
@@ -793,8 +793,12 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
     }
     if(&_ChannelNumberTextEditor == &editor ){
         int newChannel = intValue;
-        ourProcessor->getSources()[ourProcessor->getSelectedSource()].setChannel(newChannel);
-        ourProcessor->sendOSCValues();
+    
+        //set the ID of the first source to intValue, then set all subsequent source IDs to subsequent numbers
+        for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
+            ourProcessor->getSources()[iCurSource].setChannel(newChannel++);
+        }
+       ourProcessor->sendOSCValues();
     }
     if (&_OscPortOutgoingIPadTextEditor == &editor) {
         int newPort = intValue;
