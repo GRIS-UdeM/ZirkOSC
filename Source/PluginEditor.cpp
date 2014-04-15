@@ -667,55 +667,55 @@ void ZirkOscjuceAudioProcessorEditor::moveFullyFixed(Point<float> p){
     moveCircularWithFixedRadius(p);
 }
 
-void ZirkOscjuceAudioProcessorEditor::moveCircularWithFixedRadius(Point<float> pointRelativeCenter){
-    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
-    int selectedSource = ourProcessor->getSelectedSource();
-    SoundSource DomeNewPoint = SoundSource();
-    DomeNewPoint.setPositionXY(pointRelativeCenter);
-    float HRElevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    float HRAzimuth = 180+PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-
-    float HRNewElevation = PercentToHR(DomeNewPoint.getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    float HRNewAzimuth = PercentToHR(DomeNewPoint.getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-
-    Point<float> deltaCircularMove = Point<float>(HRNewAzimuth-HRAzimuth,HRNewElevation-HRElevation);
-    //azimuthLabel.setText(String(deltaCircularMove.getY()),false);
-
-    ourProcessor->getSources()[selectedSource].setElevation(ourProcessor->getSources()[selectedSource].getElevation()+HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
-    for (int i = 0; i<ourProcessor->getNbrSources(); i++) {
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*7,
-                                                 ourProcessor->getSources()[i].getAzimuth()+HRToPercent(deltaCircularMove.getX(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max));
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*7,
-                                                 ourProcessor->getSources()[selectedSource].getElevation());
-    }
-}
-
 void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCenter){
-    SoundSource DomeNewPoint = SoundSource();
+    moveCircular(pointRelativeCenter, false);
+    
+}
+
+void ZirkOscjuceAudioProcessorEditor::moveCircularWithFixedRadius(Point<float> pointRelativeCenter){
+    moveCircular(pointRelativeCenter, true);
+}
+
+void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCenter, bool isRadiusFixed){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
     int selectedSource = ourProcessor->getSelectedSource();
+    SoundSource DomeNewPoint = SoundSource();
     DomeNewPoint.setPositionXY(pointRelativeCenter);
     float HRElevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     float HRAzimuth = 180+PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-
+    
     float HRNewElevation = PercentToHR(DomeNewPoint.getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     float HRNewAzimuth = PercentToHR(DomeNewPoint.getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-
+    
     Point<float> deltaCircularMove = Point<float>(HRNewAzimuth-HRAzimuth,HRNewElevation-HRElevation);
-    //azimuthLabel.setText(String(deltaCircularMove.getY()),false);
+    
+    if (isRadiusFixed){
+        ourProcessor->getSources()[selectedSource].setElevation(ourProcessor->getSources()[selectedSource].getElevation()+HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
+
+    }
+    
     for (int i = 0; i<ourProcessor->getNbrSources(); i++) {
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*7,
                                                  ourProcessor->getSources()[i].getAzimuth()+HRToPercent(deltaCircularMove.getX(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max));
-        if(!ourProcessor->getSources()[i].isAzimReverse()){
+        if (isRadiusFixed){
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*7,
-                                                     ourProcessor->getSources()[i].getElevationRawValue()+HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
+                                                     ourProcessor->getSources()[selectedSource].getElevation());
         }
-        else{
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*7,
+        else {
+            //if radius is non-fixed, some ra
+            if(!ourProcessor->getSources()[i].isAzimReverse()){
+                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*7,
+                                                     ourProcessor->getSources()[i].getElevationRawValue()+HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
+            }
+            else{
+                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*7,
                                                      ourProcessor->getSources()[i].getElevationRawValue()-HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max));
+            }
         }
     }
 }
+
+
 
 void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMove){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
