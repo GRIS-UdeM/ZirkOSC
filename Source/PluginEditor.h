@@ -60,6 +60,12 @@ public:
     void moveSourcesWithDelta(Point<float> DeltaMove);
     //! Move sources around the center
     void moveCircular(Point<float> );
+    
+    
+    
+    void moveCircular(Point<float>, bool isFixedRadius );
+    
+    
     //! Move sources with fixed angle between each source
     void moveFixedAngles(Point<float>);
     //! Move sources with fixed angles and fixed radius
