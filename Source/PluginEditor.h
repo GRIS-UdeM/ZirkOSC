@@ -156,7 +156,7 @@ private:
     //! TextEditor for the Number of sources
     TextEditor _NbrSourceTextEditor;
     //! TextEditor for the channel number of the selected source 
-    TextEditor _ChannelNumberTextEditor;
+    TextEditor _FirstSourceIdTextEditor;
     //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
     TextEditor _OscPortOutgoingIPadTextEditor;
     //! TextEditor for the iPad ip address
