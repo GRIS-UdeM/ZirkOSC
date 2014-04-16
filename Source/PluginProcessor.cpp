@@ -33,6 +33,7 @@ ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :_NbrSources(1),
 _SelectedMovementConstraint(.0f),
 _SelectedSource(0),
+_OscPortZirkonium(18032),
 _OscPortIpadOutgoing("10112"),
 _OscAddressIpad("10.0.1.3"),
 _OscPortIpadIncoming("10114")
