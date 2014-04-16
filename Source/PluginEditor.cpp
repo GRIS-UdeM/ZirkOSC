@@ -93,7 +93,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _ChannelNumberLabel.setText("1st source ID", false);
     _ChannelNumberLabel.setBounds     (ZirkOSC_Window_Width-80 , 60, 80, 25);
     _FirstSourceIdTextEditor.setBounds(ZirkOSC_Window_Width-75 , 80, 60, 25);
-    _FirstSourceIdTextEditor.setText(String(getProcessor()->getSources()[getProcessor()->getSelectedSource()].getChannel()));
+    _FirstSourceIdTextEditor.setText(String(getProcessor()->getSources()[0].getChannel()));
     addAndMakeVisible(&_ChannelNumberLabel);
     addAndMakeVisible(&_FirstSourceIdTextEditor);
     
@@ -428,7 +428,7 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     int selectedSource = ourProcessor->getSelectedSource();
     _OscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
-    _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[selectedSource].getChannel()));
+    _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
     _OscPortIncomingIPadTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
     _OscPortOutgoingIPadTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     _OscAdressIPadTextEditor.setText(ourProcessor->getOscAddressIpad());
@@ -537,7 +537,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
 
         getProcessor()->setSelectedSource(source);
         int selectedConstrain = getProcessor()->getSelectedMovementConstraintAsInteger();
-        _FirstSourceIdTextEditor.setText(String(getProcessor()->getSources()[source].getChannel()));
+        //_FirstSourceIdTextEditor.setText(String(getProcessor()->getSources()[0].getChannel()));
         if (selectedConstrain == Independant) {
             //_SourcePoint.setX(getProcessor()->tabSource[source].getAzimuth());
             //_SourcePoint.setY(getProcessor()->tabSource[source].getElevation());
