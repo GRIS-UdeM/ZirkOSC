@@ -169,8 +169,8 @@ private:
 
     //! If there is a source beeing drag
     bool _DraggableSource = false;
-    //! If the angles between each source are fixed
-    bool _FixedAngle=false;
+    //! Whether the angles between the sources need to all be set equal
+    bool _isNeedToSetFixedAngles=false;
     //! If the span are linked
     bool _LinkSpan = false;
 
@@ -211,7 +211,7 @@ private:
     //! converts radian to Degree
     inline float radianToDegree (float);
     //! get the source order by the angle value
-    int * getOrderSources(int, SoundSource[]);
+    int * getOrderSources(int, SoundSource[], int nbrSources);
 };
 
 //! Conversion of percent value to Human readeable value
