@@ -620,11 +620,8 @@ void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSo
     int nbrSources = getProcessor()->getNbrSources();
     int* order = getOrderSources(selected, tab, nbrSources);
     int count = 0;
-    int count2;
     for(int i= 1; i != nbrSources ; i++){
-        count2 = ++count;
-        cout << count2 << endl;
-        getProcessor()->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), tab[order[0]].getAzimuth()+ (float)(count2)/(float) nbrSources);
+        getProcessor()->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources);
     }
 }
 
