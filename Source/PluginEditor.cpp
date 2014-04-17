@@ -274,7 +274,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         HRElev = PercentToHR(getProcessor()->getSources()[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         screen = domeToScreen(Point<float> (HRAzim, HRElev));
         g.drawEllipse(ZirkOSC_Center_X + screen.getX()-4, ZirkOSC_Center_Y + screen.getY()-4, 8, 8,2);
-        if(!_DraggableSource){
+        if(!_isSourceBeingDragged){
              g.drawText(String(getProcessor()->getSources()[i].getChannel()), ZirkOSC_Center_X + screen.getX()+6, ZirkOSC_Center_Y + screen.getY()-2, 40, 10, Justification::centred, false);
         }
     }
@@ -364,7 +364,7 @@ inline float ZirkOscjuceAudioProcessorEditor::radianToDegree(float radian){
 
 /*!
  * Function called every 50ms to refresh value from Host
- * repaint only if the user doesn't move any source (_DraggableSource)
+ * repaint only if the user doesn't move any source (_isSourceBeingDragged)
  */
 void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     
@@ -408,7 +408,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     clock_t gui = clock();
 #endif
     
-    if(!_DraggableSource){
+    if(!_isSourceBeingDragged){
           repaint();
     }
     
@@ -532,8 +532,8 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         source=getSourceFromPosition(Point<float>(event.x-ZirkOSC_Center_X, event.y-ZirkOSC_Center_Y));
 
     }
-    _DraggableSource = (source!=-1);
-    if(_DraggableSource){
+    _isSourceBeingDragged = (source!=-1);
+    if(_isSourceBeingDragged){
 
         getProcessor()->setSelectedSource(source);
         int selectedConstrain = getProcessor()->getSelectedMovementConstraintAsInteger();
@@ -566,17 +566,15 @@ int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
-    if(_DraggableSource){
+    if(_isSourceBeingDragged){
         ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
         int selectedSource = ourProcessor->getSelectedSource();
         Point<float> pointRelativeCenter = Point<float>(event.x-ZirkOSC_Center_X, event.y-ZirkOSC_Center_Y);
         int selectedConstrain = ourProcessor->getSelectedMovementConstraintAsInteger();
         if (selectedConstrain == Independant) {
             ourProcessor->getSources()[selectedSource].setPositionXY(pointRelativeCenter);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + selectedSource*5,
-                                                     ourProcessor->getSources()[selectedSource].getAzimuth());
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*5,
-                                                     ourProcessor->getSources()[selectedSource].getElevation());
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + selectedSource*5, ourProcessor->getSources()[selectedSource].getAzimuth());
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*5, ourProcessor->getSources()[selectedSource].getElevation());
             ourProcessor->sendOSCValues();
 
         }
@@ -758,7 +756,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
-    if(_DraggableSource){
+    if(_isSourceBeingDragged){
         int selectedConstrain = getProcessor()->getSelectedMovementConstraintAsInteger();
         if(selectedConstrain == Independant){
             int selectedSource = getProcessor()->getSelectedSource();
@@ -774,7 +772,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
             //VB APRIL 16 2014
             //_isNeedToSetFixedAngles=true;
         }
-        _DraggableSource=false;
+        _isSourceBeingDragged=false;
     }
     _GainSlider.grabKeyboardFocus();
 }
@@ -864,9 +862,9 @@ void ZirkOscjuceAudioProcessorEditor::setFixedAngle(bool fixedAngle){
 }
 
 void ZirkOscjuceAudioProcessorEditor::setDraggableSource(bool drag){
-    _DraggableSource = drag;
+    _isSourceBeingDragged = drag;
 }
 
 bool ZirkOscjuceAudioProcessorEditor::isDraggableSource(){
-    return _DraggableSource;
+    return _isSourceBeingDragged;
 }

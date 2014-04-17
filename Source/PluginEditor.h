@@ -168,7 +168,7 @@ private:
     ComboBox _MovementConstraintComboBox;
 
     //! If there is a source beeing drag
-    bool _DraggableSource = false;
+    bool _isSourceBeingDragged = false;
     //! Whether the angles between the sources need to all be set equal
     bool _isNeedToSetFixedAngles=false;
     //! If the span are linked
