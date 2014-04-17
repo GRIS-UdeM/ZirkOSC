@@ -565,54 +565,6 @@ int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
     return -1;
 }
 
-void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSource tab[]){
-    int nbrSources = getProcessor()->getNbrSources();
-    int* order = getOrderSources(selected, tab);
-    int count = 0;
-    for(int i= 1; i != nbrSources ; i++){
-        getProcessor()->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources);
-    }
-}
-
-int* ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource tab []){
-    int nbrSources = getProcessor()->getNbrSources();
-    int * order = new int [nbrSources];
-    int firstItem = selected;
-    order[0] = selected;
-    int count  = 1;
-    do{
-        int current = (selected + 1)%nbrSources;
-
-        int bestItem = current;
-        float bestDelta = tab[current].getAzimuth() - tab[selected].getAzimuth();
-        if (bestDelta<0){
-            bestDelta+=1;
-        }
-
-        while (current != selected) {
-            float currentAzimuth;
-            if (tab[current].getAzimuth() - tab[selected].getAzimuth()>0 ){
-                currentAzimuth = tab[current].getAzimuth();
-            }
-            else{
-                currentAzimuth = tab[current].getAzimuth()+1;
-            }
-            // gainLabel.setText(String(count++),false);
-            if (currentAzimuth - tab[selected].getAzimuth() < bestDelta) {
-                bestItem = current;
-                bestDelta = currentAzimuth - tab[selected].getAzimuth();
-
-            }
-            current = (current +1) % nbrSources;
-        }
-
-        order[count++]=bestItem;
-        selected = bestItem;
-    }
-    while (selected != firstItem);
-    return order;
-}
-
 void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
     if(_DraggableSource){
         ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
@@ -651,20 +603,69 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
-    int selectedSource = getProcessor()->getSelectedSource();
-    if (!_FixedAngle){
-        orderSourcesByAngle(selectedSource,getProcessor()->getSources());
-        _FixedAngle=true;
+    if (_isNeedToSetFixedAngles){
+        orderSourcesByAngle(getProcessor()->getSelectedSource(),getProcessor()->getSources());
+        _isNeedToSetFixedAngles=false;
     }
     moveCircular(p);
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFullyFixed(Point<float> p){
-    if (!_FixedAngle){
+    if (_isNeedToSetFixedAngles){
         orderSourcesByAngle(getProcessor()->getSelectedSource(),getProcessor()->getSources());
-        _FixedAngle=true;
+        _isNeedToSetFixedAngles=false;
     }
     moveCircularWithFixedRadius(p);
+}
+
+void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSource tab[]){
+    int nbrSources = getProcessor()->getNbrSources();
+    int* order = getOrderSources(selected, tab, nbrSources);
+    int count = 0;
+    int count2;
+    for(int i= 1; i != nbrSources ; i++){
+        count2 = ++count;
+        cout << count2 << endl;
+        getProcessor()->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), tab[order[0]].getAzimuth()+ (float)(count2)/(float) nbrSources);
+    }
+}
+
+int* ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
+    int * order = new int [nbrSources];
+    int firstItem = selected;
+    order[0] = selected;
+    int count  = 1;
+    do{
+        int current = (selected + 1)%nbrSources;
+        
+        int bestItem = current;
+        float bestDelta = tab[current].getAzimuth() - tab[selected].getAzimuth();
+        if (bestDelta<0){
+            bestDelta+=1;
+        }
+        
+        while (current != selected) {
+            float currentAzimuth;
+            if (tab[current].getAzimuth() - tab[selected].getAzimuth()>0 ){
+                currentAzimuth = tab[current].getAzimuth();
+            }
+            else{
+                currentAzimuth = tab[current].getAzimuth()+1;
+            }
+            // gainLabel.setText(String(count++),false);
+            if (currentAzimuth - tab[selected].getAzimuth() < bestDelta) {
+                bestItem = current;
+                bestDelta = currentAzimuth - tab[selected].getAzimuth();
+                
+            }
+            current = (current +1) % nbrSources;
+        }
+        
+        order[count++]=bestItem;
+        selected = bestItem;
+    }
+    while (selected != firstItem);
+    return order;
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCenter){
@@ -763,13 +764,15 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
             int selectedSource = getProcessor()->getSelectedSource();
             getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ selectedSource*5);
             getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*5);
+
         }
         else if (selectedConstrain == DeltaLocked || selectedConstrain == Circular || selectedConstrain == FixedRadius || selectedConstrain == FixedAngles || selectedConstrain == FullyFixed){
             for(int i = 0;i<getProcessor()->getNbrSources(); i++){
                 getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5);
                 getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5);
             }
-            _FixedAngle=false;
+            //VB APRIL 16 2014
+            //_isNeedToSetFixedAngles=true;
         }
         _DraggableSource=false;
     }
@@ -842,18 +845,22 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
     ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId,
                                             IntToPercent(comboBoxThatHasChanged->getSelectedId()));
 
-    
+//    VB APRIL 16 2014
+    int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
+    if( selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
+        _isNeedToSetFixedAngles=true;
+    }
     ourProcessor->sendOSCMovementType();
     _GainSlider.grabKeyboardFocus();
 
 }
 
 bool ZirkOscjuceAudioProcessorEditor::isFixedAngle(){
-    return _FixedAngle;
+    return _isNeedToSetFixedAngles;
 }
 
 void ZirkOscjuceAudioProcessorEditor::setFixedAngle(bool fixedAngle){
-    _FixedAngle = fixedAngle;
+    _isNeedToSetFixedAngles = fixedAngle;
 }
 
 void ZirkOscjuceAudioProcessorEditor::setDraggableSource(bool drag){
