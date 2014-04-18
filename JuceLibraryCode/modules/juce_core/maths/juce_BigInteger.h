@@ -1,34 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the juce_core module of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission to use, copy, modify, and/or distribute this software for any purpose with
+   or without fee is hereby granted, provided that the above copyright notice and this
+   permission notice appear in all copies.
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
+   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   ------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------
+   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
+   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
+   using any other modules, be sure to check that you also comply with their license.
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   For more details, visit www.juce.com
 
   ==============================================================================
 */
 
-#ifndef __JUCE_BIGINTEGER_JUCEHEADER__
-#define __JUCE_BIGINTEGER_JUCEHEADER__
-
-#include "../text/juce_String.h"
-#include "../memory/juce_HeapBlock.h"
-class MemoryBlock;
+#ifndef JUCE_BIGINTEGER_H_INCLUDED
+#define JUCE_BIGINTEGER_H_INCLUDED
 
 
 //==============================================================================
@@ -66,11 +65,11 @@ public:
     BigInteger (int64 value);
 
     /** Creates a copy of another BigInteger. */
-    BigInteger (const BigInteger& other);
+    BigInteger (const BigInteger&);
 
    #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    BigInteger (BigInteger&& other) noexcept;
-    BigInteger& operator= (BigInteger&& other) noexcept;
+    BigInteger (BigInteger&&) noexcept;
+    BigInteger& operator= (BigInteger&&) noexcept;
    #endif
 
     /** Destructor. */
@@ -78,10 +77,10 @@ public:
 
     //==============================================================================
     /** Copies another BigInteger onto this one. */
-    BigInteger& operator= (const BigInteger& other);
+    BigInteger& operator= (const BigInteger&);
 
     /** Swaps the internal contents of this with another object. */
-    void swapWith (BigInteger& other) noexcept;
+    void swapWith (BigInteger&) noexcept;
 
     //==============================================================================
     /** Returns the value of a specified bit in the number.
@@ -95,10 +94,15 @@ public:
     /** Returns true if the value is 1. */
     bool isOne() const noexcept;
 
-    /** Attempts to get the lowest bits of the value as an integer.
+    /** Attempts to get the lowest 32 bits of the value as an integer.
         If the value is bigger than the integer limits, this will return only the lower bits.
     */
     int toInteger() const noexcept;
+
+    /** Attempts to get the lowest 64 bits of the value as an integer.
+        If the value is bigger than the integer limits, this will return only the lower bits.
+    */
+    int64 toInt64() const noexcept;
 
     //==============================================================================
     /** Resets the value to 0. */
@@ -179,14 +183,14 @@ public:
     //==============================================================================
     // All the standard arithmetic ops...
 
-    BigInteger& operator+= (const BigInteger& other);
-    BigInteger& operator-= (const BigInteger& other);
-    BigInteger& operator*= (const BigInteger& other);
-    BigInteger& operator/= (const BigInteger& other);
-    BigInteger& operator|= (const BigInteger& other);
-    BigInteger& operator&= (const BigInteger& other);
-    BigInteger& operator^= (const BigInteger& other);
-    BigInteger& operator%= (const BigInteger& other);
+    BigInteger& operator+= (const BigInteger&);
+    BigInteger& operator-= (const BigInteger&);
+    BigInteger& operator*= (const BigInteger&);
+    BigInteger& operator/= (const BigInteger&);
+    BigInteger& operator|= (const BigInteger&);
+    BigInteger& operator&= (const BigInteger&);
+    BigInteger& operator^= (const BigInteger&);
+    BigInteger& operator%= (const BigInteger&);
     BigInteger& operator<<= (int numBitsToShift);
     BigInteger& operator>>= (int numBitsToShift);
     BigInteger& operator++();
@@ -195,23 +199,23 @@ public:
     BigInteger operator-- (int);
 
     BigInteger operator-() const;
-    BigInteger operator+ (const BigInteger& other) const;
-    BigInteger operator- (const BigInteger& other) const;
-    BigInteger operator* (const BigInteger& other) const;
-    BigInteger operator/ (const BigInteger& other) const;
-    BigInteger operator| (const BigInteger& other) const;
-    BigInteger operator& (const BigInteger& other) const;
-    BigInteger operator^ (const BigInteger& other) const;
-    BigInteger operator% (const BigInteger& other) const;
+    BigInteger operator+ (const BigInteger&) const;
+    BigInteger operator- (const BigInteger&) const;
+    BigInteger operator* (const BigInteger&) const;
+    BigInteger operator/ (const BigInteger&) const;
+    BigInteger operator| (const BigInteger&) const;
+    BigInteger operator& (const BigInteger&) const;
+    BigInteger operator^ (const BigInteger&) const;
+    BigInteger operator% (const BigInteger&) const;
     BigInteger operator<< (int numBitsToShift) const;
     BigInteger operator>> (int numBitsToShift) const;
 
-    bool operator== (const BigInteger& other) const noexcept;
-    bool operator!= (const BigInteger& other) const noexcept;
-    bool operator<  (const BigInteger& other) const noexcept;
-    bool operator<= (const BigInteger& other) const noexcept;
-    bool operator>  (const BigInteger& other) const noexcept;
-    bool operator>= (const BigInteger& other) const noexcept;
+    bool operator== (const BigInteger&) const noexcept;
+    bool operator!= (const BigInteger&) const noexcept;
+    bool operator<  (const BigInteger&) const noexcept;
+    bool operator<= (const BigInteger&) const noexcept;
+    bool operator>  (const BigInteger&) const noexcept;
+    bool operator>= (const BigInteger&) const noexcept;
 
     //==============================================================================
     /** Does a signed comparison of two BigIntegers.
@@ -239,8 +243,7 @@ public:
     */
     void divideBy (const BigInteger& divisor, BigInteger& remainder);
 
-    /** Returns the largest value that will divide both this value and the one passed-in.
-    */
+    /** Returns the largest value that will divide both this value and the one passed-in. */
     BigInteger findGreatestCommonDivisor (BigInteger other) const;
 
     /** Performs a combined exponent and modulo operation.
@@ -283,7 +286,7 @@ public:
         Specify a base such as 2 (binary), 8 (octal), 10 (decimal), 16 (hex).
         Any invalid characters will be ignored.
     */
-    void parseString (const String& text, int base);
+    void parseString (StringRef text, int base);
 
     //==============================================================================
     /** Turns the number into a block of binary data.
@@ -306,12 +309,12 @@ public:
 
 private:
     //==============================================================================
-    HeapBlock <uint32> values;
+    HeapBlock<uint32> values;
     size_t numValues;
     int highestBit;
     bool negative;
 
-    void ensureSize (size_t numVals);
+    void ensureSize (size_t);
     void shiftLeft (int bits, int startBit);
     void shiftRight (int bits, int startBit);
 
@@ -328,4 +331,4 @@ OutputStream& JUCE_CALLTYPE operator<< (OutputStream& stream, const BigInteger& 
 #endif
 
 
-#endif   // __JUCE_BIGINTEGER_JUCEHEADER__
+#endif   // JUCE_BIGINTEGER_H_INCLUDED

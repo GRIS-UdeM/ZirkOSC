@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -30,9 +29,6 @@ bool isOpenSLAvailable()
     DynamicLibrary library;
     return library.open ("libOpenSLES.so");
 }
-
-const unsigned short openSLRates[]       = { 8000, 16000, 32000, 44100, 48000 };
-const unsigned short openSLBufferSizes[] = { 256, 512, 768, 1024, 1280, 1600 }; // must all be multiples of the block size
 
 //==============================================================================
 class OpenSLAudioIODevice  : public AudioIODevice,
@@ -67,7 +63,7 @@ public:
 
     bool openedOk() const       { return engine.outputMixObject != nullptr; }
 
-    StringArray getOutputChannelNames()
+    StringArray getOutputChannelNames() override
     {
         StringArray s;
         s.add ("Left");
@@ -75,38 +71,33 @@ public:
         return s;
     }
 
-    StringArray getInputChannelNames()
+    StringArray getInputChannelNames() override
     {
         StringArray s;
         s.add ("Audio Input");
         return s;
     }
 
-    int getNumSampleRates()                 { return numElementsInArray (openSLRates); }
-
-    double getSampleRate (int index)
+    Array<double> getAvailableSampleRates() override
     {
-        jassert (index >= 0 && index < getNumSampleRates());
-        return (int) openSLRates [index];
+        static const double rates[]       = { 8000.0, 16000.0, 32000.0, 44100.0, 48000.0 };
+        return Array<double> (rates, numElementsInArray (rates));
     }
 
-    int getDefaultBufferSize()              { return 1024; }
-    int getNumBufferSizesAvailable()        { return numElementsInArray (openSLBufferSizes); }
-
-    int getBufferSizeSamples (int index)
+    Array<int> getAvailableBufferSizes() override
     {
-        jassert (index >= 0 && index < getNumBufferSizesAvailable());
-        return (int) openSLBufferSizes [index];
+        static const int sizes[] = { 256, 512, 768, 1024, 1280, 1600 }; // must all be multiples of the block size
+        return Array<int> (sizes, numElementsInArray (sizes));
     }
 
     String open (const BigInteger& inputChannels,
                  const BigInteger& outputChannels,
                  double requestedSampleRate,
-                 int bufferSize)
+                 int bufferSize) override
     {
         close();
 
-        lastError = String::empty;
+        lastError.clear();
         sampleRate = (int) requestedSampleRate;
 
         int preferredBufferSize = (bufferSize <= 0) ? getDefaultBufferSize() : bufferSize;
@@ -134,7 +125,7 @@ public:
         return lastError;
     }
 
-    void close()
+    void close() override
     {
         stop();
         stopThread (6000);
@@ -143,18 +134,19 @@ public:
         player = nullptr;
     }
 
-    int getOutputLatencyInSamples()                     { return outputLatency; }
-    int getInputLatencyInSamples()                      { return inputLatency; }
-    bool isOpen()                                       { return deviceOpen; }
-    int getCurrentBufferSizeSamples()                   { return actualBufferSize; }
-    int getCurrentBitDepth()                            { return 16; }
-    double getCurrentSampleRate()                       { return sampleRate; }
-    BigInteger getActiveOutputChannels() const          { return activeOutputChans; }
-    BigInteger getActiveInputChannels() const           { return activeInputChans; }
-    String getLastError()                               { return lastError; }
-    bool isPlaying()                                    { return callback != nullptr; }
+    int getDefaultBufferSize() override                 { return 1024; }
+    int getOutputLatencyInSamples() override            { return outputLatency; }
+    int getInputLatencyInSamples() override             { return inputLatency; }
+    bool isOpen() override                              { return deviceOpen; }
+    int getCurrentBufferSizeSamples() override          { return actualBufferSize; }
+    int getCurrentBitDepth() override                   { return 16; }
+    double getCurrentSampleRate() override              { return sampleRate; }
+    BigInteger getActiveOutputChannels() const override { return activeOutputChans; }
+    BigInteger getActiveInputChannels() const override  { return activeInputChans; }
+    String getLastError() override                      { return lastError; }
+    bool isPlaying() override                           { return callback != nullptr; }
 
-    void start (AudioIODeviceCallback* newCallback)
+    void start (AudioIODeviceCallback* newCallback) override
     {
         stop();
 
@@ -167,13 +159,13 @@ public:
         }
     }
 
-    void stop()
+    void stop() override
     {
         if (AudioIODeviceCallback* const oldCallback = setCallback (nullptr))
             oldCallback->audioDeviceStopped();
     }
 
-    void run()
+    void run() override
     {
         if (recorder != nullptr)    recorder->start();
         if (player != nullptr)      player->start();
@@ -187,10 +179,8 @@ public:
 
             if (callback != nullptr)
             {
-                callback->audioDeviceIOCallback (numInputChannels > 0 ? (const float**) inputBuffer.getArrayOfChannels() : nullptr,
-                                                 numInputChannels,
-                                                 numOutputChannels > 0 ? outputBuffer.getArrayOfChannels() : nullptr,
-                                                 numOutputChannels,
+                callback->audioDeviceIOCallback (numInputChannels  > 0 ? inputBuffer.getArrayOfReadPointers()   : nullptr, numInputChannels,
+                                                 numOutputChannels > 0 ? outputBuffer.getArrayOfWritePointers() : nullptr, numOutputChannels,
                                                  actualBufferSize);
             }
             else
@@ -412,7 +402,7 @@ private:
                     typedef AudioData::Pointer <AudioData::Float32, AudioData::NativeEndian, AudioData::NonInterleaved, AudioData::Const> SrcSampleType;
 
                     DstSampleType dstData (destBuffer + i, bufferList.numChannels);
-                    SrcSampleType srcData (buffer.getSampleData (i, offset));
+                    SrcSampleType srcData (buffer.getReadPointer (i, offset));
                     dstData.convertSamples (srcData, bufferList.numSamples);
                 }
 
@@ -530,7 +520,7 @@ private:
                     typedef AudioData::Pointer <AudioData::Float32, AudioData::NativeEndian, AudioData::NonInterleaved, AudioData::NonConst> DstSampleType;
                     typedef AudioData::Pointer <AudioData::Int16,   AudioData::LittleEndian, AudioData::Interleaved, AudioData::Const> SrcSampleType;
 
-                    DstSampleType dstData (buffer.getSampleData (i, offset));
+                    DstSampleType dstData (buffer.getWritePointer (i, offset));
                     SrcSampleType srcData (srcBuffer + i, bufferList.numChannels);
                     dstData.convertSamples (srcData, bufferList.numSamples);
                 }

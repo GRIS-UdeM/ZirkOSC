@@ -1,33 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_TABLELISTBOX_JUCEHEADER__
-#define __JUCE_TABLELISTBOX_JUCEHEADER__
-
-#include "juce_TableHeaderComponent.h"
-#include "juce_ListBox.h"
+#ifndef JUCE_TABLELISTBOX_H_INCLUDED
+#define JUCE_TABLELISTBOX_H_INCLUDED
 
 
 //==============================================================================
@@ -270,11 +266,11 @@ public:
 
     /** Returns the position of one of the cells in the table.
 
-        If relativeToComponentTopLeft is true, the co-ordinates are relative to
+        If relativeToComponentTopLeft is true, the coordinates are relative to
         the table component's top-left. The row number isn't checked to see if it's
         in-range, but the column ID must exist or this will return an empty rectangle.
 
-        If relativeToComponentTopLeft is false, the co-ords are relative to the
+        If relativeToComponentTopLeft is false, the coordinates are relative to the
         top-left of the table's top-left cell.
     */
     Rectangle<int> getCellPosition (int columnId, int rowNumber,
@@ -282,7 +278,7 @@ public:
 
     /** Returns the component that currently represents a given cell.
         If the component for this cell is off-screen or if the position is out-of-range,
-        this may return 0.
+        this may return nullptr.
         @see getCellPosition
     */
     Component* getCellComponent (int columnId, int rowNumber) const;
@@ -295,31 +291,31 @@ public:
 
     //==============================================================================
     /** @internal */
-    int getNumRows();
+    int getNumRows() override;
     /** @internal */
-    void paintListBoxItem (int, Graphics&, int, int, bool);
+    void paintListBoxItem (int, Graphics&, int, int, bool) override;
     /** @internal */
-    Component* refreshComponentForRow (int rowNumber, bool isRowSelected, Component* existingComponentToUpdate);
+    Component* refreshComponentForRow (int rowNumber, bool isRowSelected, Component* existingComponentToUpdate) override;
     /** @internal */
-    void selectedRowsChanged (int lastRowSelected);
+    void selectedRowsChanged (int lastRowSelected) override;
     /** @internal */
-    void deleteKeyPressed (int currentSelectedRow);
+    void deleteKeyPressed (int currentSelectedRow) override;
     /** @internal */
-    void returnKeyPressed (int currentSelectedRow);
+    void returnKeyPressed (int currentSelectedRow) override;
     /** @internal */
-    void backgroundClicked();
+    void backgroundClicked() override;
     /** @internal */
-    void listWasScrolled();
+    void listWasScrolled() override;
     /** @internal */
-    void tableColumnsChanged (TableHeaderComponent*);
+    void tableColumnsChanged (TableHeaderComponent*) override;
     /** @internal */
-    void tableColumnsResized (TableHeaderComponent*);
+    void tableColumnsResized (TableHeaderComponent*) override;
     /** @internal */
-    void tableSortOrderChanged (TableHeaderComponent*);
+    void tableSortOrderChanged (TableHeaderComponent*) override;
     /** @internal */
-    void tableColumnDraggingChanged (TableHeaderComponent*, int);
+    void tableColumnDraggingChanged (TableHeaderComponent*, int) override;
     /** @internal */
-    void resized();
+    void resized() override;
 
 
 private:
@@ -338,4 +334,4 @@ private:
 };
 
 
-#endif   // __JUCE_TABLELISTBOX_JUCEHEADER__
+#endif   // JUCE_TABLELISTBOX_H_INCLUDED
