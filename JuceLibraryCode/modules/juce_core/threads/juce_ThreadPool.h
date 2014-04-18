@@ -1,35 +1,34 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the juce_core module of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission to use, copy, modify, and/or distribute this software for any purpose with
+   or without fee is hereby granted, provided that the above copyright notice and this
+   permission notice appear in all copies.
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+   TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
+   NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+   DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+   IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+   CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-   JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   ------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------
+   NOTE! This permissive ISC license applies ONLY to files within the juce_core module!
+   All other JUCE modules are covered by a dual GPL/commercial license, so if you are
+   using any other modules, be sure to check that you also comply with their license.
 
-   To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   For more details, visit www.juce.com
 
   ==============================================================================
 */
 
-#ifndef __JUCE_THREADPOOL_JUCEHEADER__
-#define __JUCE_THREADPOOL_JUCEHEADER__
+#ifndef JUCE_THREADPOOL_H_INCLUDED
+#define JUCE_THREADPOOL_H_INCLUDED
 
-#include "juce_Thread.h"
-#include "../text/juce_StringArray.h"
-#include "../containers/juce_Array.h"
-#include "../containers/juce_OwnedArray.h"
 class ThreadPool;
 class ThreadPoolThread;
 
@@ -119,6 +118,12 @@ public:
         @see shouldExit()
     */
     void signalJobShouldExit();
+
+    //==============================================================================
+    /** If the calling thread is being invoked inside a runJob() method, this will
+        return the ThreadPoolJob that it belongs to.
+    */
+    static ThreadPoolJob* getCurrentThreadPoolJob();
 
     //==============================================================================
 private:
@@ -211,7 +216,7 @@ public:
         will wait for it to finish.
 
         If the timeout period expires before the job finishes running, then the job will be
-        left in the pool and this will return false. It returns true if the job is sucessfully
+        left in the pool and this will return false. It returns true if the job is successfully
         stopped and removed.
 
         @param job                  the job to remove
@@ -248,7 +253,7 @@ public:
     /** Returns one of the jobs in the queue.
 
         Note that this can be a very volatile list as jobs might be continuously getting shifted
-        around in the list, and this method may return 0 if the index is currently out-of-range.
+        around in the list, and this method may return nullptr if the index is currently out-of-range.
     */
     ThreadPoolJob* getJob (int index) const;
 
@@ -291,14 +296,15 @@ private:
     Array <ThreadPoolJob*> jobs;
 
     class ThreadPoolThread;
+    friend class ThreadPoolJob;
     friend class ThreadPoolThread;
-    friend class OwnedArray <ThreadPoolThread>;
-    OwnedArray <ThreadPoolThread> threads;
+    friend struct ContainerDeletePolicy<ThreadPoolThread>;
+    OwnedArray<ThreadPoolThread> threads;
 
     CriticalSection lock;
     WaitableEvent jobFinishedSignal;
 
-    bool runNextJob();
+    bool runNextJob (ThreadPoolThread&);
     ThreadPoolJob* pickNextJobToRun();
     void addToDeleteList (OwnedArray<ThreadPoolJob>&, ThreadPoolJob*) const;
     void createThreads (int numThreads);
@@ -312,4 +318,4 @@ private:
 };
 
 
-#endif   // __JUCE_THREADPOOL_JUCEHEADER__
+#endif   // JUCE_THREADPOOL_H_INCLUDED

@@ -1,29 +1,28 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#if defined (__JUCE_OPENGL_JUCEHEADER__) && ! JUCE_AMALGAMATED_INCLUDE
+#if defined (JUCE_OPENGL_H_INCLUDED) && ! JUCE_AMALGAMATED_INCLUDE
  /* When you add this cpp file to your project, you mustn't include it in a file where you've
     already included any other headers - just put it inside a file on its own, possibly with your config
     flags preceding it, but don't include anything else. That also includes avoiding any automatic prefix
@@ -77,7 +76,6 @@ namespace juce
 {
 
 //==============================================================================
-#include "native/juce_MissingGLDefinitions.h"
 #include "native/juce_OpenGLExtensions.h"
 
 void OpenGLExtensionFunctions::initialise()
@@ -98,7 +96,7 @@ void OpenGLExtensionFunctions::initialise()
 
 #if JUCE_OPENGL_ES
  #define JUCE_DECLARE_GL_FUNCTION(name, returnType, params, callparams) \
-    inline returnType OpenGLExtensionFunctions::name params { return ::name callparams; }
+    returnType OpenGLExtensionFunctions::name params { return ::name callparams; }
 
  JUCE_GL_EXTENSION_FUNCTIONS (JUCE_DECLARE_GL_FUNCTION, JUCE_DECLARE_GL_FUNCTION)
  #undef JUCE_DECLARE_GL_FUNCTION
@@ -106,30 +104,25 @@ void OpenGLExtensionFunctions::initialise()
 
 #undef JUCE_GL_EXTENSION_FUNCTIONS
 
-#if JUCE_OPENGL_ES
- #define JUCE_MEDIUMP "mediump"
- #define JUCE_HIGHP   "highp"
-#else
- #define JUCE_MEDIUMP
- #define JUCE_HIGHP
-#endif
-
 #if JUCE_DEBUG && ! defined (JUCE_CHECK_OPENGL_ERROR)
 static const char* getGLErrorMessage (const GLenum e)
 {
     switch (e)
     {
-        case GL_INVALID_ENUM:       return "GL_INVALID_ENUM";
-        case GL_INVALID_VALUE:      return "GL_INVALID_VALUE";
-        case GL_INVALID_OPERATION:  return "GL_INVALID_OPERATION";
+        case GL_INVALID_ENUM:                   return "GL_INVALID_ENUM";
+        case GL_INVALID_VALUE:                  return "GL_INVALID_VALUE";
+        case GL_INVALID_OPERATION:              return "GL_INVALID_OPERATION";
+        case GL_OUT_OF_MEMORY:                  return "GL_OUT_OF_MEMORY";
        #ifdef GL_STACK_OVERFLOW
-        case GL_STACK_OVERFLOW:     return "GL_STACK_OVERFLOW";
+        case GL_STACK_OVERFLOW:                 return "GL_STACK_OVERFLOW";
        #endif
        #ifdef GL_STACK_UNDERFLOW
-        case GL_STACK_UNDERFLOW:    return "GL_STACK_UNDERFLOW";
+        case GL_STACK_UNDERFLOW:                return "GL_STACK_UNDERFLOW";
        #endif
-        case GL_OUT_OF_MEMORY:      return "GL_OUT_OF_MEMORY";
-        default:                    break;
+       #ifdef GL_INVALID_FRAMEBUFFER_OPERATION
+        case GL_INVALID_FRAMEBUFFER_OPERATION:  return "GL_INVALID_FRAMEBUFFER_OPERATION";
+       #endif
+        default: break;
     }
 
     return "Unknown error";
@@ -158,6 +151,28 @@ static void clearGLError()
 {
     while (glGetError() != GL_NO_ERROR) {}
 }
+
+struct OpenGLTargetSaver
+{
+    OpenGLTargetSaver (const OpenGLContext& c)
+        : context (c), oldFramebuffer (OpenGLFrameBuffer::getCurrentFrameBufferTarget())
+    {
+        glGetIntegerv (GL_VIEWPORT, oldViewport);
+    }
+
+    ~OpenGLTargetSaver()
+    {
+        context.extensions.glBindFramebuffer (GL_FRAMEBUFFER, oldFramebuffer);
+        glViewport (oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+    }
+
+private:
+    const OpenGLContext& context;
+    GLuint oldFramebuffer;
+    GLint oldViewport[4];
+
+    OpenGLTargetSaver& operator= (const OpenGLTargetSaver&);
+};
 
 //==============================================================================
 #include "opengl/juce_OpenGLFrameBuffer.cpp"

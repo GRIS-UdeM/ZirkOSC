@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -56,12 +55,6 @@
 #endif
 
 //==============================================================================
-/*  These files come with the Steinberg VST SDK - to get them, you'll need to
-    visit the Steinberg website and jump through some hoops to sign up as a
-    VST developer.
-
-    Then, you'll need to make sure your include path contains your "vstsdk2.4" directory.
-*/
 #ifndef _MSC_VER
  #define __cdecl
 #endif
@@ -70,9 +63,19 @@
  #pragma clang diagnostic push
  #pragma clang diagnostic ignored "-Wconversion"
  #pragma clang diagnostic ignored "-Wshadow"
+ #pragma clang diagnostic ignored "-Wunused-parameter"
+ #pragma clang diagnostic ignored "-Wdeprecated-writable-strings"
 #endif
 
-// VSTSDK V2.4 includes..
+/*  These files come with the Steinberg VST SDK - to get them, you'll need to
+    visit the Steinberg website and agree to whatever is currently required to
+    get them. The best version to get is the VST3 SDK, which also contains
+    the older VST2.4 files.
+
+    Then, you'll need to make sure your include path contains your "VST SDK3"
+    directory (or whatever you've named it on your machine). The introjucer has
+    a special box for setting this path.
+*/
 #include <public.sdk/source/vst2.x/audioeffectx.h>
 #include <public.sdk/source/vst2.x/aeffeditor.h>
 #include <public.sdk/source/vst2.x/audioeffectx.cpp>
@@ -93,7 +96,7 @@
 
 #include "../utility/juce_IncludeModuleHeaders.h"
 #include "../utility/juce_FakeMouseMoveGenerator.h"
-#include "../utility/juce_PluginHostType.h"
+#include "../utility/juce_WindowsHooks.h"
 
 #ifdef _MSC_VER
  #pragma pack (pop)
@@ -109,11 +112,14 @@ namespace juce
 {
  #if JUCE_MAC
   extern void initialiseMac();
-  extern void* attachComponentToWindowRef (Component* component, void* windowRef);
-  extern void detachComponentFromWindowRef (Component* component, void* nsWindow);
-  extern void setNativeHostWindowSize (void* nsWindow, Component* editorComp, int newWidth, int newHeight, const PluginHostType& host);
-  extern void checkWindowVisibility (void* nsWindow, Component* component);
-  extern bool forwardCurrentKeyEventToHost (Component* component);
+  extern void* attachComponentToWindowRef (Component*, void* parent, bool isNSView);
+  extern void detachComponentFromWindowRef (Component*, void* window, bool isNSView);
+  extern void setNativeHostWindowSize (void* window, Component*, int newWidth, int newHeight, bool isNSView);
+  extern void checkWindowVisibility (void* window, Component*, bool isNSView);
+  extern bool forwardCurrentKeyEventToHost (Component*, bool isNSView);
+ #if ! JUCE_64BIT
+  extern void updateEditorCompBounds (Component*);
+ #endif
  #endif
 
  #if JUCE_LINUX
@@ -163,45 +169,7 @@ namespace
         return w;
     }
 
-    //==============================================================================
-    static HHOOK mouseWheelHook = 0;
-    static int mouseHookUsers = 0;
-
-    LRESULT CALLBACK mouseWheelHookCallback (int nCode, WPARAM wParam, LPARAM lParam)
-    {
-        if (nCode >= 0 && wParam == WM_MOUSEWHEEL)
-        {
-            const MOUSEHOOKSTRUCTEX& hs = *(MOUSEHOOKSTRUCTEX*) lParam;
-
-            if (Component* const comp = Desktop::getInstance().findComponentAt (Point<int> (hs.pt.x, hs.pt.y)))
-                if (comp->getWindowHandle() != 0)
-                    return PostMessage ((HWND) comp->getWindowHandle(), WM_MOUSEWHEEL,
-                                        hs.mouseData & 0xffff0000, (hs.pt.x & 0xffff) | (hs.pt.y << 16));
-        }
-
-        return CallNextHookEx (mouseWheelHook, nCode, wParam, lParam);
-    }
-
-    void registerMouseWheelHook()
-    {
-        if (mouseHookUsers++ == 0)
-            mouseWheelHook = SetWindowsHookEx (WH_MOUSE, mouseWheelHookCallback,
-                                               (HINSTANCE) Process::getCurrentModuleInstanceHandle(),
-                                               GetCurrentThreadId());
-    }
-
-    void unregisterMouseWheelHook()
-    {
-        if (--mouseHookUsers == 0 && mouseWheelHook != 0)
-        {
-            UnhookWindowsHookEx (mouseWheelHook);
-            mouseWheelHook = 0;
-        }
-    }
-
-   #if JUCE_WINDOWS
     static bool messageThreadIsDefinitelyCorrect = false;
-   #endif
 }
 
 //==============================================================================
@@ -223,12 +191,12 @@ public:
     ~SharedMessageThread()
     {
         signalThreadShouldExit();
-        JUCEApplication::quit();
+        JUCEApplicationBase::quit();
         waitForThreadToExit (5000);
         clearSingletonInstance();
     }
 
-    void run()
+    void run() override
     {
         initialiseJuce_GUI();
         initialised = true;
@@ -275,6 +243,12 @@ public:
          hasShutdown (false),
          firstProcessCallback (true),
          shouldDeleteEditor (false),
+        #if JUCE_64BIT
+         useNSView (true),
+        #else
+         useNSView (false),
+        #endif
+         processTempBuffer (1, 1),
          hostWindow (0)
     {
         filter->setPlayConfigDetails (numInChans, numOutChans, 0, 0);
@@ -292,7 +266,7 @@ public:
         canProcessReplacing (true);
 
         isSynth ((JucePlugin_IsSynth) != 0);
-        noTail (((JucePlugin_SilenceInProducesSilenceOut) != 0) && (JucePlugin_TailLengthSeconds <= 0));
+        noTail (filter->getTailLengthSeconds() <= 0);
         setInitialDelay (filter->getLatencySamples());
         programsAreChunks (true);
 
@@ -302,38 +276,39 @@ public:
     ~JuceVSTWrapper()
     {
         JUCE_AUTORELEASEPOOL
-
         {
-           #if JUCE_LINUX
-            MessageManagerLock mmLock;
-           #endif
-            stopTimer();
-            deleteEditor (false);
+            {
+               #if JUCE_LINUX
+                MessageManagerLock mmLock;
+               #endif
+                stopTimer();
+                deleteEditor (false);
 
-            hasShutdown = true;
+                hasShutdown = true;
 
-            delete filter;
-            filter = nullptr;
+                delete filter;
+                filter = nullptr;
 
-            jassert (editorComp == 0);
+                jassert (editorComp == 0);
 
-            channels.free();
-            deleteTempChannels();
+                channels.free();
+                deleteTempChannels();
 
-            jassert (activePlugins.contains (this));
-            activePlugins.removeFirstMatchingValue (this);
-        }
+                jassert (activePlugins.contains (this));
+                activePlugins.removeFirstMatchingValue (this);
+            }
 
-        if (activePlugins.size() == 0)
-        {
-           #if JUCE_LINUX
-            SharedMessageThread::deleteInstance();
-           #endif
-            shutdownJuce_GUI();
+            if (activePlugins.size() == 0)
+            {
+               #if JUCE_LINUX
+                SharedMessageThread::deleteInstance();
+               #endif
+                shutdownJuce_GUI();
 
-           #if JUCE_WINDOWS
-            messageThreadIsDefinitelyCorrect = false;
-           #endif
+               #if JUCE_WINDOWS
+                messageThreadIsDefinitelyCorrect = false;
+               #endif
+            }
         }
     }
 
@@ -356,61 +331,70 @@ public:
     }
 
     //==============================================================================
-    bool getEffectName (char* name)
+    bool getEffectName (char* name) override
     {
         String (JucePlugin_Name).copyToUTF8 (name, 64);
         return true;
     }
 
-    bool getVendorString (char* text)
+    bool getVendorString (char* text) override
     {
         String (JucePlugin_Manufacturer).copyToUTF8 (text, 64);
         return true;
     }
 
-    bool getProductString (char* text)  { return getEffectName (text); }
-    VstInt32 getVendorVersion()         { return convertHexVersionToDecimal (JucePlugin_VersionCode); }
-    VstPlugCategory getPlugCategory()   { return JucePlugin_VSTCategory; }
-    bool keysRequired()                 { return (JucePlugin_EditorRequiresKeyboardFocus) != 0; }
+    bool getProductString (char* text) override  { return getEffectName (text); }
+    VstInt32 getVendorVersion() override         { return convertHexVersionToDecimal (JucePlugin_VersionCode); }
+    VstPlugCategory getPlugCategory() override   { return JucePlugin_VSTCategory; }
+    bool keysRequired()                          { return (JucePlugin_EditorRequiresKeyboardFocus) != 0; }
 
-    VstInt32 canDo (char* text)
+    VstInt32 canDo (char* text) override
     {
-        VstInt32 result = 0;
-
         if (strcmp (text, "receiveVstEvents") == 0
-            || strcmp (text, "receiveVstMidiEvent") == 0
-            || strcmp (text, "receiveVstMidiEvents") == 0)
+             || strcmp (text, "receiveVstMidiEvent") == 0
+             || strcmp (text, "receiveVstMidiEvents") == 0)
         {
            #if JucePlugin_WantsMidiInput
-            result = 1;
+            return 1;
            #else
-            result = -1;
+            return -1;
            #endif
         }
-        else if (strcmp (text, "sendVstEvents") == 0
-                 || strcmp (text, "sendVstMidiEvent") == 0
-                 || strcmp (text, "sendVstMidiEvents") == 0)
+
+        if (strcmp (text, "sendVstEvents") == 0
+             || strcmp (text, "sendVstMidiEvent") == 0
+             || strcmp (text, "sendVstMidiEvents") == 0)
         {
            #if JucePlugin_ProducesMidiOutput
-            result = 1;
+            return 1;
            #else
-            result = -1;
+            return -1;
            #endif
         }
-        else if (strcmp (text, "receiveVstTimeInfo") == 0
-                 || strcmp (text, "conformsToWindowRules") == 0
-                 || strcmp (text, "bypass") == 0)
+
+        if (strcmp (text, "receiveVstTimeInfo") == 0
+             || strcmp (text, "conformsToWindowRules") == 0
+             || strcmp (text, "bypass") == 0)
         {
-            result = 1;
+            return 1;
         }
-        else if (strcmp (text, "openCloseAnyThread") == 0)
+
+        if (strcmp (text, "openCloseAnyThread") == 0)
         {
             // This tells Wavelab to use the UI thread to invoke open/close,
             // like all other hosts do.
-            result = -1;
+            return -1;
         }
 
-        return result;
+       #if JUCE_MAC
+        if (strcmp (text, "hasCockosViewAsConfig") == 0)
+        {
+            useNSView = true;
+            return 0xbeef0000;
+        }
+       #endif
+
+        return 0;
     }
 
     bool getInputProperties (VstInt32 index, VstPinProperties* properties)
@@ -436,8 +420,8 @@ public:
     static void setPinProperties (VstPinProperties& properties, const String& name,
                                   VstSpeakerArrangementType type, const bool isPair)
     {
-        name.copyToUTF8 (properties.label, kVstMaxLabelLen - 1);
-        name.copyToUTF8 (properties.shortLabel, kVstMaxShortLabelLen - 1);
+        name.copyToUTF8 (properties.label, (size_t) (kVstMaxLabelLen - 1));
+        name.copyToUTF8 (properties.shortLabel, (size_t) (kVstMaxShortLabelLen - 1));
 
         if (type != kSpeakerArrEmpty)
         {
@@ -460,6 +444,14 @@ public:
         return true;
     }
 
+    VstInt32 getGetTailSize()
+    {
+        if (filter != nullptr)
+            return (VstInt32) (filter->getTailLengthSeconds() * getSampleRate());
+
+        return 0;
+    }
+
     //==============================================================================
     VstInt32 processEvents (VstEvents* events)
     {
@@ -467,6 +459,7 @@ public:
         VSTMidiEventList::addEventsToMidiBuffer (events, midiEvents);
         return 1;
        #else
+        (void) events;
         return 0;
        #endif
     }
@@ -476,16 +469,17 @@ public:
         const int numIn = numInChans;
         const int numOut = numOutChans;
 
-        AudioSampleBuffer temp (numIn, numSamples);
+        processTempBuffer.setSize (numIn, numSamples, false, false, true);
+
         for (int i = numIn; --i >= 0;)
-            memcpy (temp.getSampleData (i), outputs[i], sizeof (float) * (size_t) numSamples);
+            processTempBuffer.copyFrom (i, 0, outputs[i], numSamples);
 
         processReplacing (inputs, outputs, numSamples);
 
         AudioSampleBuffer dest (outputs, numOut, numSamples);
 
         for (int i = jmin (numIn, numOut); --i >= 0;)
-            dest.addFrom (i, 0, temp, i, 0, numSamples);
+            dest.addFrom (i, 0, processTempBuffer, i, 0, numSamples);
     }
 
     void processReplacing (float** inputs, float** outputs, VstInt32 numSamples)
@@ -526,7 +520,7 @@ public:
             if (filter->isSuspended())
             {
                 for (int i = 0; i < numOut; ++i)
-                    zeromem (outputs[i], sizeof (float) * (size_t) numSamples);
+                    FloatVectorOperations::clear (outputs[i], numSamples);
             }
             else
             {
@@ -814,7 +808,7 @@ public:
         if (filter != nullptr)
         {
             jassert (isPositiveAndBelow (index, filter->getNumParameters()));
-            filter->getParameterText (index).copyToUTF8 (text, 24); // length should technically be kVstMaxParamStrLen, which is 8, but hosts will normally allow a bit more.
+            filter->getParameterText (index, 24).copyToUTF8 (text, 24); // length should technically be kVstMaxParamStrLen, which is 8, but hosts will normally allow a bit more.
         }
     }
 
@@ -823,7 +817,7 @@ public:
         if (filter != nullptr)
         {
             jassert (isPositiveAndBelow (index, filter->getNumParameters()));
-            filter->getParameterName (index).copyToUTF8 (text, 16); // length should technically be kVstMaxParamStrLen, which is 8, but hosts will normally allow a bit more.
+            filter->getParameterName (index, 16).copyToUTF8 (text, 16); // length should technically be kVstMaxParamStrLen, which is 8, but hosts will normally allow a bit more.
         }
     }
 
@@ -943,7 +937,7 @@ public:
         if (filter == nullptr)
             return 0;
 
-        chunkMemory.setSize (0);
+        chunkMemory.reset();
         if (onlyStoreCurrentProgramData)
             filter->getCurrentProgramStateInformation (chunkMemory);
         else
@@ -962,7 +956,7 @@ public:
     {
         if (filter != nullptr)
         {
-            chunkMemory.setSize (0);
+            chunkMemory.reset();
             chunkMemoryTime = 0;
 
             if (byteSize > 0 && data != nullptr)
@@ -977,7 +971,7 @@ public:
         return 0;
     }
 
-    void timerCallback()
+    void timerCallback() override
     {
         if (shouldDeleteEditor)
         {
@@ -989,13 +983,13 @@ public:
              && chunkMemoryTime < juce::Time::getApproximateMillisecondCounter() - 2000
              && ! recursionCheck)
         {
+            chunkMemory.reset();
             chunkMemoryTime = 0;
-            chunkMemory.setSize (0);
         }
 
        #if JUCE_MAC
         if (hostWindow != 0)
-            checkWindowVisibility (hostWindow, editorComp);
+            checkWindowVisibility (hostWindow, editorComp, useNSView);
        #endif
 
         tryMasterIdle();
@@ -1027,12 +1021,14 @@ public:
             recursionCheck = true;
 
             JUCE_AUTORELEASEPOOL
-            Timer::callPendingTimersSynchronously();
+            {
+                Timer::callPendingTimersSynchronously();
 
-            for (int i = ComponentPeer::getNumPeers(); --i >= 0;)
-                ComponentPeer::getPeer (i)->performAnyPendingRepaintsNow();
+                for (int i = ComponentPeer::getNumPeers(); --i >= 0;)
+                    ComponentPeer::getPeer (i)->performAnyPendingRepaintsNow();
 
-            recursionCheck = false;
+                recursionCheck = false;
+            }
         }
     }
 
@@ -1063,47 +1059,49 @@ public:
     void deleteEditor (bool canDeleteLaterIfModal)
     {
         JUCE_AUTORELEASEPOOL
-        PopupMenu::dismissAllActiveMenus();
-
-        jassert (! recursionCheck);
-        recursionCheck = true;
-
-        if (editorComp != nullptr)
         {
-            if (Component* const modalComponent = Component::getCurrentlyModalComponent())
-            {
-                modalComponent->exitModalState (0);
+            PopupMenu::dismissAllActiveMenus();
 
-                if (canDeleteLaterIfModal)
+            jassert (! recursionCheck);
+            recursionCheck = true;
+
+            if (editorComp != nullptr)
+            {
+                if (Component* const modalComponent = Component::getCurrentlyModalComponent())
                 {
-                    shouldDeleteEditor = true;
-                    recursionCheck = false;
-                    return;
+                    modalComponent->exitModalState (0);
+
+                    if (canDeleteLaterIfModal)
+                    {
+                        shouldDeleteEditor = true;
+                        recursionCheck = false;
+                        return;
+                    }
                 }
+
+               #if JUCE_MAC
+                if (hostWindow != 0)
+                {
+                    detachComponentFromWindowRef (editorComp, hostWindow, useNSView);
+                    hostWindow = 0;
+                }
+               #endif
+
+                filter->editorBeingDeleted (editorComp->getEditorComp());
+
+                editorComp = nullptr;
+
+                // there's some kind of component currently modal, but the host
+                // is trying to delete our plugin. You should try to avoid this happening..
+                jassert (Component::getCurrentlyModalComponent() == nullptr);
             }
 
-           #if JUCE_MAC
-            if (hostWindow != 0)
-            {
-                detachComponentFromWindowRef (editorComp, hostWindow);
-                hostWindow = 0;
-            }
+           #if JUCE_LINUX
+            hostWindow = 0;
            #endif
 
-            filter->editorBeingDeleted (editorComp->getEditorComp());
-
-            editorComp = nullptr;
-
-            // there's some kind of component currently modal, but the host
-            // is trying to delete our plugin. You should try to avoid this happening..
-            jassert (Component::getCurrentlyModalComponent() == nullptr);
+            recursionCheck = false;
         }
-
-       #if JUCE_LINUX
-        hostWindow = 0;
-       #endif
-
-        recursionCheck = false;
     }
 
     VstIntPtr dispatcher (VstInt32 opCode, VstInt32 index, VstIntPtr value, void* ptr, float opt)
@@ -1141,7 +1139,7 @@ public:
                 Window editorWnd = (Window) editorComp->getWindowHandle();
                 XReparentWindow (display, editorWnd, hostWindow, 0, 0);
               #else
-                hostWindow = attachComponentToWindowRef (editorComp, ptr);
+                hostWindow = attachComponentToWindowRef (editorComp, ptr, useNSView);
               #endif
                 editorComp->setVisible (true);
 
@@ -1187,7 +1185,7 @@ public:
             {
                 // some hosts don't support the sizeWindow call, so do it manually..
                #if JUCE_MAC
-                setNativeHostWindowSize (hostWindow, editorComp, newWidth, newHeight, getHostType());
+                setNativeHostWindowSize (hostWindow, editorComp, newWidth, newHeight, useNSView);
 
                #elif JUCE_LINUX
                 // (Currently, all linux hosts support sizeWindow, so this should never need to happen)
@@ -1243,12 +1241,6 @@ public:
         }
     }
 
-    static PluginHostType& getHostType()
-    {
-        static PluginHostType hostType;
-        return hostType;
-    }
-
     //==============================================================================
     // A component to hold the AudioProcessorEditor, and cope with some housekeeping
     // chores when it changes or repaints.
@@ -1269,24 +1261,18 @@ public:
            #if JUCE_WINDOWS
             if (! getHostType().isReceptor())
                 addMouseListener (this, true);
-
-            registerMouseWheelHook();
            #endif
         }
 
         ~EditorCompWrapper()
         {
-           #if JUCE_WINDOWS
-            unregisterMouseWheelHook();
-           #endif
-
             deleteAllChildren(); // note that we can't use a ScopedPointer because the editor may
                                  // have been transferred to another parent which takes over ownership.
         }
 
-        void paint (Graphics&) {}
+        void paint (Graphics&) override {}
 
-        void paintOverChildren (Graphics&)
+        void paintOverChildren (Graphics&) override
         {
             // this causes an async call to masterIdle() to help
             // creaky old DAWs like Nuendo repaint themselves while we're
@@ -1296,34 +1282,40 @@ public:
         }
 
        #if JUCE_MAC
-        bool keyPressed (const KeyPress&)
+        bool keyPressed (const KeyPress&) override
         {
             // If we have an unused keypress, move the key-focus to a host window
             // and re-inject the event..
-            return forwardCurrentKeyEventToHost (this);
+            return forwardCurrentKeyEventToHost (this, wrapper.useNSView);
         }
        #endif
 
         AudioProcessorEditor* getEditorComp() const
         {
-            return dynamic_cast <AudioProcessorEditor*> (getChildComponent (0));
+            return dynamic_cast<AudioProcessorEditor*> (getChildComponent(0));
         }
 
-        void resized()
+        void resized() override
         {
             if (Component* const editor = getChildComponent(0))
                 editor->setBounds (getLocalBounds());
+
+           #if JUCE_MAC && ! JUCE_64BIT
+            if (! wrapper.useNSView)
+                updateEditorCompBounds (this);
+           #endif
         }
 
-        void childBoundsChanged (Component* child)
+        void childBoundsChanged (Component* child) override
         {
             child->setTopLeftPosition (0, 0);
 
             const int cw = child->getWidth();
             const int ch = child->getHeight();
 
-           #if JUCE_MAC && JUCE_64BIT
-            setTopLeftPosition (0, getHeight() - ch);
+           #if JUCE_MAC
+            if (wrapper.useNSView)
+                setTopLeftPosition (0, getHeight() - ch);
            #endif
 
             wrapper.resizeHostWindow (cw, ch);
@@ -1339,24 +1331,22 @@ public:
            #endif
         }
 
-        void handleAsyncUpdate()
+        void handleAsyncUpdate() override
         {
             wrapper.tryMasterIdle();
         }
 
        #if JUCE_WINDOWS
-        void mouseDown (const MouseEvent&)
+        void mouseDown (const MouseEvent&) override
         {
             broughtToFront();
         }
 
-        void broughtToFront()
+        void broughtToFront() override
         {
             // for hosts like nuendo, need to also pop the MDI container to the
             // front when our comp is clicked on.
-            HWND parent = findMDIParentOf ((HWND) getWindowHandle());
-
-            if (parent != 0)
+            if (HWND parent = findMDIParentOf ((HWND) getWindowHandle()))
                 SetWindowPos (parent, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         }
        #endif
@@ -1365,6 +1355,10 @@ public:
         //==============================================================================
         JuceVSTWrapper& wrapper;
         FakeMouseMoveGenerator fakeMouseGenerator;
+
+       #if JUCE_WINDOWS
+        WindowsHooks hooks;
+       #endif
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorCompWrapper)
     };
@@ -1380,9 +1374,11 @@ private:
     VSTMidiEventList outgoingEvents;
     VstSpeakerArrangementType speakerIn, speakerOut;
     int numInChans, numOutChans;
-    bool isProcessing, isBypassed, hasShutdown, firstProcessCallback, shouldDeleteEditor;
+    bool isProcessing, isBypassed, hasShutdown, firstProcessCallback;
+    bool shouldDeleteEditor, useNSView;
     HeapBlock<float*> channels;
     Array<float*> tempChannels;  // see note in processReplacing()
+    AudioSampleBuffer processTempBuffer;
 
    #if JUCE_MAC
     void* hostWindow;
@@ -1406,10 +1402,12 @@ private:
 
     //==============================================================================
    #if JUCE_WINDOWS
-    // Workarounds for Wavelab's happy-go-lucky use of threads.
+    // Workarounds for hosts which attempt to open editor windows on a non-GUI thread.. (Grrrr...)
     static void checkWhetherMessageThreadIsCorrect()
     {
-        if (getHostType().isWavelab() || getHostType().isCubaseBridged())
+        const PluginHostType host (getHostType());
+
+        if (host.isWavelab() || host.isCubaseBridged() || host.isPremiere())
         {
             if (! messageThreadIsDefinitelyCorrect)
             {
@@ -1420,7 +1418,7 @@ private:
                 public:
                     MessageThreadCallback (bool& tr) : triggered (tr) {}
 
-                    void messageCallback()
+                    void messageCallback() override
                     {
                         triggered = true;
                     }
@@ -1446,7 +1444,7 @@ private:
         tempChannels.clear();
 
         if (filter != nullptr)
-            tempChannels.insertMultiple (0, 0, filter->getNumInputChannels() + filter->getNumOutputChannels());
+            tempChannels.insertMultiple (0, nullptr, filter->getNumInputChannels() + filter->getNumOutputChannels());
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JuceVSTWrapper)
@@ -1458,23 +1456,25 @@ namespace
     AEffect* pluginEntryPoint (audioMasterCallback audioMaster)
     {
         JUCE_AUTORELEASEPOOL
-        initialiseJuce_GUI();
-
-        try
         {
-            if (audioMaster (0, audioMasterVersion, 0, 0, 0, 0) != 0)
-            {
-               #if JUCE_LINUX
-                MessageManagerLock mmLock;
-               #endif
+            initialiseJuce_GUI();
 
-                AudioProcessor* const filter = createPluginFilterOfType (AudioProcessor::wrapperType_VST);
-                JuceVSTWrapper* const wrapper = new JuceVSTWrapper (audioMaster, filter);
-                return wrapper->getAeffect();
+            try
+            {
+                if (audioMaster (0, audioMasterVersion, 0, 0, 0, 0) != 0)
+                {
+                   #if JUCE_LINUX
+                    MessageManagerLock mmLock;
+                   #endif
+
+                    AudioProcessor* const filter = createPluginFilterOfType (AudioProcessor::wrapperType_VST);
+                    JuceVSTWrapper* const wrapper = new JuceVSTWrapper (audioMaster, filter);
+                    return wrapper->getAeffect();
+                }
             }
+            catch (...)
+            {}
         }
-        catch (...)
-        {}
 
         return nullptr;
     }

@@ -1,30 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_MIDIDATACONCATENATOR_JUCEHEADER__
-#define __JUCE_MIDIDATACONCATENATOR_JUCEHEADER__
+#ifndef JUCE_MIDIDATACONCATENATOR_H_INCLUDED
+#define JUCE_MIDIDATACONCATENATOR_H_INCLUDED
 
 //==============================================================================
 /**
@@ -124,6 +123,14 @@ private:
         {
             if (pendingBytes > 0 && *d >= 0x80)
             {
+                if (*d == 0xf7)
+                {
+                    *dest++ = *d++;
+                    ++pendingBytes;
+                    --numBytes;
+                    break;
+                }
+
                 if (*d >= 0xfa || *d == 0xf8)
                 {
                     callback.handleIncomingMidiMessage (input, MidiMessage (*d, time));
@@ -132,11 +139,15 @@ private:
                 }
                 else
                 {
-                    if (*d == 0xf7)
+                    pendingBytes = 0;
+                    int used = 0;
+                    const MidiMessage m (d, numBytes, used, 0, time);
+
+                    if (used > 0)
                     {
-                        *dest++ = *d++;
-                        pendingBytes++;
-                        --numBytes;
+                        callback.handleIncomingMidiMessage (input, m);
+                        numBytes -= used;
+                        d += used;
                     }
 
                     break;
@@ -145,7 +156,7 @@ private:
             else
             {
                 *dest++ = *d++;
-                pendingBytes++;
+                ++pendingBytes;
                 --numBytes;
             }
         }
@@ -173,4 +184,4 @@ private:
     JUCE_DECLARE_NON_COPYABLE (MidiDataConcatenator)
 };
 
-#endif   // __JUCE_MIDIDATACONCATENATOR_JUCEHEADER__
+#endif   // JUCE_MIDIDATACONCATENATOR_H_INCLUDED

@@ -87,6 +87,10 @@
  //#define JUCE_USE_MP3AUDIOFORMAT
 #endif
 
+#ifndef    JUCE_USE_LAME_AUDIO_FORMAT
+ //#define JUCE_USE_LAME_AUDIO_FORMAT
+#endif
+
 #ifndef    JUCE_USE_WINDOWS_MEDIA_FORMAT
  //#define JUCE_USE_WINDOWS_MEDIA_FORMAT
 #endif
@@ -96,6 +100,10 @@
 
 #ifndef    JUCE_PLUGINHOST_VST
  //#define JUCE_PLUGINHOST_VST
+#endif
+
+#ifndef    JUCE_PLUGINHOST_VST3
+ //#define JUCE_PLUGINHOST_VST3
 #endif
 
 #ifndef    JUCE_PLUGINHOST_AU
@@ -119,6 +127,10 @@
 
 #ifndef    JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
  //#define JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES
+#endif
+
+#ifndef    JUCE_INCLUDE_ZLIB_CODE
+ //#define JUCE_INCLUDE_ZLIB_CODE
 #endif
 
 //==============================================================================
@@ -158,6 +170,10 @@
  //#define JUCE_WEB_BROWSER
 #endif
 
+#ifndef    JUCE_ENABLE_LIVE_CONSTANT_EDITOR
+ //#define JUCE_ENABLE_LIVE_CONSTANT_EDITOR
+#endif
+
 //==============================================================================
 // juce_video flags:
 
@@ -184,6 +200,9 @@
 #ifndef  JucePlugin_Build_VST
  #define JucePlugin_Build_VST              1
 #endif
+#ifndef  JucePlugin_Build_VST3
+ #define JucePlugin_Build_VST3             0
+#endif
 #ifndef  JucePlugin_Build_AU
  #define JucePlugin_Build_AU               1
 #endif
@@ -201,6 +220,12 @@
 #endif
 #ifndef  JucePlugin_Manufacturer
  #define JucePlugin_Manufacturer           "UdeM"
+#endif
+#ifndef  JucePlugin_ManufacturerWebsite
+ #define JucePlugin_ManufacturerWebsite    ""
+#endif
+#ifndef  JucePlugin_ManufacturerEmail
+ #define JucePlugin_ManufacturerEmail      "support@yourcompany.com"
 #endif
 #ifndef  JucePlugin_ManufacturerCode
  #define JucePlugin_ManufacturerCode       'UdeM'
@@ -228,9 +253,6 @@
 #endif
 #ifndef  JucePlugin_SilenceInProducesSilenceOut
  #define JucePlugin_SilenceInProducesSilenceOut  0
-#endif
-#ifndef  JucePlugin_TailLengthSeconds
- #define JucePlugin_TailLengthSeconds      0
 #endif
 #ifndef  JucePlugin_EditorRequiresKeyboardFocus
  #define JucePlugin_EditorRequiresKeyboardFocus  0
@@ -268,9 +290,6 @@
 #ifndef  JucePlugin_CFBundleIdentifier
  #define JucePlugin_CFBundleIdentifier     com.UdeM.ZirkOSCJUCE
 #endif
-#ifndef  JucePlugin_AUCocoaViewClassName
- #define JucePlugin_AUCocoaViewClassName   ZirkOSCJUCEAU_V1
-#endif
 #ifndef  JucePlugin_RTASCategory
  #define JucePlugin_RTASCategory           ePlugInCategory_None
 #endif
@@ -295,14 +314,14 @@
 #ifndef  JucePlugin_AAXProductId
  #define JucePlugin_AAXProductId           JucePlugin_PluginCode
 #endif
-#ifndef  JucePlugin_AAXPluginId
- #define JucePlugin_AAXPluginId            JucePlugin_PluginCode
-#endif
 #ifndef  JucePlugin_AAXCategory
  #define JucePlugin_AAXCategory            AAX_ePlugInCategory_Dynamics
 #endif
 #ifndef  JucePlugin_AAXDisableBypass
  #define JucePlugin_AAXDisableBypass       0
+#endif
+#ifndef  JucePlugin_AAXDisableMultiMono
+ #define JucePlugin_AAXDisableMultiMono    0
 #endif
 
 #endif  // __JUCE_APPCONFIG_PUQM6U__

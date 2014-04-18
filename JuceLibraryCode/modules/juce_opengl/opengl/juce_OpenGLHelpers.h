@@ -1,33 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_OPENGLHELPERS_JUCEHEADER__
-#define __JUCE_OPENGLHELPERS_JUCEHEADER__
-
-class OpenGLTexture;
-class OpenGLFrameBuffer;
+#ifndef JUCE_OPENGLHELPERS_H_INCLUDED
+#define JUCE_OPENGLHELPERS_H_INCLUDED
 
 
 //==============================================================================
@@ -44,7 +40,7 @@ public:
     static bool isContextActive();
 
     /** Clears the current context using the given colour. */
-    static void clear (const Colour& colour);
+    static void clear (Colour colour);
 
     static void enableScissorTest (const Rectangle<int>& clip);
 
@@ -54,76 +50,24 @@ public:
     /** Returns the address of a named GL extension function */
     static void* getExtensionFunction (const char* functionName);
 
-   #if JUCE_USE_OPENGL_FIXED_FUNCTION
-    /** Sets the current colour using a JUCE colour. */
-    static void setColour (const Colour& colour);
+    /** Makes some simple textual changes to a shader program to try to convert old GLSL
+        keywords to their v3 equivalents.
 
-    /** Gives the current context an orthoganal rendering mode for 2D drawing into the given size. */
-    static void prepareFor2D (int width, int height);
+        Before doing this, the function will check whether the current context is actually
+        using a later version of the language, and if not it will not make any changes.
+        Obviously this is not a real parser, so will only work on simple code!
+    */
+    static String translateVertexShaderToV3 (const String&);
 
-    /** This does the same job as gluPerspective(). */
-    static void setPerspective (double fovy, double aspect, double zNear, double zFar);
+    /** Makes some simple textual changes to a shader program to try to convert old GLSL
+        keywords to their v3 equivalents.
 
-    static void applyTransform (const AffineTransform& t);
-
-    static void applyMatrix (const float matrixValues[16]);
-   #if ! JUCE_OPENGL_ES
-    static void applyMatrix (const double matrixValues[16]);
-   #endif
-
-    /** Draws a 2D quad with the specified corner points. */
-    static void drawQuad2D (float x1, float y1,
-                            float x2, float y2,
-                            float x3, float y3,
-                            float x4, float y4,
-                            const Colour& colour);
-
-    /** Draws a 3D quad with the specified corner points. */
-    static void drawQuad3D (float x1, float y1, float z1,
-                            float x2, float y2, float z2,
-                            float x3, float y3, float z3,
-                            float x4, float y4, float z4,
-                            const Colour& colour);
-    static void drawTriangleStrip (const GLfloat* const vertices, const GLfloat* const textureCoords, const int numVertices) noexcept;
-
-    static void drawTriangleStrip (const GLfloat* const vertices, const GLfloat* const textureCoords,
-                                   const int numVertices, const GLuint textureID) noexcept;
-
-    static void drawTextureQuad (GLuint textureID, const Rectangle<int>& rect);
-
-    static void fillRectWithTexture (const Rectangle<int>& rect, GLuint textureID, const float alpha);
-
-    /** Fills a rectangle with the specified colour. */
-    static void fillRectWithColour (const Rectangle<int>& rect,
-                                    const Colour& colour);
-
-    static void fillRect (const Rectangle<int>& rect);
-   #endif
-};
-
-//==============================================================================
-/**
-    Used as a local object while rendering, this will create a temporary texture ID
-    from an image in the quickest way possible.
-
-    If the image is backed by an OpenGL framebuffer, it will use that directly; otherwise,
-    this object will create a temporary texture or framebuffer and copy the image.
-*/
-class JUCE_API  OpenGLTextureFromImage
-{
-public:
-    OpenGLTextureFromImage (const Image& image);
-    ~OpenGLTextureFromImage();
-
-    GLuint textureID;
-    const int imageWidth, imageHeight;
-    float fullWidthProportion, fullHeightProportion;
-
-private:
-    ScopedPointer<OpenGLTexture> texture;
-
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenGLTextureFromImage)
+        Before doing this, the function will check whether the current context is actually
+        using a later version of the language, and if not it will not make any changes.
+        Obviously this is not a real parser, so will only work on simple code!
+    */
+    static String translateFragmentShaderToV3 (const String&);
 };
 
 
-#endif   // __JUCE_OPENGLHELPERS_JUCEHEADER__
+#endif   // JUCE_OPENGLHELPERS_H_INCLUDED

@@ -83,42 +83,42 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_AzimuthSpanSlider);
     addAndMakeVisible(&_AzimuthSpanLabel);
 
-    _NbrSourceLabel.setText("Nbr Sources", false);
+    _NbrSourceLabel.setText("Nbr Sources",  dontSendNotification);
     _NbrSourceLabel.setBounds     (ZirkOSC_Window_Width-80 , 10, 80, 25);
     _NbrSourceTextEditor.setBounds(ZirkOSC_Window_Width-75 , 30, 60, 25);
     _NbrSourceTextEditor.setText(String(getProcessor()->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
 
-    _ChannelNumberLabel.setText("1st source ID", false);
+    _ChannelNumberLabel.setText("1st source ID",  dontSendNotification);
     _ChannelNumberLabel.setBounds     (ZirkOSC_Window_Width-80 , 60, 80, 25);
     _FirstSourceIdTextEditor.setBounds(ZirkOSC_Window_Width-75 , 80, 60, 25);
     _FirstSourceIdTextEditor.setText(String(getProcessor()->getSources()[0].getChannel()));
     addAndMakeVisible(&_ChannelNumberLabel);
     addAndMakeVisible(&_FirstSourceIdTextEditor);
     
-    _OscPortLabel.setText("ZKM OSC Port", false);
+    _OscPortLabel.setText("ZKM OSC Port",  dontSendNotification);
     _OscPortLabel.setBounds     (ZirkOSC_Window_Width-80 , 110, 80, 25);
     _OscPortTextEditor.setBounds(ZirkOSC_Window_Width-75 , 130, 60, 25);
     _OscPortTextEditor.setText(String(getProcessor()->getOscPortZirkonium()));
     addAndMakeVisible(&_OscPortLabel);
     addAndMakeVisible(&_OscPortTextEditor);
 
-    _OscPortIncomingIPadLabel.setText("Inc. port", false);
+    _OscPortIncomingIPadLabel.setText("Inc. port",  dontSendNotification);
     _OscPortIncomingIPadLabel.setBounds     (ZirkOSC_Window_Width-80 , 160, 80, 25);
     _OscPortIncomingIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 180, 60, 25);
     _OscPortIncomingIPadTextEditor.setText(String(getProcessor()->getOscPortIpadIncoming()));
     addAndMakeVisible(&_OscPortIncomingIPadLabel);
     addAndMakeVisible(&_OscPortIncomingIPadTextEditor);
 
-    _OscPortOutgoingIPadLabel.setText("Out. port", false);
+    _OscPortOutgoingIPadLabel.setText("Out. port",  dontSendNotification);
     _OscPortOutgoingIPadLabel.setBounds     (ZirkOSC_Window_Width-80 , 210, 80, 25);
     _OscPortOutgoingIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 230, 60, 25);
     _OscPortOutgoingIPadTextEditor.setText(String(getProcessor()->getOscPortIpadOutgoing()));
     addAndMakeVisible(&_OscPortOutgoingIPadLabel);
     addAndMakeVisible(&_OscPortOutgoingIPadTextEditor);
 
-    _OscAdressIPadTextLabel.setText("IP add. iPad", false);
+    _OscAdressIPadTextLabel.setText("IP add. iPad",  dontSendNotification);
     _OscAdressIPadTextLabel.setBounds (ZirkOSC_Window_Width-80 , 260, 80, 25);
     _OscAdressIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 280, 60, 25);
     _OscAdressIPadTextEditor.setText(String(getProcessor()->getOscAddressIpad()));
@@ -204,7 +204,7 @@ void ZirkOscjuceAudioProcessorEditor::resized()
 void ZirkOscjuceAudioProcessorEditor::setSliderAndLabel(int x, int y, int width, int height, String labelText, Slider* slider, Label* label, float min, float max){
     slider->setBounds (x+60, y, width-60, height);
     slider->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
-    label->setText(labelText, false);
+    label->setText(labelText,  dontSendNotification);
     label->setBounds(x, y, width-300, height);
     slider->setRange (min, max, 0.01);
 }
@@ -263,7 +263,12 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     g.setColour(Colours::lightgrey);
     g.fillPath(myPath);
     g.setColour(Colours::black);
-    g.strokePath(myPath, PathStrokeType::curved);
+    
+    PathStrokeType strokeType = *new PathStrokeType( 1.0, juce::PathStrokeType::JointStyle::curved);
+    g.strokePath(myPath, strokeType);
+
+    //g.strokePath(myPath, PathStrokeType::JointStyle::curved);
+
 }
 
 void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){

@@ -14,7 +14,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "ZirkConstants.h"
-#include "lo.h"     
+#include "lo.h"
 #include "SoundSource.h"
 
 //==============================================================================
@@ -80,6 +80,9 @@ public:
     bool producesMidi() const;
     //! Returns true if a silent input always produces a silent output.
     bool silenceInProducesSilenceOut() const;
+    // We don't have sound so we just return 0.0
+    double getTailLengthSeconds() const { return 0.0; }
+    
     //! Projects sphere coords to polar coords 
     Point<float> domeToScreen(Point<float>);
     

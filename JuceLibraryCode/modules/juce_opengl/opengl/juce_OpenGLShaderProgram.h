@@ -1,30 +1,29 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
 
-#ifndef __JUCE_OPENGLSHADERPROGRAM_JUCEHEADER__
-#define __JUCE_OPENGLSHADERPROGRAM_JUCEHEADER__
+#ifndef JUCE_OPENGLSHADERPROGRAM_H_INCLUDED
+#define JUCE_OPENGLSHADERPROGRAM_H_INCLUDED
 
 //==============================================================================
 /**
@@ -33,7 +32,7 @@
 class JUCE_API  OpenGLShaderProgram
 {
 public:
-    OpenGLShaderProgram (const OpenGLContext& context) noexcept;
+    OpenGLShaderProgram (const OpenGLContext&) noexcept;
     ~OpenGLShaderProgram() noexcept;
 
     /** Returns the version of GLSL that the current context supports.
@@ -60,7 +59,17 @@ public:
         @returns  true if the shader compiled successfully. If not, you can call
                   getLastError() to find out what happened.
     */
-    bool addShader (const char* const shaderSourceCode, GLenum shaderType);
+    bool addShader (const String& shaderSourceCode, GLenum shaderType);
+
+    /** Compiles and adds a fragment shader to this program.
+        This is equivalent to calling addShader() with a type of GL_VERTEX_SHADER.
+    */
+    bool addVertexShader (const String& shaderSourceCode);
+
+    /** Compiles and adds a fragment shader to this program.
+        This is equivalent to calling addShader() with a type of GL_FRAGMENT_SHADER.
+    */
+    bool addFragmentShader (const String& shaderSourceCode);
 
     /** Links all the compiled shaders into a usable program.
         If your app is built in debug mode, this method will assert if the program
@@ -71,10 +80,13 @@ public:
     bool link() noexcept;
 
     /** Get the output for the last shader compilation or link that failed. */
-    const String& getLastError() const noexcept            { return errorLog; }
+    const String& getLastError() const noexcept             { return errorLog; }
 
     /** Selects this program into the current context. */
     void use() const noexcept;
+
+    /** Deletes the program. */
+    void release() noexcept;
 
     /** Represents an openGL uniform value.
         After a program has been linked, you can create Uniform objects to let you
@@ -142,13 +154,14 @@ public:
     };
 
     /** The ID number of the compiled program. */
-    GLuint programID;
+    GLuint getProgramID() const noexcept;
 
 private:
     const OpenGLContext& context;
+    mutable GLuint programID;
     String errorLog;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OpenGLShaderProgram)
 };
 
-#endif   // __JUCE_OPENGLSHADERPROGRAM_JUCEHEADER__
+#endif   // JUCE_OPENGLSHADERPROGRAM_H_INCLUDED

@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -35,13 +34,18 @@ static bool exeIsAvailable (const char* const executable)
 
 bool FileChooser::isPlatformDialogAvailable()
 {
-    return exeIsAvailable ("zenity") || exeIsAvailable ("kdialog");
+   #if JUCE_DISABLE_NATIVE_FILECHOOSERS
+    return false;
+   #else
+    static bool canUseNativeBox = exeIsAvailable ("zenity") || exeIsAvailable ("kdialog");
+    return canUseNativeBox;
+   #endif
 }
 
 void FileChooser::showPlatformDialog (Array<File>& results,
                                       const String& title,
                                       const File& file,
-                                      const String& /* filters */,
+                                      const String& filters,
                                       bool isDirectory,
                                       bool /* selectsFiles */,
                                       bool isSave,
@@ -80,9 +84,13 @@ void FileChooser::showPlatformDialog (Array<File>& results,
 
         String startPath;
 
-        if (file.exists() || file.getParentDirectory().exists())
+        if (file.exists())
         {
             startPath = file.getFullPathName();
+        }
+        else if (file.getParentDirectory().exists())
+        {
+            startPath = file.getParentDirectory().getFullPathName();
         }
         else
         {
@@ -93,6 +101,8 @@ void FileChooser::showPlatformDialog (Array<File>& results,
         }
 
         args.add (startPath);
+        args.add (filters.replaceCharacter (';', ' '));
+        args.add ("2>/dev/null");
     }
     else
     {
@@ -127,7 +137,8 @@ void FileChooser::showPlatformDialog (Array<File>& results,
     }
 
     ChildProcess child;
-    if (child.start (args))
+
+    if (child.start (args, ChildProcess::wantStdOut))
     {
         const String result (child.readAllProcessOutput().trim());
 
@@ -140,8 +151,8 @@ void FileChooser::showPlatformDialog (Array<File>& results,
             else
                 tokens.add (result);
 
-            for (int i = 0; i < tokens.size(); i++)
-                results.add (File (tokens[i]));
+            for (int i = 0; i < tokens.size(); ++i)
+                results.add (File::getCurrentWorkingDirectory().getChildFile (tokens[i]));
         }
 
         child.waitForProcessToFinish (60 * 1000);

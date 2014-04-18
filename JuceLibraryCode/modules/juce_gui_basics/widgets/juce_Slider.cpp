@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -29,9 +28,9 @@ class Slider::Pimpl   : public AsyncUpdater,
                         public ValueListener
 {
 public:
-    Pimpl (Slider& owner_, SliderStyle style_, TextEntryBoxPosition textBoxPosition)
-      : owner (owner_),
-        style (style_),
+    Pimpl (Slider& s, SliderStyle sliderStyle, TextEntryBoxPosition textBoxPosition)
+      : owner (s),
+        style (sliderStyle),
         lastCurrentValue (0), lastValueMin (0), lastValueMax (0),
         minimum (0), maximum (10), interval (0), doubleClickReturnValue (0),
         skewFactor (1.0), velocityModeSensitivity (1.0),
@@ -129,7 +128,7 @@ public:
 
             if (newInt != 0)
             {
-                int v = abs ((int) (newInt * 10000000));
+                int v = std::abs (roundToInt (newInt * 10000000));
 
                 while ((v % 10) == 0)
                 {
@@ -330,7 +329,7 @@ public:
         }
     }
 
-    void handleAsyncUpdate()
+    void handleAsyncUpdate() override
     {
         cancelPendingUpdate();
 
@@ -359,19 +358,28 @@ public:
         listeners.callChecked (checker, &SliderListener::sliderDragEnded, slider);
     }
 
-    void buttonClicked (Button* button)
+    struct DragInProgress
+    {
+        DragInProgress (Pimpl& p)  : owner (p)      { owner.sendDragStart(); }
+        ~DragInProgress()                           { owner.sendDragEnd(); }
+
+        Pimpl& owner;
+
+        JUCE_DECLARE_NON_COPYABLE (DragInProgress)
+    };
+
+    void buttonClicked (Button* button) override
     {
         if (style == IncDecButtons)
         {
             const double delta = (button == incButton) ? interval : -interval;
 
-            sendDragStart();
-            setValue (owner.snapValue (getValue() + delta, false), sendNotificationSync);
-            sendDragEnd();
+            DragInProgress drag (*this);
+            setValue (owner.snapValue (getValue() + delta, notDragging), sendNotificationSync);
         }
     }
 
-    void valueChanged (Value& value)
+    void valueChanged (Value& value) override
     {
         if (value.refersToSameSourceAs (currentValue))
         {
@@ -384,15 +392,14 @@ public:
             setMaxValue (valueMax.getValue(), dontSendNotification, true);
     }
 
-    void labelTextChanged (Label* label)
+    void labelTextChanged (Label* label) override
     {
-        const double newValue = owner.snapValue (owner.getValueFromText (label->getText()), false);
+        const double newValue = owner.snapValue (owner.getValueFromText (label->getText()), notDragging);
 
         if (newValue != (double) currentValue.getValue())
         {
-            sendDragStart();
+            DragInProgress drag (*this);
             setValue (newValue, sendNotificationSync);
-            sendDragEnd();
         }
 
         updateText(); // force a clean-up of the text, needed in case setValue() hasn't done this.
@@ -401,7 +408,12 @@ public:
     void updateText()
     {
         if (valueBox != nullptr)
-            valueBox->setText (owner.getTextFromValue (currentValue.getValue()), false);
+        {
+            String newValue (owner.getTextFromValue (currentValue.getValue()));
+
+            if (newValue != valueBox->getText())
+                valueBox->setText (newValue, dontSendNotification);
+        }
     }
 
     double constrainedValue (double value) const
@@ -421,30 +433,19 @@ public:
     {
         double pos;
 
-        if (maximum > minimum)
-        {
-            if (value < minimum)
-            {
-                pos = 0.0;
-            }
-            else if (value > maximum)
-            {
-                pos = 1.0;
-            }
-            else
-            {
-                pos = owner.valueToProportionOfLength (value);
-                jassert (pos >= 0 && pos <= 1.0);
-            }
-        }
-        else
-        {
+        if (maximum <= minimum)
             pos = 0.5;
-        }
+        else if (value < minimum)
+            pos = 0.0;
+        else if (value > maximum)
+            pos = 1.0;
+        else
+            pos = owner.valueToProportionOfLength (value);
 
         if (isVertical() || style == IncDecButtons)
             pos = 1.0 - pos;
 
+        jassert (pos >= 0 && pos <= 1.0);
         return (float) (sliderRegionStart + pos * sliderRegionSize);
     }
 
@@ -564,7 +565,7 @@ public:
             owner.addAndMakeVisible (valueBox = lf.createSliderTextBox (owner));
 
             valueBox->setWantsKeyboardFocus (false);
-            valueBox->setText (previousTextBoxContent, false);
+            valueBox->setText (previousTextBoxContent, dontSendNotification);
 
             if (valueBox->isEditable() != editableText) // (avoid overriding the single/double click flags unless we have to)
                 valueBox->setEditable (editableText && owner.isEnabled());
@@ -588,10 +589,10 @@ public:
 
         if (style == IncDecButtons)
         {
-            owner.addAndMakeVisible (incButton = lf.createSliderButton (true));
+            owner.addAndMakeVisible (incButton = lf.createSliderButton (owner, true));
             incButton->addListener (this);
 
-            owner.addAndMakeVisible (decButton = lf.createSliderButton (false));
+            owner.addAndMakeVisible (decButton = lf.createSliderButton (owner, false));
             decButton->addListener (this);
 
             if (incDecButtonMode != incDecButtonsNotDraggable)
@@ -602,10 +603,7 @@ public:
             else
             {
                 incButton->setRepeatSpeed (300, 100, 20);
-                incButton->addMouseListener (decButton, false);
-
                 decButton->setRepeatSpeed (300, 100, 20);
-                decButton->addMouseListener (incButton, false);
             }
 
             const String tooltip (owner.getTooltip());
@@ -618,7 +616,7 @@ public:
             decButton = nullptr;
         }
 
-        owner.setComponentEffect (lf.getSliderEffect());
+        owner.setComponentEffect (lf.getSliderEffect (owner));
 
         owner.resized();
         owner.repaint();
@@ -811,16 +809,15 @@ public:
             valueWhenLastDragged = owner.proportionOfLengthToValue (jlimit (0.0, 1.0, currentPos + speed));
 
             e.source.enableUnboundedMouseMovement (true, false);
-            mouseWasHidden = true;
         }
     }
 
     void mouseDown (const MouseEvent& e)
     {
-        mouseWasHidden = false;
         incDecDragged = false;
         useDragEvents = false;
         mouseDragStartPos = mousePosWhenLastDragged = e.getPosition();
+        currentDrag = nullptr;
 
         if (owner.isEnabled())
         {
@@ -864,7 +861,7 @@ public:
                     popup->setVisible (true);
                 }
 
-                sendDragStart();
+                currentDrag = new DragInProgress (*this);
                 mouseDrag (e);
             }
         }
@@ -872,10 +869,12 @@ public:
 
     void mouseDrag (const MouseEvent& e)
     {
-        if (useDragEvents
-             && maximum > minimum
-             && ! ((style == LinearBar || style == LinearBarVertical) && e.mouseWasClicked() && valueBox != nullptr && valueBox->isEditable()))
+        if (useDragEvents && maximum > minimum
+             && ! ((style == LinearBar || style == LinearBarVertical)
+                    && e.mouseWasClicked() && valueBox != nullptr && valueBox->isEditable()))
         {
+            DragMode dragMode = notDragging;
+
             if (style == Rotary)
             {
                 handleRotaryDrag (e);
@@ -891,25 +890,28 @@ public:
                     mouseDragStartPos = e.getPosition();
                 }
 
-                if (isVelocityBased == (userKeyOverridesVelocity && e.mods.testFlags (ModifierKeys::ctrlModifier
-                                                                                        | ModifierKeys::commandModifier
-                                                                                        | ModifierKeys::altModifier))
-                     || (maximum - minimum) / sliderRegionSize < interval)
+                if (isAbsoluteDragMode (e.mods) || (maximum - minimum) / sliderRegionSize < interval)
+                {
+                    dragMode = absoluteDrag;
                     handleAbsoluteDrag (e);
+                }
                 else
+                {
+                    dragMode = velocityDrag;
                     handleVelocityDrag (e);
+                }
             }
 
             valueWhenLastDragged = jlimit (minimum, maximum, valueWhenLastDragged);
 
             if (sliderBeingDragged == 0)
             {
-                setValue (owner.snapValue (valueWhenLastDragged, true),
+                setValue (owner.snapValue (valueWhenLastDragged, dragMode),
                           sendChangeOnlyOnRelease ? dontSendNotification : sendNotificationSync);
             }
             else if (sliderBeingDragged == 1)
             {
-                setMinValue (owner.snapValue (valueWhenLastDragged, true),
+                setMinValue (owner.snapValue (valueWhenLastDragged, dragMode),
                              sendChangeOnlyOnRelease ? dontSendNotification : sendNotificationAsync, true);
 
                 if (e.mods.isShiftDown())
@@ -919,7 +921,7 @@ public:
             }
             else if (sliderBeingDragged == 2)
             {
-                setMaxValue (owner.snapValue (valueWhenLastDragged, true),
+                setMaxValue (owner.snapValue (valueWhenLastDragged, dragMode),
                              sendChangeOnlyOnRelease ? dontSendNotification : sendNotificationAsync, true);
 
                 if (e.mods.isShiftDown())
@@ -944,7 +946,7 @@ public:
             if (sendChangeOnlyOnRelease && valueOnMouseDown != (double) currentValue.getValue())
                 triggerChangeMessage (sendNotificationAsync);
 
-            sendDragEnd();
+            currentDrag = nullptr;
             popupDisplay = nullptr;
 
             if (style == IncDecButtons)
@@ -957,6 +959,8 @@ public:
         {
             popupDisplay->startTimer (2000);
         }
+
+        currentDrag = nullptr;
     }
 
     bool canDoubleClickToValue() const
@@ -971,9 +975,8 @@ public:
     {
         if (canDoubleClickToValue())
         {
-            sendDragStart();
+            DragInProgress drag (*this);
             setValue (doubleClickReturnValue, sendNotificationSync);
-            sendDragEnd();
         }
     }
 
@@ -998,9 +1001,8 @@ public:
                 if (value > newValue)
                     delta = -delta;
 
-                sendDragStart();
-                setValue (owner.snapValue (value + delta, false), sendNotificationSync);
-                sendDragEnd();
+                DragInProgress drag (*this);
+                setValue (owner.snapValue (value + delta, notDragging), sendNotificationSync);
             }
 
             return true;
@@ -1011,48 +1013,56 @@ public:
 
     void modifierKeysChanged (const ModifierKeys& modifiers)
     {
-        if (style != IncDecButtons
-             && style != Rotary
-             && isVelocityBased == modifiers.isAnyModifierKeyDown())
-        {
+        if (style != IncDecButtons && style != Rotary && isAbsoluteDragMode (modifiers))
             restoreMouseIfHidden();
-        }
+    }
+
+    bool isAbsoluteDragMode (ModifierKeys mods) const
+    {
+        return isVelocityBased == (userKeyOverridesVelocity
+                                    && mods.testFlags (ModifierKeys::ctrlAltCommandModifiers));
     }
 
     void restoreMouseIfHidden()
     {
-        if (mouseWasHidden)
+        const Array<MouseInputSource>& mouseSources = Desktop::getInstance().getMouseSources();
+
+        for (MouseInputSource* mi = mouseSources.begin(), * const e = mouseSources.end(); mi != e; ++mi)
         {
-            mouseWasHidden = false;
-
-            for (int i = Desktop::getInstance().getNumMouseSources(); --i >= 0;)
-                Desktop::getInstance().getMouseSource(i)->enableUnboundedMouseMovement (false);
-
-            const double pos = sliderBeingDragged == 2 ? getMaxValue()
-                                                       : (sliderBeingDragged == 1 ? getMinValue()
-                                                                                  : (double) currentValue.getValue());
-            Point<int> mousePos;
-
-            if (isRotary())
+            if (mi->isUnboundedMouseMovementEnabled())
             {
-                mousePos = Desktop::getLastMouseDownPosition();
+                mi->enableUnboundedMouseMovement (false);
 
-                const int delta = roundToInt (pixelsForFullDragExtent * (owner.valueToProportionOfLength (valueOnMouseDown)
-                                                                           - owner.valueToProportionOfLength (pos)));
+                const double pos = sliderBeingDragged == 2 ? getMaxValue()
+                                                           : (sliderBeingDragged == 1 ? getMinValue()
+                                                                                      : (double) currentValue.getValue());
+                Point<int> mousePos;
 
-                if (style == RotaryHorizontalDrag)      mousePos += Point<int> (-delta, 0);
-                else if (style == RotaryVerticalDrag)   mousePos += Point<int> (0, delta);
-                else                                    mousePos += Point<int> (delta / -2, delta / 2);
+                if (isRotary())
+                {
+                    mousePos = mi->getLastMouseDownPosition();
+
+                    const int delta = roundToInt (pixelsForFullDragExtent * (owner.valueToProportionOfLength (valueOnMouseDown)
+                                                                               - owner.valueToProportionOfLength (pos)));
+
+                    if (style == RotaryHorizontalDrag)      mousePos += Point<int> (-delta, 0);
+                    else if (style == RotaryVerticalDrag)   mousePos += Point<int> (0, delta);
+                    else                                    mousePos += Point<int> (delta / -2, delta / 2);
+
+                    mousePos = owner.getScreenBounds().reduced (4).getConstrainedPoint (mousePos);
+                    mouseDragStartPos = mousePosWhenLastDragged = owner.getLocalPoint (nullptr, mousePos);
+                    valueOnMouseDown = valueWhenLastDragged;
+                }
+                else
+                {
+                    const int pixelPos = (int) getLinearSliderPos (pos);
+
+                    mousePos = owner.localPointToGlobal (Point<int> (isHorizontal() ? pixelPos : (owner.getWidth() / 2),
+                                                                     isVertical()   ? pixelPos : (owner.getHeight() / 2)));
+                }
+
+                mi->setScreenPosition (mousePos);
             }
-            else
-            {
-                const int pixelPos = (int) getLinearSliderPos (pos);
-
-                mousePos = owner.localPointToGlobal (Point<int> (isHorizontal() ? pixelPos : (owner.getWidth() / 2),
-                                                                 isVertical()   ? pixelPos : (owner.getHeight() / 2)));
-            }
-
-            Desktop::setMousePosition (mousePos);
         }
     }
 
@@ -1138,7 +1148,7 @@ public:
 
         const int indent = lf.getSliderThumbRadius (owner);
 
-        if (style == LinearBar || style == LinearBarVertical)
+        if (style == LinearBar)
         {
             const int barIndent = 1;
             sliderRegionStart = barIndent;
@@ -1146,6 +1156,15 @@ public:
 
             sliderRect.setBounds (sliderRegionStart, barIndent,
                                   sliderRegionSize, localBounds.getHeight() - barIndent * 2);
+        }
+        else if (style == LinearBarVertical)
+        {
+            const int barIndent = 1;
+            sliderRegionStart = barIndent;
+            sliderRegionSize = localBounds.getHeight() - barIndent * 2;
+
+            sliderRect.setBounds (barIndent, sliderRegionStart,
+                                  localBounds.getWidth() - barIndent * 2, sliderRegionSize);
         }
         else if (isHorizontal())
         {
@@ -1217,6 +1236,7 @@ public:
     int sliderBeingDragged;
     int pixelsForFullDragExtent;
     Rectangle<int> sliderRect;
+    ScopedPointer<DragInProgress> currentDrag;
 
     TextEntryBoxPosition textBoxPos;
     String textSuffix;
@@ -1234,7 +1254,6 @@ public:
     bool popupDisplayEnabled;
     bool menuEnabled;
     bool useDragEvents;
-    bool mouseWasHidden;
     bool incDecDragged;
     bool scrollWheelEnabled;
     bool snapsToMousePos;
@@ -1247,17 +1266,18 @@ public:
                                    public Timer
     {
     public:
-        PopupDisplayComponent (Slider& owner_)
-            : owner (owner_),
-              font (15.0f, Font::bold)
+        PopupDisplayComponent (Slider& s)
+            : owner (s),
+              font (s.getLookAndFeel().getSliderPopupFont (s))
         {
             setAlwaysOnTop (true);
+            setAllowedPlacement (owner.getLookAndFeel().getSliderPopupPlacement (s));
         }
 
         void paintContent (Graphics& g, int w, int h)
         {
             g.setFont (font);
-            g.setColour (findColour (TooltipWindow::textColourId, true));
+            g.setColour (owner.findColour (TooltipWindow::textColourId, true));
             g.drawFittedText (text, Rectangle<int> (w, h), Justification::centred, 1);
         }
 
@@ -1274,7 +1294,7 @@ public:
             repaint();
         }
 
-        void timerCallback()
+        void timerCallback() override
         {
             owner.pimpl->popupDisplay = nullptr;
         }
@@ -1287,7 +1307,7 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PopupDisplayComponent)
     };
 
-    ScopedPointer <PopupDisplayComponent> popupDisplay;
+    ScopedPointer<PopupDisplayComponent> popupDisplay;
     Component* parentForPopupDisplay;
 
     //==============================================================================
@@ -1461,9 +1481,9 @@ void Slider::setDoubleClickReturnValue (bool isDoubleClickEnabled,  double value
     pimpl->doubleClickReturnValue = valueToSetOnDoubleClick;
 }
 
-double Slider::getDoubleClickReturnValue (bool& isEnabled_) const
+double Slider::getDoubleClickReturnValue (bool& isEnabledResult) const
 {
-    isEnabled_ = pimpl->doubleClickToValue;
+    isEnabledResult = pimpl->doubleClickToValue;
     return pimpl->doubleClickReturnValue;
 }
 
@@ -1522,7 +1542,7 @@ double Slider::valueToProportionOfLength (double value)
     return skew == 1.0 ? n : pow (n, skew);
 }
 
-double Slider::snapValue (double attemptedValue, const bool)
+double Slider::snapValue (double attemptedValue, DragMode)
 {
     return attemptedValue;
 }
@@ -1537,7 +1557,7 @@ void Slider::stoppedDragging() {}
 void Slider::valueChanged() {}
 
 //==============================================================================
-void Slider::setPopupMenuEnabled (const bool menuEnabled_)  { pimpl->menuEnabled = menuEnabled_; }
+void Slider::setPopupMenuEnabled (const bool menuEnabled)   { pimpl->menuEnabled = menuEnabled; }
 void Slider::setScrollWheelEnabled (const bool enabled)     { pimpl->scrollWheelEnabled = enabled; }
 
 bool Slider::isHorizontal() const noexcept   { return pimpl->isHorizontal(); }

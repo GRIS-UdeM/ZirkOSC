@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library - "Jules' Utility Class Extensions"
-   Copyright 2004-11 by Raw Material Software Ltd.
+   This file is part of the JUCE library.
+   Copyright (c) 2013 - Raw Material Software Ltd.
 
-  ------------------------------------------------------------------------------
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
 
-   JUCE can be redistributed and/or modified under the terms of the GNU General
-   Public License (Version 2), as published by the Free Software Foundation.
-   A copy of the license is included in the JUCE distribution, or can be found
-   online at www.gnu.org/licenses.
+   Details of these licenses can be found at: www.gnu.org/licenses
 
    JUCE is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
    A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
-  ------------------------------------------------------------------------------
+   ------------------------------------------------------------------------------
 
    To release a closed-source product which uses JUCE, commercial licenses are
-   available: visit www.rawmaterialsoftware.com/juce for more information.
+   available: visit www.juce.com for more information.
 
   ==============================================================================
 */
@@ -26,9 +25,9 @@
 class MarkerListScope  : public Expression::Scope
 {
 public:
-    MarkerListScope (Component& component_) : component (component_) {}
+    MarkerListScope (Component& comp) : component (comp) {}
 
-    Expression getSymbolValue (const String& symbol) const
+    Expression getSymbolValue (const String& symbol) const override
     {
         switch (RelativeCoordinate::StandardStrings::getTypeOf (symbol))
         {
@@ -45,7 +44,7 @@ public:
         return Expression::Scope::getSymbolValue (symbol);
     }
 
-    void visitRelativeScope (const String& scopeName, Visitor& visitor) const
+    void visitRelativeScope (const String& scopeName, Visitor& visitor) const override
     {
         if (scopeName == RelativeCoordinate::Strings::parent)
         {
@@ -59,7 +58,7 @@ public:
         Expression::Scope::visitRelativeScope (scopeName, visitor);
     }
 
-    String getScopeUID() const
+    String getScopeUID() const override
     {
         return String::toHexString ((pointer_sized_int) (void*) &component) + "m";
     }
@@ -90,8 +89,8 @@ private:
 };
 
 //==============================================================================
-RelativeCoordinatePositionerBase::ComponentScope::ComponentScope (Component& component_)
-    : component (component_)
+RelativeCoordinatePositionerBase::ComponentScope::ComponentScope (Component& comp)
+    : component (comp)
 {
 }
 
@@ -151,12 +150,12 @@ Component* RelativeCoordinatePositionerBase::ComponentScope::findSiblingComponen
 class RelativeCoordinatePositionerBase::DependencyFinderScope  : public ComponentScope
 {
 public:
-    DependencyFinderScope (Component& component_, RelativeCoordinatePositionerBase& positioner_, bool& ok_)
-        : ComponentScope (component_), positioner (positioner_), ok (ok_)
+    DependencyFinderScope (Component& comp, RelativeCoordinatePositionerBase& p, bool& result)
+        : ComponentScope (comp), positioner (p), ok (result)
     {
     }
 
-    Expression getSymbolValue (const String& symbol) const
+    Expression getSymbolValue (const String& symbol) const override
     {
         switch (RelativeCoordinate::StandardStrings::getTypeOf (symbol))
         {
@@ -194,7 +193,7 @@ public:
         return ComponentScope::getSymbolValue (symbol);
     }
 
-    void visitRelativeScope (const String& scopeName, Visitor& visitor) const
+    void visitRelativeScope (const String& scopeName, Visitor& visitor) const override
     {
         if (Component* const targetComp = (scopeName == RelativeCoordinate::Strings::parent)
                                                 ? component.getParentComponent()
@@ -221,8 +220,8 @@ private:
 };
 
 //==============================================================================
-RelativeCoordinatePositionerBase::RelativeCoordinatePositionerBase (Component& component_)
-    : Component::Positioner (component_), registeredOk (false)
+RelativeCoordinatePositionerBase::RelativeCoordinatePositionerBase (Component& comp)
+    : Component::Positioner (comp), registeredOk (false)
 {
 }
 
