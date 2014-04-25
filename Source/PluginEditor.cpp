@@ -264,7 +264,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     g.fillPath(myPath);
     g.setColour(Colours::black);
     
-    PathStrokeType strokeType = *new PathStrokeType( 1.0, juce::PathStrokeType::JointStyle::curved);
+    PathStrokeType strokeType = PathStrokeType( 1.0, juce::PathStrokeType::JointStyle::curved);
     g.strokePath(myPath, strokeType);
 
     //g.strokePath(myPath, PathStrokeType::JointStyle::curved);
@@ -369,7 +369,7 @@ inline float ZirkOscjuceAudioProcessorEditor::radianToDegree(float radian){
 
 /*!
  * Function called every 50ms to refresh value from Host
- * repaint only if the user doesn't move any source (_isSourceBeingDragged)
+ * repaint only if the user is not moving any source (_isSourceBeingDragged)
  */
 void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     
@@ -430,7 +430,6 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 
 void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
-    int selectedSource = ourProcessor->getSelectedSource();
     _OscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
@@ -625,21 +624,21 @@ void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSo
     int nbrSources = getProcessor()->getNbrSources();
     int* order = getOrderSources(selected, tab, nbrSources);
     int count = 0;
-    for(int i= 1; i != nbrSources ; i++){
+    for(int i= 1; i < nbrSources ; i++){ //for(int i= 1; i != nbrSources ; i++){
         getProcessor()->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources);
     }
 }
-
+//starting from the selected source, cycle through the other sources to find in which order they are
 int* ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
     int * order = new int [nbrSources];
     int firstItem = selected;
-    order[0] = selected;
+    order[0] = selected;    //selected source is at order[0]
     int count  = 1;
     do{
-        int current = (selected + 1)%nbrSources;
+        int current = (selected + 1)%nbrSources; //current is the next one after the seleted one
         
         int bestItem = current;
-        float bestDelta = tab[current].getAzimuth() - tab[selected].getAzimuth();
+        float bestDelta = tab[current].getAzimuth() - tab[selected].getAzimuth(); //difference between current and selected
         if (bestDelta<0){
             bestDelta+=1;
         }
@@ -663,8 +662,7 @@ int* ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource 
         
         order[count++]=bestItem;
         selected = bestItem;
-    }
-    while (selected != firstItem);
+    } while (selected != firstItem && count < nbrSources);
     return order;
 }
 
@@ -807,6 +805,11 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &ed
                 ourProcessor->getSources()[iCurSource].setChannel(++sourceId);
             }
             
+            //toggle fixed angle repositioning, if we need to
+            int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
+            if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
+                _isNeedToSetFixedAngles=true;
+            }
         }
         //otherwise just ignore new value
         else{
@@ -854,6 +857,7 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
     _GainSlider.grabKeyboardFocus();
 
 }
+
 
 bool ZirkOscjuceAudioProcessorEditor::isFixedAngle(){
     return _isNeedToSetFixedAngles;
