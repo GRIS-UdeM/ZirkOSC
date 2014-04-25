@@ -213,10 +213,10 @@
  #define JucePlugin_Build_AAX              0
 #endif
 #ifndef  JucePlugin_Name
- #define JucePlugin_Name                   "ZirkOSCJUCE"
+ #define JucePlugin_Name                   "ZirkOSC2"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "ZirkOSCJUCE"
+ #define JucePlugin_Desc                   "ZirkOSC2"
 #endif
 #ifndef  JucePlugin_Manufacturer
  #define JucePlugin_Manufacturer           "UdeM"
@@ -279,16 +279,16 @@
  #define JucePlugin_AUSubType              JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_AUExportPrefix
- #define JucePlugin_AUExportPrefix         ZirkOSCJUCEAU
+ #define JucePlugin_AUExportPrefix         ZirkOSC2AU
 #endif
 #ifndef  JucePlugin_AUExportPrefixQuoted
- #define JucePlugin_AUExportPrefixQuoted   "ZirkOSCJUCEAU"
+ #define JucePlugin_AUExportPrefixQuoted   "ZirkOSC2AU"
 #endif
 #ifndef  JucePlugin_AUManufacturerCode
  #define JucePlugin_AUManufacturerCode     JucePlugin_ManufacturerCode
 #endif
 #ifndef  JucePlugin_CFBundleIdentifier
- #define JucePlugin_CFBundleIdentifier     com.UdeM.ZirkOSCJUCE
+ #define JucePlugin_CFBundleIdentifier     com.UdeM.ZirkOSC2
 #endif
 #ifndef  JucePlugin_RTASCategory
  #define JucePlugin_RTASCategory           ePlugInCategory_None
@@ -306,7 +306,7 @@
  #define JucePlugin_RTASDisableMultiMono   0
 #endif
 #ifndef  JucePlugin_AAXIdentifier
- #define JucePlugin_AAXIdentifier          com.yourcompany.ZirkOSCJUCE
+ #define JucePlugin_AAXIdentifier          com.yourcompany.ZirkOSC2
 #endif
 #ifndef  JucePlugin_AAXManufacturerCode
  #define JucePlugin_AAXManufacturerCode    JucePlugin_ManufacturerCode

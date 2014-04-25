@@ -8,9 +8,9 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.UdeM.ZirkOSCJUCE</string>
+    <string>com.UdeM.ZirkOSC2</string>
     <key>CFBundleName</key>
-    <string>ZirkOSCJUCE</string>
+    <string>ZirkOSC2</string>
     <key>CFBundlePackageType</key>
     <string>TDMw</string>
     <key>CFBundleSignature</key>
@@ -27,11 +27,11 @@
     <array>
       <dict>
         <key>name</key>
-        <string>UdeM: ZirkOSCJUCE</string>
+        <string>UdeM: ZirkOSC2</string>
         <key>description</key>
-        <string>ZirkOSCJUCE</string>
+        <string>ZirkOSC2</string>
         <key>factoryFunction</key>
-        <string>ZirkOSCJUCEAUFactory</string>
+        <string>ZirkOSC2AUFactory</string>
         <key>manufacturer</key>
         <string>UdeM</string>
         <key>type</key>

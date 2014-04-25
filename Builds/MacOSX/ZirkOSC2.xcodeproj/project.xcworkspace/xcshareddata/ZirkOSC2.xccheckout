@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>C9AF7F72-C6AD-4992-88E6-B23ED924EBD9</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ZirkOSC2</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>CF701A18-4645-4CE5-8373-FA4D921346AC</key>
+		<string>https://github.com/ludoviclaffineur/ZirkOSCJUCE.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Builds/MacOSX/ZirkOSC2.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>CF701A18-4645-4CE5-8373-FA4D921346AC</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/ludoviclaffineur/ZirkOSCJUCE.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>CF701A18-4645-4CE5-8373-FA4D921346AC</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>CF701A18-4645-4CE5-8373-FA4D921346AC</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ZirkOSCJUCE</string>
+		</dict>
+	</array>
+</dict>
+</plist>
