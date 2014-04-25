@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="puQm6u" name="ZirkOSCJUCE" projectType="audioplug" version="1.0.1"
-              bundleIdentifier="com.UdeM.ZirkOSCJUCE" buildVST="1" buildAU="1"
-              pluginName="ZirkOSCJUCE" pluginDesc="ZirkOSCJUCE" pluginManufacturer="UdeM"
+<JUCERPROJECT id="puQm6u" name="ZirkOSC2" projectType="audioplug" version="1.0.1"
+              bundleIdentifier="com.UdeM.ZirkOSC2" buildVST="1" buildAU="1"
+              pluginName="ZirkOSC2" pluginDesc="ZirkOSC2" pluginManufacturer="UdeM"
               pluginManufacturerCode="UdeM" pluginCode="Plug" pluginChannelConfigs="{1,1}, {1,2}, {1,3}, {1,4}, {1,5}, {1,6}, {1,7}, {1,8}, {2,1}, {2,2}, {2,3}, {2,4}, {2,5}, {2,6}, {2,7}, {2,8}, {3,1}, {3,2}, {3,3}, {3,4},{3,5}, {3,6}, {3,7},{3,8}, {4,1}, {4,2}, {4,3}, {4,4}, {4,5}, {4,6}, {4,7}, {4,8}, {8,8},{6,6},{6,2},{8,2}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
-              pluginAUExportPrefix="ZirkOSCJUCEAU" pluginAUViewClass="ZirkOSCJUCEAU_V1"
-              pluginRTASCategory="" aaxIdentifier="com.yourcompany.ZirkOSCJUCE"
+              pluginAUExportPrefix="ZirkOSC2AU" pluginAUViewClass="ZirkOSCJUCEAU_V1"
+              pluginRTASCategory="" aaxIdentifier="com.yourcompany.ZirkOSC2"
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="3.1.0"
               buildVST3="0" buildRTAS="0" buildAAX="0" pluginManufacturerEmail="support@yourcompany.com"
               includeBinaryInAppConfig="1">
-  <MAINGROUP id="NlVJUT" name="ZirkOSCJUCE">
+  <MAINGROUP id="NlVJUT" name="ZirkOSC2">
     <GROUP id="{EB299CA3-4504-DEB8-B478-92E9D7B38D8B}" name="liblo">
       <GROUP id="{A83DD439-110E-03A0-B3BE-499A5438235F}" name="lo">
         <FILE id="M5wKzq" name="lo.h" compile="0" resource="0" file="liblo/lo/lo.h"/>
