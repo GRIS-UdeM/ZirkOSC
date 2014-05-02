@@ -141,7 +141,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         return;
     }
     
-    for(int i = 0; i<8;i++){
+    for(int i = 0; i<8; i++){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {_AllSources[i].setAzimuth(newValue); return;}
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   {_AllSources[i].setAzimuthSpan(newValue); return;}
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {_AllSources[i].setElevation(newValue); return;}
