@@ -202,9 +202,9 @@ private:
     void paintZenithCircle (Graphics& g);
     
     //! projects dome coords to screen coords (sphere to circle)
-    Point <float> domeToScreen (Point <float>);
+    Point <float> degreeToXy (Point <float>);
     //! projects screen coords to dome coords (circle to sphere)
-    Point <float> screenToDome (Point <float>);
+    Point <float> xyToDegree (Point <float>);
 
     //! converts degree to radian
     inline float degreeToRadian (float);
