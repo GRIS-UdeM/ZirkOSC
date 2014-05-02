@@ -88,7 +88,7 @@ private:
 
     
     //METHODS FOR DEALING WITH DIRECT WALLCIRCLE INTERACTIONS
-    //! Called when a mouse is clicked
+    //! Called when a mouse is clicked, if mouse is clicked on source, make this source the selected source
     void mouseDown (const MouseEvent &event);
     //! Called when there is a draggin event
  	void mouseDrag (const MouseEvent &event);

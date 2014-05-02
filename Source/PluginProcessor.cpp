@@ -149,7 +149,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       {_AllSources[i].setGain(newValue); return;}
         else;
     }
-     cerr << endl << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter" << endl;
+    cerr << endl << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter" << endl;
 }
 
 const String ZirkOscjuceAudioProcessor::getParameterName (int index)
