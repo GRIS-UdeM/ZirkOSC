@@ -61,11 +61,11 @@ _OscPortIncomingIPadTextEditor("OSCIpadIncoTE"),
 _MovementConstraintComboBox("MovementConstraint")
 {
  
-    setSliderAndLabel(20,340, 360, 20, "Gain", &_GainSlider,&_GainLabel, 0.0, 1.0);
+    setSliderAndLabel(20, 340, 360, 20, "Gain", &_GainSlider,&_GainLabel, 0.0, 1.0);
     addAndMakeVisible(&_GainSlider);
     addAndMakeVisible(&_GainLabel);
 
-    setSliderAndLabel(20,380, 360, 20, "Azimuth", &_AzimuthSlider ,&_AzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    setSliderAndLabel(20, 380, 360, 20, "Azimuth", &_AzimuthSlider ,&_AzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     addAndMakeVisible(&_AzimuthSlider);
     addAndMakeVisible(&_AzimuthLabel);
 
@@ -118,7 +118,7 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_OscPortOutgoingIPadLabel);
     addAndMakeVisible(&_OscPortOutgoingIPadTextEditor);
 
-    _OscAdressIPadTextLabel.setText("IP add. iPad",  dontSendNotification);
+    _OscAdressIPadTextLabel.setText("iPad IP add.",  dontSendNotification);
     _OscAdressIPadTextLabel.setBounds (ZirkOSC_Window_Width-80 , 260, 80, 25);
     _OscAdressIPadTextEditor.setBounds(ZirkOSC_Window_Width-75 , 280, 60, 25);
     _OscAdressIPadTextEditor.setText(String(getProcessor()->getOscAddressIpad()));
@@ -147,6 +147,7 @@ _MovementConstraintComboBox("MovementConstraint")
     
     // add the triangular resizer component for the bottom-right of the UI
     addAndMakeVisible (_Resizer = new ResizableCornerComponent (this, &_ResizeLimits));
+    
     //min dimensions are wallCircle radius (300) + offset in display (10,30) + padding (10)
     _ResizeLimits.setSizeLimits (320, 340, ZirkOSC_Window_Width, ZirkOSC_Window_Height);
     
