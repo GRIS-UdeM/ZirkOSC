@@ -50,21 +50,13 @@ const String ZirkOSC_Movement_Constraint_name = "Move_Constraint";
 
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 
-const int ZirkOSC_Window_Width  = 400;
-const int ZirkOSC_Window_Height = 600;
-
-const int ZirkOSC_Center_X = 160.0f;
-const int ZirkOSC_Center_Y = 180.0f;
-
-const int ZirkOSC_DomeRadius = 150.0f;
-
-
+const int ZirkOSC_Window_Default_Width  = 400;
+const int ZirkOSC_Window_Default_Height = 600;
 
 const float ZirkOSC_MarksAngles[] =
 {
 	22.5, 90 - 22.5, 90 + 22.5, 180 - 22.5, 180 + 22.5, 270 - 22.5, 270 + 22.5, 360 - 22.5
 };
 const int ZirkOSC_NumMarks = sizeof(ZirkOSC_MarksAngles)/sizeof(ZirkOSC_MarksAngles[0]);
-
 
 #endif

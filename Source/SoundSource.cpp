@@ -44,19 +44,20 @@ bool    SoundSource::contains(Point <float> p){
 
 
 //getter setter;
-float   SoundSource::getX(){
+float SoundSource::getX(){
     float HRAzimuth = PercentToHR(_Azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(_Elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    return (-ZirkOSC_DomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+    
+    return (- ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
 
 void    SoundSource::setPositionXY(Point <float> p){
     float dist = sqrt(p.getX()* p.getX() + p.getY()*p.getY());
-    if (fabs(dist)> ZirkOSC_DomeRadius){
+    if (fabs(dist)> ZirkOscjuceAudioProcessor::s_iDomeRadius){
         _Elevation = 0.0f;
     }
     else{
-        _Elevation = HRToPercent(radianToDegree(acos(dist/ZirkOSC_DomeRadius)), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max) ;
+        _Elevation = HRToPercent(radianToDegree(acos(dist/ZirkOscjuceAudioProcessor::s_iDomeRadius)), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max) ;
     }
     float HRAzimuth = - radianToDegree(M_PI/2 + atan2(p.getY(),p.getX()));
     if(HRAzimuth< -180){
@@ -69,7 +70,7 @@ void    SoundSource::setPositionXY(Point <float> p){
 float   SoundSource::getY(){
     float HRAzimuth = PercentToHR(_Azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(_Elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    return (-ZirkOSC_DomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+    return (-ZirkOscjuceAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
 
 float   SoundSource::getGain(){
@@ -83,7 +84,7 @@ void    SoundSource::setGain(float gain){
 bool    SoundSource::isStillInTheDome(Point<float> move){
     Point<float> p = Point<float>(this->getX() + move.getX(), this->getY() + move.getY());
     float dist= sqrt(p.getX()* p.getX() + p.getY()*p.getY());
-    return (fabs(dist)< ZirkOSC_DomeRadius);
+    return (fabs(dist)< ZirkOscjuceAudioProcessor::s_iDomeRadius);
 }
 
 float   SoundSource::getAzimuth(){
