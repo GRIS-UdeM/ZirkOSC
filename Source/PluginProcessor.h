@@ -202,6 +202,12 @@ public:
     void setLastUiHeight(int lastUiHeight);
     //! Return the height that the UI was last set to
     int getLastUiHeight();
+    //! Return the size of the dome radius
+    int getDomeRadius();
+    //! Set the size of the dome radius
+    void setDomeRadius(int iNewRadius);
+    //radius of the dome
+    static int s_iDomeRadius;
     
     
 private:
@@ -238,6 +244,7 @@ private:
     int _LastUiWidth;
     //! last saved ui height
     int _LastUiHeight;
+
 
 };
 

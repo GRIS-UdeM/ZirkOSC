@@ -58,6 +58,7 @@ public:
     void    setAzimReverse(bool);
     //! Check if the movement lets the source in the dome
     bool isStillInTheDome( Point<float> move);
+
         
 private:
     //! If source Elevation is over 90° you have to reverse the azim

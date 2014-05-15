@@ -30,6 +30,8 @@ int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **arg
 int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 
+int ZirkOscjuceAudioProcessor::s_iDomeRadius = 150;
+
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :_NbrSources(1),
 _SelectedMovementConstraint(.0f),
@@ -39,8 +41,8 @@ _OscPortIpadOutgoing("10112"),
 _OscAddressIpad("10.0.1.3"),
 _OscPortIpadIncoming("10114")
 {
-
-
+    
+    
     for(int i=0; i<8; i++){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
     }
@@ -62,11 +64,13 @@ _OscPortIpadIncoming("10114")
     }
     
     //default values for ui dimensions
-    _LastUiWidth = ZirkOSC_Window_Width;
-    _LastUiHeight = ZirkOSC_Window_Height;
+    _LastUiWidth = ZirkOSC_Window_Default_Width;
+    _LastUiHeight = ZirkOSC_Window_Default_Height;
+    
     
     startTimer (50);
 }
+
 
 void error(int num, const char *m, const char *path){
     printf("liblo server error %d in path %s: %s\n", num, path, m);
@@ -767,8 +771,8 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
 
 Point <float> ZirkOscjuceAudioProcessor::domeToScreen (Point <float> p){
     float x,y;
-    x = -ZirkOSC_DomeRadius * sinf((p.getX())) * cosf((p.getY()));
-    y = -ZirkOSC_DomeRadius * cosf((p.getX())) * cosf((p.getY()));
+    x = -s_iDomeRadius * sinf((p.getX())) * cosf((p.getY()));
+    y = -s_iDomeRadius * cosf((p.getX())) * cosf((p.getY()));
     return Point <float> (x, y);
 }
 //==============================================================================

@@ -25,8 +25,8 @@ public Timer,
 public MouseListener,
 public TextEditorListener,
 public ComboBoxListener
-
 {
+    
 public:
     
     //! Constructor
@@ -78,6 +78,8 @@ public:
     void setDraggableSource(bool drag);
     //! Getter draggableSource
     bool isDraggableSource();
+    
+    int getDomeRadius();
 
 private:
     
@@ -104,6 +106,10 @@ private:
     void textEditorReturnKeyPressed (TextEditor &editor);
     //! Function to set the combination of Slider and Label.
     void setSliderAndLabel(int x, int y, int width, int height, String labelText, Slider* slider, Label* label, float min, float max);
+    //! Function to set the position of one Slider and associated Label.
+    void setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label);
+    //! Function to set the position of one label and associated text editor.   
+    void setLabelAndTextEditorPosition(int x, int y, int width, int height, Label* p_label, TextEditor* p_textEditor);
     //! Return the position of the source at the position p if no source returns -1
     int getSourceFromPosition(Point<float> p );
 
@@ -212,6 +218,9 @@ private:
     inline float radianToDegree (float);
     //! get the source order by the angle value
     int * getOrderSources(int, SoundSource[], int nbrSources);
+    
+    int _ZirkOSC_Center_X;
+    int _ZirkOSC_Center_Y;
 };
 
 //! Conversion of percent value to Human readeable value
