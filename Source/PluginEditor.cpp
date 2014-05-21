@@ -130,7 +130,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _MovementConstraintComboBox.addItem("Circular",      Circular);
     _MovementConstraintComboBox.addItem("Equal Elevation",  FixedRadius);
     _MovementConstraintComboBox.addItem("Equal Azimuth",   FixedAngles);
-    _MovementConstraintComboBox.addItem("Equal Azim+Elev",   FullyFixed);
+    _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyFixed);
     _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
     int selected_id = getProcessor()->getSelectedMovementConstraintAsInteger();
     _MovementConstraintComboBox.setSelectedId(selected_id);
@@ -162,7 +162,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _OscAdressIPadTextEditor.addListener(this);
     this->setFocusContainer(true);
     
-    startTimer (100);
+    startTimer (150);
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor()
