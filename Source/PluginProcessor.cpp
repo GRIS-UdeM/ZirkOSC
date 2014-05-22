@@ -129,7 +129,6 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return _AllSources[i].getElevation();
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return _AllSources[i].getElevationSpan();
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return _AllSources[i].getGain();
-        else;
     }
     cerr << endl << "wrong parameter id: " << index << "in ZirkOscjuceAudioProcessor::getParameter" << endl;
 }
@@ -151,7 +150,6 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {_AllSources[i].setElevation(newValue); return;}
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   {_AllSources[i].setElevationSpan(newValue); return;}
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       {_AllSources[i].setGain(newValue); return;}
-        else;
     }
     cerr << endl << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter" << endl;
 }
@@ -168,7 +166,6 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return ZirkOSC_Elev_name[i];
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i];
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i];
-        else;
     }
     return String::empty;
 }
