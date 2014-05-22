@@ -43,7 +43,7 @@ _OscPortIpadIncoming("10114")
 {
     
     
-    for(int i=0; i<8; i++){
+    for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
     }
     _OscZirkonium   = lo_address_new("127.0.0.1", "10001");
@@ -123,7 +123,7 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
         return _SelectedMovementConstraint;
     }
     
-    for(int i = 0; i<8;i++){
+    for(int i = 0; i<8;++i){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return _AllSources[i].getAzimuth();
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return _AllSources[i].getAzimuthSpan();
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return _AllSources[i].getElevation();
@@ -145,7 +145,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         return;
     }
     
-    for(int i = 0; i<8; i++){
+    for(int i = 0; i<8; ++i){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {_AllSources[i].setAzimuth(newValue); return;}
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   {_AllSources[i].setAzimuthSpan(newValue); return;}
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {_AllSources[i].setElevation(newValue); return;}
@@ -162,7 +162,7 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
         return ZirkOSC_Movement_Constraint_name;
     }
     
-    for(int i = 0; i<8;i++){
+    for(int i = 0; i<8;++i){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return ZirkOSC_Azim_name[i];
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i];
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return ZirkOSC_Elev_name[i];
@@ -176,7 +176,7 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 
 
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
-    for(int i=0;i<_NbrSources;i++){
+    for(int i=0;i<_NbrSources;++i){
         float azim_osc = PercentToHR(_AllSources[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
         float elev_osc = PercentToHR(_AllSources[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
         float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
@@ -386,7 +386,7 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("AddIpad", _OscAddressIpad);
     xml.setAttribute("NombreSources", _NbrSources);
     xml.setAttribute("MovementConstraint", _SelectedMovementConstraint);
-    for(int i =0;i<8;i++){
+    for(int i =0;i<8;++i){
         String channel = "Channel";
         String azimuth = "Azimuth";
         String elevation = "Elevation";
@@ -438,7 +438,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
             _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
             _SelectedMovementConstraint = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
-            for (int i=0;i<8;i++){
+            for (int i=0;i<8;++i){
                 String channel = "Channel";
                 String azimuth = "Azimuth";
                 String elevation = "Elevation";
@@ -481,7 +481,7 @@ int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int ar
     //printf("Receive BEGIN");
     int channel_osc = argv[0]->i;
     int i =0;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -512,7 +512,7 @@ int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc
     int i =0;
     printf("Receive END");
     int channel_osc = argv[0]->i;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -544,7 +544,7 @@ int receiveAzimuthSpanUpdate(const char *path, const char *types, lo_arg **argv,
     int channel_osc = argv[0]->i;
     int i;
     float value = argv[1]->f;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -581,7 +581,7 @@ int receiveAzimuthSpanBegin(const char *path, const char *types, lo_arg **argv, 
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
     int channel_osc = argv[0]->i;
     int i;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -608,7 +608,7 @@ int receiveAzimuthSpanEnd(const char *path, const char *types, lo_arg **argv, in
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
     int channel_osc = argv[0]->i;
     int i;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -636,7 +636,7 @@ int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **arg
     int channel_osc = argv[0]->i;
     int i;
     float value = argv[1]->f;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -666,7 +666,7 @@ int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
     int channel_osc = argv[0]->i;
     int i;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -694,7 +694,7 @@ int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, 
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
     int channel_osc = argv[0]->i;
     int i;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
@@ -723,7 +723,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
     int channel_osc = argv[0]->i;
     int i =0;
-    for(i=0;i<processor->getNbrSources();i++){
+    for(i=0;i<processor->getNbrSources();++i){
         if (processor->getSources()[i].getChannel() == channel_osc) {
             break;
         }
