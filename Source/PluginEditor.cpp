@@ -463,9 +463,9 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     clock_t gui = clock();
 #endif
     
-    if(!_isSourceBeingDragged){
+    //if(!_isSourceBeingDragged){
           repaint();
-    }
+    //}
     
 #if defined(DEBUG)
     clock_t end = clock();
@@ -796,7 +796,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         else if (selectedConstraint == Circular){
             moveCircular(pointRelativeCenter);
         }
-        repaint();
+        //repaint();
     }
     getProcessor()->sendOSCValues();
     //_GainSlider.grabKeyboardFocus();
