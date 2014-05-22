@@ -162,7 +162,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _OscAdressIPadTextEditor.addListener(this);
     this->setFocusContainer(true);
     
-    startTimer (150);
+    startTimer (100);
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor()
