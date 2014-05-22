@@ -14,7 +14,7 @@
 #ifndef DEBUG
     #define DEBUG
 #endif
-#undef DEBUG
+//#undef DEBUG
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -650,18 +650,18 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
 
     }
     
-    //if a source is clicked on, mark this source as being dragged
+    //if a source is clicked on, flag _isSourceBeingDragged to true
     _isSourceBeingDragged = (source!=-1);
     if(_isSourceBeingDragged){
 
-        //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture)
+        //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture). Logic needs this
         getProcessor()->setSelectedSource(source);
         int selectedConstraint = getProcessor()->getSelectedMovementConstraintAsInteger();
         if (selectedConstraint == Independant) {
             getProcessor()->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + source*5);
             getProcessor()->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + source*5);
         }
-        else if (selectedConstraint == DeltaLocked || selectedConstraint == Circular || selectedConstraint == FixedRadius || selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
+        else {
             for(int i = 0;i<getProcessor()->getNbrSources(); i++){
                 getProcessor()->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5);
                 getProcessor()->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5);
@@ -670,7 +670,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         }
         //repaint();
     }
-    _GainSlider.grabKeyboardFocus();
+    //_GainSlider.grabKeyboardFocus();
 }
 
 int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
@@ -724,7 +724,29 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         repaint();
     }
     getProcessor()->sendOSCValues();
-    _GainSlider.grabKeyboardFocus();
+    //_GainSlider.grabKeyboardFocus();
+}
+
+void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
+    if(_isSourceBeingDragged){
+        int selectedConstrain = getProcessor()->getSelectedMovementConstraintAsInteger();
+        if(selectedConstrain == Independant){
+            int selectedSource = getProcessor()->getSelectedSource();
+            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ selectedSource*5);
+            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*5);
+            
+        }
+        else {
+            for(int i = 0;i<getProcessor()->getNbrSources(); i++){
+                getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5);
+                getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5);
+            }
+            //VB APRIL 16 2014
+            //_isNeedToSetFixedAngles=true;
+        }
+        _isSourceBeingDragged=false;
+    }
+    //_GainSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
@@ -872,27 +894,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
     //repaint();
 }
 
-void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
-    if(_isSourceBeingDragged){
-        int selectedConstrain = getProcessor()->getSelectedMovementConstraintAsInteger();
-        if(selectedConstrain == Independant){
-            int selectedSource = getProcessor()->getSelectedSource();
-            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ selectedSource*5);
-            getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*5);
 
-        }
-        else if (selectedConstrain == DeltaLocked || selectedConstrain == Circular || selectedConstrain == FixedRadius || selectedConstrain == FixedAngles || selectedConstrain == FullyFixed){
-            for(int i = 0;i<getProcessor()->getNbrSources(); i++){
-                getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5);
-                getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5);
-            }
-            //VB APRIL 16 2014
-            //_isNeedToSetFixedAngles=true;
-        }
-        _isSourceBeingDragged=false;
-    }
-    _GainSlider.grabKeyboardFocus();
-}
 
 void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &editor){
     
