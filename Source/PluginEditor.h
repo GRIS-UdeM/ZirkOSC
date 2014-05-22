@@ -96,10 +96,17 @@ private:
  	void mouseDrag (const MouseEvent &event);
     //! Called when the mouse is up
  	void mouseUp (const MouseEvent &event);
+    
+    
     //! Called when a value of a slider has changed
-    
-    
     void sliderValueChanged (Slider* slider);
+    
+    //! Called when slider drag initiated
+    void sliderDragStarted (Slider* slider);
+    
+    //! Called when slider drag ended
+    void sliderDragEnded (Slider* slider);
+    
     //! Called every laps of time
     void timerCallback();
     //! Called when enter is pressed in a TextEditor
