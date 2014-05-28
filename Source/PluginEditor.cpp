@@ -304,7 +304,8 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     g.fillPath(myPath);
     g.setColour(Colours::black);
     
-    PathStrokeType strokeType = PathStrokeType( 1.0, juce::PathStrokeType::JointStyle::curved);
+    //PathStrokeType strokeType = PathStrokeType( 1.0, juce::PathStrokeType::JointStyle::curved);
+    PathStrokeType strokeType = PathStrokeType( 1.0);
     g.strokePath(myPath, strokeType);
 
     //g.strokePath(myPath, PathStrokeType::JointStyle::curved);
