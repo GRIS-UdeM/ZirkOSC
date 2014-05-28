@@ -401,13 +401,11 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         elevationSpan.append(String(i), 10);
         xml.setAttribute(elevationSpan, _AllSources[i].getElevationSpan());
         gain.append(String(i), 10);
-        xml.setAttribute(gain, _AllSources[i].getChannel());
+        xml.setAttribute(gain, _AllSources[i].getGain());
         
     }
     copyXmlToBinary (xml, destData);
-    
 }
-
 
 
 void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -453,7 +451,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 _AllSources[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
                 _AllSources[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
                 _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
-                _AllSources[i].setGain((float) xmlState->getDoubleAttribute(gain,1 ));
+                float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
+                _AllSources[i].setGain(fGain);
             }
             
             changeOSCPort(_OscPortZirkonium);
