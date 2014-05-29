@@ -152,30 +152,31 @@ private:
     Label _GainLabel;
     
     //! Label of the channel number of the selectedSource
-    Label _ChannelNumberLabel;
+    Label _FirstSourceIdLabel;
     //! Label of the ZKM port
-    Label _OscPortLabel;
-    //! Label of the outgoing port to the iPad
-    Label _OscPortOutgoingIPadLabel;
-    //! Label of the incoming port
-    Label _OscPortIncomingIPadLabel;
+    Label _ZkmOscPortLabel;
     //! Label of the number of sources
     Label _NbrSourceLabel;
+    //! Label of the outgoing port to the iPad
+    Label _IpadOutgoingOscPortLabel;
+    //! Label of the incoming port
+    Label _IpadIncomingOscPortLabel;
     //! Label of the iPad address
-    Label _OscAdressIPadTextLabel;
+    Label _IpadIpAddressLabel;
 
-    //! TextEditor for the ZKM port 
-    TextEditor _ZirkoniumOscPortTextEditor;
+
+    //! TextEditor for the channel number of the selected source
+    TextEditor _FirstSourceIdTextEditor;
+    //! TextEditor for the ZKM port
+    TextEditor _ZkmOscPortTextEditor;
     //! TextEditor for the Number of sources
     TextEditor _NbrSourceTextEditor;
-    //! TextEditor for the channel number of the selected source 
-    TextEditor _FirstSourceIdTextEditor;
     //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
     TextEditor _IpadOutgoingOscPortTextEditor;
-    //! TextEditor for the iPad ip address
-    TextEditor _IPadIpAddressTextEditor;
     //! TextEditor for the iPad incoming port  (from the ipad to the plugin)
     TextEditor _IpadIncomingOscPortTextEditor;
+    //! TextEditor for the iPad ip address
+    TextEditor _IpadIpAddressTextEditor;
 
     //! Combobox to choose constrain type
     ComboBox _MovementConstraintComboBox;

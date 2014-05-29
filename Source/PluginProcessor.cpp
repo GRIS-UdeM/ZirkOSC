@@ -198,7 +198,7 @@ void ZirkOscjuceAudioProcessor::sendOSCConfig(){
 void ZirkOscjuceAudioProcessor::changeZirkoniumOSCPort(int newPort){
     
     if(newPort<0 || newPort>100000){
-        newPort = 18032;
+        newPort = _OscPortZirkonium;//18032;
     }
     
     lo_address osc = _OscZirkonium;
@@ -220,14 +220,14 @@ bool validateIpAddress(const string &ipAddress)
 
 void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress){
     
-    //if port is outside range, assign default
+    //if port is outside range, assign previous
     if(newPort<0 || newPort>100000){
-        newPort = 10112;
+        newPort = _OscPortIpadOutgoing.getIntValue();//10112;
     }
 
-    //if address is invalid, assign default
+    //if address is invalid, assign previous
     if (!validateIpAddress(newAddress.toStdString())){
-        newAddress = "10.0.1.3";
+        newAddress = _OscAddressIpad;//"10.0.1.3";
     }
     
     lo_address osc = _OscIpad;
@@ -249,7 +249,7 @@ void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress
 void ZirkOscjuceAudioProcessor::changeOSCReceiveIpad(int newPort){
     
     if(newPort<0 || newPort>100000){
-        newPort = 10114;
+        newPort = _OscPortIpadIncoming.getIntValue();//10114;
     }
     
     if(_St){
