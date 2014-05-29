@@ -165,17 +165,17 @@ private:
     Label _OscAdressIPadTextLabel;
 
     //! TextEditor for the ZKM port 
-    TextEditor _OscPortTextEditor;
+    TextEditor _ZirkoniumOscPortTextEditor;
     //! TextEditor for the Number of sources
     TextEditor _NbrSourceTextEditor;
     //! TextEditor for the channel number of the selected source 
     TextEditor _FirstSourceIdTextEditor;
     //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
-    TextEditor _OscPortOutgoingIPadTextEditor;
+    TextEditor _IpadOutgoingOscPortTextEditor;
     //! TextEditor for the iPad ip address
-    TextEditor _OscAdressIPadTextEditor;
+    TextEditor _IPadIpAddressTextEditor;
     //! TextEditor for the iPad incoming port  (from the ipad to the plugin)
-    TextEditor _OscPortIncomingIPadTextEditor;
+    TextEditor _IpadIncomingOscPortTextEditor;
 
     //! Combobox to choose constrain type
     ComboBox _MovementConstraintComboBox;
