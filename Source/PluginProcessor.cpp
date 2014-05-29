@@ -12,6 +12,7 @@ Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
 #include <string.h>
 #include <sstream>
 #include <regex.h>
+#include <arpa/inet.h>  //for inet_pton
 
 
 // using stringstream constructors.
@@ -194,7 +195,12 @@ void ZirkOscjuceAudioProcessor::sendOSCConfig(){
     
 }
 
-void ZirkOscjuceAudioProcessor::changeOSCPort(int newPort){
+void ZirkOscjuceAudioProcessor::changeZirkoniumOSCPort(int newPort){
+    
+    if(newPort<0 || newPort>100000){
+        newPort = 18032;
+    }
+    
     lo_address osc = _OscZirkonium;
     _OscPortZirkonium = newPort;
 	_OscZirkonium = NULL;
@@ -205,7 +211,25 @@ void ZirkOscjuceAudioProcessor::changeOSCPort(int newPort){
 
 }
 
+bool validateIpAddress(const string &ipAddress)
+{
+    struct sockaddr_in sa;
+    int result = inet_pton(AF_INET, ipAddress.c_str(), &(sa.sin_addr));
+    return result != 0;
+}
+
 void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress){
+    
+    //if port is outside range, assign default
+    if(newPort<0 || newPort>100000){
+        newPort = 10112;
+    }
+
+    //if address is invalid, assign default
+    if (!validateIpAddress(newAddress.toStdString())){
+        newAddress = "10.0.1.3";
+    }
+    
     lo_address osc = _OscIpad;
     _OscPortIpadOutgoing = String(newPort);
     _OscIpad = NULL;
@@ -222,7 +246,12 @@ void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress
 	_OscIpad = lo_address_new(_OscAddressIpad.toUTF8(), port);
 }
 
-void ZirkOscjuceAudioProcessor::changeOSCPortReceive(int newPort){
+void ZirkOscjuceAudioProcessor::changeOSCReceiveIpad(int newPort){
+    
+    if(newPort<0 || newPort>100000){
+        newPort = 10114;
+    }
+    
     if(_St){
         lo_server st2 = _St;
         lo_server_thread_stop(st2);
@@ -424,12 +453,9 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             // ok, now pull out our parameters. format is getIntAttribute("AttributeName: defaultValue);
             _LastUiWidth  = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
             _LastUiHeight = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
-            _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 20000);
-            if(_OscPortZirkonium<0 || _OscPortZirkonium>100000){
-                _OscPortZirkonium = 20000;
-            }
-            _OscPortIpadIncoming = xmlState->getStringAttribute("IncPort", "10002");
-            _OscPortIpadOutgoing = xmlState->getStringAttribute("OutPort", "10004");
+            _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 18032);
+            _OscPortIpadIncoming = xmlState->getStringAttribute("IncPort", "10114");
+            _OscPortIpadOutgoing = xmlState->getStringAttribute("OutPort", "10112");
             _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
             _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
             _SelectedMovementConstraint = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
@@ -455,8 +481,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 _AllSources[i].setGain(fGain);
             }
             
-            changeOSCPort(_OscPortZirkonium);
-            changeOSCPortReceive(_OscPortIpadIncoming.getIntValue());
+            changeZirkoniumOSCPort(_OscPortZirkonium);
+            changeOSCReceiveIpad(_OscPortIpadIncoming.getIntValue());
             changeOSCSendIPad(_OscPortIpadOutgoing.getIntValue(), _OscAddressIpad);
             sendOSCValues();
             _RefreshGui=true;

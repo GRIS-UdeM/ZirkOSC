@@ -183,7 +183,7 @@ public:
     //! If you want to refresh the Gui from the Processor.
     void setRefreshGui(bool gui) { _RefreshGui = gui;};
     //! Change the sending OSC port of the zirkonium
-    void changeOSCPort(int newPort);
+    void changeZirkoniumOSCPort(int newPort);
     //! Send the configuration to the iPad (assignment Position -> id, nbr source)
     void sendOSCConfig();
     //! Send the movement type, selected constrain.
@@ -191,7 +191,7 @@ public:
     //! Change the sending OSC port of the iPad
     void changeOSCSendIPad(int newPort, String newAddress);
     //! Change the receiving OSC port (server).
-    void changeOSCPortReceive(int port);
+    void changeOSCReceiveIpad(int port);
     //! Returns the Editor.
     AudioProcessorEditor* getEditor() {return _Editor;};
     //! Set the width that the UI was last set to
