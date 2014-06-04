@@ -186,7 +186,7 @@ void ZirkOscjuceAudioProcessorEditor::resized()
     setLabelAndTextEditorPosition(iCurWidth-80 , 210, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 260, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
- 
+   
     
     //------------ WALLCIRCLE ------------
     _ZirkOSC_Center_X = (iCurWidth -80)/2;
