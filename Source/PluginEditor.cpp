@@ -79,11 +79,11 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_ElevationSlider);
     addAndMakeVisible(&_ElevationLabel);
 
-    setSliderAndLabel(20, ZirkOSC_Window_Default_Height-140, ZirkOSC_Window_Default_Width-40, 20, "Elev. Sp.", &_ElevationSpanSlider, &_ElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+    setSliderAndLabel(20, ZirkOSC_Window_Default_Height-140, ZirkOSC_Window_Default_Width-40, 20, "Elev. Span.", &_ElevationSpanSlider, &_ElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     addAndMakeVisible(&_ElevationSpanSlider);
     addAndMakeVisible(&_ElevationSpanLabel);
 
-    setSliderAndLabel(20, ZirkOSC_Window_Default_Height-100, ZirkOSC_Window_Default_Width-40, 20, "Azim. Sp.", &_AzimuthSpanSlider, &_AzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+    setSliderAndLabel(20, ZirkOSC_Window_Default_Height-100, ZirkOSC_Window_Default_Width-40, 20, "Azim. Span.", &_AzimuthSpanSlider, &_AzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
     addAndMakeVisible(&_AzimuthSpanSlider);
     addAndMakeVisible(&_AzimuthSpanLabel);
     
@@ -186,8 +186,7 @@ void ZirkOscjuceAudioProcessorEditor::resized()
     setLabelAndTextEditorPosition(iCurWidth-80 , 210, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 260, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
-    // link button
-    _LinkSpanButton.setBounds(iCurWidth-80, 310, 80, 30);
+ 
     
     //------------ WALLCIRCLE ------------
     _ZirkOSC_Center_X = (iCurWidth -80)/2;
@@ -198,14 +197,18 @@ void ZirkOscjuceAudioProcessorEditor::resized()
     ZirkOscjuceAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
 
     //------------ LABELS AND SLIDERS ------------
-    setSliderAndLabelPosition(20, iCurHeight-260, iCurWidth-40, 20, &_GainSlider, &_GainLabel);
-    setSliderAndLabelPosition(20, iCurHeight-220, iCurWidth-40, 20, &_AzimuthSlider ,&_AzimuthLabel);
-    setSliderAndLabelPosition(20, iCurHeight-180, iCurWidth-40, 20, &_ElevationSlider, &_ElevationLabel);
-    setSliderAndLabelPosition(20, iCurHeight-140, iCurWidth-40, 20, &_ElevationSpanSlider, &_ElevationSpanLabel);
-    setSliderAndLabelPosition(20, iCurHeight-100, iCurWidth-40, 20, &_AzimuthSpanSlider, &_AzimuthSpanLabel);
+    setSliderAndLabelPosition(15, iCurHeight-260, iCurWidth-40, 20, &_GainSlider, &_GainLabel);
+    setSliderAndLabelPosition(15, iCurHeight-220, iCurWidth-40, 20, &_AzimuthSlider ,&_AzimuthLabel);
+    setSliderAndLabelPosition(15, iCurHeight-180, iCurWidth-40, 20, &_ElevationSlider, &_ElevationLabel);
+    setSliderAndLabelPosition(15, iCurHeight-140, iCurWidth-40, 20, &_AzimuthSpanSlider, &_AzimuthSpanLabel);
+    setSliderAndLabelPosition(15, iCurHeight-100, iCurWidth-40, 20, &_ElevationSpanSlider, &_ElevationSpanLabel);
+
+    
+    // link button
+    _LinkSpanButton.setBounds(15, iCurHeight-64, 80, 30);
 
     //combo box
-    _MovementConstraintComboBox.setBounds((iCurWidth-220)/2, iCurHeight-60, 220, 25);
+    _MovementConstraintComboBox.setBounds(100, iCurHeight-60, 220, 25);
     
     getProcessor()->setLastUiWidth(iCurWidth);
     getProcessor()->setLastUiHeight(iCurHeight);
@@ -240,8 +243,8 @@ void ZirkOscjuceAudioProcessorEditor::setSliderAndLabel(int x, int y, int width,
 }
 
 void ZirkOscjuceAudioProcessorEditor::setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label){
-    label->setBounds (x,    y, 60, height);
-    slider->setBounds(x+60, y, width-60,  height);
+    label->setBounds (x,    y, 70, height);
+    slider->setBounds(x+70, y, width-70,  height);
 }
 
 void ZirkOscjuceAudioProcessorEditor::setLabelAndTextEditorPosition(int x, int y, int width, int height, Label* p_label, TextEditor* p_textEditor){
