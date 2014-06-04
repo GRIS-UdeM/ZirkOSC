@@ -38,8 +38,8 @@
 namespace ProjectInfo
 {
     const char* const  projectName    = "ZirkOSC2";
-    const char* const  versionString  = "2.0.2";
-    const int          versionNumber  = 0x20002;
+    const char* const  versionString  = "2.0.3";
+    const int          versionNumber  = 0x20003;
 }
 
 #endif   // __APPHEADERFILE_PUQM6U__
