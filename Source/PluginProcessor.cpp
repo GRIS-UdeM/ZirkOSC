@@ -104,6 +104,17 @@ ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
     _OscIpad = NULL;
 }
 
+//set wheter plug is sending osc messages to zirkonium
+void ZirkOscjuceAudioProcessor::setIsOscActive(bool isOscActive){
+
+    _isOscActive = isOscActive;
+}
+
+//wheter plug is sending osc messages to zirkonium
+bool ZirkOscjuceAudioProcessor::getIsOscActive(){
+    return _isOscActive;
+}
+
 //==============================================================================
 const String ZirkOscjuceAudioProcessor::getName() const
 {
@@ -174,25 +185,28 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 
 
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
-    for(int i=0;i<_NbrSources;++i){
-        float azim_osc = PercentToHR(_AllSources[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
-        float elev_osc = PercentToHR(_AllSources[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
-        float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
-        float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
-        int channel_osc = _AllSources[i].getChannel()-1;
-        float gain_osc = _AllSources[i].getGain();
-        lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
-        azim_osc = azim_osc * M_PI;
-        elev_osc = elev_osc * M_PI;
-        azimspan_osc = azimspan_osc * M_PI;
-        elevspan_osc = elevspan_osc * M_PI;
-        lo_send(_OscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+    if (_isOscActive){
+        for(int i=0;i<_NbrSources;++i){
+            float azim_osc = PercentToHR(_AllSources[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
+            float elev_osc = PercentToHR(_AllSources[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
+            float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
+            float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
+            int channel_osc = _AllSources[i].getChannel()-1;
+            float gain_osc = _AllSources[i].getGain();
+            lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+            azim_osc = azim_osc * M_PI;
+            elev_osc = elev_osc * M_PI;
+            azimspan_osc = azimspan_osc * M_PI;
+            elevspan_osc = elevspan_osc * M_PI;
+            lo_send(_OscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+        }
     }
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCConfig(){
-    lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _AllSources[0].getChannel(), _AllSources[1].getChannel(), _AllSources[2].getChannel(), _AllSources[3].getChannel(), _AllSources[4].getChannel(), _AllSources[5].getChannel(), _AllSources[6].getChannel(), _AllSources[7].getChannel());
-    
+    if (_isOscActive){
+        lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _AllSources[0].getChannel(), _AllSources[1].getChannel(), _AllSources[2].getChannel(), _AllSources[3].getChannel(), _AllSources[4].getChannel(), _AllSources[5].getChannel(), _AllSources[6].getChannel(), _AllSources[7].getChannel());
+    }
 }
 
 void ZirkOscjuceAudioProcessor::changeZirkoniumOSCPort(int newPort){
