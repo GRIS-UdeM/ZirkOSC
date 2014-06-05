@@ -2,8 +2,7 @@
 //  ZirkConstants.h
 //  ZirkOSCJUCE
 //
-//  Created by Lud's on 21/02/13.
-//  Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
+
 //
 
 #ifndef ZirkOSCJUCE_ZirkConstants_h
@@ -47,6 +46,8 @@ const float  ZirkOSC_Gain_Max = 1.0f;
 const float  ZirkOSC_Gain_Def = 1.0f;
 
 const String ZirkOSC_Movement_Constraint_name = "Move_Constraint";
+const String ZirkOSC_isOscActive_name = "is_OSC_Active";
+const String ZirkOSC_isSpanLinked_name = "is_Span_Linked";
 
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 

@@ -1,6 +1,5 @@
 /*
  ==============================================================================
-Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
 
  ==============================================================================
  */
@@ -106,13 +105,22 @@ ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
 
 //set wheter plug is sending osc messages to zirkonium
 void ZirkOscjuceAudioProcessor::setIsOscActive(bool isOscActive){
-
     _isOscActive = isOscActive;
 }
 
 //wheter plug is sending osc messages to zirkonium
 bool ZirkOscjuceAudioProcessor::getIsOscActive(){
     return _isOscActive;
+}
+
+//set wheter plug is sending osc messages to zirkonium
+void ZirkOscjuceAudioProcessor::setIsSpanLinked(bool isSpanLinked){
+    _isSpanLinked = isSpanLinked;
+}
+
+//wheter plug is sending osc messages to zirkonium
+bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
+    return _isSpanLinked;
 }
 
 //==============================================================================
@@ -133,6 +141,12 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
 {
     if (ZirkOSC_MovementConstraint_ParamId == index){
         return _SelectedMovementConstraint;
+    }
+    if (ZirkOSC_isOscActive_ParamId == index){
+        return _isOscActive;
+    }
+    if (ZirkOSC_isSpanLinked_ParamId == index){
+        return _isSpanLinked;
     }
     
     for(int i = 0; i<8;++i){
@@ -155,6 +169,12 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         _SelectedMovementConstraint = newValue;
         return;
     }
+    if (ZirkOSC_isOscActive_ParamId == index){
+        _isOscActive = newValue;
+    }
+    if (ZirkOSC_isSpanLinked_ParamId == index){
+        _isSpanLinked = newValue;
+    }
     
     for(int i = 0; i<8; ++i){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {_AllSources[i].setAzimuth(newValue); return;}
@@ -170,6 +190,12 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 {
     if (ZirkOSC_MovementConstraint_ParamId == index){
         return ZirkOSC_Movement_Constraint_name;
+    }
+    if (ZirkOSC_isOscActive_ParamId == index){
+        return ZirkOSC_isOscActive_name;
+    }
+    if (ZirkOSC_isSpanLinked_ParamId == index){
+        return ZirkOSC_isSpanLinked_name;
     }
     
     for(int i = 0; i<8;++i){
@@ -426,6 +452,8 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("AddIpad", _OscAddressIpad);
     xml.setAttribute("NombreSources", _NbrSources);
     xml.setAttribute("MovementConstraint", _SelectedMovementConstraint);
+    xml.setAttribute("isSpanLinked", _isSpanLinked);
+    xml.setAttribute("isOscActive", _isOscActive);
     for(int i =0;i<8;++i){
         String channel = "Channel";
         String azimuth = "Azimuth";
@@ -473,6 +501,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
             _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
             _SelectedMovementConstraint = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
+            _isOscActive = xmlState->getBoolAttribute("isOscActive", true);
+            _isSpanLinked = xmlState->getBoolAttribute("isSpanLinked", false);
             for (int i=0;i<8;++i){
                 String channel = "Channel";
                 String azimuth = "Azimuth";
