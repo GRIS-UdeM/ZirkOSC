@@ -4,7 +4,6 @@
  This file was auto-generated!
 
  It contains the basic startup code for a Juce application.
- Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
  ==============================================================================
  */
 
@@ -84,6 +83,8 @@ public:
     double getTailLengthSeconds() const { return 0.0; }
     //! Whether we're sending OSC messages to the zirkonium
     bool _isOscActive = true;
+    //! If the span are linked
+    bool _isSpanLinked = false;
     
     //! Projects sphere coords to polar coords 
     Point<float> domeToScreen(Point<float>);
@@ -103,9 +104,9 @@ public:
 
 
     //==============================================================================
-    //! The host will call this method when it wants to save the filter's internal state. 
+    //! The host will call this method when it wants to save the filter's internal state, ie SAVE PRESET.
     void getStateInformation (MemoryBlock& destData);
-    //! This must restore the filter's state from a block of data previously created using getStateInformation(). 
+    //! This must restore the filter's state from a block of data previously created using getStateInformation() IE RESTORE PRESET.
     void setStateInformation (const void* data, int sizeInBytes);
     
     //! returns the sources
@@ -115,11 +116,15 @@ public:
     //! Set the number of sources.
     void setNbrSources(int newValue) { if ( newValue >-1 && newValue < 9) _NbrSources= newValue; }
     
-    //set wheter plug is sending osc messages to zirkonium
+    //!set wheter plug is sending osc messages to zirkonium
     void setIsOscActive(bool isOscActive);
-
-    //wheter plug is sending osc messages to zirkonium
+    //!wheter plug is sending osc messages to zirkonium
     bool getIsOscActive();
+
+    //!set wheter plug is sending osc messages to zirkonium
+    void setIsSpanLinked(bool isSpanLinked);
+    //!wheter plug is sending osc messages to zirkonium
+    bool getIsSpanLinked();
     
     //! return the tab position of the selectedSource 
     int getSelectedSource() { return _SelectedSource; }
@@ -177,6 +182,8 @@ public:
         ZirkOSC_ElevSpan_ParamId_7,
         ZirkOSC_Gain_ParamId_7,
         ZirkOSC_MovementConstraint_ParamId,
+        ZirkOSC_isSpanLinked_ParamId,
+        ZirkOSC_isOscActive_ParamId,
         totalNumParams
     };
     //! Send the current state to all the iPad and Zirkonium

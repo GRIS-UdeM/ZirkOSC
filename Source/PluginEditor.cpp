@@ -1,8 +1,6 @@
 /*
  ==============================================================================
 
- Developer : Ludovic LAFFINEUR (ludovic.laffineur@gmail.com)
- Copyright 2013 Ludovic LAFFINEUR ludovic.laffineur@gmail.com
  Lexic :
  - all parameter preceeded by HR are Human Readable
  - parameter without HR are in percent
@@ -120,15 +118,17 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_IpadIpAddressLabel);
     addAndMakeVisible(&_IpadIpAddressTextEditor);
     
-    
-    //---------- LINK BUTTON ----------
+
+    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+   
+    //---------- TOGGLE BUTTONS ----------
     addAndMakeVisible(&_LinkSpanButton);
     _LinkSpanButton.addListener(this);
+    _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
     
-    //---------- OSC ACTIVE BUTTON ----------
     addAndMakeVisible(&_OscActiveButton);
     _OscActiveButton.addListener(this);
-    //_OscActiveButton.setState(Button::ButtonState::buttonDown);
+    _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     
     
     //---------- COMBO BOX ----------
@@ -139,7 +139,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _MovementConstraintComboBox.addItem("Equal Azimuth",   FixedAngles);
     _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyFixed);
     _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
-    int selected_id = getProcessor()->getSelectedMovementConstraintAsInteger();
+    int selected_id = ourProcessor->getSelectedMovementConstraintAsInteger();
     _MovementConstraintComboBox.setSelectedId(selected_id);
     _MovementConstraintComboBox.addListener(this);
     addAndMakeVisible(&_MovementConstraintComboBox);
@@ -171,6 +171,7 @@ _MovementConstraintComboBox("MovementConstraint")
     
     startTimer (100);
 }
+
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor()
 {
@@ -500,12 +501,13 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
     _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraintAsInteger());
+    _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
+    _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
 }
 
-void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button)
-{
+void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
     if(button == &_LinkSpanButton){
-        _LinkSpan = _LinkSpanButton.getToggleState();
+        getProcessor()->setIsSpanLinked(_LinkSpanButton.getToggleState());
     }
     else if(button == &_OscActiveButton){
         getProcessor()->setIsOscActive(_OscActiveButton.getToggleState());
@@ -533,6 +535,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
     int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
+    bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
     if (slider == &_GainSlider) {
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
@@ -556,7 +559,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
         }
     }
     else if (slider == &_ElevationSpanSlider) {
-        if(_LinkSpan){
+        if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5));
             }
@@ -566,7 +569,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
         
     }
     else if (slider == &_AzimuthSpanSlider) {
-        if(_LinkSpan){
+        if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5));
             }
@@ -580,6 +583,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
     int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
+    bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
     if (slider == &_GainSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
@@ -603,7 +607,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
         }
     }
     else if (slider == &_ElevationSpanSlider) {
-        if(_LinkSpan){
+        if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5));
             }
@@ -613,7 +617,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
         
     }
     else if (slider == &_AzimuthSpanSlider) {
-        if(_LinkSpan){
+        if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5));
             }
@@ -628,6 +632,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     //get processor and selected source
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
     int selectedSource = ourProcessor->getSelectedSource();
+    bool isSpanLinked = ourProcessor->getIsSpanLinked();
     float percentValue=0;
     
     if (slider == &_GainSlider) {
@@ -709,7 +714,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     }
     else if (slider == &_ElevationSpanSlider) {
         percentValue = HRToPercent((float) _ElevationSpanSlider.getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
-        if(_LinkSpan){
+        if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5), percentValue);
             }
@@ -721,7 +726,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     }
     else if (slider == &_AzimuthSpanSlider) {
         percentValue = HRToPercent((float) _AzimuthSpanSlider.getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
-        if(_LinkSpan){
+        if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5), percentValue);
             }
