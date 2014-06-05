@@ -157,6 +157,7 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return _AllSources[i].getGain();
     }
     cerr << endl << "wrong parameter id: " << index << "in ZirkOscjuceAudioProcessor::getParameter" << endl;
+    return -1.f;
 }
 
 // This method will be called by the host, probably on the audio thread, so
