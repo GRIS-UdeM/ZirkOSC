@@ -129,6 +129,9 @@ private:
     //! Toggle Button to link the span
     ToggleButton _LinkSpanButton;
     
+    //! Toggle Button to de/activate osc messages to Zirkonium
+    ToggleButton _OscActiveButton;
+    
     //! Slider to change the Azimuth
     Slider _AzimuthSlider;
     //! Slider to change the Azimuth Span
@@ -187,6 +190,7 @@ private:
     bool _isNeedToSetFixedAngles=false;
     //! If the span are linked
     bool _LinkSpan = false;
+
 
     //! Auto generated function, to get the processor
     ZirkOscjuceAudioProcessor* getProcessor() const

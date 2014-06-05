@@ -82,6 +82,8 @@ public:
     bool silenceInProducesSilenceOut() const;
     // We don't have sound so we just return 0.0
     double getTailLengthSeconds() const { return 0.0; }
+    //! Whether we're sending OSC messages to the zirkonium
+    bool _isOscActive = true;
     
     //! Projects sphere coords to polar coords 
     Point<float> domeToScreen(Point<float>);
@@ -112,6 +114,12 @@ public:
     int getNbrSources() { return _NbrSources; }
     //! Set the number of sources.
     void setNbrSources(int newValue) { if ( newValue >-1 && newValue < 9) _NbrSources= newValue; }
+    
+    //set wheter plug is sending osc messages to zirkonium
+    void setIsOscActive(bool isOscActive);
+
+    //wheter plug is sending osc messages to zirkonium
+    bool getIsOscActive();
     
     //! return the tab position of the selectedSource 
     int getSelectedSource() { return _SelectedSource; }

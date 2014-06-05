@@ -37,6 +37,7 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 :   AudioProcessorEditor (ownerFilter),
 
 _LinkSpanButton("Link Span"),
+_OscActiveButton("OSC active"),
 _AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
 _ElevationSlider(ZirkOSC_ElevSpan_name[0]),
 _ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
@@ -124,6 +125,11 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_LinkSpanButton);
     _LinkSpanButton.addListener(this);
     
+    //---------- OSC ACTIVE BUTTON ----------
+    addAndMakeVisible(&_OscActiveButton);
+    _OscActiveButton.addListener(this);
+    //_OscActiveButton.setState(Button::ButtonState::buttonDown);
+    
     
     //---------- COMBO BOX ----------
     _MovementConstraintComboBox.setSize(50, 20);
@@ -186,6 +192,8 @@ void ZirkOscjuceAudioProcessorEditor::resized()
     setLabelAndTextEditorPosition(iCurWidth-80 , 210, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 260, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
+    // OSC button
+    _OscActiveButton.setBounds(iCurWidth-80, 310, 80, 30);
    
     
     //------------ WALLCIRCLE ------------
@@ -498,6 +506,9 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button)
 {
     if(button == &_LinkSpanButton){
         _LinkSpan = _LinkSpanButton.getToggleState();
+    }
+    else if(button == &_OscActiveButton){
+        getProcessor()->setIsOscActive(_OscActiveButton.getToggleState());
     }
 }
 
