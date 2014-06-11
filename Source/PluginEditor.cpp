@@ -85,7 +85,6 @@ _MovementConstraintComboBox("MovementConstraint")
     setSliderAndLabel(20, ZirkOSC_Window_Default_Height-100, ZirkOSC_Window_Default_Width-40, 20, "Azim. Span.", &_AzimuthSpanSlider, &_AzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
     addAndMakeVisible(&_AzimuthSpanSlider);
     addAndMakeVisible(&_AzimuthSpanLabel);
-    
 
     //---------- LABELS ----------
     _NbrSourceLabel.setText("Nbr Sources",  dontSendNotification);
@@ -226,9 +225,6 @@ void ZirkOscjuceAudioProcessorEditor::resized()
     
 }
 
-
-
-
 //Automatic function to set label and Slider
 
 /*!
@@ -261,9 +257,7 @@ void ZirkOscjuceAudioProcessorEditor::setLabelAndTextEditorPosition(int x, int y
     p_textEditor->setBounds(x, y+20, width, height);
 }
 
-
-void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g)
-{
+void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g){
     g.fillAll (Colours::lightgrey);
     paintWallCircle(g);     //this is the big, main circle in the gui
     paintCrosshairs(g);
@@ -965,8 +959,6 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
     }
 }
 
-
-
 void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMove){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
     int nbrSources = ourProcessor->getNbrSources();
@@ -990,6 +982,9 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
     //repaint();
 }
 
+void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &textEditor){
+    textEditorReturnKeyPressed(textEditor);
+}
 
 
 void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEditor){
@@ -1068,8 +1063,10 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     ourProcessor->sendOSCConfig();
     ourProcessor->sendOSCValues();
     ourProcessor->sendOSCMovementType();
-    _GainSlider.grabKeyboardFocus();
+    //_GainSlider.grabKeyboardFocus();
 }
+
+
 
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
