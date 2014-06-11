@@ -4,7 +4,7 @@
  ==============================================================================
  */
 
-//       lo_send(mOsc, "/pan/az", "i", ch);
+//lo_send(mOsc, "/pan/az", "i", ch);
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -41,8 +41,6 @@ _OscPortIpadOutgoing("10112"),
 _OscAddressIpad("10.0.1.3"),
 _OscPortIpadIncoming("10114")
 {
-    
-    
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
     }
