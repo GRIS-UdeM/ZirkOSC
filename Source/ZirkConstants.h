@@ -51,10 +51,11 @@ const String ZirkOSC_isSpanLinked_name = "is_Span_Linked";
 
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 
-const int ZirkOSC_TrajectoryGroupHeight = 100;
+const int ZirkOSC_TrajectoryGroupHeight = 150;
+const int ZirkOSC_SlidersGroupHeight = 180;
 
-const int ZirkOSC_Window_Default_Width  = 400;
-const int ZirkOSC_Window_Default_Height = 600 - 25 + ZirkOSC_TrajectoryGroupHeight;
+const int ZirkOSC_Window_Default_Width  = 430;
+const int ZirkOSC_Window_Default_Height = 350 + ZirkOSC_SlidersGroupHeight + ZirkOSC_TrajectoryGroupHeight;
 
 const float ZirkOSC_MarksAngles[] =
 {

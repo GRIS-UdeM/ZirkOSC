@@ -52,6 +52,15 @@ public:
         DeltaLocked,    /*!< Delta lock mode */
         TotalNumberConstraints
     };
+    
+    //! Enum of the programmed trajectories
+    enum AllTrajectories {
+        Spiral = 1,
+        Pendulum,
+        Circle,
+        TotalNumberTrajectories
+    };
+    
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
     //! Move sources with a delta x and delta y (delta lock)
@@ -110,7 +119,7 @@ private:
     //! Called when text is changed in a TextEditor
     void textEditorFocusLost (TextEditor &editor);
     //! Function to set the combination of Slider and Label.
-    void setSliderAndLabel(int x, int y, int width, int height, String labelText, Slider* slider, Label* label, float min, float max);
+    void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);
     //! Function to set the position of one Slider and associated Label.
     void setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label);
     //! Function to set the position of one label and associated text editor.   
@@ -166,6 +175,10 @@ private:
     Label _IpadIncomingOscPortLabel;
     //! Label of the iPad address
     Label _IpadIpAddressLabel;
+    
+    Label _TrajectoryCountLabel;
+    
+    Label _TrajectoryDurationLabel;
 
 
     //! TextEditor for the channel number of the selected source
@@ -180,9 +193,16 @@ private:
     TextEditor _IpadIncomingOscPortTextEditor;
     //! TextEditor for the iPad ip address
     TextEditor _IpadIpAddressTextEditor;
+    
+    TextEditor _TrajectoryCountTextEditor;
+    
+    TextEditor _TrajectoryDurationTextEditor;
 
     //! Combobox to choose constrain type
     ComboBox _MovementConstraintComboBox;
+    
+    //! Combobox to choose trajectory
+    ComboBox _TrajectoryComboBox;
 
     //! If there is a source beeing drag
     bool _isSourceBeingDragged = false;
