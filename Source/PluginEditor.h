@@ -124,6 +124,8 @@ private:
     //! Bounds of the resizable window
     ComponentBoundsConstrainer _ResizeLimits;
     
+    GroupComponent _TrajectoryGroup;
+    
     //! Toggle Button to link the span
     ToggleButton _LinkSpanButton;
     
