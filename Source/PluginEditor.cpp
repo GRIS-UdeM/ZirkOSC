@@ -37,6 +37,8 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 _TrajectoryGroup("trajectoryGroup", "Programmed Trajectories"),
 _LinkSpanButton("Link Span"),
 _OscActiveButton("OSC active"),
+_SyncWTempoButton("Sync with Tempo"),
+_WriteTrajectoryButton("Write Trajectory"),
 _AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
 _ElevationSlider(ZirkOSC_ElevSpan_name[0]),
 _ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
@@ -132,7 +134,14 @@ _TrajectoryComboBox("Trajectory")
     addAndMakeVisible(&_OscActiveButton);
     _OscActiveButton.addListener(this);
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
+
+    addAndMakeVisible(&_SyncWTempoButton);
+    _SyncWTempoButton.addListener(this);
+    //_SyncWTempoButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     
+    addAndMakeVisible(&_WriteTrajectoryButton);
+    _WriteTrajectoryButton.addListener(this);
+    _WriteTrajectoryButton.setClickingTogglesState(true);
     
     //---------- CONSTRAINT COMBO BOX ----------
     _MovementConstraintComboBox.addItem("Independant",   Independant);
@@ -146,8 +155,10 @@ _TrajectoryComboBox("Trajectory")
     _MovementConstraintComboBox.addListener(this);
     addAndMakeVisible(&_MovementConstraintComboBox);
     
-        //---------- TRAJECTORY COMPONENTS ----------
+    //---------- TRAJECTORY COMPONENTS ----------
     _TrajectoryComboBox.addItem("Spiral",   Spiral);
+    _TrajectoryComboBox.addItem("Pendulum",   Pendulum);
+    _TrajectoryComboBox.addItem("Circle",   Circle);
     //selected_id = ourProcessor->getSelectedMovementConstraintAsInteger();
     //_TrajectoryComboBox.setSelectedId(selected_id);
     _TrajectoryComboBox.addListener(this);
@@ -168,7 +179,8 @@ _TrajectoryComboBox("Trajectory")
     // add the triangular resizer component for the bottom-right of the UI
     addAndMakeVisible (_Resizer = new ResizableCornerComponent (this, &_ResizeLimits));
     //min dimensions are wallCircle radius (300) + offset in display (10,30) + padding (10)
-    _ResizeLimits.setSizeLimits (320, 340, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
+    //_ResizeLimits.setSizeLimits (320, 340, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
+    _ResizeLimits.setSizeLimits (350, 350, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
     //_ResizeLimits.setSizeLimits (ZirkOSC_Window_Default_Width, 600, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
     
     // set our component's initial size to be the last one that was stored in the filter's settings
@@ -250,38 +262,27 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     _TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
     
     _TrajectoryComboBox.setBounds(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+25, 230, 25);
-    setLabelAndTextEditorPosition(25+220+20, iCurHeight-ZirkOSC_TrajectoryGroupHeight+5, 100, 25, &_TrajectoryCountLabel, &_TrajectoryCountTextEditor);
     setLabelAndTextEditorPosition(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 230, 25, &_TrajectoryDurationLabel, &_TrajectoryDurationTextEditor);
 
+    setLabelAndTextEditorPosition(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+5, 125, 25, &_TrajectoryCountLabel, &_TrajectoryCountTextEditor);
+    _SyncWTempoButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+71, 125, 25);
+    _WriteTrajectoryButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+100, 125, 25);
 }
 
 //Automatic function to set label and Slider
 
 /*!
-* \param x : x position top left
-* \param y : y position top left
-* \param width : slider's and label's width
-* \param height : slider's and label's heigth
 * \param labelText : label's text
 * \param slider : slider
 * \param label : label
 * \param min : minimum value of the slider
 * \param max : maximum value of the slider
 */
-
 void ZirkOscjuceAudioProcessorEditor::setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max){
     slider->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
     label->setText(labelText,  dontSendNotification);
     slider->setRange (min, max, 0.01);
 }
-
-//void ZirkOscjuceAudioProcessorEditor::setSliderAndLabel(int x, int y, int width, int height, String labelText, Slider* slider, Label* label, float min, float max){
-//    slider->setBounds (x+60, y, width-60, height);
-//    slider->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
-//    label->setText(labelText,  dontSendNotification);
-//    label->setBounds(x, y, width-300, height);
-//    slider->setRange (min, max, 0.01);
-//}
 
 void ZirkOscjuceAudioProcessorEditor::setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label){
     label->setBounds (x,    y, 70, height);
