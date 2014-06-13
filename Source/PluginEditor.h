@@ -141,6 +141,10 @@ private:
     //! Toggle Button to de/activate osc messages to Zirkonium
     ToggleButton _OscActiveButton;
     
+    ToggleButton _SyncWTempoButton;
+    
+    TextButton _WriteTrajectoryButton;
+    
     //! Slider to change the Azimuth
     Slider _AzimuthSlider;
     //! Slider to change the Azimuth Span
