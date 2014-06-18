@@ -39,7 +39,9 @@ _SelectedSource(0),
 _OscPortZirkonium(18032),
 _OscPortIpadOutgoing("10112"),
 _OscAddressIpad("10.0.1.3"),
-_OscPortIpadIncoming("10114")
+_OscPortIpadIncoming("10114"),
+_isOscActive(true),
+_isSpanLinked(true)
 {
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
@@ -64,7 +66,6 @@ _OscPortIpadIncoming("10114")
     //default values for ui dimensions
     _LastUiWidth = ZirkOSC_Window_Default_Width;
     _LastUiHeight = ZirkOSC_Window_Default_Height;
-    
     
     startTimer (50);
 }
@@ -111,14 +112,29 @@ bool ZirkOscjuceAudioProcessor::getIsOscActive(){
     return _isOscActive;
 }
 
-//set wheter plug is sending osc messages to zirkonium
+void ZirkOscjuceAudioProcessor::setIsSyncWTempo(bool isSyncWTempo){
+    _isSyncWTempo = isSyncWTempo;
+}
+
+bool ZirkOscjuceAudioProcessor::getIsSyncWTempo(){
+    return _isSyncWTempo;
+}
+
+
 void ZirkOscjuceAudioProcessor::setIsSpanLinked(bool isSpanLinked){
     _isSpanLinked = isSpanLinked;
 }
 
-//wheter plug is sending osc messages to zirkonium
 bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
     return _isSpanLinked;
+}
+
+void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
+    _isWriteTrajectory = isWriteTrajectory;
+}
+
+bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){
+    return _isWriteTrajectory;
 }
 
 //==============================================================================
@@ -137,14 +153,35 @@ int ZirkOscjuceAudioProcessor::getNumParameters()
 // UI-related, or anything at all that may block in any way!
 float ZirkOscjuceAudioProcessor::getParameter (int index)
 {
-    if (ZirkOSC_MovementConstraint_ParamId == index){
-        return _SelectedMovementConstraint;
-    }
-    if (ZirkOSC_isOscActive_ParamId == index){
-        return _isOscActive;
-    }
-    if (ZirkOSC_isSpanLinked_ParamId == index){
-        return _isSpanLinked;
+    switch (index){
+        case ZirkOSC_MovementConstraint_ParamId:
+            return _SelectedMovementConstraint;
+        case ZirkOSC_isOscActive_ParamId:
+            if (_isOscActive)
+                return 1.0f;
+            else
+                return 0.0f;
+        case ZirkOSC_isSpanLinked_ParamId:
+            if (_isSpanLinked)
+                return 1.0f;
+            else
+                return 0.0f;
+        case ZirkOSC_SelectedTrajectory_ParamId:
+            return _SelectedTrajectory;
+        case ZirkOSC_NbrTrajectories_ParamId:
+            return _NbrTrajectories;
+        case ZirkOSC_DurationTrajectories_ParamId:
+            return _DurationTrajectories;
+        case ZirkOSC_SyncWTempo_ParamId:
+            if (_isSyncWTempo)
+                return 1.0f;
+            else
+                return 0.0f;
+        case ZirkOSC_WriteTrajectories_ParamId:
+            if (_isWriteTrajectory)
+                return 1.0f;
+            else
+                return 0.0f;
     }
     
     for(int i = 0; i<8;++i){
@@ -163,16 +200,44 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
 // UI-related, or anything at all that may block in any way!
 void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
 {
-    
-    if (ZirkOSC_MovementConstraint_ParamId == index){
-        _SelectedMovementConstraint = newValue;
-        return;
-    }
-    if (ZirkOSC_isOscActive_ParamId == index){
-        _isOscActive = newValue;
-    }
-    if (ZirkOSC_isSpanLinked_ParamId == index){
-        _isSpanLinked = newValue;
+    switch (index){
+        case ZirkOSC_MovementConstraint_ParamId:
+            _SelectedMovementConstraint = newValue;
+            return;
+        case ZirkOSC_isOscActive_ParamId:
+            if (newValue > .5f)
+                _isOscActive = true;
+            else
+                _isOscActive = false;
+            return;
+        case ZirkOSC_isSpanLinked_ParamId:
+            if (newValue > .5f)
+                _isSpanLinked = true;
+            else
+                _isSpanLinked = false;
+            return;
+        case ZirkOSC_SelectedTrajectory_ParamId:
+            _SelectedTrajectory = newValue;
+            return;
+        case ZirkOSC_NbrTrajectories_ParamId:
+#warning TODO: not sure that newValue can be above 1.0f
+            _NbrTrajectories = newValue;
+            return;
+        case ZirkOSC_DurationTrajectories_ParamId:
+            _DurationTrajectories = newValue;
+            return;
+        case ZirkOSC_SyncWTempo_ParamId:
+            if (newValue > .5f)
+                _isSyncWTempo = true;
+            else
+                _isSyncWTempo = false;
+            return;
+        case ZirkOSC_WriteTrajectories_ParamId:
+            if (newValue > .5f)
+                _isWriteTrajectory = true;
+            else
+                _isWriteTrajectory = false;
+            return;
     }
     
     for(int i = 0; i<8; ++i){
@@ -187,15 +252,25 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
 
 const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 {
-    if (ZirkOSC_MovementConstraint_ParamId == index){
-        return ZirkOSC_Movement_Constraint_name;
+    switch (index){
+        case ZirkOSC_MovementConstraint_ParamId:
+            return ZirkOSC_Movement_Constraint_name;
+        case ZirkOSC_isOscActive_ParamId:
+            return ZirkOSC_isOscActive_name;
+        case ZirkOSC_isSpanLinked_ParamId:
+            return ZirkOSC_isSpanLinked_name;
+        case ZirkOSC_SelectedTrajectory_ParamId:
+            return ZirkOSC_SelectedTrajectory_name;
+        case ZirkOSC_NbrTrajectories_ParamId:
+            return ZirkOSC_NbrTrajectories_name;
+        case ZirkOSC_DurationTrajectories_ParamId:
+            return ZirkOSC_DurationTrajectories_name;
+        case ZirkOSC_SyncWTempo_ParamId:
+            return ZirkOSC_isSyncWTempo_name;
+        case ZirkOSC_WriteTrajectories_ParamId:
+            return ZirkOSC_isWriteTrajectory_name;
     }
-    if (ZirkOSC_isOscActive_ParamId == index){
-        return ZirkOSC_isOscActive_name;
-    }
-    if (ZirkOSC_isSpanLinked_ParamId == index){
-        return ZirkOSC_isSpanLinked_name;
-    }
+
     
     for(int i = 0; i<8;++i){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return ZirkOSC_Azim_name[i];
@@ -453,6 +528,12 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("MovementConstraint", _SelectedMovementConstraint);
     xml.setAttribute("isSpanLinked", _isSpanLinked);
     xml.setAttribute("isOscActive", _isOscActive);
+    xml.setAttribute("selectedTrajectory", _SelectedTrajectory);
+    xml.setAttribute("nbrTrajectory", _NbrTrajectories);
+    xml.setAttribute("durationTrajectory", _DurationTrajectories);
+    xml.setAttribute("isSyncWTempo", _isSyncWTempo);
+    xml.setAttribute("isWriteTrajectory", _isWriteTrajectory);
+    
     for(int i =0;i<8;++i){
         String channel = "Channel";
         String azimuth = "Azimuth";
@@ -502,6 +583,14 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _SelectedMovementConstraint = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
             _isOscActive = xmlState->getBoolAttribute("isOscActive", true);
             _isSpanLinked = xmlState->getBoolAttribute("isSpanLinked", false);
+            
+            _SelectedTrajectory = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", 1.0f));
+            _NbrTrajectories = xmlState->getIntAttribute("nbrTrajectory", 0);
+            _DurationTrajectories = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", 0.0f));
+            _isSyncWTempo = xmlState->getBoolAttribute("isSyncWTempo", false);
+            _isWriteTrajectory = xmlState->getBoolAttribute("isWriteTrajectory", false);
+            
+            
             for (int i=0;i<8;++i){
                 String channel = "Channel";
                 String azimuth = "Azimuth";
@@ -635,10 +724,12 @@ int receiveAzimuthSpanUpdate(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-//return
 int ZirkOscjuceAudioProcessor::getSelectedMovementConstraintAsInteger() {
-    int variable = _SelectedMovementConstraint * (ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints-1) + 1;
-    return variable;
+    return _SelectedMovementConstraint * (ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints-1) + 1;
+}
+
+int ZirkOscjuceAudioProcessor::getSelectedTrajectoryAsInteger() {
+    return _SelectedTrajectory * (ZirkOscjuceAudioProcessorEditor::TotalNumberTrajectories-1) + 1;
 }
 
 
