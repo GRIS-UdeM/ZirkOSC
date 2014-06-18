@@ -43,6 +43,7 @@ _OscPortIpadIncoming("10114"),
 _isOscActive(true),
 _isSpanLinked(true)
 {
+   
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
     }
@@ -404,6 +405,10 @@ const String ZirkOscjuceAudioProcessor::getOutputChannelName (int channelIndex) 
     return String (channelIndex + 1);
 }
 
+juce::AudioPlayHead::CurrentPositionInfo &ZirkOscjuceAudioProcessor::getCurrentPlayHeadInfo(){
+    return _CurrentPlayHeadInfo;
+}
+
 bool ZirkOscjuceAudioProcessor::isInputChannelStereoPair (int index) const
 {
     return true;
@@ -473,9 +478,11 @@ void ZirkOscjuceAudioProcessor::releaseResources()
     // spare memory, etc.
 }
 
+//this will only be called in logic when actually processing sound, ie need to toggle I button in track
 void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-    
+    //get current position info from playheadt
+    playHead->getCurrentPosition(_CurrentPlayHeadInfo);
 
 }
 
