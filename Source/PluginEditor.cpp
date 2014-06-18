@@ -548,25 +548,36 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
     _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId)));
     _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId)));
-
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
+    
+    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
     if(button == &_LinkSpanButton){
-        getProcessor()->setIsSpanLinked(_LinkSpanButton.getToggleState());
+        ourProcessor->setIsSpanLinked(_LinkSpanButton.getToggleState());
     }
     else if(button == &_OscActiveButton){
-        getProcessor()->setIsOscActive(_OscActiveButton.getToggleState());
+        ourProcessor->setIsOscActive(_OscActiveButton.getToggleState());
     }
     else if(button == &_WriteTrajectoryButton){
-        bool state = _WriteTrajectoryButton.getToggleState();
-        getProcessor()->setIsWriteTrajectory(state);
+        ourProcessor->setIsWriteTrajectory(_WriteTrajectoryButton.getToggleState());
+        AudioPlayHead *playHead = ourProcessor->getPlayHead();
+        if (playHead != nullptr){
+            juce::AudioPlayHead::CurrentPositionInfo result;
+            playHead->getCurrentPosition(result);
+            String toPrint = "";
+            if (result.isPlaying){
+                toPrint = "Playing, ";
+            }
+            
+            _TrajectoryDurationTextEditor.setText(toPrint + std::to_string(result.timeInSeconds));
+        }
+        
     }
     else if(button == &_SyncWTempoButton){
-        bool state = _SyncWTempoButton.getToggleState();
-        getProcessor()->setIsSyncWTempo(state);
+        ourProcessor->setIsSyncWTempo(_SyncWTempoButton.getToggleState());
     }
-
 }
 
 float PercentToHR(float percent, float min, float max){
