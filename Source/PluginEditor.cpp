@@ -561,19 +561,16 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         ourProcessor->setIsOscActive(_OscActiveButton.getToggleState());
     }
     else if(button == &_WriteTrajectoryButton){
-        ourProcessor->setIsWriteTrajectory(_WriteTrajectoryButton.getToggleState());
-        AudioPlayHead *playHead = ourProcessor->getPlayHead();
-        if (playHead != nullptr){
-            juce::AudioPlayHead::CurrentPositionInfo result;
-            playHead->getCurrentPosition(result);
-            String toPrint = "";
-            if (result.isPlaying){
-                toPrint = "Playing, ";
-            }
-            
-            _TrajectoryDurationTextEditor.setText(toPrint + std::to_string(result.timeInSeconds));
-        }
         
+        ourProcessor->setIsWriteTrajectory(_WriteTrajectoryButton.getToggleState());
+        
+        
+        juce::AudioPlayHead::CurrentPositionInfo result = ourProcessor->getCurrentPlayHeadInfo();
+        String toPrint = "";
+        if (result.isPlaying){
+                toPrint = "Playing, ";
+        }
+        _TrajectoryDurationTextEditor.setText(toPrint + std::to_string(result.timeInSeconds));
     }
     else if(button == &_SyncWTempoButton){
         ourProcessor->setIsSyncWTempo(_SyncWTempoButton.getToggleState());
