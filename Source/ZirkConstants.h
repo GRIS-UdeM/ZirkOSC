@@ -48,10 +48,15 @@ const float  ZirkOSC_Gain_Def = 1.0f;
 const String ZirkOSC_Movement_Constraint_name = "Move_Constraint";
 const String ZirkOSC_isOscActive_name = "is_OSC_Active";
 const String ZirkOSC_isSpanLinked_name = "is_Span_Linked";
+const String ZirkOSC_SelectedTrajectory_name = "SelectedTrajectory";
+const String ZirkOSC_NbrTrajectories_name = "NbrTrajectories";
+const String ZirkOSC_DurationTrajectories_name = "DurationTrajectories";
+const String ZirkOSC_isSyncWTempo_name = "SyncWTempo";
+const String ZirkOSC_isWriteTrajectory_name = "WriteTrajectory";
 
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 
-const int ZirkOSC_TrajectoryGroupHeight = 150;
+const int ZirkOSC_TrajectoryGroupHeight = 120;
 const int ZirkOSC_SlidersGroupHeight = 180;
 
 const int ZirkOSC_Window_Default_Width  = 430;

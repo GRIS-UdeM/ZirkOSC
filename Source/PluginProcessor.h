@@ -81,10 +81,6 @@ public:
     bool silenceInProducesSilenceOut() const;
     // We don't have sound so we just return 0.0
     double getTailLengthSeconds() const { return 0.0; }
-    //! Whether we're sending OSC messages to the zirkonium
-    bool _isOscActive = true;
-    //! If the span are linked
-    bool _isSpanLinked = false;
     
     //! Projects sphere coords to polar coords 
     Point<float> domeToScreen(Point<float>);
@@ -125,6 +121,16 @@ public:
     void setIsSpanLinked(bool isSpanLinked);
     //!wheter plug is sending osc messages to zirkonium
     bool getIsSpanLinked();
+
+    //!set wheter programmed trajectories are written in sync with host tempo
+    void setIsSyncWTempo(bool isSyncWTempo);
+    //!get wheter programmed trajectories are written in sync with host tempo
+    bool getIsSyncWTempo();
+    
+    //!set wheter to write programmed trajectory on next host play
+    void setIsWriteTrajectory(bool isWriteTrajectory);
+    //!get wheter to write programmed trajectory on next host play
+    bool getIsWriteTrajectory();
     
     //! return the tab position of the selectedSource 
     int getSelectedSource() { return _SelectedSource; }
@@ -184,13 +190,21 @@ public:
         ZirkOSC_MovementConstraint_ParamId,
         ZirkOSC_isSpanLinked_ParamId,
         ZirkOSC_isOscActive_ParamId,
+        ZirkOSC_SelectedTrajectory_ParamId,
+        ZirkOSC_NbrTrajectories_ParamId,
+        ZirkOSC_DurationTrajectories_ParamId,
+        ZirkOSC_SyncWTempo_ParamId,
+        ZirkOSC_WriteTrajectories_ParamId,
         totalNumParams
     };
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     
-    //! Getter constrain type as integer. Min and max are the boundaries of t
+    //! Getter constrain type as integer, since parameters need to be stored as floats [0,1]
     int getSelectedMovementConstraintAsInteger();
+    
+    //! Getter for trajectory as integer, since parameters need to be stored as floats [0,1]
+    int getSelectedTrajectoryAsInteger();
 
     
     //! Retunrs true if the Editor has to refresh the Gui.
@@ -233,8 +247,10 @@ private:
     bool _RefreshGui = false;
     //! Current number of sources on the screnn
     int _NbrSources;
-    //! ID of the selected movement constraint
+    //! float ID of the selected movement constraint
     float _SelectedMovementConstraint;
+    //! float ID of the selected movement constraint
+    float _SelectedTrajectory;
     //! Tab position of the selected source
     int _SelectedSource;
     //! Osc port to send to the Zirkonium 
@@ -259,7 +275,19 @@ private:
     int _LastUiWidth;
     //! last saved ui height
     int _LastUiHeight;
-
+    //! Whether we're sending OSC messages to the zirkonium
+    bool _isOscActive;
+    //! If the span are linked
+    bool _isSpanLinked;
+    //! Number of trajectories to draw in trajectory section
+    int _NbrTrajectories;
+    //! Duration of trajectory movement
+    float _DurationTrajectories;
+    //!Whether to sync trajectories with tempo
+    bool _isSyncWTempo;
+    //!Whether to write trajectory or not
+    bool _isWriteTrajectory;
+    
 
 };
 

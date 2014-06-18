@@ -137,11 +137,13 @@ _TrajectoryComboBox("Trajectory")
 
     addAndMakeVisible(&_SyncWTempoButton);
     _SyncWTempoButton.addListener(this);
-    //_SyncWTempoButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
+    _SyncWTempoButton.setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
     
     addAndMakeVisible(&_WriteTrajectoryButton);
     _WriteTrajectoryButton.addListener(this);
     _WriteTrajectoryButton.setClickingTogglesState(true);
+    _OscActiveButton.setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
+
     
     //---------- CONSTRAINT COMBO BOX ----------
     _MovementConstraintComboBox.addItem("Independant",   Independant);
@@ -159,20 +161,22 @@ _TrajectoryComboBox("Trajectory")
     _TrajectoryComboBox.addItem("Spiral",   Spiral);
     _TrajectoryComboBox.addItem("Pendulum",   Pendulum);
     _TrajectoryComboBox.addItem("Circle",   Circle);
-    //selected_id = ourProcessor->getSelectedMovementConstraintAsInteger();
-    //_TrajectoryComboBox.setSelectedId(selected_id);
+    selected_id = ourProcessor->getSelectedTrajectoryAsInteger();
+    _TrajectoryComboBox.setSelectedId(selected_id);
     _TrajectoryComboBox.addListener(this);
     addAndMakeVisible(&_TrajectoryComboBox);
     
     _TrajectoryCountLabel.setText("Nbr Trajectories",  dontSendNotification);
-    //_TrajectoryCountTextEditor.setText(String(getProcessor()->getNbrSources()));
+    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId)));
     addAndMakeVisible(&_TrajectoryCountLabel);
     addAndMakeVisible(&_TrajectoryCountTextEditor);
     
     _TrajectoryDurationLabel.setText("Duration/Nbr Measures",  dontSendNotification);
-    //_TrajectoryDurationTextEditor.setText(String(getProcessor()->getNbrSources()));
+    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId)));
     addAndMakeVisible(&_TrajectoryDurationLabel);
     addAndMakeVisible(&_TrajectoryDurationTextEditor);
+    
+
 
 
     //---------- RESIZABLE CORNER ----------
@@ -199,6 +203,11 @@ _TrajectoryComboBox("Trajectory")
     _IpadOutgoingOscPortTextEditor.addListener(this);
     _IpadIncomingOscPortTextEditor.addListener(this);
     _IpadIpAddressTextEditor.addListener(this);
+    _TrajectoryComboBox.addListener(this);
+    _TrajectoryCountTextEditor.addListener(this);
+    _TrajectoryDurationTextEditor.addListener(this);
+    _SyncWTempoButton.addListener(this);
+    _WriteTrajectoryButton.addListener(this);
     this->setFocusContainer(true);
     
     startTimer (100);
@@ -265,8 +274,8 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     setLabelAndTextEditorPosition(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 230, 25, &_TrajectoryDurationLabel, &_TrajectoryDurationTextEditor);
 
     setLabelAndTextEditorPosition(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+5, 125, 25, &_TrajectoryCountLabel, &_TrajectoryCountTextEditor);
-    _SyncWTempoButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+71, 125, 25);
-    _WriteTrajectoryButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+100, 125, 25);
+    _SyncWTempoButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 125, 25);
+    _WriteTrajectoryButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+75, 125, 25);
 }
 
 //Automatic function to set label and Slider
@@ -532,8 +541,14 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
     _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraintAsInteger());
+    _TrajectoryComboBox.setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
+    _SyncWTempoButton.setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
+    _WriteTrajectoryButton.setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
+    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId)));
+    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId)));
+
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
@@ -543,6 +558,15 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
     else if(button == &_OscActiveButton){
         getProcessor()->setIsOscActive(_OscActiveButton.getToggleState());
     }
+    else if(button == &_WriteTrajectoryButton){
+        bool state = _WriteTrajectoryButton.getToggleState();
+        getProcessor()->setIsWriteTrajectory(state);
+    }
+    else if(button == &_SyncWTempoButton){
+        bool state = _SyncWTempoButton.getToggleState();
+        getProcessor()->setIsSyncWTempo(state);
+    }
+
 }
 
 float PercentToHR(float percent, float min, float max){
@@ -1031,8 +1055,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
 
-    if(&_NbrSourceTextEditor == &textEditor)
-    {
+    if(&_NbrSourceTextEditor == &textEditor) {
         //if we have a valid number of sources, set it in processor
         if(intValue >=1 && intValue <= 8){
             ourProcessor->setNbrSources(intValue);
@@ -1073,6 +1096,21 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     }
     
+    if(&_TrajectoryCountTextEditor == &textEditor ){
+        if (intValue > 0 && intValue < 10000){
+            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId, intValue);
+        }
+        _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId)));
+    }
+    
+    if(&_TrajectoryDurationTextEditor == &textEditor){
+        double doubleValue = textEditor.getText().getDoubleValue();
+        if (doubleValue > 0 && doubleValue < 10000){
+            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId, doubleValue);
+        }
+        _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId)));
+    }
+    
     if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
         int newIpadOutgoingPort = intValue;
         String curIpAddress = ourProcessor->getOscAddressIpad();
@@ -1107,16 +1145,23 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
 
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
-    ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId,
-                                            IntToPercent(comboBoxThatHasChanged->getSelectedId()));
-
-//    VB APRIL 16 2014
-    int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
-    if( selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
-        _isNeedToSetFixedAngles=true;
+    
+    if (comboBoxThatHasChanged == &_TrajectoryComboBox){
+        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId,
+                                                IntToPercent(comboBoxThatHasChanged->getSelectedId()));
     }
-    ourProcessor->sendOSCMovementType();
-    _GainSlider.grabKeyboardFocus();
+    else if (comboBoxThatHasChanged == &_MovementConstraintComboBox){
+
+        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId,
+                                                IntToPercent(comboBoxThatHasChanged->getSelectedId()));
+
+        int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
+        if( selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
+            _isNeedToSetFixedAngles=true;
+        }
+        ourProcessor->sendOSCMovementType();
+        //_GainSlider.grabKeyboardFocus();
+    }
 
 }
 
