@@ -26,6 +26,7 @@
 
 using namespace std;
 
+bool ZirkOscjuceAudioProcessorEditor::_AlreadySetTrajectorySource = false;
 
 /*!
 *  \param ownerFilter : the processor processor
@@ -39,6 +40,7 @@ _LinkSpanButton("Link Span"),
 _OscActiveButton("OSC active"),
 _SyncWTempoButton("Sync with Tempo"),
 _WriteTrajectoryButton("Write Trajectory"),
+_isReturnKeyPressedCalledFromFocusLost(false),
 _AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
 _ElevationSlider(ZirkOSC_ElevSpan_name[0]),
 _ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
@@ -67,8 +69,7 @@ _TrajectoryCountTextEditor("trajectoryCountTE"),
 _TrajectoryDurationTextEditor("trajectoryDurationTE"),
 _MovementConstraintComboBox("MovementConstraint"),
 _TrajectoryComboBox("Trajectory")
-{
-    
+{    
     addAndMakeVisible(_TrajectoryGroup);
     
     //---------- SLIDERS ----------
@@ -142,8 +143,11 @@ _TrajectoryComboBox("Trajectory")
     addAndMakeVisible(&_WriteTrajectoryButton);
     _WriteTrajectoryButton.addListener(this);
     _WriteTrajectoryButton.setClickingTogglesState(true);
-    _OscActiveButton.setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
-
+    bool isWriteTrajectory = ourProcessor->getIsWriteTrajectory();
+    _OscActiveButton.setToggleState(isWriteTrajectory, dontSendNotification);
+    if (isWriteTrajectory && !_AlreadySetTrajectorySource){
+        setTrajectorySource();
+    }
     
     //---------- CONSTRAINT COMBO BOX ----------
     _MovementConstraintComboBox.addItem("Independant",   Independant);
@@ -211,6 +215,14 @@ _TrajectoryComboBox("Trajectory")
     this->setFocusContainer(true);
     
     startTimer (100);
+}
+
+void ZirkOscjuceAudioProcessorEditor::setTrajectorySource(){
+    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    int iSelectedSource = ourProcessor->getSelectedSource();
+    ourProcessor->setSelectedSourceForTrajectory(iSelectedSource);
+    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (iSelectedSource*5));
+    _AlreadySetTrajectorySource = true;
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
@@ -562,15 +574,33 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
     }
     else if(button == &_WriteTrajectoryButton){
         
-        ourProcessor->setIsWriteTrajectory(_WriteTrajectoryButton.getToggleState());
-        
-        
-        juce::AudioPlayHead::CurrentPositionInfo result = ourProcessor->getCurrentPlayHeadInfo();
-        String toPrint = "";
-        if (result.isPlaying){
-                toPrint = "Playing, ";
+        //set isWriteTrajectory property in processor
+        bool isWriteTrajectory = _WriteTrajectoryButton.getToggleState();
+        ourProcessor->setIsWriteTrajectory(isWriteTrajectory);
+
+        if (isWriteTrajectory){
+            
+#warning TODO: WHEN TURNING THIS ON, SHOULD SET A BUNCH OF BUFFER VALUES FOR PROCESSBLOCK TO USE, E.G
+            //current azim
+            //current elevation
+            if (!_AlreadySetTrajectorySource){
+                setTrajectorySource();
+            }
+        } else {
+            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (ourProcessor->getSelectedSourceForTrajectory()*5));
+            _AlreadySetTrajectorySource = false;
         }
-        _TrajectoryDurationTextEditor.setText(toPrint + std::to_string(result.timeInSeconds));
+        
+
+        
+        
+        //simple test
+//        juce::AudioPlayHead::CurrentPositionInfo result = ourProcessor->getCurrentPlayHeadInfo();
+//        String toPrint = "";
+//        if (result.isPlaying){
+//            toPrint = "Playing, ";
+//        }
+//        _TrajectoryDurationTextEditor.setText(toPrint + std::to_string(result.ppqPosition));
     }
     else if(button == &_SyncWTempoButton){
         ourProcessor->setIsSyncWTempo(_SyncWTempoButton.getToggleState());
@@ -829,7 +859,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         }
         //repaint();
     }
-    //_GainSlider.grabKeyboardFocus();
+    _GainSlider.grabKeyboardFocus();
 }
 
 int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
@@ -883,7 +913,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         //repaint();
     }
     getProcessor()->sendOSCValues();
-    //_GainSlider.grabKeyboardFocus();
+    _GainSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
@@ -900,12 +930,10 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
                 getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5);
                 getProcessor()->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5);
             }
-            //VB APRIL 16 2014
-            //_isNeedToSetFixedAngles=true;
         }
         _isSourceBeingDragged=false;
     }
-    //_GainSlider.grabKeyboardFocus();
+    _GainSlider.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
@@ -1052,7 +1080,9 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &textEditor){
+    _isReturnKeyPressedCalledFromFocusLost = true;
     textEditorReturnKeyPressed(textEditor);
+    _isReturnKeyPressedCalledFromFocusLost = false;
 }
 
 
@@ -1146,7 +1176,9 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     ourProcessor->sendOSCConfig();
     ourProcessor->sendOSCValues();
     ourProcessor->sendOSCMovementType();
-    //_GainSlider.grabKeyboardFocus();
+    if (!_isReturnKeyPressedCalledFromFocusLost){
+        _GainSlider.grabKeyboardFocus();
+    }
 }
 
 

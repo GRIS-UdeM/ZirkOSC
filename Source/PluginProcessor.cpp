@@ -478,12 +478,47 @@ void ZirkOscjuceAudioProcessor::releaseResources()
     // spare memory, etc.
 }
 
+void ZirkOscjuceAudioProcessor::setSelectedSourceForTrajectory(int iSelectedSource){
+    _SelectedSourceForTrajectory = iSelectedSource;
+}
+
+int ZirkOscjuceAudioProcessor::getSelectedSourceForTrajectory(){
+    return _SelectedSourceForTrajectory;
+}
+
 //this will only be called in logic when actually processing sound, ie need to toggle I button in track
 void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-    //get current position info from playheadt
-    playHead->getCurrentPosition(_CurrentPlayHeadInfo);
-
+    //if write trajectory is enabled (button toggled on in editor)
+    if (_isWriteTrajectory){
+        //can use values in there
+//        int selectedSource = getSelectedSource();
+//        bool isSpanLinked = getIsSpanLinked();
+        
+        //get current playhead info
+        playHead->getCurrentPosition(_CurrentPlayHeadInfo);
+        
+        //if currently playing, do a movement
+        if (_CurrentPlayHeadInfo.isPlaying){
+            
+            //figure this
+            //if (_SelectedTrajectory == circle){
+            
+                //what if user selects a different source while the trajectory is being made? Need to check that, probably buffer selected source when user enables write trajectory
+                //there should be a direction for movements, like sens horaire or something?
+                float newValue = _AllSources[_SelectedSourceForTrajectory].getAzimuth()+.01;
+                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newValue);
+            
+            //}
+        
+        }
+        
+//        //when done with movement, just set this and editor should update button toggle state automatically in refreshGui
+//        if (movementCompleted){
+//            _isWriteTrajectory = false;
+//            _RefreshGui=true;
+//        }
+    }
 }
 
 //==============================================================================

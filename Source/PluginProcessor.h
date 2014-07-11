@@ -132,6 +132,12 @@ public:
     //!get wheter to write programmed trajectory on next host play
     bool getIsWriteTrajectory();
     
+    void setSelectedSourceForTrajectory(int iSelectedSource);
+    
+    int getSelectedSourceForTrajectory();
+    
+    int _SelectedSourceForTrajectory;
+    
     //! return the tab position of the selectedSource 
     int getSelectedSource() { return _SelectedSource; }
     //! Set the selected source 
