@@ -136,8 +136,6 @@ public:
     
     int getSelectedSourceForTrajectory();
     
-    int _SelectedSourceForTrajectory;
-    
     //! return the tab position of the selectedSource 
     int getSelectedSource() { return _SelectedSource; }
     //! Set the selected source 
@@ -257,7 +255,7 @@ private:
     int _NbrSources;
     //! float ID of the selected movement constraint
     float _SelectedMovementConstraint;
-    //! float ID of the selected movement constraint
+    //! float ID of the selected trajectory
     float _SelectedTrajectory;
     //! Tab position of the selected source
     int _SelectedSource;
@@ -295,7 +293,13 @@ private:
     bool _isSyncWTempo;
     //!Whether to write trajectory or not
     bool _isWriteTrajectory;
-        
+    
+    int _SelectedSourceForTrajectory;
+    
+    bool _WasPlayingOnPrevFrame;
+    
+    bool _JustsEndedPlaying;
+    
     //contains the information returned from the playHead
     juce::AudioPlayHead::CurrentPositionInfo _CurrentPlayHeadInfo;
 
