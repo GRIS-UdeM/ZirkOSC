@@ -43,7 +43,7 @@ bool    SoundSource::contains(Point <float> p){
 
 //getter setter;
 float SoundSource::getX(){
-    float HRAzimuth = PercentToHR(_Azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
+    float HRAzimuth = PercentToHR(_Azimuth, ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(_Elevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     
     return (- ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
@@ -89,6 +89,8 @@ float   SoundSource::getAzimuth(){
     return _Azimuth;
 }
 
+
+//
 void    SoundSource::setAzimuth(float azimuth){
     if (azimuth>1 && !_AzimReverse)
         azimuth = azimuth - 1.0f;

@@ -92,6 +92,8 @@ private:
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     //! Called when a button is clicked
     void buttonClicked (Button* button);
+    
+
 
     
     //METHODS FOR DEALING WITH DIRECT WALLCIRCLE INTERACTIONS
@@ -102,6 +104,7 @@ private:
     //! Called when the mouse is up
  	void mouseUp (const MouseEvent &event);
     
+    void setTrajectorySource();
     
     //! Called when a value of a slider has changed
     void sliderValueChanged (Slider* slider);
@@ -144,6 +147,10 @@ private:
     ToggleButton _SyncWTempoButton;
     
     TextButton _WriteTrajectoryButton;
+    
+    static bool _AlreadySetTrajectorySource;
+    
+    bool _isReturnKeyPressedCalledFromFocusLost;
     
     //! Slider to change the Azimuth
     Slider _AzimuthSlider;
