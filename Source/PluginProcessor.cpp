@@ -41,8 +41,16 @@ _OscPortIpadOutgoing("10112"),
 _OscAddressIpad("10.0.1.3"),
 _OscPortIpadIncoming("10114"),
 _isOscActive(true),
-_isSpanLinked(true)
+_isSpanLinked(true),
+_NbrTrajectories(0),
+_DurationTrajectories(0),
+_isSyncWTempo(false),
+_isWriteTrajectory(false),
+_SelectedSourceForTrajectory(0),
+_WasPlayingOnPrevFrame(false),
+_JustsEndedPlaying(false)
 {
+
    
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
@@ -491,15 +499,23 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 {
     //if write trajectory is enabled (button toggled on in editor)
     if (_isWriteTrajectory){
-        //can use values in there
-//        int selectedSource = getSelectedSource();
-//        bool isSpanLinked = getIsSpanLinked();
         
         //get current playhead info
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
-        //if currently playing, do a movement
         if (_CurrentPlayHeadInfo.isPlaying){
+            
+            //if we were not playing on previous frame, this is the first playing frame, so we need to start the automation
+            if (!_WasPlayingOnPrevFrame){
+                //can use values in there
+                //        int selectedSource = getSelectedSource();
+                //        bool isSpanLinked = getIsSpanLinked();
+                
+                //get automation started on currently selected source
+                _SelectedSourceForTrajectory = getSelectedSource();
+                beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                _WasPlayingOnPrevFrame = true;
+            }
             
             //figure this
             //if (_SelectedTrajectory == circle){
@@ -512,6 +528,12 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             //}
         
         }
+        //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
+        else if (_WasPlayingOnPrevFrame){
+            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+            _WasPlayingOnPrevFrame = false;
+        }
+        
         
 //        //when done with movement, just set this and editor should update button toggle state automatically in refreshGui
 //        if (movementCompleted){

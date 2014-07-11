@@ -69,7 +69,9 @@ _TrajectoryCountTextEditor("trajectoryCountTE"),
 _TrajectoryDurationTextEditor("trajectoryDurationTE"),
 _MovementConstraintComboBox("MovementConstraint"),
 _TrajectoryComboBox("Trajectory")
-{    
+{
+
+    
     addAndMakeVisible(_TrajectoryGroup);
     
     //---------- SLIDERS ----------
@@ -145,9 +147,6 @@ _TrajectoryComboBox("Trajectory")
     _WriteTrajectoryButton.setClickingTogglesState(true);
     bool isWriteTrajectory = ourProcessor->getIsWriteTrajectory();
     _OscActiveButton.setToggleState(isWriteTrajectory, dontSendNotification);
-    if (isWriteTrajectory && !_AlreadySetTrajectorySource){
-        setTrajectorySource();
-    }
     
     //---------- CONSTRAINT COMBO BOX ----------
     _MovementConstraintComboBox.addItem("Independant",   Independant);
@@ -217,13 +216,7 @@ _TrajectoryComboBox("Trajectory")
     startTimer (100);
 }
 
-void ZirkOscjuceAudioProcessorEditor::setTrajectorySource(){
-    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
-    int iSelectedSource = ourProcessor->getSelectedSource();
-    ourProcessor->setSelectedSourceForTrajectory(iSelectedSource);
-    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (iSelectedSource*5));
-    _AlreadySetTrajectorySource = true;
-}
+
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
     //stopTimer();
@@ -578,29 +571,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         bool isWriteTrajectory = _WriteTrajectoryButton.getToggleState();
         ourProcessor->setIsWriteTrajectory(isWriteTrajectory);
 
-        if (isWriteTrajectory){
-            
-#warning TODO: WHEN TURNING THIS ON, SHOULD SET A BUNCH OF BUFFER VALUES FOR PROCESSBLOCK TO USE, E.G
-            //current azim
-            //current elevation
-            if (!_AlreadySetTrajectorySource){
-                setTrajectorySource();
-            }
-        } else {
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (ourProcessor->getSelectedSourceForTrajectory()*5));
-            _AlreadySetTrajectorySource = false;
-        }
-        
-
-        
-        
-        //simple test
-//        juce::AudioPlayHead::CurrentPositionInfo result = ourProcessor->getCurrentPlayHeadInfo();
-//        String toPrint = "";
-//        if (result.isPlaying){
-//            toPrint = "Playing, ";
-//        }
-//        _TrajectoryDurationTextEditor.setText(toPrint + std::to_string(result.ppqPosition));
     }
     else if(button == &_SyncWTempoButton){
         ourProcessor->setIsSyncWTempo(_SyncWTempoButton.getToggleState());
