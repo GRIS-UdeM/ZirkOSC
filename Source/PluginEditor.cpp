@@ -804,7 +804,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
     int source=-1;
 
     //if event is within the wall circle, select source that is clicked on (if any)
-    if (event.x>10 && event.x <20+ZirkOscjuceAudioProcessor::s_iDomeRadius*2 && event.y>20 && event.y< 40+ZirkOscjuceAudioProcessor::s_iDomeRadius*2) {
+    if (event.x>5 && event.x <20+ZirkOscjuceAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscjuceAudioProcessor::s_iDomeRadius*2) {
         source=getSourceFromPosition(Point<float>(event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y));
 
     }
