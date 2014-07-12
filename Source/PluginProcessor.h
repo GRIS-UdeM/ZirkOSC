@@ -195,8 +195,8 @@ public:
         ZirkOSC_isSpanLinked_ParamId,
         ZirkOSC_isOscActive_ParamId,
         ZirkOSC_SelectedTrajectory_ParamId,
-        ZirkOSC_NbrTrajectories_ParamId,
-        ZirkOSC_DurationTrajectories_ParamId,
+        ZirkOSC_TrajectoryCount_ParamId,
+        ZirkOSC_TrajectoriesDuration_ParamId,
         ZirkOSC_SyncWTempo_ParamId,
         ZirkOSC_WriteTrajectories_ParamId,
         totalNumParams
@@ -286,9 +286,23 @@ private:
     //! If the span are linked
     bool _isSpanLinked;
     //! Number of trajectories to draw in trajectory section
-    int _NbrTrajectories;
+    int _TrajectoryCount;
     //! Duration of trajectory movement
-    float _DurationTrajectories;
+    double _TrajectoriesDuration;
+    
+    //! whether we drew the whole trajectory
+    bool _TrajectoryAllDrawn;
+    
+    double _TrajectoryBeginTime;
+    
+    float _TrajectoryInitialValue;
+    
+    double _TrajectorySingleLength;
+    
+    double _TrajectorySingleBeginTime;
+    
+    bool _TrajectoryJustCompletedSingle;
+    
     //!Whether to sync trajectories with tempo
     bool _isSyncWTempo;
     //!Whether to write trajectory or not
