@@ -35,6 +35,7 @@ int ZirkOscjuceAudioProcessor::s_iDomeRadius = 150;
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :_NbrSources(1),
 _SelectedMovementConstraint(.0f),
+_SelectedTrajectory(.0f),
 _SelectedSource(0),
 _OscPortZirkonium(18032),
 _OscPortIpadOutgoing("10112"),
@@ -42,8 +43,14 @@ _OscAddressIpad("10.0.1.3"),
 _OscPortIpadIncoming("10114"),
 _isOscActive(true),
 _isSpanLinked(true),
-_NbrTrajectories(0),
-_DurationTrajectories(0),
+_TrajectoryCount(0),
+_TrajectoriesDuration(0),
+_TrajectoryAllDrawn(false),
+_TrajectoryBeginTime(0),
+_TrajectoryInitialValue(0),
+_TrajectorySingleLength(0),
+_TrajectorySingleBeginTime(0),
+_TrajectoryJustCompletedSingle(false),
 _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
@@ -177,10 +184,10 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
                 return 0.0f;
         case ZirkOSC_SelectedTrajectory_ParamId:
             return _SelectedTrajectory;
-        case ZirkOSC_NbrTrajectories_ParamId:
-            return _NbrTrajectories;
-        case ZirkOSC_DurationTrajectories_ParamId:
-            return _DurationTrajectories;
+        case ZirkOSC_TrajectoryCount_ParamId:
+            return _TrajectoryCount;
+        case ZirkOSC_TrajectoriesDuration_ParamId:
+            return _TrajectoriesDuration;
         case ZirkOSC_SyncWTempo_ParamId:
             if (_isSyncWTempo)
                 return 1.0f;
@@ -228,12 +235,12 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         case ZirkOSC_SelectedTrajectory_ParamId:
             _SelectedTrajectory = newValue;
             return;
-        case ZirkOSC_NbrTrajectories_ParamId:
+        case ZirkOSC_TrajectoryCount_ParamId:
 #warning TODO: not sure that newValue can be above 1.0f
-            _NbrTrajectories = newValue;
+            _TrajectoryCount = newValue;
             return;
-        case ZirkOSC_DurationTrajectories_ParamId:
-            _DurationTrajectories = newValue;
+        case ZirkOSC_TrajectoriesDuration_ParamId:
+            _TrajectoriesDuration = newValue;
             return;
         case ZirkOSC_SyncWTempo_ParamId:
             if (newValue > .5f)
@@ -270,9 +277,9 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
             return ZirkOSC_isSpanLinked_name;
         case ZirkOSC_SelectedTrajectory_ParamId:
             return ZirkOSC_SelectedTrajectory_name;
-        case ZirkOSC_NbrTrajectories_ParamId:
+        case ZirkOSC_TrajectoryCount_ParamId:
             return ZirkOSC_NbrTrajectories_name;
-        case ZirkOSC_DurationTrajectories_ParamId:
+        case ZirkOSC_TrajectoriesDuration_ParamId:
             return ZirkOSC_DurationTrajectories_name;
         case ZirkOSC_SyncWTempo_ParamId:
             return ZirkOSC_isSyncWTempo_name;
@@ -503,35 +510,65 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         //get current playhead info
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
-        if (_CurrentPlayHeadInfo.isPlaying){
+        if (_CurrentPlayHeadInfo.isPlaying && !_TrajectoryAllDrawn){
             
-            //if we were not playing on previous frame, this is the first playing frame, so we need to start the automation
+            //if we were not playing on previous frame, this is the first playing frame
             if (!_WasPlayingOnPrevFrame){
-                //can use values in there
-                //        int selectedSource = getSelectedSource();
-                //        bool isSpanLinked = getIsSpanLinked();
                 
                 //get automation started on currently selected source
                 _SelectedSourceForTrajectory = getSelectedSource();
                 beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                
+                //store begin time
+                _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                _TrajectorySingleBeginTime = _TrajectoryBeginTime;
+                
+                //store initial value
+                _TrajectoryInitialValue = getParameter(_SelectedSourceForTrajectory*5);
+                
+                _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
+                
                 _WasPlayingOnPrevFrame = true;
             }
-            
-            //figure this
-            //if (_SelectedTrajectory == circle){
-            
-                //what if user selects a different source while the trajectory is being made? Need to check that, probably buffer selected source when user enables write trajectory
-                //there should be a direction for movements, like sens horaire or something?
-                float newValue = _AllSources[_SelectedSourceForTrajectory].getAzimuth()+.01;
-                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newValue);
-            
-            //}
-        
+
+            if (_isSyncWTempo) {
+                
+            } else {
+
+                //store current time
+                double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
+                    
+                //if we still need to write automation
+                if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
+                        
+                    //calculate new position
+                    float newPosition;
+                    if (getSelectedTrajectoryAsInteger() == ZirkOscjuceAudioProcessorEditor::Circle){
+                        
+                        newPosition =  dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength);
+                        if (newPosition >= 1.f){
+                            newPosition = 0.f;
+                            _TrajectoryJustCompletedSingle = true;
+                        }
+                    }
+                    if (newPosition > _TrajectoryInitialValue && _TrajectoryJustCompletedSingle){
+                        _TrajectorySingleBeginTime = dCurrentTime;
+                        _TrajectoryJustCompletedSingle = false;
+                    }
+                        
+                        
+                    setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                } else {
+                    _TrajectoryAllDrawn = true;
+                }
+            }
+
         }
         //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
         else if (_WasPlayingOnPrevFrame){
             endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
             _WasPlayingOnPrevFrame = false;
+            _TrajectoryAllDrawn = false;
         }
         
         
@@ -593,8 +630,8 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("isSpanLinked", _isSpanLinked);
     xml.setAttribute("isOscActive", _isOscActive);
     xml.setAttribute("selectedTrajectory", _SelectedTrajectory);
-    xml.setAttribute("nbrTrajectory", _NbrTrajectories);
-    xml.setAttribute("durationTrajectory", _DurationTrajectories);
+    xml.setAttribute("nbrTrajectory", _TrajectoryCount);
+    xml.setAttribute("durationTrajectory", _TrajectoriesDuration);
     xml.setAttribute("isSyncWTempo", _isSyncWTempo);
     xml.setAttribute("isWriteTrajectory", _isWriteTrajectory);
     
@@ -649,8 +686,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _isSpanLinked = xmlState->getBoolAttribute("isSpanLinked", false);
             
             _SelectedTrajectory = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", 1.0f));
-            _NbrTrajectories = xmlState->getIntAttribute("nbrTrajectory", 0);
-            _DurationTrajectories = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", 0.0f));
+            _TrajectoryCount = xmlState->getIntAttribute("nbrTrajectory", 0);
+            _TrajectoriesDuration = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", 0.0f));
             _isSyncWTempo = xmlState->getBoolAttribute("isSyncWTempo", false);
             _isWriteTrajectory = xmlState->getBoolAttribute("isWriteTrajectory", false);
             

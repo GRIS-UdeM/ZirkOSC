@@ -170,12 +170,12 @@ _TrajectoryComboBox("Trajectory")
     addAndMakeVisible(&_TrajectoryComboBox);
     
     _TrajectoryCountLabel.setText("Nbr Trajectories",  dontSendNotification);
-    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId)));
+    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     addAndMakeVisible(&_TrajectoryCountLabel);
     addAndMakeVisible(&_TrajectoryCountTextEditor);
     
     _TrajectoryDurationLabel.setText("Duration/Nbr Measures",  dontSendNotification);
-    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId)));
+    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     addAndMakeVisible(&_TrajectoryDurationLabel);
     addAndMakeVisible(&_TrajectoryDurationTextEditor);
     
@@ -551,8 +551,8 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _SyncWTempoButton.setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
     _WriteTrajectoryButton.setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
-    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId)));
-    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId)));
+    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
+    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
@@ -589,7 +589,7 @@ int PercentToInt(float percent, int max){
     return percent * (max-1) + 1;
 }
 
-//max here represent the total range of numbers
+//max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
 float IntToPercent(int integer, int max){
     return static_cast<float>((integer-1)) / (max - 1);
 }
@@ -1106,17 +1106,17 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     
     if(&_TrajectoryCountTextEditor == &textEditor ){
         if (intValue > 0 && intValue < 10000){
-            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId, intValue);
+            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, intValue);
         }
-        _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_NbrTrajectories_ParamId)));
+        _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     }
     
     if(&_TrajectoryDurationTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue > 0 && doubleValue < 10000){
-            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId, doubleValue);
+            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
         }
-        _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_DurationTrajectories_ParamId)));
+        _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     }
     
     if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
@@ -1158,7 +1158,7 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
     
     if (comboBoxThatHasChanged == &_TrajectoryComboBox){
         ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId,
-                                                IntToPercent(comboBoxThatHasChanged->getSelectedId()));
+                                                IntToPercent(comboBoxThatHasChanged->getSelectedId(), TotalNumberTrajectories));
     }
     else if (comboBoxThatHasChanged == &_MovementConstraintComboBox){
 
