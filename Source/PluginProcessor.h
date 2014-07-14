@@ -303,6 +303,8 @@ private:
     
     bool _TrajectoryJustCompletedSingle;
     
+    int iProcessBlockCounter;
+    
     //!Whether to sync trajectories with tempo
     bool _isSyncWTempo;
     //!Whether to write trajectory or not
