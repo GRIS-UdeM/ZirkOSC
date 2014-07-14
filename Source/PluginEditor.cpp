@@ -953,7 +953,6 @@ int* ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource 
             else{
                 currentAzimuth = tab[current].getAzimuth()+1;
             }
-            // gainLabel.setText(String(count++),false);
             if (currentAzimuth - tab[selected].getAzimuth() < bestDelta) {
                 bestItem = current;
                 bestDelta = currentAzimuth - tab[selected].getAzimuth();

@@ -51,6 +51,7 @@ _TrajectoryInitialValue(0),
 _TrajectorySingleLength(0),
 _TrajectorySingleBeginTime(0),
 _TrajectoryJustCompletedSingle(false),
+iProcessBlockCounter(0),
 _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
@@ -510,73 +511,127 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         //get current playhead info
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
-        if (_CurrentPlayHeadInfo.isPlaying && !_TrajectoryAllDrawn){
-            
-            //if we were not playing on previous frame, this is the first playing frame
-            if (!_WasPlayingOnPrevFrame){
+        if(_CurrentPlayHeadInfo.isPlaying){
+        
+            if (!_TrajectoryAllDrawn){
                 
-                //get automation started on currently selected source
-                _SelectedSourceForTrajectory = getSelectedSource();
-                beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
+                if (iProcessBlockCounter < 1){
+                    ++iProcessBlockCounter;
+                    return;
+                }
                 
-                //store begin time
-                _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
-                _TrajectorySingleBeginTime = _TrajectoryBeginTime;
-                
-                //store initial value
-                _TrajectoryInitialValue = getParameter(_SelectedSourceForTrajectory*5);
-                
-                _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
-                
-                _WasPlayingOnPrevFrame = true;
-            }
-
-            if (_isSyncWTempo) {
-                
-            } else {
-
-                //store current time
-                double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
+                //if we were not playing on previous frame, this is the first playing frame.
+                if (!_WasPlayingOnPrevFrame){
                     
-                //if we still need to write automation
-                if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
-                        
-                    //calculate new position
-                    float newPosition;
-                    if (getSelectedTrajectoryAsInteger() == ZirkOscjuceAudioProcessorEditor::Circle){
-                        
-                        newPosition =  dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength);
-                        if (newPosition >= 1.f){
-                            newPosition = 0.f;
-                            _TrajectoryJustCompletedSingle = true;
-                        }
+                    //get automation started on currently selected source
+                    _SelectedSourceForTrajectory = getSelectedSource();
+                    
+                    switch (getSelectedTrajectoryAsInteger()) {
+                        case ZirkOscjuceAudioProcessorEditor::Circle :
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                            break;
+                            
+                        case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                        case ZirkOscjuceAudioProcessorEditor::Spiral :
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                            break;
+                            
+                        default:
+                            break;
                     }
-                    if (newPosition > _TrajectoryInitialValue && _TrajectoryJustCompletedSingle){
-                        _TrajectorySingleBeginTime = dCurrentTime;
-                        _TrajectoryJustCompletedSingle = false;
-                    }
-                        
-                        
-                    setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                
+                    //store begin time
+                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                    _TrajectorySingleBeginTime = _TrajectoryBeginTime;
+                    
+                    //store initial parameter value
+                    _TrajectoryInitialValue = getParameter(_SelectedSourceForTrajectory*5);
+                    
+                    _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
+                    
+                    _WasPlayingOnPrevFrame = true;
+
+                    cout << "__________________________________________________________________________\n";
+                    cout << "_SelectedSourceForTrajectory: " << _SelectedSourceForTrajectory << endl;
+                    cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
+                    cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
+                    cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
+                    cout << "_TrajectoryInitialValue: " << _TrajectoryInitialValue << endl;
+                    
+                }
+                
+                if (_isSyncWTempo) {
+                    
                 } else {
-                    _TrajectoryAllDrawn = true;
+                    
+                    //store current time
+                    double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
+                    
+                    //if we still need to write automation (currentTime smaller than begin time + whole duration
+                    if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
+                        
+                        //calculate new position
+                        float newPosition;
+                        float integralPart;
+                        switch (getSelectedTrajectoryAsInteger()) {
+                            case ZirkOscjuceAudioProcessorEditor::Circle :
+                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                break;
+                                
+                            case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                break;
+                                
+                            case ZirkOscjuceAudioProcessorEditor::Spiral :
+                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                break;
+                                
+                            default:
+                                break;
+                        }
+  
+                        
+                        
+                    } else {
+                        _TrajectoryAllDrawn = true;
+                    }
                 }
             }
-
+            //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
+            else if (_WasPlayingOnPrevFrame){
+                
+                switch (getSelectedTrajectoryAsInteger()) {
+                    case ZirkOscjuceAudioProcessorEditor::Circle :
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                        break;
+                    case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                    case ZirkOscjuceAudioProcessorEditor::Spiral :
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                        break;
+                        
+                    default:
+                        break;
+                }
+                
+                _WasPlayingOnPrevFrame = false;
+                _TrajectoryAllDrawn = false;
+                iProcessBlockCounter = 0;
+                
+                //untoggle write trajectory button
+                _isWriteTrajectory = false;
+                _RefreshGui=true;
+            }
         }
-        //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
-        else if (_WasPlayingOnPrevFrame){
-            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-            _WasPlayingOnPrevFrame = false;
-            _TrajectoryAllDrawn = false;
-        }
-        
-        
-//        //when done with movement, just set this and editor should update button toggle state automatically in refreshGui
-//        if (movementCompleted){
-//            _isWriteTrajectory = false;
-//            _RefreshGui=true;
-//        }
     }
 }
 
