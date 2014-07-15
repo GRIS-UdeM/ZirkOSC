@@ -58,8 +58,7 @@ _SelectedSourceForTrajectory(0),
 _WasPlayingOnPrevFrame(false),
 _JustsEndedPlaying(false)
 {
-
-   
+  
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
     }
@@ -118,6 +117,268 @@ ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
     _OscZirkonium = NULL;
     _OscIpad = NULL;
 }
+
+//this will only be called in logic when actually processing sound, ie need to toggle I button in track
+void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+{
+    //if write trajectory is enabled (button toggled on in editor)
+    if (_isWriteTrajectory){
+        
+        //get current playhead info
+        playHead->getCurrentPosition(_CurrentPlayHeadInfo);
+        
+        if(_CurrentPlayHeadInfo.isPlaying){
+        
+            if (!_TrajectoryAllDrawn){
+                
+                //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
+                if (iProcessBlockCounter < 1){
+                    ++iProcessBlockCounter;
+                    return;
+                }
+                
+                //if we were not playing on previous frame, this is the first playing frame.
+                if (!_WasPlayingOnPrevFrame){
+                    
+                    //get automation started on currently selected source
+                    _SelectedSourceForTrajectory = getSelectedSource();
+                    
+                    switch (getSelectedTrajectoryAsInteger()) {
+                        case ZirkOscjuceAudioProcessorEditor::Circle :
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                            break;
+                            
+                        case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                        case ZirkOscjuceAudioProcessorEditor::Spiral :
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                
+                    //store begin time
+                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                    _TrajectorySingleBeginTime = _TrajectoryBeginTime;
+                    
+                    //store initial parameter value
+                    _TrajectoryInitialValue = getParameter(_SelectedSourceForTrajectory*5);
+                    
+                    _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
+                    
+                    _WasPlayingOnPrevFrame = true;
+
+                    cout << "__________________________________________________________________________\n";
+                    cout << "_SelectedSourceForTrajectory: " << _SelectedSourceForTrajectory << endl;
+                    cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
+                    cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
+                    cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
+                    cout << "_TrajectoryInitialValue: " << _TrajectoryInitialValue << endl;
+                    
+                }
+                
+                if (_isSyncWTempo) {
+                    
+                } else {
+                    
+                    //store current time
+                    double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
+                    
+                    //if we still need to write automation (currentTime smaller than begin time + whole duration
+                    if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
+                        
+                        //calculate new position
+                        float newPosition;
+                        float integralPart;
+                        switch (getSelectedTrajectoryAsInteger()) {
+                            case ZirkOscjuceAudioProcessorEditor::Circle :
+                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                break;
+                                
+                            case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                break;
+                                
+                            case ZirkOscjuceAudioProcessorEditor::Spiral :
+                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                break;
+                                
+                            default:
+                                break;
+                        }
+  
+                        
+                        
+                    } else {
+                        _TrajectoryAllDrawn = true;
+                    }
+                }
+            }
+            //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
+            else if (_WasPlayingOnPrevFrame){
+                
+                switch (getSelectedTrajectoryAsInteger()) {
+                    case ZirkOscjuceAudioProcessorEditor::Circle :
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                        break;
+                    case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                    case ZirkOscjuceAudioProcessorEditor::Spiral :
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                        break;
+                        
+                    default:
+                        break;
+                }
+                
+                _WasPlayingOnPrevFrame = false;
+                _TrajectoryAllDrawn = false;
+                iProcessBlockCounter = 0;
+                
+                //untoggle write trajectory button
+                _isWriteTrajectory = false;
+                _RefreshGui=true;
+            }
+        }
+    }
+}
+
+const String ZirkOscjuceAudioProcessor::getParameterText (int index)
+{
+    return String (getParameter (index), 2);
+}
+
+const String ZirkOscjuceAudioProcessor::getInputChannelName (int channelIndex) const
+{
+    return String (channelIndex + 1);
+}
+
+const String ZirkOscjuceAudioProcessor::getOutputChannelName (int channelIndex) const
+{
+    return String (channelIndex + 1);
+}
+
+juce::AudioPlayHead::CurrentPositionInfo &ZirkOscjuceAudioProcessor::getCurrentPlayHeadInfo(){
+    return _CurrentPlayHeadInfo;
+}
+
+bool ZirkOscjuceAudioProcessor::isInputChannelStereoPair (int index) const
+{
+    return true;
+}
+
+bool ZirkOscjuceAudioProcessor::isOutputChannelStereoPair (int index) const
+{
+    return true;
+}
+
+bool ZirkOscjuceAudioProcessor::acceptsMidi() const
+{
+#if JucePlugin_WantsMidiInput
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool ZirkOscjuceAudioProcessor::producesMidi() const
+{
+#if JucePlugin_ProducesMidiOutput
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool ZirkOscjuceAudioProcessor::silenceInProducesSilenceOut() const
+{
+    return false;
+}
+
+int ZirkOscjuceAudioProcessor::getNumPrograms()
+{
+    return 0;
+}
+
+int ZirkOscjuceAudioProcessor::getCurrentProgram()
+{
+    return 0;
+}
+
+void ZirkOscjuceAudioProcessor::setCurrentProgram (int index)
+{
+}
+
+const String ZirkOscjuceAudioProcessor::getProgramName (int index)
+{
+    return String::empty;
+}
+
+void ZirkOscjuceAudioProcessor::changeProgramName (int index, const String& newName)
+{
+}
+
+//==============================================================================
+void ZirkOscjuceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+{
+    // Use this method as the place to do any pre-playback
+    // initialisation that you need..
+}
+
+void ZirkOscjuceAudioProcessor::releaseResources()
+{
+    // When playback stops, you can use this as an opportunity to free up any
+    // spare memory, etc.
+}
+
+void ZirkOscjuceAudioProcessor::setSelectedSourceForTrajectory(int iSelectedSource){
+    _SelectedSourceForTrajectory = iSelectedSource;
+}
+
+int ZirkOscjuceAudioProcessor::getSelectedSourceForTrajectory(){
+    return _SelectedSourceForTrajectory;
+}
+
+//==============================================================================
+bool ZirkOscjuceAudioProcessor::hasEditor() const
+{
+    return true; // (change this to false if you choose to not supply an editor)
+}
+
+AudioProcessorEditor* ZirkOscjuceAudioProcessor::createEditor()
+{
+    _Editor = new ZirkOscjuceAudioProcessorEditor (this);
+    return _Editor;
+}
+
+
+void ZirkOscjuceAudioProcessor::setLastUiWidth(int lastUiWidth)
+{
+    _LastUiWidth = lastUiWidth;
+}
+
+int ZirkOscjuceAudioProcessor::getLastUiWidth()
+{
+    return _LastUiWidth;
+}
+void ZirkOscjuceAudioProcessor::setLastUiHeight(int lastUiHeight)
+{
+    _LastUiHeight = lastUiHeight;
+}
+
+int ZirkOscjuceAudioProcessor::getLastUiHeight()
+{
+    return _LastUiHeight;
+}
+
 
 //set wheter plug is sending osc messages to zirkonium
 void ZirkOscjuceAudioProcessor::setIsOscActive(bool isOscActive){
@@ -287,7 +548,7 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
         case ZirkOSC_WriteTrajectories_ParamId:
             return ZirkOSC_isWriteTrajectory_name;
     }
-
+    
     
     for(int i = 0; i<8;++i){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return ZirkOSC_Azim_name[i];
@@ -299,373 +560,6 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     return String::empty;
 }
 
-
-
-void ZirkOscjuceAudioProcessor::sendOSCValues(){
-    if (_isOscActive){
-        for(int i=0;i<_NbrSources;++i){
-            float azim_osc = PercentToHR(_AllSources[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
-            float elev_osc = PercentToHR(_AllSources[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
-            float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
-            float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
-            int channel_osc = _AllSources[i].getChannel()-1;
-            float gain_osc = _AllSources[i].getGain();
-            lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
-            azim_osc = azim_osc * M_PI;
-            elev_osc = elev_osc * M_PI;
-            azimspan_osc = azimspan_osc * M_PI;
-            elevspan_osc = elevspan_osc * M_PI;
-            lo_send(_OscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
-        }
-    }
-}
-
-void ZirkOscjuceAudioProcessor::sendOSCConfig(){
-    if (_isOscActive){
-        lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _AllSources[0].getChannel(), _AllSources[1].getChannel(), _AllSources[2].getChannel(), _AllSources[3].getChannel(), _AllSources[4].getChannel(), _AllSources[5].getChannel(), _AllSources[6].getChannel(), _AllSources[7].getChannel());
-    }
-}
-
-void ZirkOscjuceAudioProcessor::changeZirkoniumOSCPort(int newPort){
-    
-    if(newPort<0 || newPort>100000){
-        newPort = _OscPortZirkonium;//18032;
-    }
-    
-    lo_address osc = _OscZirkonium;
-    _OscPortZirkonium = newPort;
-	_OscZirkonium = NULL;
-    lo_address_free(osc);
-	char port[32];
-	snprintf(port, sizeof(port), "%d", newPort);
-	_OscZirkonium = lo_address_new("127.0.0.1", port);
-
-}
-
-bool validateIpAddress(const string &ipAddress)
-{
-    struct sockaddr_in sa;
-    int result = inet_pton(AF_INET, ipAddress.c_str(), &(sa.sin_addr));
-    return result != 0;
-}
-
-void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress){
-    
-    //if port is outside range, assign previous
-    if(newPort<0 || newPort>100000){
-        newPort = _OscPortIpadOutgoing.getIntValue();//10112;
-    }
-
-    //if address is invalid, assign previous
-    if (!validateIpAddress(newAddress.toStdString())){
-        newAddress = _OscAddressIpad;//"10.0.1.3";
-    }
-    
-    lo_address osc = _OscIpad;
-    _OscPortIpadOutgoing = String(newPort);
-    _OscIpad = NULL;
-    lo_address_free(osc);
-	char port[32];
-	snprintf(port, sizeof(port), "%d", newPort);
-    regex_t regex;
-    int reti;
-    reti = regcomp(&regex, "\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", 0);
-    reti = regexec(&regex, newAddress.toUTF8(), 0, NULL, 0);
-    //if( !reti ){
-         _OscAddressIpad = newAddress;
-    //}
-	_OscIpad = lo_address_new(_OscAddressIpad.toUTF8(), port);
-}
-
-void ZirkOscjuceAudioProcessor::changeOSCReceiveIpad(int newPort){
-    
-    if(newPort<0 || newPort>100000){
-        newPort = _OscPortIpadIncoming.getIntValue();//10114;
-    }
-    
-    if(_St){
-        lo_server st2 = _St;
-        lo_server_thread_stop(st2);
-        lo_server_thread_free(st2);
-    }
-    _OscPortIpadIncoming = String(newPort);
-    char port[32];
-	snprintf(port, sizeof(port), "%d", newPort);
-    _St = lo_server_thread_new(port, error);
-    if (_St){
-        lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
-        lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
-        lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
-        lo_server_thread_add_method(_St, "/moveAzimSpan", "if", receiveAzimuthSpanUpdate, this);
-        lo_server_thread_add_method(_St, "/beginAzimSpanMove", "i", receiveAzimuthSpanBegin, this);
-        lo_server_thread_add_method(_St, "/endAzimSpanMove", "i", receiveAzimuthSpanEnd, this);
-        lo_server_thread_add_method(_St, "/moveElevSpan", "if", receiveElevationSpanUpdate, this);
-        lo_server_thread_add_method(_St, "/beginElevSpanMove", "i", receiveElevationSpanBegin, this);
-        lo_server_thread_add_method(_St, "/endElevSpanMove", "i", receiveElevationSpanEnd, this);
-        lo_server_thread_start(_St);
-    }
-    
-}
-const String ZirkOscjuceAudioProcessor::getParameterText (int index)
-{
-    return String (getParameter (index), 2);
-}
-
-const String ZirkOscjuceAudioProcessor::getInputChannelName (int channelIndex) const
-{
-    return String (channelIndex + 1);
-}
-
-const String ZirkOscjuceAudioProcessor::getOutputChannelName (int channelIndex) const
-{
-    return String (channelIndex + 1);
-}
-
-juce::AudioPlayHead::CurrentPositionInfo &ZirkOscjuceAudioProcessor::getCurrentPlayHeadInfo(){
-    return _CurrentPlayHeadInfo;
-}
-
-bool ZirkOscjuceAudioProcessor::isInputChannelStereoPair (int index) const
-{
-    return true;
-}
-
-bool ZirkOscjuceAudioProcessor::isOutputChannelStereoPair (int index) const
-{
-    return true;
-}
-
-bool ZirkOscjuceAudioProcessor::acceptsMidi() const
-{
-#if JucePlugin_WantsMidiInput
-    return true;
-#else
-    return false;
-#endif
-}
-
-bool ZirkOscjuceAudioProcessor::producesMidi() const
-{
-#if JucePlugin_ProducesMidiOutput
-    return true;
-#else
-    return false;
-#endif
-}
-
-bool ZirkOscjuceAudioProcessor::silenceInProducesSilenceOut() const
-{
-    return false;
-}
-
-int ZirkOscjuceAudioProcessor::getNumPrograms()
-{
-    return 0;
-}
-
-int ZirkOscjuceAudioProcessor::getCurrentProgram()
-{
-    return 0;
-}
-
-void ZirkOscjuceAudioProcessor::setCurrentProgram (int index)
-{
-}
-
-const String ZirkOscjuceAudioProcessor::getProgramName (int index)
-{
-    return String::empty;
-}
-
-void ZirkOscjuceAudioProcessor::changeProgramName (int index, const String& newName)
-{
-}
-
-//==============================================================================
-void ZirkOscjuceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
-{
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-}
-
-void ZirkOscjuceAudioProcessor::releaseResources()
-{
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
-}
-
-void ZirkOscjuceAudioProcessor::setSelectedSourceForTrajectory(int iSelectedSource){
-    _SelectedSourceForTrajectory = iSelectedSource;
-}
-
-int ZirkOscjuceAudioProcessor::getSelectedSourceForTrajectory(){
-    return _SelectedSourceForTrajectory;
-}
-
-//this will only be called in logic when actually processing sound, ie need to toggle I button in track
-void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
-{
-    //if write trajectory is enabled (button toggled on in editor)
-    if (_isWriteTrajectory){
-        
-        //get current playhead info
-        playHead->getCurrentPosition(_CurrentPlayHeadInfo);
-        
-        if(_CurrentPlayHeadInfo.isPlaying){
-        
-            if (!_TrajectoryAllDrawn){
-                
-                //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
-                if (iProcessBlockCounter < 1){
-                    ++iProcessBlockCounter;
-                    return;
-                }
-                
-                //if we were not playing on previous frame, this is the first playing frame.
-                if (!_WasPlayingOnPrevFrame){
-                    
-                    //get automation started on currently selected source
-                    _SelectedSourceForTrajectory = getSelectedSource();
-                    
-                    switch (getSelectedTrajectoryAsInteger()) {
-                        case ZirkOscjuceAudioProcessorEditor::Circle :
-                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                            break;
-                            
-                        case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                        case ZirkOscjuceAudioProcessorEditor::Spiral :
-                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
-                            break;
-                            
-                        default:
-                            break;
-                    }
-                
-                    //store begin time
-                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
-                    _TrajectorySingleBeginTime = _TrajectoryBeginTime;
-                    
-                    //store initial parameter value
-                    _TrajectoryInitialValue = getParameter(_SelectedSourceForTrajectory*5);
-                    
-                    _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
-                    
-                    _WasPlayingOnPrevFrame = true;
-
-                    cout << "__________________________________________________________________________\n";
-                    cout << "_SelectedSourceForTrajectory: " << _SelectedSourceForTrajectory << endl;
-                    cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
-                    cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
-                    cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
-                    cout << "_TrajectoryInitialValue: " << _TrajectoryInitialValue << endl;
-                    
-                }
-                
-                if (_isSyncWTempo) {
-                    
-                } else {
-                    
-                    //store current time
-                    double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
-                    
-                    //if we still need to write automation (currentTime smaller than begin time + whole duration
-                    if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
-                        
-                        //calculate new position
-                        float newPosition;
-                        float integralPart;
-                        switch (getSelectedTrajectoryAsInteger()) {
-                            case ZirkOscjuceAudioProcessorEditor::Circle :
-                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
-                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-                                break;
-                                
-                            case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
-                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-                                break;
-                                
-                            case ZirkOscjuceAudioProcessorEditor::Spiral :
-                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
-                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-                                break;
-                                
-                            default:
-                                break;
-                        }
-  
-                        
-                        
-                    } else {
-                        _TrajectoryAllDrawn = true;
-                    }
-                }
-            }
-            //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
-            else if (_WasPlayingOnPrevFrame){
-                
-                switch (getSelectedTrajectoryAsInteger()) {
-                    case ZirkOscjuceAudioProcessorEditor::Circle :
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                        break;
-                    case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                    case ZirkOscjuceAudioProcessorEditor::Spiral :
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
-                        break;
-                        
-                    default:
-                        break;
-                }
-                
-                _WasPlayingOnPrevFrame = false;
-                _TrajectoryAllDrawn = false;
-                iProcessBlockCounter = 0;
-                
-                //untoggle write trajectory button
-                _isWriteTrajectory = false;
-                _RefreshGui=true;
-            }
-        }
-    }
-}
-
-//==============================================================================
-bool ZirkOscjuceAudioProcessor::hasEditor() const
-{
-    return true; // (change this to false if you choose to not supply an editor)
-}
-
-AudioProcessorEditor* ZirkOscjuceAudioProcessor::createEditor()
-{
-    _Editor = new ZirkOscjuceAudioProcessorEditor (this);
-    return _Editor;
-}
-
-
-void ZirkOscjuceAudioProcessor::setLastUiWidth(int lastUiWidth)
-{
-    _LastUiWidth = lastUiWidth;
-}
-
-int ZirkOscjuceAudioProcessor::getLastUiWidth()
-{
-    return _LastUiWidth;
-}
-void ZirkOscjuceAudioProcessor::setLastUiHeight(int lastUiHeight)
-{
-    _LastUiHeight = lastUiHeight;
-}
-
-int ZirkOscjuceAudioProcessor::getLastUiHeight()
-{
-    return _LastUiHeight;
-}
 
 //==============================================================================
 void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
@@ -784,6 +678,111 @@ void ZirkOscjuceAudioProcessor::sendOSCMovementType(){ //should be void with no 
 
 }
 
+void ZirkOscjuceAudioProcessor::sendOSCValues(){
+    if (_isOscActive){
+        for(int i=0;i<_NbrSources;++i){
+            float azim_osc = PercentToHR(_AllSources[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
+            float elev_osc = PercentToHR(_AllSources[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
+            float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
+            float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
+            int channel_osc = _AllSources[i].getChannel()-1;
+            float gain_osc = _AllSources[i].getGain();
+            lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+            azim_osc = azim_osc * M_PI;
+            elev_osc = elev_osc * M_PI;
+            azimspan_osc = azimspan_osc * M_PI;
+            elevspan_osc = elevspan_osc * M_PI;
+            lo_send(_OscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+        }
+    }
+}
+
+void ZirkOscjuceAudioProcessor::sendOSCConfig(){
+    if (_isOscActive){
+        lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _AllSources[0].getChannel(), _AllSources[1].getChannel(), _AllSources[2].getChannel(), _AllSources[3].getChannel(), _AllSources[4].getChannel(), _AllSources[5].getChannel(), _AllSources[6].getChannel(), _AllSources[7].getChannel());
+    }
+}
+
+void ZirkOscjuceAudioProcessor::changeZirkoniumOSCPort(int newPort){
+    
+    if(newPort<0 || newPort>100000){
+        newPort = _OscPortZirkonium;//18032;
+    }
+    
+    lo_address osc = _OscZirkonium;
+    _OscPortZirkonium = newPort;
+	_OscZirkonium = NULL;
+    lo_address_free(osc);
+	char port[32];
+	snprintf(port, sizeof(port), "%d", newPort);
+	_OscZirkonium = lo_address_new("127.0.0.1", port);
+    
+}
+
+bool validateIpAddress(const string &ipAddress)
+{
+    struct sockaddr_in sa;
+    int result = inet_pton(AF_INET, ipAddress.c_str(), &(sa.sin_addr));
+    return result != 0;
+}
+
+void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress){
+    
+    //if port is outside range, assign previous
+    if(newPort<0 || newPort>100000){
+        newPort = _OscPortIpadOutgoing.getIntValue();//10112;
+    }
+    
+    //if address is invalid, assign previous
+    if (!validateIpAddress(newAddress.toStdString())){
+        newAddress = _OscAddressIpad;//"10.0.1.3";
+    }
+    
+    lo_address osc = _OscIpad;
+    _OscPortIpadOutgoing = String(newPort);
+    _OscIpad = NULL;
+    lo_address_free(osc);
+	char port[32];
+	snprintf(port, sizeof(port), "%d", newPort);
+    regex_t regex;
+    int reti;
+    reti = regcomp(&regex, "\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", 0);
+    reti = regexec(&regex, newAddress.toUTF8(), 0, NULL, 0);
+    //if( !reti ){
+    _OscAddressIpad = newAddress;
+    //}
+	_OscIpad = lo_address_new(_OscAddressIpad.toUTF8(), port);
+}
+
+void ZirkOscjuceAudioProcessor::changeOSCReceiveIpad(int newPort){
+    
+    if(newPort<0 || newPort>100000){
+        newPort = _OscPortIpadIncoming.getIntValue();//10114;
+    }
+    
+    if(_St){
+        lo_server st2 = _St;
+        lo_server_thread_stop(st2);
+        lo_server_thread_free(st2);
+    }
+    _OscPortIpadIncoming = String(newPort);
+    char port[32];
+	snprintf(port, sizeof(port), "%d", newPort);
+    _St = lo_server_thread_new(port, error);
+    if (_St){
+        lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
+        lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
+        lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
+        lo_server_thread_add_method(_St, "/moveAzimSpan", "if", receiveAzimuthSpanUpdate, this);
+        lo_server_thread_add_method(_St, "/beginAzimSpanMove", "i", receiveAzimuthSpanBegin, this);
+        lo_server_thread_add_method(_St, "/endAzimSpanMove", "i", receiveAzimuthSpanEnd, this);
+        lo_server_thread_add_method(_St, "/moveElevSpan", "if", receiveElevationSpanUpdate, this);
+        lo_server_thread_add_method(_St, "/beginElevSpanMove", "i", receiveElevationSpanBegin, this);
+        lo_server_thread_add_method(_St, "/endElevSpanMove", "i", receiveElevationSpanEnd, this);
+        lo_server_thread_start(_St);
+    }
+    
+}
 
 int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data){
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
