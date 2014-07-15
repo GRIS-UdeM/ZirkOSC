@@ -299,7 +299,6 @@ private:
     
     double _TrajectorySingleLength;
     
-    double _TrajectorySingleBeginTime;
     
     bool _TrajectoryJustCompletedSingle;
     

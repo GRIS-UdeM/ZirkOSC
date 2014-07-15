@@ -49,7 +49,6 @@ _TrajectoryAllDrawn(false),
 _TrajectoryBeginTime(0),
 _TrajectoryInitialValue(0),
 _TrajectorySingleLength(0),
-_TrajectorySingleBeginTime(0),
 _TrajectoryJustCompletedSingle(false),
 iProcessBlockCounter(0),
 _isSyncWTempo(false),
@@ -132,7 +131,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             if (!_TrajectoryAllDrawn){
                 
                 //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
-                if (iProcessBlockCounter < 1){
+                if (iProcessBlockCounter < 3){
                     ++iProcessBlockCounter;
                     return;
                 }
@@ -140,8 +139,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 //if we were not playing on previous frame, this is the first playing frame.
                 if (!_WasPlayingOnPrevFrame){
                     
+                    cout << "____________________________BEGIN PARAMETER CHANGE______________________________________________\n";
+                    
                     //get automation started on currently selected source
                     _SelectedSourceForTrajectory = getSelectedSource();
+                    
                     
                     switch (getSelectedTrajectoryAsInteger()) {
                         case ZirkOscjuceAudioProcessorEditor::Circle :
@@ -160,7 +162,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
                     //store begin time
                     _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
-                    _TrajectorySingleBeginTime = _TrajectoryBeginTime;
                     
                     //store initial parameter value
                     _TrajectoryInitialValue = getParameter(_SelectedSourceForTrajectory*5);
@@ -169,8 +170,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     
                     _WasPlayingOnPrevFrame = true;
 
-                    cout << "__________________________________________________________________________\n";
-                    cout << "_SelectedSourceForTrajectory: " << _SelectedSourceForTrajectory << endl;
+
                     cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
                     cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
                     cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
@@ -190,32 +190,58 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         
                         //calculate new position
                         float newPosition;
-                        float integralPart;
+                        float integralPart; //useless here
                         switch (getSelectedTrajectoryAsInteger()) {
+//                            case ZirkOscjuceAudioProcessorEditor::Circle :
+//                                newPosition =  modf(dCurrentTime / (_TrajectoryBeginTime + _TrajectorySingleLength), &integralPart);
+//                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+//                                
+//                                cout << "dCurrentTime: " << dCurrentTime << endl;
+//                                cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
+//                                
+//                                
+//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+//                                break;
+//                                
+//                            case ZirkOscjuceAudioProcessorEditor::Pendulum :
+//                                newPosition =  modf(dCurrentTime / (_TrajectoryBeginTime + _TrajectorySingleLength), &integralPart);
+//                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+//                                break;
+//                                
+//                            case ZirkOscjuceAudioProcessorEditor::Spiral :
+//                                newPosition =  modf(dCurrentTime / (_TrajectoryBeginTime + _TrajectorySingleLength), &integralPart);
+//                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+//                                break;
                             case ZirkOscjuceAudioProcessorEditor::Circle :
-                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition =  modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
                                 newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
+                                
+                                cout << "dCurrentTime: " << dCurrentTime << endl;
+                                cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
+                                
+                                
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
                                 break;
                                 
                             case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+                                newPosition =  modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
                                 newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
                                 break;
                                 
                             case ZirkOscjuceAudioProcessorEditor::Spiral :
-                                newPosition =  modf(dCurrentTime / (_TrajectorySingleBeginTime + _TrajectorySingleLength), &integralPart);
+#warning need to use 2 different intial values for elevation and azimuth
+                                newPosition =  modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
                                 newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
                                 break;
-                                
                             default:
                                 break;
                         }
-  
-                        
                         
                     } else {
                         _TrajectoryAllDrawn = true;
@@ -224,6 +250,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             }
             //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
             else if (_WasPlayingOnPrevFrame){
+                
+                cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
                 
                 switch (getSelectedTrajectoryAsInteger()) {
                     case ZirkOscjuceAudioProcessorEditor::Circle :
