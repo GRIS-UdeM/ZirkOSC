@@ -47,8 +47,10 @@ _TrajectoryCount(0),
 _TrajectoriesDuration(0),
 _TrajectoryAllDrawn(false),
 _TrajectoryBeginTime(0),
-_TrajectoryInitialValue(0),
+_TrajectoryInitialAzimuth(0),
+_TrajectoryInitialElevation(0),
 _TrajectorySingleLength(0),
+m_bTrajectoryElevationDecreasing(false),
 _TrajectoryJustCompletedSingle(false),
 iProcessBlockCounter(0),
 _isSyncWTempo(false),
@@ -164,7 +166,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
                     
                     //store initial parameter value
-                    _TrajectoryInitialValue = getParameter(_SelectedSourceForTrajectory*5);
+                    _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
+                    _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
                     
                     _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
                     
@@ -174,7 +177,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
                     cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
                     cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
-                    cout << "_TrajectoryInitialValue: " << _TrajectoryInitialValue << endl;
+                    cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
                     
                 }
                 
@@ -189,56 +192,44 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
                         
                         //calculate new position
-                        float newPosition;
+                        float newAzimuth, newElevation;
                         float integralPart; //useless here
                         switch (getSelectedTrajectoryAsInteger()) {
-//                            case ZirkOscjuceAudioProcessorEditor::Circle :
-//                                newPosition =  modf(dCurrentTime / (_TrajectoryBeginTime + _TrajectorySingleLength), &integralPart);
-//                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-//                                
-//                                cout << "dCurrentTime: " << dCurrentTime << endl;
-//                                cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
-//                                
-//                                
-//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-//                                break;
-//                                
-//                            case ZirkOscjuceAudioProcessorEditor::Pendulum :
-//                                newPosition =  modf(dCurrentTime / (_TrajectoryBeginTime + _TrajectorySingleLength), &integralPart);
-//                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-//                                break;
-//                                
-//                            case ZirkOscjuceAudioProcessorEditor::Spiral :
-//                                newPosition =  modf(dCurrentTime / (_TrajectoryBeginTime + _TrajectorySingleLength), &integralPart);
-//                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-//                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-//                                break;
+
                             case ZirkOscjuceAudioProcessorEditor::Circle :
-                                newPosition =  modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-                                
-                                cout << "dCurrentTime: " << dCurrentTime << endl;
-                                cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
-                                
-                                
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                                newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
                                 break;
-                                
+
+
                             case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                                newPosition =  modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                
+                                
+                                newElevation = abs(sin ( ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) * 2 * M_PI ));
+                                //newElevation = modf(_TrajectoryInitialElevation + newElevation, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                                
+                                //when we get to the top of the dome, we need to get back down
+                                if (newElevation > .99){
+                                    (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                                } else
+                                //just add/subtract a very small random number when we get to zero, to get host to record an automation for the azimuth on those points
+                                if (newElevation < .01){
+                                    float r3 = -.01 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(.01 - -.01)));
+                                    _TrajectoryInitialAzimuth += r3;
+                                }
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
                                 break;
                                 
                             case ZirkOscjuceAudioProcessorEditor::Spiral :
-#warning need to use 2 different intial values for elevation and azimuth
-                                newPosition =  modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                                newPosition = modf(_TrajectoryInitialValue + newPosition, &integralPart);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newPosition);
+                                newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                                newElevation = modf(_TrajectoryInitialElevation + newAzimuth, &integralPart);
+                                newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                                 break;
+                                
                             default:
                                 break;
                         }

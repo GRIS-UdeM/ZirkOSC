@@ -295,10 +295,13 @@ private:
     
     double _TrajectoryBeginTime;
     
-    float _TrajectoryInitialValue;
+    float _TrajectoryInitialAzimuth;
+    
+    float _TrajectoryInitialElevation;
     
     double _TrajectorySingleLength;
     
+    bool m_bTrajectoryElevationDecreasing;
     
     bool _TrajectoryJustCompletedSingle;
     
