@@ -304,6 +304,8 @@ private:
     bool m_bTrajectoryElevationDecreasing;
     
     bool m_bTrajectoryAddPositive;
+
+    float getSmallAlternatingValue();
     
     bool _TrajectoryJustCompletedSingle;
     
