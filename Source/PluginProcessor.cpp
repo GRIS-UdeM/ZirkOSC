@@ -212,27 +212,35 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                                 
                                 //when we get to the top of the dome, we need to get back down
-                                if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
-                                    (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
-                                    m_bTrajectoryElevationDecreasing = true;
-                                }
-                                //just add/subtract a very small random number when we get to zero, to get host to record an automation for the azimuth on those points
-                                if (m_bTrajectoryElevationDecreasing && newElevation < .02){
+                                if (!m_bTrajectoryElevationDecreasing){
                                     
                                     
-//                                    float r3 = -.01 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(.01 - -.01)));
-//                                    _TrajectoryInitialAzimuth += r3;
-
-                                    if(m_bTrajectoryAddPositive){
-                                        _TrajectoryInitialAzimuth += 0.001;
-                                        m_bTrajectoryAddPositive = false;
-                                    } else {
-                                        _TrajectoryInitialAzimuth -= 0.001;
-                                        m_bTrajectoryAddPositive = true;
+                                    if ( newElevation > .98){
+                                        (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                                         m_bTrajectoryElevationDecreasing = true;
+                                    } else if ( newElevation > .96){
+                                        _TrajectoryInitialAzimuth += getSmallAlternatingValue();
                                     }
+
+                                }
+                                
+                                //when we get to bottom, need to tell logic we are still at same point, so just add/subtract a very small random number
+                                //when we get to zero, to get host to record an automation for the azimuth on those points
+                                if (m_bTrajectoryElevationDecreasing && newElevation < .02){
+
+                                    setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                                    _TrajectoryInitialAzimuth += getSmallAlternatingValue();
+
                                     m_bTrajectoryElevationDecreasing = false;
                                 }
+                                
+                                
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                                
+                                
+                                
+                                
+                                
                                 
                                 cout << "newElevation: " << newElevation << "\t\t\t";
                                 cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
@@ -284,6 +292,18 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 _RefreshGui=true;
             }
         }
+    }
+}
+
+float ZirkOscjuceAudioProcessor::getSmallAlternatingValue(){
+
+    if(m_bTrajectoryAddPositive){
+        m_bTrajectoryAddPositive = false;
+        return 0.01;
+
+    } else {
+        m_bTrajectoryAddPositive = true;
+        return - 0.01;
     }
 }
 
