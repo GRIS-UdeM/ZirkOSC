@@ -185,6 +185,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 if (_isSyncWTempo) {
                     
                 } else {
+                    float lowerLimit = .02f;
                     
                     //store current time
                     double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
@@ -206,8 +207,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
                             case ZirkOscjuceAudioProcessorEditor::Pendulum :
                                 
-                                cout << "dCurrentTime: " << dCurrentTime << endl;
-                                
                                 newElevation = abs(sin ( ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) * 2 * M_PI ));
                                 //newElevation = modf(_TrajectoryInitialElevation + newElevation, &integralPart);
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
@@ -218,18 +217,18 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                          m_bTrajectoryElevationDecreasing = true;
                                 }
                                 
-                                float lowerLimit;
-                                
                                 if (host.isReaper()){
                                     lowerLimit = .15;
-                                } else if (host.isLogic()){
-                                    lowerLimit = .02;
+                                } else if (host.isLogic()){                                
                                     _TrajectoryInitialAzimuth += getSmallAlternatingValue();
                                 }
                                 
                                 if (m_bTrajectoryElevationDecreasing && newElevation < lowerLimit){
                                     m_bTrajectoryElevationDecreasing = false;
                                 }
+                                
+                                cout << "newElevation: " << newElevation;
+                                cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
 
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
                                 break;
