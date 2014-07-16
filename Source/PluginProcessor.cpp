@@ -142,6 +142,18 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 //if we were not playing on previous frame, this is the first playing frame.
                 if (!_WasPlayingOnPrevFrame){
                     
+                    
+                    //store begin time
+                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                    
+                    //store initial parameter value
+                    _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
+                    _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
+                    
+                    _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
+                    
+                    _WasPlayingOnPrevFrame = true;
+                    
                     cout << "____________________________BEGIN PARAMETER CHANGE______________________________________________\n";
                     
                     //get automation started on currently selected source
@@ -154,6 +166,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             break;
                             
                         case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                            //to make sure that the pendulum movement goes inward (towards top of dome), transpose _TrajectoryInitialElevation to [0, 1/4], so that sin starts between [0, pi/2]
+                            _TrajectoryInit rialElevation *= .25;
                         case ZirkOscjuceAudioProcessorEditor::Spiral :
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
@@ -163,16 +177,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             break;
                     }
                 
-                    //store begin time
-                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
-                    
-                    //store initial parameter value
-                    _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
-                    _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
-                    
-                    _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
-                    
-                    _WasPlayingOnPrevFrame = true;
+
 
 
                     cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
@@ -185,7 +190,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 if (_isSyncWTempo) {
                     
                 } else {
-                    float lowerLimit = .02f;
+                    
                     
                     //store current time
                     double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
@@ -196,6 +201,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         //calculate new position
                         float newAzimuth, newElevation;
                         float integralPart; //useless here
+                        float lowerLimit = .02f;
                         switch (getSelectedTrajectoryAsInteger()) {
 
                             case ZirkOscjuceAudioProcessorEditor::Circle :
@@ -207,8 +213,13 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
                             case ZirkOscjuceAudioProcessorEditor::Pendulum :
                                 
-                                newElevation = abs(sin ( ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) * 2 * M_PI ));
-                                //newElevation = modf(_TrajectoryInitialElevation + newElevation, &integralPart);
+                                newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
+                                newElevation = modf(abs(newElevation + _TrajectoryInitialElevation), &integralPart);
+                                newElevation = abs( sin(newElevation * 2 * M_PI) );
+                                
+                                
+//                                newElevation = abs(sin ( ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) * 2 * M_PI ));
+//                                newElevation = modf(_TrajectoryInitialElevation + newElevation, &integralPart);
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                                 
                                 //when we get to the top of the dome, we need to get back down
@@ -228,7 +239,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                 }
                                 
                                 cout << "newElevation: " << newElevation;
-                                cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+                                cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth;
+                                cout << "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
 
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
                                 break;
