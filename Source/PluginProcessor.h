@@ -303,6 +303,8 @@ private:
     
     bool m_bTrajectoryElevationDecreasing;
     
+    bool m_bTrajectoryAddPositive;
+    
     bool _TrajectoryJustCompletedSingle;
     
     int iProcessBlockCounter;
