@@ -51,6 +51,7 @@ _TrajectoryInitialAzimuth(0),
 _TrajectoryInitialElevation(0),
 _TrajectorySingleLength(0),
 m_bTrajectoryElevationDecreasing(false),
+m_bTrajectoryAddPositive(true),
 _TrajectoryJustCompletedSingle(false),
 iProcessBlockCounter(0),
 _isSyncWTempo(false),
@@ -211,15 +212,31 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                                 
                                 //when we get to the top of the dome, we need to get back down
-                                if (newElevation > .99){
+                                if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
                                     (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
-                                } else
+                                    m_bTrajectoryElevationDecreasing = true;
+                                }
                                 //just add/subtract a very small random number when we get to zero, to get host to record an automation for the azimuth on those points
-                                if (newElevation < .01){
-                                    float r3 = -.01 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(.01 - -.01)));
-                                    _TrajectoryInitialAzimuth += r3;
+                                if (m_bTrajectoryElevationDecreasing && newElevation < .02){
+                                    
+                                    
+//                                    float r3 = -.01 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(.01 - -.01)));
+//                                    _TrajectoryInitialAzimuth += r3;
+
+                                    if(m_bTrajectoryAddPositive){
+                                        _TrajectoryInitialAzimuth += 0.001;
+                                        m_bTrajectoryAddPositive = false;
+                                    } else {
+                                        _TrajectoryInitialAzimuth -= 0.001;
+                                        m_bTrajectoryAddPositive = true;
+                                    }
+                                    m_bTrajectoryElevationDecreasing = false;
                                 }
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                                
+                                cout << "newElevation: " << newElevation << "\t\t\t";
+                                cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+                                
                                 break;
                                 
                             case ZirkOscjuceAudioProcessorEditor::Spiral :
