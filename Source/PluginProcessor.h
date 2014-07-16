@@ -322,6 +322,8 @@ private:
     
     bool _JustsEndedPlaying;
     
+    PluginHostType host;
+    
     //contains the information returned from the playHead
     juce::AudioPlayHead::CurrentPositionInfo _CurrentPlayHeadInfo;
 
