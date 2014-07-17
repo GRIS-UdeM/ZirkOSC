@@ -53,6 +53,7 @@ _TrajectorySingleLength(0),
 m_bTrajectoryElevationDecreasing(false),
 m_bTrajectoryAddPositive(true),
 _TrajectoryJustCompletedSingle(false),
+m_bCurrentlyPlaying(false),
 iProcessBlockCounter(0),
 _isSyncWTempo(false),
 _isWriteTrajectory(false),
@@ -130,164 +131,163 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
         if(_CurrentPlayHeadInfo.isPlaying){
-        
-            if (!_TrajectoryAllDrawn){
-                
-                //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
-                if (host.isLogic() && iProcessBlockCounter < 3){
-                    ++iProcessBlockCounter;
-                    return;
-                }
-                
-                //if we were not playing on previous frame, this is the first playing frame.
-                if (!_WasPlayingOnPrevFrame){
-                    
-                    
-                    //store begin time
-                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
-                    
-                    //store initial parameter value
-                    _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
-                    _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
-                    
-                    _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
-                    
-                    _WasPlayingOnPrevFrame = true;
-                    
-                    cout << "____________________________BEGIN PARAMETER CHANGE______________________________________________\n";
-                    
-                    //get automation started on currently selected source
-                    _SelectedSourceForTrajectory = getSelectedSource();
-                    
-                    
-                    switch (getSelectedTrajectoryAsInteger()) {
-                        case ZirkOscjuceAudioProcessorEditor::Circle :
-                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                            break;
-                            
-                        case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                            //to make sure that the pendulum movement goes inward (towards top of dome), transpose _TrajectoryInitialElevation to [0, 1/4], so that sin starts between [0, pi/2]
-                            //_TrajectoryInitialElevation -= .5;
-                        case ZirkOscjuceAudioProcessorEditor::Spiral :
-                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
-                            break;
-                            
-                        default:
-                            break;
-                    }
-                
-
-
-
-                    cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
-                    cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
-                    cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
-                    cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
-                    cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
-                    
-                }
-                
-                if (_isSyncWTempo) {
-                    
-                } else {
-                    
-                    
-                    //store current time
-                    double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
-                    
-                    //if we still need to write automation (currentTime smaller than begin time + whole duration
-                    if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
-                        
-                        //calculate new position
-                        float newAzimuth, newElevation;
-                        float integralPart; //useless here
-                        switch (getSelectedTrajectoryAsInteger()) {
-
-                            case ZirkOscjuceAudioProcessorEditor::Circle :
-                                newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                                newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
-                                break;
-
-
-                            case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                                
-                                newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
-                                //newElevation -= .5;
-                                newElevation = abs( sin(newElevation * 2 * M_PI) );
-                                
-                                //transpose newElevation, which is [0,1] to be in [_TrajectoryInitialElevation, 1]
-                                newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
-                                
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
-                                
-                                //when we get to the top of the dome, we need to get back down
-                                if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
-                                        (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
-                                         m_bTrajectoryElevationDecreasing = true;
-                                }
-                                //reset flag m_bTrajectoryElevationDecreasing as we go down
-                                if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
-                                    m_bTrajectoryElevationDecreasing = false;
-                                }
-                                
-                                if (host.isLogic()){
-                                    _TrajectoryInitialAzimuth += getSmallAlternatingValue();
-                                }
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
-                                
-                                cout << "newElevation: " << newElevation;
-                                cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
-
-                                break;
-                                
-                            case ZirkOscjuceAudioProcessorEditor::Spiral :
-                                newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                                newElevation = modf(_TrajectoryInitialElevation + newAzimuth, &integralPart);
-                                newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
-                                break;
-                                
-                            default:
-                                break;
-                        }
-                        
-                    } else {
-                        _TrajectoryAllDrawn = true;
-                    }
-                }
+            
+            m_bCurrentlyPlaying = true;
+            
+            //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
+            if (host.isLogic() && iProcessBlockCounter < 3){
+                ++iProcessBlockCounter;
+                return;
             }
-            //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
-            else if (_WasPlayingOnPrevFrame){
+            
+            //if we were not playing on previous frame, this is the first playing frame.
+            if (!_WasPlayingOnPrevFrame){
                 
-                cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
+                
+                //store begin time
+                _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                
+                //store initial parameter value
+                _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
+                _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
+                
+                _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
+                
+                _WasPlayingOnPrevFrame = true;
+                
+                cout << "____________________________BEGIN PARAMETER CHANGE______________________________________________\n";
+                
+                //get automation started on currently selected source
+                _SelectedSourceForTrajectory = getSelectedSource();
+                
                 
                 switch (getSelectedTrajectoryAsInteger()) {
                     case ZirkOscjuceAudioProcessorEditor::Circle :
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                         break;
+                        
                     case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                        //to make sure that the pendulum movement goes inward (towards top of dome), transpose _TrajectoryInitialElevation to [0, 1/4], so that sin starts between [0, pi/2]
+                        //_TrajectoryInitialElevation -= .5;
                     case ZirkOscjuceAudioProcessorEditor::Spiral :
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
                         break;
                         
                     default:
                         break;
                 }
+
+                cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
+                cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
+                cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
+                cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+                cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
                 
-                _WasPlayingOnPrevFrame = false;
-                _TrajectoryAllDrawn = false;
-                iProcessBlockCounter = 0;
-                
-                //untoggle write trajectory button
-                _isWriteTrajectory = false;
-                _RefreshGui=true;
             }
+            
+            if (_isSyncWTempo) {
+                
+            } else {
+                
+                
+                //store current time
+                double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
+                
+                //if we still need to write automation (currentTime smaller than begin time + whole duration
+                if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
+                    
+                    //calculate new position
+                    float newAzimuth, newElevation;
+                    float integralPart; //useless here
+                    switch (getSelectedTrajectoryAsInteger()) {
+                            
+                        case ZirkOscjuceAudioProcessorEditor::Circle :
+                            newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+                            break;
+                            
+                            
+                        case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                            
+                            newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
+                            //newElevation -= .5;
+                            newElevation = abs( sin(newElevation * 2 * M_PI) );
+                            
+                            //transpose newElevation, which is [0,1] to be in [_TrajectoryInitialElevation, 1]
+                            newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                            
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                            
+                            //when we get to the top of the dome, we need to get back down
+                            if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
+                                (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                                m_bTrajectoryElevationDecreasing = true;
+                            }
+                            //reset flag m_bTrajectoryElevationDecreasing as we go down
+                            if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
+                                m_bTrajectoryElevationDecreasing = false;
+                            }
+                            
+                            if (host.isLogic()){
+                                _TrajectoryInitialAzimuth += getSmallAlternatingValue();
+                            }
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                            
+                            cout << "newElevation: " << newElevation;
+                            cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+                            
+                            break;
+                            
+                        case ZirkOscjuceAudioProcessorEditor::Spiral :
+                            newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                            newElevation = modf(_TrajectoryInitialElevation + newAzimuth, &integralPart);
+                            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                    
+                }
+            }
+            
+            //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
+        } else if (_WasPlayingOnPrevFrame){
+            
+            cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
+            
+            switch (getSelectedTrajectoryAsInteger()) {
+                case ZirkOscjuceAudioProcessorEditor::Circle :
+                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                    break;
+                case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                case ZirkOscjuceAudioProcessorEditor::Spiral :
+                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                    break;
+                    
+                default:
+                    break;
+            }
+            m_bCurrentlyPlaying = false;
+            _WasPlayingOnPrevFrame = false;
+            _TrajectoryAllDrawn = false;
+            iProcessBlockCounter = 0;
+            
+            //untoggle write trajectory button
+            _isWriteTrajectory = false;
+            _RefreshGui=true;
         }
+        
     }
+}
+
+bool ZirkOscjuceAudioProcessor::isCurrentlyPlaying(){
+    return m_bCurrentlyPlaying;
 }
 
 float ZirkOscjuceAudioProcessor::getSmallAlternatingValue(){
