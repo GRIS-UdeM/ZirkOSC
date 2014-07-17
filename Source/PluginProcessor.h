@@ -244,6 +244,8 @@ public:
     //radius of the dome
     static int s_iDomeRadius;
     
+    bool isCurrentlyPlaying();
+    
     
 private:
     
@@ -308,6 +310,8 @@ private:
     float getSmallAlternatingValue();
     
     bool _TrajectoryJustCompletedSingle;
+    
+    bool m_bCurrentlyPlaying;
     
     int iProcessBlockCounter;
     

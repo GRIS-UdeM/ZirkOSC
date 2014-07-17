@@ -567,9 +567,13 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
     }
     else if(button == &_WriteTrajectoryButton){
         
-        //set isWriteTrajectory property in processor
-        bool isWriteTrajectory = _WriteTrajectoryButton.getToggleState();
-        ourProcessor->setIsWriteTrajectory(isWriteTrajectory);
+        //set isWriteTrajectory property in processor, only if not currently playing
+        if (!ourProcessor->isCurrentlyPlaying()){
+            bool isWriteTrajectory = _WriteTrajectoryButton.getToggleState();
+            ourProcessor->setIsWriteTrajectory(isWriteTrajectory);
+        } else {
+            _WriteTrajectoryButton.setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
+        }
 
     }
     else if(button == &_SyncWTempoButton){
