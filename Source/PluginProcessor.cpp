@@ -167,7 +167,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             
                         case ZirkOscjuceAudioProcessorEditor::Pendulum :
                             //to make sure that the pendulum movement goes inward (towards top of dome), transpose _TrajectoryInitialElevation to [0, 1/4], so that sin starts between [0, pi/2]
-                            _TrajectoryInit rialElevation *= .25;
+                            _TrajectoryInitialElevation *= .25;
                         case ZirkOscjuceAudioProcessorEditor::Spiral :
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
@@ -201,7 +201,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         //calculate new position
                         float newAzimuth, newElevation;
                         float integralPart; //useless here
-                        float lowerLimit = .02f;
+                        float lowerLimit = .5f;
                         switch (getSelectedTrajectoryAsInteger()) {
 
                             case ZirkOscjuceAudioProcessorEditor::Circle :
@@ -214,8 +214,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             case ZirkOscjuceAudioProcessorEditor::Pendulum :
                                 
                                 newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
-                                newElevation = modf(abs(newElevation + _TrajectoryInitialElevation), &integralPart);
+                                //newElevation = modf(abs(newElevation + _TrajectoryInitialElevation), &integralPart);
                                 newElevation = abs( sin(newElevation * 2 * M_PI) );
+                                
+                                //transpose newElevation, which is [0,1] to be in [_TrajectoryInitialElevation, 1]
+                                newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
                                 
                                 
 //                                newElevation = abs(sin ( ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) * 2 * M_PI ));
@@ -228,9 +231,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                          m_bTrajectoryElevationDecreasing = true;
                                 }
                                 
-                                if (host.isReaper()){
-                                    lowerLimit = .15;
-                                } else if (host.isLogic()){                                
+//                                if (host.isReaper()){
+//                                    lowerLimit = .15;
+//                                } else
+                                    if (host.isLogic()){
                                     _TrajectoryInitialAzimuth += getSmallAlternatingValue();
                                 }
                                 
