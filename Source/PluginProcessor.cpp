@@ -134,7 +134,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             if (!_TrajectoryAllDrawn){
                 
                 //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
-                if (iProcessBlockCounter < 3){
+                if (host.isLogic() && iProcessBlockCounter < 3){
                     ++iProcessBlockCounter;
                     return;
                 }
@@ -167,7 +167,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             
                         case ZirkOscjuceAudioProcessorEditor::Pendulum :
                             //to make sure that the pendulum movement goes inward (towards top of dome), transpose _TrajectoryInitialElevation to [0, 1/4], so that sin starts between [0, pi/2]
-                            _TrajectoryInitialElevation *= .25;
+                            //_TrajectoryInitialElevation -= .5;
                         case ZirkOscjuceAudioProcessorEditor::Spiral :
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
@@ -184,6 +184,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
                     cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
                     cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+                    cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
                     
                 }
                 
@@ -201,7 +202,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         //calculate new position
                         float newAzimuth, newElevation;
                         float integralPart; //useless here
-                        float lowerLimit = .5f;
                         switch (getSelectedTrajectoryAsInteger()) {
 
                             case ZirkOscjuceAudioProcessorEditor::Circle :
@@ -214,15 +214,12 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             case ZirkOscjuceAudioProcessorEditor::Pendulum :
                                 
                                 newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
-                                //newElevation = modf(abs(newElevation + _TrajectoryInitialElevation), &integralPart);
+                                //newElevation -= .5;
                                 newElevation = abs( sin(newElevation * 2 * M_PI) );
                                 
                                 //transpose newElevation, which is [0,1] to be in [_TrajectoryInitialElevation, 1]
                                 newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
                                 
-                                
-//                                newElevation = abs(sin ( ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) * 2 * M_PI ));
-//                                newElevation = modf(_TrajectoryInitialElevation + newElevation, &integralPart);
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                                 
                                 //when we get to the top of the dome, we need to get back down
@@ -230,23 +227,19 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                         (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
                                          m_bTrajectoryElevationDecreasing = true;
                                 }
-                                
-//                                if (host.isReaper()){
-//                                    lowerLimit = .15;
-//                                } else
-                                    if (host.isLogic()){
-                                    _TrajectoryInitialAzimuth += getSmallAlternatingValue();
-                                }
-                                
-                                if (m_bTrajectoryElevationDecreasing && newElevation < lowerLimit){
+                                //reset flag m_bTrajectoryElevationDecreasing as we go down
+                                if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
                                     m_bTrajectoryElevationDecreasing = false;
                                 }
                                 
-                                cout << "newElevation: " << newElevation;
-                                cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth;
-                                cout << "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
-
+                                if (host.isLogic()){
+                                    _TrajectoryInitialAzimuth += getSmallAlternatingValue();
+                                }
                                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                                
+                                cout << "newElevation: " << newElevation;
+                                cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+
                                 break;
                                 
                             case ZirkOscjuceAudioProcessorEditor::Spiral :
@@ -301,11 +294,11 @@ float ZirkOscjuceAudioProcessor::getSmallAlternatingValue(){
 
     if(m_bTrajectoryAddPositive){
         m_bTrajectoryAddPositive = false;
-        return 0.004;
+        return 0.007;
 
     } else {
         m_bTrajectoryAddPositive = true;
-        return - 0.004;
+        return - 0.007;
     }
 }
 
