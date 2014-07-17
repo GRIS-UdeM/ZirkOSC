@@ -4,6 +4,11 @@
  ==============================================================================
  */
 
+#ifndef DEBUG
+#define DEBUG
+#endif
+#undef DEBUG
+
 //lo_send(mOsc, "/pan/az", "i", ch);
 
 #include "PluginProcessor.h"
@@ -155,11 +160,12 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
                 _WasPlayingOnPrevFrame = true;
                 
+#if defined(DEBUG)
                 cout << "____________________________BEGIN PARAMETER CHANGE______________________________________________\n";
+#endif
                 
                 //get automation started on currently selected source
                 _SelectedSourceForTrajectory = getSelectedSource();
-                
                 
                 switch (getSelectedTrajectoryAsInteger()) {
                     case ZirkOscjuceAudioProcessorEditor::Circle :
@@ -167,8 +173,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         break;
                         
                     case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                        //to make sure that the pendulum movement goes inward (towards top of dome), transpose _TrajectoryInitialElevation to [0, 1/4], so that sin starts between [0, pi/2]
-                        //_TrajectoryInitialElevation -= .5;
                     case ZirkOscjuceAudioProcessorEditor::Spiral :
                         beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                         beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
@@ -177,19 +181,20 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     default:
                         break;
                 }
-
+                
+#if defined(DEBUG)
                 cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
                 cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
                 cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
                 cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
                 cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
+#endif
                 
             }
             
             if (_isSyncWTempo) {
                 
             } else {
-                
                 
                 //store current time
                 double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
@@ -235,15 +240,20 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             }
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
                             
+#if defined(DEBUG)
                             cout << "newElevation: " << newElevation;
                             cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
-                            
+#endif
                             break;
                             
                         case ZirkOscjuceAudioProcessorEditor::Spiral :
-                            newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                            newElevation = modf(_TrajectoryInitialElevation + newAzimuth, &integralPart);
-                            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                            newAzimuth = 10 * modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                            newAzimuth = newAzimuth * (1 - _TrajectoryInitialAzimuth) + _TrajectoryInitialAzimuth;
+                            
+                            newElevation = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                            newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+//                            newElevation = modf(_TrajectoryInitialElevation + newAzimuth, &integralPart);
+//                            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                             break;
@@ -251,15 +261,15 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         default:
                             break;
                     }
-                    
                 }
             }
             
             //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
         } else if (_WasPlayingOnPrevFrame){
             
+#if defined(DEBUG)
             cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
-            
+#endif
             switch (getSelectedTrajectoryAsInteger()) {
                 case ZirkOscjuceAudioProcessorEditor::Circle :
                     endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
