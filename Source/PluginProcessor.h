@@ -288,7 +288,7 @@ private:
     //! If the span are linked
     bool _isSpanLinked;
     //! Number of trajectories to draw in trajectory section
-    int _TrajectoryCount;
+    double _TrajectoryCount;
     //! Duration of trajectory movement
     double _TrajectoriesDuration;
     
