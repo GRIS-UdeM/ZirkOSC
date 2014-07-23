@@ -371,15 +371,28 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
 }
 
 void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
-    Point<float> screen;
+    Point<float> sourcePositionOnScreen;
     float HRAzim, HRElev;
+    int iXOffset = 0, iYOffset = 0;
     for (int i=0; i<getProcessor()->getNbrSources(); ++i) {
         HRAzim = PercentToHR(getProcessor()->getSources()[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
         HRElev = PercentToHR(getProcessor()->getSources()[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        screen = degreeToXy(Point<float> (HRAzim, HRElev));
-        g.drawEllipse(_ZirkOSC_Center_X + screen.getX()-4, _ZirkOSC_Center_Y + screen.getY()-4, 8, 8,2);
+        sourcePositionOnScreen = degreeToXy(Point<float> (HRAzim, HRElev));
+        
+        //draw source circle
+        g.drawEllipse(_ZirkOSC_Center_X + sourcePositionOnScreen.getX()-4, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()-4, 8, 8,2);
+        
+        if (sourcePositionOnScreen.getX() > ZirkOscjuceAudioProcessor::s_iDomeRadius - 25 ){
+            iXOffset = -20;
+            iYOffset = 10;
+        } else {
+            iXOffset = 4;
+            iYOffset = -2;
+        }
+        
+        //draw source labels
         if(!_isSourceBeingDragged){
-             g.drawText(String(getProcessor()->getSources()[i].getChannel()), _ZirkOSC_Center_X + screen.getX()+6, _ZirkOSC_Center_Y + screen.getY()-2, 40, 10, Justification::centred, false);
+             g.drawText(String(getProcessor()->getSources()[i].getChannel()), _ZirkOSC_Center_X + sourcePositionOnScreen.getX()+iXOffset, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()+iYOffset, 25, 10, Justification::centred, false);
         }
     }
 }
@@ -1092,6 +1105,12 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     }
     
     if(&_FirstSourceIdTextEditor == &textEditor ){
+        
+        //we only have room for 3 digits, so limit that field to 3 digits
+        if (intValue > 999 - 8 || intValue < -99 ){
+            return;
+        }
+        
         int newChannel = intValue;
     
         //set the ID of the first source to intValue, then set all subsequent source IDs to subsequent numbers
