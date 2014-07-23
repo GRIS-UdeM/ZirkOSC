@@ -50,6 +50,7 @@ _isOscActive(true),
 _isSpanLinked(true),
 _TrajectoryCount(0),
 _TrajectoriesDuration(0),
+_TrajectoriesDurationBuffer(0),
 _TrajectoryBeginTime(0),
 _TrajectorySingleBeginTime(0),
 _TrajectoryInitialAzimuth(0),
@@ -148,7 +149,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             //if we were not playing on previous frame, this is the first playing frame.
             if (!_WasPlayingOnPrevFrame){
                 
-                
                 //store begin time
                 _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
                 _TrajectorySingleBeginTime = _TrajectoryBeginTime;
@@ -157,7 +157,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
                 _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
                 
-                _TrajectorySingleLength = _TrajectoriesDuration / _TrajectoryCount;
+                _TrajectoriesDurationBuffer = _TrajectoriesDuration;
+                
+                _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
                 
                 _WasPlayingOnPrevFrame = true;
                 
@@ -201,7 +203,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
                 
                 //if we still need to write automation (currentTime smaller than begin time + whole duration
-                if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
+                if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
                     
                     //calculate new position
                     float newAzimuth, newElevation, theta;
@@ -267,6 +269,17 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         default:
                             break;
                     }
+                    
+                    //update duration field in gui
+                    _TrajectoriesDuration = _TrajectoriesDurationBuffer - (dCurrentTime - _TrajectoryBeginTime);
+                    cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << "\t\tdCurrentTime" << dCurrentTime << "\t\t_TrajectoryBeginTime" << _TrajectoryBeginTime << endl;
+                    if (modf(_TrajectoriesDuration / .5, &integralPart) < 0.05){
+                        if (_TrajectoriesDuration < 0.1){
+                            _TrajectoriesDuration = 0;
+                        }
+                        _RefreshGui=true;
+                    }
+                    
 #if defined(DEBUG)
                     cout << "newElevation: " << newElevation <<
                     "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation <<
@@ -276,7 +289,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 }
             }
             
-            //if we were playing on prev frame, this is the first frame after we stopped, so need to stop the automation... not sure this will work in logic
+            
+            
+            //if we were playing on prev frame, this is the first frame after we stopped
         } else if (_WasPlayingOnPrevFrame){
             
 #if defined(DEBUG)
@@ -298,7 +313,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             m_bCurrentlyPlaying = false;
             _WasPlayingOnPrevFrame = false;
             iProcessBlockCounter = 0;
-            
+
             //untoggle write trajectory button
             _isWriteTrajectory = false;
             _RefreshGui=true;

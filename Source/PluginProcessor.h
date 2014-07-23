@@ -292,6 +292,8 @@ private:
     //! Duration of trajectory movement
     double _TrajectoriesDuration;
     
+    double _TrajectoriesDurationBuffer;
+    
     
     double _TrajectoryBeginTime;
 
