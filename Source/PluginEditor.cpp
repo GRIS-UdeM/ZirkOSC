@@ -271,8 +271,6 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+60, iCurWidth-40, 20, &_ElevationSlider, &_ElevationLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+90, iCurWidth-40, 20, &_AzimuthSpanSlider, &_AzimuthSpanLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+120, iCurWidth-40, 20, &_ElevationSpanSlider, &_ElevationSpanLabel);
-    
-    
 
     //combo box
     //_MovementConstraintComboBox.setBounds(100, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
@@ -1132,8 +1130,9 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     }
     
     if(&_TrajectoryCountTextEditor == &textEditor ){
-        if (intValue > 0 && intValue < 10000){
-            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, intValue);
+        double doubleValue = textEditor.getText().getDoubleValue();
+        if (doubleValue > 0 && doubleValue < 10000){
+            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
         }
         _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     }

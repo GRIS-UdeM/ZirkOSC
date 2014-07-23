@@ -7,7 +7,7 @@
 #ifndef DEBUG
 #define DEBUG
 #endif
-//#undef DEBUG
+#undef DEBUG
 
 //lo_send(mOsc, "/pan/az", "i", ch);
 
