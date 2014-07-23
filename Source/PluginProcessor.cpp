@@ -7,7 +7,7 @@
 #ifndef DEBUG
 #define DEBUG
 #endif
-#undef DEBUG
+//#undef DEBUG
 
 //lo_send(mOsc, "/pan/az", "i", ch);
 
@@ -50,8 +50,8 @@ _isOscActive(true),
 _isSpanLinked(true),
 _TrajectoryCount(0),
 _TrajectoriesDuration(0),
-_TrajectoryAllDrawn(false),
 _TrajectoryBeginTime(0),
+_TrajectorySingleBeginTime(0),
 _TrajectoryInitialAzimuth(0),
 _TrajectoryInitialElevation(0),
 _TrajectorySingleLength(0),
@@ -151,6 +151,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
                 //store begin time
                 _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                _TrajectorySingleBeginTime = _TrajectoryBeginTime;
                 
                 //store initial parameter value
                 _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
@@ -203,7 +204,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDuration)){
                     
                     //calculate new position
-                    float newAzimuth, newElevation;
+                    float newAzimuth, newElevation, theta;
                     float integralPart; //useless here
                     switch (getSelectedTrajectoryAsInteger()) {
                             
@@ -217,7 +218,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         case ZirkOscjuceAudioProcessorEditor::Pendulum :
                             
                             newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
-                            //newElevation -= .5;
                             newElevation = abs( sin(newElevation * 2 * M_PI) );
                             
                             //transpose newElevation, which is [0,1] to be in [_TrajectoryInitialElevation, 1]
@@ -239,21 +239,27 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                 _TrajectoryInitialAzimuth += getSmallAlternatingValue();
                             }
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
-                            
-#if defined(DEBUG)
-                            cout << "newElevation: " << newElevation;
-                            cout << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
-#endif
                             break;
                             
                         case ZirkOscjuceAudioProcessorEditor::Spiral :
-                            newAzimuth = 10 * modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                            newAzimuth = newAzimuth * (1 - _TrajectoryInitialAzimuth) + _TrajectoryInitialAzimuth;
                             
-                            newElevation = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                            newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
-//                            newElevation = modf(_TrajectoryInitialElevation + newAzimuth, &integralPart);
-//                            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+//                            newAzimuth = modf((_TrajectoryInitialAzimuth + dCurrentTime - _TrajectorySingleBeginTime) / _TrajectorySingleLength, &integralPart); //result from this modf is theta [0,1]
+//                            newElevation = newAzimuth * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+//                            
+//                            if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
+//                                _TrajectorySingleBeginTime = dCurrentTime;
+//                                m_bTrajectoryElevationDecreasing = true;
+//                            }
+//                            if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
+//                                m_bTrajectoryElevationDecreasing = false;
+//                            }
+                            
+                            
+                            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top, and is very slow in DP (I think?)
+                            theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart); //result from this modf is theta [0,1]
+                            newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                          //this is like adding a to theta
+                            newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                             break;
@@ -261,6 +267,12 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         default:
                             break;
                     }
+#if defined(DEBUG)
+                    cout << "newElevation: " << newElevation <<
+                    "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation <<
+                    "\t\t\tnewAzimuth: " << newAzimuth <<
+                    "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+#endif
                 }
             }
             
@@ -285,7 +297,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             }
             m_bCurrentlyPlaying = false;
             _WasPlayingOnPrevFrame = false;
-            _TrajectoryAllDrawn = false;
             iProcessBlockCounter = 0;
             
             //untoggle write trajectory button

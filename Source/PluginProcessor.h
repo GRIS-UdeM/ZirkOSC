@@ -292,10 +292,10 @@ private:
     //! Duration of trajectory movement
     double _TrajectoriesDuration;
     
-    //! whether we drew the whole trajectory
-    bool _TrajectoryAllDrawn;
     
     double _TrajectoryBeginTime;
+
+    double _TrajectorySingleBeginTime;
     
     float _TrajectoryInitialAzimuth;
     
