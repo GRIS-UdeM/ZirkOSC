@@ -53,7 +53,7 @@ namespace LiveConstantEditor
     inline void setFromString (double& v,         const String& s)    { v = parseDouble (s); }
     inline void setFromString (float& v,          const String& s)    { v = (float) parseDouble (s); }
     inline void setFromString (String& v,         const String& s)    { v = s; }
-    inline void setFromString (Colour& v,         const String& s)    { v = Colour ((int) parseInt (s)); }
+    inline void setFromString (Colour& v,         const String& s)    { v = Colour ((uint32) parseInt (s)); }
 
     template <typename Type>
     inline String getAsString (const Type& v, bool)              { return String (v); }
@@ -70,7 +70,7 @@ namespace LiveConstantEditor
     template <typename Type>
     inline String getAsCode (Type& v, bool preferHex)       { return getAsString (v, preferHex); }
     inline String getAsCode (Colour v, bool)                { return "Colour (0x" + String::toHexString ((int) v.getARGB()).paddedLeft ('0', 8) + ")"; }
-    inline String getAsCode (const String& v, bool)         { return "\"" + v + "\""; }
+    inline String getAsCode (const String& v, bool)         { return CppTokeniserFunctions::addEscapeChars(v).quoted(); }
     inline String getAsCode (const char* v, bool)           { return getAsCode (String (v), false); }
 
     template <typename Type>
@@ -288,7 +288,7 @@ namespace LiveConstantEditor
     @endcode
  */
  #define JUCE_LIVE_CONSTANT(initialValue) \
-    (LiveConstantEditor::getValue (__FILE__, __LINE__ - 1, initialValue))
+    (juce::LiveConstantEditor::getValue (__FILE__, __LINE__ - 1, initialValue))
 #else
  #define JUCE_LIVE_CONSTANT(initialValue) \
     (initialValue)

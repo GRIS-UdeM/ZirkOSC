@@ -1285,7 +1285,8 @@ public:
                     handleUpdateNowIfNeeded();
 
                     for (int i = ComponentPeer::getNumPeers(); --i >= 0;)
-                        ComponentPeer::getPeer(i)->performAnyPendingRepaintsNow();
+                        if (ComponentPeer* p = ComponentPeer::getPeer(i))
+                            p->performAnyPendingRepaintsNow();
                 }
                 break;
 
@@ -2232,10 +2233,11 @@ private:
         #pragma warning (push)
         #pragma warning (disable: 4244)
 
-        originalWndProc = (void*) GetWindowLongPtr (pluginHWND, GWLP_WNDPROC);
-
         if (! pluginWantsKeys)
+        {
+            originalWndProc = (void*) GetWindowLongPtr (pluginHWND, GWLP_WNDPROC);
             SetWindowLongPtr (pluginHWND, GWLP_WNDPROC, (LONG_PTR) vstHookWndProc);
+        }
 
         #pragma warning (pop)
 
@@ -2317,25 +2319,23 @@ private:
     {
         if (isOpen)
         {
-           #if ! (JUCE_MAC && JUCE_SUPPORT_CARBON)
             JUCE_VST_LOG ("Closing VST UI: " + plugin.getName());
             isOpen = false;
-
             dispatch (effEditClose, 0, 0, 0, 0);
             stopTimer();
 
            #if JUCE_WINDOWS
             #pragma warning (push)
             #pragma warning (disable: 4244)
-            if (pluginHWND != 0 && IsWindow (pluginHWND))
+            if (originalWndProc != 0 && pluginHWND != 0 && IsWindow (pluginHWND))
                 SetWindowLongPtr (pluginHWND, GWLP_WNDPROC, (LONG_PTR) originalWndProc);
             #pragma warning (pop)
 
+            originalWndProc = 0;
             pluginHWND = 0;
            #elif JUCE_LINUX
             pluginWindow = 0;
             pluginProc = 0;
-           #endif
            #endif
         }
     }
