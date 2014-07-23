@@ -289,6 +289,9 @@ private:
     bool _isSpanLinked;
     //! Number of trajectories to draw in trajectory section
     double _TrajectoryCount;
+    
+    bool _TrajectoryIsDirectionReversed;
+    
     //! Duration of trajectory movement
     double _TrajectoriesDuration;
     

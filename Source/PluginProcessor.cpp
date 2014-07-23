@@ -49,6 +49,7 @@ _OscPortIpadIncoming("10114"),
 _isOscActive(true),
 _isSpanLinked(true),
 _TrajectoryCount(0),
+_TrajectoryIsDirectionReversed(false),
 _TrajectoriesDuration(0),
 _TrajectoriesDurationBuffer(0),
 _TrajectoryBeginTime(0),
@@ -159,7 +160,15 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
                 _TrajectoriesDurationBuffer = _TrajectoriesDuration;
                 
-                _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
+                if (_TrajectoryCount < 0){
+                    _TrajectoryIsDirectionReversed = true;
+                    _TrajectorySingleLength = _TrajectoriesDurationBuffer / -_TrajectoryCount;
+                } else {
+                    _TrajectoryIsDirectionReversed = false;
+                    _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
+                }
+                
+
                 
                 _WasPlayingOnPrevFrame = true;
                 
@@ -212,7 +221,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             
                         case ZirkOscjuceAudioProcessorEditor::Circle :
                             newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                            if (_TrajectoryIsDirectionReversed){
+                                newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                            } else {
+                                newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                            }
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
                             break;
                             
@@ -220,7 +233,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         case ZirkOscjuceAudioProcessorEditor::Pendulum :
                             
                             newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
-                            newElevation = abs( sin(newElevation * 2 * M_PI) );
+                            if (_TrajectoryIsDirectionReversed){
+                                newElevation = 1 - abs( sin(newElevation * 2 * M_PI) );
+                            } else {
+                                newElevation = abs( sin(newElevation * 2 * M_PI) );
+                            }
                             
                             //transpose newElevation, which is [0,1] to be in [_TrajectoryInitialElevation, 1]
                             newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
@@ -244,22 +261,14 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             break;
                             
                         case ZirkOscjuceAudioProcessorEditor::Spiral :
-                            
-//                            newAzimuth = modf((_TrajectoryInitialAzimuth + dCurrentTime - _TrajectorySingleBeginTime) / _TrajectorySingleLength, &integralPart); //result from this modf is theta [0,1]
-//                            newElevation = newAzimuth * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
-//                            
-//                            if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
-//                                _TrajectorySingleBeginTime = dCurrentTime;
-//                                m_bTrajectoryElevationDecreasing = true;
-//                            }
-//                            if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
-//                                m_bTrajectoryElevationDecreasing = false;
-//                            }
-                            
-                            
                             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top, and is very slow in DP (I think?)
                             theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart); //result from this modf is theta [0,1]
-                            newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                          //this is like adding a to theta
+                            if (_TrajectoryIsDirectionReversed){
+                                newAzimuth = modf(_TrajectoryInitialAzimuth - theta, &integralPart);                          //this is like adding a to theta
+                            } else {
+                                newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                          //this is like adding a to theta
+                            }                          
+
                             newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
 
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
@@ -272,9 +281,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     
                     //update duration field in gui
                     _TrajectoriesDuration = _TrajectoriesDurationBuffer - (dCurrentTime - _TrajectoryBeginTime);
-                    cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << "\t\tdCurrentTime" << dCurrentTime << "\t\t_TrajectoryBeginTime" << _TrajectoryBeginTime << endl;
                     if (modf(_TrajectoriesDuration / .5, &integralPart) < 0.05){
-                        if (_TrajectoriesDuration < 0.1){
+                        if (_TrajectoriesDuration < 0.05){
                             _TrajectoriesDuration = 0;
                         }
                         _RefreshGui=true;
