@@ -242,15 +242,20 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     }
     
     //------------ LABELS ON RIGHT SIDE ------------
-    setLabelAndTextEditorPosition(iCurWidth-80 , 10, 80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 60, 80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 110, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 160, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 210, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 260, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
+    setLabelAndTextEditorPosition(iCurWidth-80 , 5, 80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
+    setLabelAndTextEditorPosition(iCurWidth-80 , 55, 80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
+    setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
+    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
+    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
+    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
     // OSC button
-    _OscActiveButton.setBounds(iCurWidth-80, 310, 80, 30);
+    _OscActiveButton.setBounds(iCurWidth-80, 300, 80, 25);
+    
+    // link button
+    //_LinkSpanButton.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+146, 80, 30);
+    _LinkSpanButton.setBounds(iCurWidth-80, 325, 80, 25);
+
     
     //------------ WALLCIRCLE ------------
     _ZirkOSC_Center_X = (iCurWidth -80)/2;
@@ -267,11 +272,11 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+90, iCurWidth-40, 20, &_AzimuthSpanSlider, &_AzimuthSpanLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+120, iCurWidth-40, 20, &_ElevationSpanSlider, &_ElevationSpanLabel);
     
-    // link button
-    _LinkSpanButton.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+146, 80, 30);
+    
 
     //combo box
-    _MovementConstraintComboBox.setBounds(100, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
+    //_MovementConstraintComboBox.setBounds(100, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
+    _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
     
     _TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
     
