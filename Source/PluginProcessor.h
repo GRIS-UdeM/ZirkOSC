@@ -296,7 +296,8 @@ private:
     double _TrajectoriesDuration;
     
     double _TrajectoriesDurationBuffer;
-    
+
+    double _TrajectoriesPhi;
     
     double _TrajectoryBeginTime;
 
