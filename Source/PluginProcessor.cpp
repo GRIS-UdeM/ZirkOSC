@@ -201,21 +201,28 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         
                     case ZirkOscjuceAudioProcessorEditor::Pendulum :
                     case ZirkOscjuceAudioProcessorEditor::Spiral :
-                        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                        if (m_iSelectedMovementConstraint == Independant){
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                            beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                        } else {
+                            for(int i = 0;i < getNbrSources(); ++i){
+                                beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (i*5));
+                                beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (i*5));
+                            }
+                        }
                         break;
                         
                     default:
                         break;
                 }
                 
-//#if defined(DEBUG)
+#if defined(DEBUG)
                 cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
                 cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
                 cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
                 cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
                 cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
-//#endif
+#endif
                 
             }
             
@@ -248,25 +255,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             } else {
                                 SoundSource newLocationSource(newAzimuth, _TrajectoryInitialElevation);
                                 Point<float> newLocation = newLocationSource.getPositionXY();
-                                ZirkOscjuceAudioProcessorEditor* editor = (ZirkOscjuceAudioProcessorEditor*) getEditor();
-                                
-                                //if we get here, we're not in independent mode
-                                if (m_iSelectedMovementConstraint == FixedAngles){
-                                    editor->moveFixedAngles(newLocation);
-                                }
-                                else if (m_iSelectedMovementConstraint == FixedRadius){
-                                    editor->moveCircularWithFixedRadius(newLocation);
-                                }
-                                else if (m_iSelectedMovementConstraint == FullyFixed){
-                                    editor->moveFullyFixed(newLocation);
-                                }
-                                else if (m_iSelectedMovementConstraint == DeltaLocked){
-                                    Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getPositionXY();
-                                    editor->moveSourcesWithDelta(DeltaMove);
-                                }
-                                else if (m_iSelectedMovementConstraint == Circular){
-                                    editor->moveCircular(newLocation);
-                                }
+                                moveTrajectoriesWithConstraints(newLocation);
                             }
                             break;
                             
@@ -281,10 +270,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             } else {
                                 newElevation = abs( sin(newElevation * 2 * M_PI) );                     //only positive sin wave
                             }
-                            
-                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
-                            
+                           
                             //when we get to the top of the dome, we need to get back down
+#warning TODO ideally though we would not mess with _TrajectoryInitialAzimuth but use a buffered version
                             if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
                                 (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
                                 m_bTrajectoryElevationDecreasing = true;
@@ -297,7 +285,16 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             if (host.isLogic()){
                                 _TrajectoryInitialAzimuth += getSmallAlternatingValue();
                             }
-                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                            
+                            if (m_iSelectedMovementConstraint == Independant){
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                            } else {
+                                SoundSource newLocationSource(_TrajectoryInitialAzimuth, newElevation);
+                                Point<float> newLocation = newLocationSource.getPositionXY();
+                                moveTrajectoriesWithConstraints(newLocation);
+                            }
+                            
                             break;
                             
                         case ZirkOscjuceAudioProcessorEditor::Spiral :
@@ -311,8 +308,15 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
                             newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
 
-                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
-                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                            if (m_iSelectedMovementConstraint == Independant){
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                            } else {
+                                SoundSource newLocationSource(newAzimuth, newElevation);
+                                Point<float> newLocation = newLocationSource.getPositionXY();
+                                moveTrajectoriesWithConstraints(newLocation);
+                            }
+                            
                             break;
                             
                         default:
@@ -357,8 +361,15 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     break;
                 case ZirkOscjuceAudioProcessorEditor::Pendulum :
                 case ZirkOscjuceAudioProcessorEditor::Spiral :
-                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                    if (m_iSelectedMovementConstraint == Independant){
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+                    } else {
+                        for(int i = 0;i < getNbrSources(); ++i){
+                            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (i*5));
+                            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (i*5));
+                        }
+                    }
                     break;
                     
                 default:
@@ -373,6 +384,28 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             _RefreshGui=true;
         }
         
+    }
+}
+
+void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &newLocation){
+
+    ZirkOscjuceAudioProcessorEditor* editor = (ZirkOscjuceAudioProcessorEditor*) getEditor();
+    //if we get here, we're not in independent mode
+    if (m_iSelectedMovementConstraint == FixedAngles){
+        editor->moveFixedAngles(newLocation);
+    }
+    else if (m_iSelectedMovementConstraint == FixedRadius){
+        editor->moveCircularWithFixedRadius(newLocation);
+    }
+    else if (m_iSelectedMovementConstraint == FullyFixed){
+        editor->moveFullyFixed(newLocation);
+    }
+    else if (m_iSelectedMovementConstraint == DeltaLocked){
+        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getPositionXY();
+        editor->moveSourcesWithDelta(DeltaMove);
+    }
+    else if (m_iSelectedMovementConstraint == Circular){
+        editor->moveCircular(newLocation);
     }
 }
 
