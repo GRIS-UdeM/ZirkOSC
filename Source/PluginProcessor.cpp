@@ -155,16 +155,24 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             
             //if we were not playing on previous frame, this is the first playing frame.
             if (!_WasPlayingOnPrevFrame){
-                
+
                 //store begin time
                 _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
                 _TrajectorySingleBeginTime = _TrajectoryBeginTime;
+
+                
+                if (_isSyncWTempo) {
+ 
+                    double dMesureLength = _CurrentPlayHeadInfo.timeSigNumerator * (4 / _CurrentPlayHeadInfo.timeSigDenominator) *  60 / _CurrentPlayHeadInfo.bpm;
+                    
+                     _TrajectoriesDurationBuffer = _TrajectoriesDuration * dMesureLength;
+                } else {
+                    _TrajectoriesDurationBuffer = _TrajectoriesDuration;
+                }
                 
                 //store initial parameter value
                 _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
                 _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
-                
-                _TrajectoriesDurationBuffer = _TrajectoriesDuration;
                 
                 //if trajectory count is negative, toggle _TrajectoryIsDirectionReversed but still use positive value in calculations
                 if (_TrajectoryCount < 0){
@@ -229,120 +237,118 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
             }
             
-            if (_isSyncWTempo) {
+            
+            
+            //store current time
+            double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
+            
+            //if we still need to write automation (currentTime smaller than begin time + whole duration
+            if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
                 
-            } else {
+                //calculate new position
+                float newAzimuth, newElevation, theta;
+                float integralPart; //useless here
                 
-                //store current time
-                double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
-                
-                //if we still need to write automation (currentTime smaller than begin time + whole duration
-                if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
-                    
-                    //calculate new position
-                    float newAzimuth, newElevation, theta;
-                    float integralPart; //useless here
-
-                    switch (getSelectedTrajectoryAsInteger()) {
-                            
-                        case ZirkOscjuceAudioProcessorEditor::Circle :
-                            newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-                            if (_TrajectoryIsDirectionReversed){
-                                newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
-                            } else {
-                                newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
-                            }
-
-                            if (m_iSelectedMovementConstraint == Independant){
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
-                            } else {
-                                SoundSource newLocationSource(newAzimuth, _TrajectoryInitialElevation);
-                                Point<float> newLocation = newLocationSource.getPositionXY();
-                                moveTrajectoriesWithConstraints(newLocation);
-                            }
-                            break;
-                            
-                            
-                        case ZirkOscjuceAudioProcessorEditor::Pendulum :
-                            
-                            //this just grows linearly with time
-                            newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
-                            
-                            if (_TrajectoryIsDirectionReversed){
-                                newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhi) );  //only positive cos wave with phase _TrajectoriesPhi
-                            } else {
-                                newElevation = abs( sin(newElevation * 2 * M_PI) );                     //only positive sin wave
-                            }
-                           
-                            //when we get to the top of the dome, we need to get back down
-#warning TODO ideally though we would not mess with _TrajectoryInitialAzimuth but use a buffered version
-                            if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
-                                (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
-                                m_bTrajectoryElevationDecreasing = true;
-                            }
-                            //reset flag m_bTrajectoryElevationDecreasing as we go down
-                            if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
-                                m_bTrajectoryElevationDecreasing = false;
-                            }
-                            
-                            if (host.isLogic()){
-                                _TrajectoryInitialAzimuth += getSmallAlternatingValue();
-                            }
-                            
-                            if (m_iSelectedMovementConstraint == Independant){
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
-                            } else {
-                                SoundSource newLocationSource(_TrajectoryInitialAzimuth, newElevation);
-                                Point<float> newLocation = newLocationSource.getPositionXY();
-                                moveTrajectoriesWithConstraints(newLocation);
-                            }
-                            
-                            break;
-                            
-                        case ZirkOscjuceAudioProcessorEditor::Spiral :
-                            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top, and is very slow in DP (I think?)
-                            theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart); //result from this modf is theta [0,1]
-                            if (_TrajectoryIsDirectionReversed){
-                                newAzimuth = modf(_TrajectoryInitialAzimuth - theta, &integralPart);                          //this is like adding a to theta
-                            } else {
-                                newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                          //this is like adding a to theta
-                            }
-
-                            newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
-
-                            if (m_iSelectedMovementConstraint == Independant){
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
-                                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
-                            } else {
-                                SoundSource newLocationSource(newAzimuth, newElevation);
-                                Point<float> newLocation = newLocationSource.getPositionXY();
-                                moveTrajectoriesWithConstraints(newLocation);
-                            }
-                            
-                            break;
-                            
-                        default:
-                            break;
-                    }
-                    
-                    //update duration field in gui
-                    _TrajectoriesDuration = _TrajectoriesDurationBuffer - (dCurrentTime - _TrajectoryBeginTime);
-                    if (modf(_TrajectoriesDuration / .5, &integralPart) < 0.05){
-                        if (_TrajectoriesDuration < 0.05){
-                            _TrajectoriesDuration = 0;
+                switch (getSelectedTrajectoryAsInteger()) {
+                        
+                    case ZirkOscjuceAudioProcessorEditor::Circle :
+                        newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                        if (_TrajectoryIsDirectionReversed){
+                            newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                        } else {
+                            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
                         }
-                        _RefreshGui=true;
-                    }
-                    
-#if defined(DEBUG)
-                    cout<< "newElevation: " << newElevation
-                        << "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation
-                        << "\t\t\tnewAzimuth: " << newAzimuth
-                        << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
-#endif
+                        
+                        if (m_iSelectedMovementConstraint == Independant){
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+                        } else {
+                            SoundSource newLocationSource(newAzimuth, _TrajectoryInitialElevation);
+                            Point<float> newLocation = newLocationSource.getPositionXY();
+                            moveTrajectoriesWithConstraints(newLocation);
+                        }
+                        break;
+                        
+                        
+                    case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                        
+                        //this just grows linearly with time
+                        newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
+                        
+                        if (_TrajectoryIsDirectionReversed){
+                            newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhi) );  //only positive cos wave with phase _TrajectoriesPhi
+                        } else {
+                            newElevation = abs( sin(newElevation * 2 * M_PI) );                     //only positive sin wave
+                        }
+                        
+                        //when we get to the top of the dome, we need to get back down
+#warning TODO ideally though we would not mess with _TrajectoryInitialAzimuth but use a buffered version
+                        if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
+                            (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                            m_bTrajectoryElevationDecreasing = true;
+                        }
+                        //reset flag m_bTrajectoryElevationDecreasing as we go down
+                        if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
+                            m_bTrajectoryElevationDecreasing = false;
+                        }
+                        
+                        if (host.isLogic()){
+                            _TrajectoryInitialAzimuth += getSmallAlternatingValue();
+                        }
+                        
+                        if (m_iSelectedMovementConstraint == Independant){
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                        } else {
+                            SoundSource newLocationSource(_TrajectoryInitialAzimuth, newElevation);
+                            Point<float> newLocation = newLocationSource.getPositionXY();
+                            moveTrajectoriesWithConstraints(newLocation);
+                        }
+                        
+                        break;
+                        
+                    case ZirkOscjuceAudioProcessorEditor::Spiral :
+                        //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top, and is very slow in DP (I think?)
+                        theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart); //result from this modf is theta [0,1]
+                        if (_TrajectoryIsDirectionReversed){
+                            newAzimuth = modf(_TrajectoryInitialAzimuth - theta, &integralPart);                          //this is like adding a to theta
+                        } else {
+                            newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                          //this is like adding a to theta
+                        }
+                        
+                        newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                        
+                        if (m_iSelectedMovementConstraint == Independant){
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                        } else {
+                            SoundSource newLocationSource(newAzimuth, newElevation);
+                            Point<float> newLocation = newLocationSource.getPositionXY();
+                            moveTrajectoriesWithConstraints(newLocation);
+                        }
+                        
+                        break;
+                        
+                    default:
+                        break;
                 }
+                
+                //update duration field in gui
+                _TrajectoriesDuration = _TrajectoriesDurationBuffer - (dCurrentTime - _TrajectoryBeginTime);
+                if (modf(_TrajectoriesDuration / .5, &integralPart) < 0.05){
+                    if (_TrajectoriesDuration < 0.05){
+                        _TrajectoriesDuration = 0;
+                    }
+                    _RefreshGui=true;
+                }
+                
+#if defined(DEBUG)
+                cout<< "newElevation: " << newElevation
+                << "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation
+                << "\t\t\tnewAzimuth: " << newAzimuth
+                << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+#endif
             }
+            
             
             
             
@@ -482,7 +488,7 @@ bool ZirkOscjuceAudioProcessor::silenceInProducesSilenceOut() const
 
 int ZirkOscjuceAudioProcessor::getNumPrograms()
 {
-    return 0;
+    return 1;
 }
 
 int ZirkOscjuceAudioProcessor::getCurrentProgram()
