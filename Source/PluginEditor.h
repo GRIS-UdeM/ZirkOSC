@@ -42,16 +42,7 @@ public:
     //! called when window is resized
     void resized() override;
     
-    //! Enum of the movement constraints
-    enum AllConstraints {
-        Independant = 1,/*!< Independant mode */
-        Circular,        /*!< Circular */
-        FixedRadius,    /*!< All sources' radius are fixed */
-        FixedAngles,    /*!< Angle between sources are fixed */
-        FullyFixed,     /*!< FixedRadius and fixedAngles */
-        DeltaLocked,    /*!< Delta lock mode */
-        TotalNumberConstraints
-    };
+
     
     //! Enum of the programmed trajectories
     enum AllTrajectories {
@@ -270,8 +261,8 @@ float PercentToHR(float , float , float );
 //! Conversion of human readable value to percent value
 float HRToPercent(float , float , float );
 //! Conversion of percent value to integer. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-int PercentToInt(float percent, int max=ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints);
+int PercentToInt(float percent, int max=TotalNumberConstraints);
 //! Conversion of integer value to percent. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-float IntToPercent(int integer, int max=ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints);
+float IntToPercent(int integer, int max=TotalNumberConstraints);
 
 #endif  // __PLUGINEDITOR_H_4624BC76__
