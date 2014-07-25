@@ -1094,7 +1094,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         }
     }
     
-    if(&_FirstSourceIdTextEditor == &textEditor ){
+    else if(&_FirstSourceIdTextEditor == &textEditor ){
         
         //we only have room for 3 digits, so limit that field to 3 digits
         if (intValue > 999 - 8 || intValue < -99 ){
@@ -1110,13 +1110,13 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
        ourProcessor->sendOSCValues();
     }
     
-    if(&_ZkmOscPortTextEditor == &textEditor ){
+    else if(&_ZkmOscPortTextEditor == &textEditor ){
         int newPort = intValue;
         ourProcessor->changeZirkoniumOSCPort(newPort);
         _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     }
     
-    if(&_TrajectoryCountTextEditor == &textEditor ){
+    else if(&_TrajectoryCountTextEditor == &textEditor ){
         double doubleValue = textEditor.getText().getDoubleValue();
         if ((doubleValue > 0 && doubleValue < 10000) || (doubleValue < 0 && doubleValue > -10000)){
             ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
@@ -1124,7 +1124,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     }
     
-    if(&_TrajectoryDurationTextEditor == &textEditor){
+    else if(&_TrajectoryDurationTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue > 0 && doubleValue < 10000){
             ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
@@ -1132,7 +1132,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     }
     
-    if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
+    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
         int newIpadOutgoingPort = intValue;
         String curIpAddress = ourProcessor->getOscAddressIpad();
         
@@ -1141,7 +1141,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     }
     
-    if (&_IpadIpAddressTextEditor == &textEditor) {
+    else if (&_IpadIpAddressTextEditor == &textEditor) {
         String newIpAddress = text;
         int curOscOutgoingPort = ourProcessor->getOscPortIpadOutgoing().getIntValue();
         
@@ -1150,7 +1150,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
     }
     
-    if (&_IpadIncomingOscPortTextEditor == &textEditor) {
+    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {
         int newIpadIncomingPort = intValue;
         ourProcessor->changeOSCReceiveIpad(newIpadIncomingPort);
         _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
