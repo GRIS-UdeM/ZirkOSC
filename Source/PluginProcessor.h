@@ -257,6 +257,8 @@ private:
     int _NbrSources;
     //! float ID of the selected movement constraint
     float _SelectedMovementConstraint;
+    //! int ID of the selected movement constraint IMPORTANT: need to be set manually whenever float version of parameter is changed
+    int m_iSelectedMovementConstraint;
     //! float ID of the selected trajectory
     float _SelectedTrajectory;
     //! Tab position of the selected source

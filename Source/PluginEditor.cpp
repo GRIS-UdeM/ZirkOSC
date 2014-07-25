@@ -754,7 +754,6 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
                 SoundSource newLocationSource(curLocationSource.getAzimuth(), percentValue);
                 newLocation = newLocationSource.getPositionXY();
             }
-
         }
         
         //if we get here, we're not in independent mode

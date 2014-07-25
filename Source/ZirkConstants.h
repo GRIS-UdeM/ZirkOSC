@@ -68,4 +68,15 @@ const float ZirkOSC_MarksAngles[] =
 };
 const int ZirkOSC_NumMarks = sizeof(ZirkOSC_MarksAngles)/sizeof(ZirkOSC_MarksAngles[0]);
 
+//! Enum of the movement constraints
+enum AllConstraints {
+    Independant = 1,/*!< Independant mode */
+    Circular,        /*!< Circular */
+    FixedRadius,    /*!< All sources' radius are fixed */
+    FixedAngles,    /*!< Angle between sources are fixed */
+    FullyFixed,     /*!< FixedRadius and fixedAngles */
+    DeltaLocked,    /*!< Delta lock mode */
+    TotalNumberConstraints
+};
+
 #endif
