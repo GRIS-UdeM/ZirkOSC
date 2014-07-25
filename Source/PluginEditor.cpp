@@ -128,6 +128,8 @@ _TrajectoryComboBox("Trajectory")
     
 
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
+    m_bUseIpad = ourProcessor-> m_bUseIpad;
    
     //---------- TOGGLE BUTTONS ----------
     addAndMakeVisible(&_LinkSpanButton);
@@ -203,9 +205,11 @@ _TrajectoryComboBox("Trajectory")
     _GainSlider.addListener(this);
     _ElevationSpanSlider.addListener(this);
     _AzimuthSpanSlider.addListener(this);
-    _IpadOutgoingOscPortTextEditor.addListener(this);
-    _IpadIncomingOscPortTextEditor.addListener(this);
-    _IpadIpAddressTextEditor.addListener(this);
+    if (m_bUseIpad){
+        _IpadOutgoingOscPortTextEditor.addListener(this);
+        _IpadIncomingOscPortTextEditor.addListener(this);
+        _IpadIpAddressTextEditor.addListener(this);
+    }
     _TrajectoryComboBox.addListener(this);
     _TrajectoryCountTextEditor.addListener(this);
     _TrajectoryDurationTextEditor.addListener(this);
@@ -558,9 +562,6 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
-    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
-    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
-    _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
     _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraintAsInteger());
     _TrajectoryComboBox.setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
@@ -569,6 +570,12 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
     _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+
+    
+    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
+    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
+    _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
+
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){

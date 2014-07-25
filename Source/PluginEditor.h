@@ -84,7 +84,7 @@ private:
     //! Called when a button is clicked
     void buttonClicked (Button* button);
     
-
+    bool m_bUseIpad;
 
     
     //METHODS FOR DEALING WITH DIRECT WALLCIRCLE INTERACTIONS
