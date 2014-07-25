@@ -717,84 +717,65 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     int selectedSource = ourProcessor->getSelectedSource();
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     float percentValue=0;
+    SoundSource curLocationSource = ourProcessor->getSources()[selectedSource];
+    Point<float> newLocation;
     
     if (slider == &_GainSlider) {
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) _GainSlider.getValue());
     }
-    else if (slider == &_AzimuthSlider) {
-        //figure out where the slider should move the point
-        percentValue = HRToPercent((float) _AzimuthSlider.getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-        
+    
+    else if (slider == &_AzimuthSlider || slider == &_ElevationSlider) {
+
         //get selected movement constraint
         int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
         
-        //if no movement constraint
-        if (selectedConstraint == Independant){
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (selectedSource*5), percentValue);
+        if (slider == &_AzimuthSlider ){
+            //figure out where the slider should move the point
+            percentValue = HRToPercent((float) _AzimuthSlider.getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+            if (selectedConstraint == Independant){
+                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (selectedSource*5), percentValue);
+                return;
+            }
+            //if we get here, we're not in independent mode
+            else {
+                //calculate new location point using current location and new value of the slider
+                SoundSource newLocationSource(percentValue, curLocationSource.getElevation());
+                newLocation = newLocationSource.getPositionXY();
+            }
+        } else {
+            percentValue = HRToPercent((float) _ElevationSlider.getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+            if (selectedConstraint == Independant){
+                ourProcessor->setParameterNotifyingHost  (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (selectedSource * 5), percentValue);
+                return;
+            }
+            //if we get here, we're not in independent mode
+            else {
+                //calculate new location point using current location and new value of the slider
+                SoundSource newLocationSource(curLocationSource.getAzimuth(), percentValue);
+                newLocation = newLocationSource.getPositionXY();
+            }
+
         }
-        //else, movement is constrained
-        else {
-            
-            //calculate new location point using current location and new value of the slider
-            SoundSource curLocationSource = ourProcessor->getSources()[selectedSource];
-            SoundSource newLocationSource(percentValue, curLocationSource.getElevation());
-            Point<float> newLocation = newLocationSource.getPositionXY();
-            
-            if (selectedConstraint == FixedAngles){
-                moveFixedAngles(newLocation);
-            }
-            else if (selectedConstraint == FixedRadius){
-                moveCircularWithFixedRadius(newLocation);
-            }
-            else if (selectedConstraint == FullyFixed){
-                moveFullyFixed(newLocation);
-            }
-            else if (selectedConstraint == DeltaLocked){
-                Point<float> DeltaMove = newLocation - ourProcessor->getSources()[selectedSource].getPositionXY();
-                moveSourcesWithDelta(DeltaMove);
-            }
-            else if (selectedConstraint == Circular){
-                moveCircular(newLocation);
-            }
-            //repaint();
+        
+        //if we get here, we're not in independent mode
+        if (selectedConstraint == FixedAngles){
+            moveFixedAngles(newLocation);
+        }
+        else if (selectedConstraint == FixedRadius){
+            moveCircularWithFixedRadius(newLocation);
+        }
+        else if (selectedConstraint == FullyFixed){
+            moveFullyFixed(newLocation);
+        }
+        else if (selectedConstraint == DeltaLocked){
+            Point<float> DeltaMove = newLocation - ourProcessor->getSources()[selectedSource].getPositionXY();
+            moveSourcesWithDelta(DeltaMove);
+        }
+        else if (selectedConstraint == Circular){
+            moveCircular(newLocation);
         }
     }
-    else if (slider == &_ElevationSlider) {
-        
-        percentValue = HRToPercent((float) _ElevationSlider.getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        
-        //if no movement constraint
-        int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
-        if (selectedConstraint == Independant){
-            ourProcessor->setParameterNotifyingHost  (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (selectedSource * 5), percentValue);
-        }
-        //else, movement is constrained
-        else {
-            
-            //calculate new location point using current location and new value of the slider
-            SoundSource curLocationSource = ourProcessor->getSources()[selectedSource];
-            SoundSource newLocationSource(curLocationSource.getAzimuth(), percentValue);
-            Point<float> newLocation = newLocationSource.getPositionXY();
-            
-            if (selectedConstraint == FixedAngles){
-                moveFixedAngles(newLocation);
-            }
-            else if (selectedConstraint == FixedRadius){
-                moveCircularWithFixedRadius(newLocation);
-            }
-            else if (selectedConstraint == FullyFixed){
-                moveFullyFixed(newLocation);
-            }
-            else if (selectedConstraint == DeltaLocked){
-                Point<float> DeltaMove = newLocation - ourProcessor->getSources()[selectedSource].getPositionXY();
-                moveSourcesWithDelta(DeltaMove);
-            }
-            else if (selectedConstraint == Circular){
-                moveCircular(newLocation);
-            }
-            //repaint();
-        }
-    }
+
     else if (slider == &_ElevationSpanSlider) {
         percentValue = HRToPercent((float) _ElevationSpanSlider.getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
         if(isSpanLinked){
