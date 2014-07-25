@@ -70,7 +70,10 @@ _SelectedSourceForTrajectory(0),
 _WasPlayingOnPrevFrame(false),
 _JustsEndedPlaying(false)
 {
-  
+ 
+    //this toggles everything related to the ipad
+    m_bUseIpad = false;
+    
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
     }
@@ -850,7 +853,9 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
 
 void ZirkOscjuceAudioProcessor::sendOSCMovementType(){ //should be void with no argument if movement is included in the processor!!!!!
     //lo_send(_OscIpad, "/movementmode", "i", _SelectedMovementConstraint);
-    lo_send(_OscIpad, "/movementmode", "f", _SelectedMovementConstraint);
+    if (m_bUseIpad){
+        lo_send(_OscIpad, "/movementmode", "f", _SelectedMovementConstraint);
+    }
 
 }
 
@@ -864,17 +869,20 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
             int channel_osc = _AllSources[i].getChannel()-1;
             float gain_osc = _AllSources[i].getGain();
             lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
-            azim_osc = azim_osc * M_PI;
-            elev_osc = elev_osc * M_PI;
-            azimspan_osc = azimspan_osc * M_PI;
-            elevspan_osc = elevspan_osc * M_PI;
-            lo_send(_OscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+            
+            if (m_bUseIpad){
+                azim_osc = azim_osc * M_PI;
+                elev_osc = elev_osc * M_PI;
+                azimspan_osc = azimspan_osc * M_PI;
+                elevspan_osc = elevspan_osc * M_PI;
+                lo_send(_OscIpad, "/pan/az", "ifffff", channel_osc+1, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+            }
         }
     }
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCConfig(){
-    if (_isOscActive){
+    if (_isOscActive && m_bUseIpad){
         lo_send(_OscIpad, "/maxsource", "iiiiiiiii", _NbrSources, _AllSources[0].getChannel(), _AllSources[1].getChannel(), _AllSources[2].getChannel(), _AllSources[3].getChannel(), _AllSources[4].getChannel(), _AllSources[5].getChannel(), _AllSources[6].getChannel(), _AllSources[7].getChannel());
     }
 }
@@ -904,60 +912,62 @@ bool validateIpAddress(const string &ipAddress)
 
 void ZirkOscjuceAudioProcessor::changeOSCSendIPad(int newPort, String newAddress){
     
-    //if port is outside range, assign previous
-    if(newPort<0 || newPort>100000){
-        newPort = _OscPortIpadOutgoing.getIntValue();//10112;
+    if (m_bUseIpad){
+        //if port is outside range, assign previous
+        if(newPort<0 || newPort>100000){
+            newPort = _OscPortIpadOutgoing.getIntValue();//10112;
+        }
+        
+        //if address is invalid, assign previous
+        if (!validateIpAddress(newAddress.toStdString())){
+            newAddress = _OscAddressIpad;//"10.0.1.3";
+        }
+        
+        lo_address osc = _OscIpad;
+        _OscPortIpadOutgoing = String(newPort);
+        _OscIpad = NULL;
+        lo_address_free(osc);
+        char port[32];
+        snprintf(port, sizeof(port), "%d", newPort);
+        regex_t regex;
+        int reti;
+        reti = regcomp(&regex, "\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", 0);
+        reti = regexec(&regex, newAddress.toUTF8(), 0, NULL, 0);
+        //if( !reti ){
+        _OscAddressIpad = newAddress;
+        //}
+        _OscIpad = lo_address_new(_OscAddressIpad.toUTF8(), port);
     }
-    
-    //if address is invalid, assign previous
-    if (!validateIpAddress(newAddress.toStdString())){
-        newAddress = _OscAddressIpad;//"10.0.1.3";
-    }
-    
-    lo_address osc = _OscIpad;
-    _OscPortIpadOutgoing = String(newPort);
-    _OscIpad = NULL;
-    lo_address_free(osc);
-	char port[32];
-	snprintf(port, sizeof(port), "%d", newPort);
-    regex_t regex;
-    int reti;
-    reti = regcomp(&regex, "\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b", 0);
-    reti = regexec(&regex, newAddress.toUTF8(), 0, NULL, 0);
-    //if( !reti ){
-    _OscAddressIpad = newAddress;
-    //}
-	_OscIpad = lo_address_new(_OscAddressIpad.toUTF8(), port);
 }
 
 void ZirkOscjuceAudioProcessor::changeOSCReceiveIpad(int newPort){
-    
-    if(newPort<0 || newPort>100000){
-        newPort = _OscPortIpadIncoming.getIntValue();//10114;
+    if (m_bUseIpad){
+        if(newPort<0 || newPort>100000){
+            newPort = _OscPortIpadIncoming.getIntValue();//10114;
+        }
+        
+        if(_St){
+            lo_server st2 = _St;
+            lo_server_thread_stop(st2);
+            lo_server_thread_free(st2);
+        }
+        _OscPortIpadIncoming = String(newPort);
+        char port[32];
+        snprintf(port, sizeof(port), "%d", newPort);
+        _St = lo_server_thread_new(port, error);
+        if (_St){
+            lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
+            lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
+            lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
+            lo_server_thread_add_method(_St, "/moveAzimSpan", "if", receiveAzimuthSpanUpdate, this);
+            lo_server_thread_add_method(_St, "/beginAzimSpanMove", "i", receiveAzimuthSpanBegin, this);
+            lo_server_thread_add_method(_St, "/endAzimSpanMove", "i", receiveAzimuthSpanEnd, this);
+            lo_server_thread_add_method(_St, "/moveElevSpan", "if", receiveElevationSpanUpdate, this);
+            lo_server_thread_add_method(_St, "/beginElevSpanMove", "i", receiveElevationSpanBegin, this);
+            lo_server_thread_add_method(_St, "/endElevSpanMove", "i", receiveElevationSpanEnd, this);
+            lo_server_thread_start(_St);
+        }
     }
-    
-    if(_St){
-        lo_server st2 = _St;
-        lo_server_thread_stop(st2);
-        lo_server_thread_free(st2);
-    }
-    _OscPortIpadIncoming = String(newPort);
-    char port[32];
-	snprintf(port, sizeof(port), "%d", newPort);
-    _St = lo_server_thread_new(port, error);
-    if (_St){
-        lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
-        lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
-        lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
-        lo_server_thread_add_method(_St, "/moveAzimSpan", "if", receiveAzimuthSpanUpdate, this);
-        lo_server_thread_add_method(_St, "/beginAzimSpanMove", "i", receiveAzimuthSpanBegin, this);
-        lo_server_thread_add_method(_St, "/endAzimSpanMove", "i", receiveAzimuthSpanEnd, this);
-        lo_server_thread_add_method(_St, "/moveElevSpan", "if", receiveElevationSpanUpdate, this);
-        lo_server_thread_add_method(_St, "/beginElevSpanMove", "i", receiveElevationSpanBegin, this);
-        lo_server_thread_add_method(_St, "/endElevSpanMove", "i", receiveElevationSpanEnd, this);
-        lo_server_thread_start(_St);
-    }
-    
 }
 
 int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int argc,void *data, void *user_data){

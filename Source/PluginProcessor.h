@@ -245,11 +245,13 @@ public:
     static int s_iDomeRadius;
     
     bool isCurrentlyPlaying();
-    
+    bool m_bUseIpad;
     
 private:
     
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
+    
+    
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
