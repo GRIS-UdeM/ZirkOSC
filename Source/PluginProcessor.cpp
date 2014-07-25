@@ -52,6 +52,7 @@ _TrajectoryCount(0),
 _TrajectoryIsDirectionReversed(false),
 _TrajectoriesDuration(0),
 _TrajectoriesDurationBuffer(0),
+_TrajectoriesPhi(0),
 _TrajectoryBeginTime(0),
 _TrajectorySingleBeginTime(0),
 _TrajectoryInitialAzimuth(0),
@@ -160,9 +161,14 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
                 _TrajectoriesDurationBuffer = _TrajectoriesDuration;
                 
+                //if trajectory count is negative, toggle _TrajectoryIsDirectionReversed but still use positive value in calculations
                 if (_TrajectoryCount < 0){
                     _TrajectoryIsDirectionReversed = true;
                     _TrajectorySingleLength = _TrajectoriesDurationBuffer / -_TrajectoryCount;
+                    
+                    //map initial elevation [0,1] to phase phi[pi/2, 0]; this is useful only for reversed pendulum
+                    _TrajectoriesPhi = M_PI/2 * (1-_TrajectoryInitialElevation);
+                    
                 } else {
                     _TrajectoryIsDirectionReversed = false;
                     _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
@@ -194,13 +200,13 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         break;
                 }
                 
-#if defined(DEBUG)
+//#if defined(DEBUG)
                 cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << endl;
                 cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << endl;
                 cout << "_TrajectoryCount: " << _TrajectoryCount << endl;
                 cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
                 cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
-#endif
+//#endif
                 
             }
             
@@ -232,15 +238,14 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             
                         case ZirkOscjuceAudioProcessorEditor::Pendulum :
                             
+                            //this just grows linearly with time
                             newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
-                            if (_TrajectoryIsDirectionReversed){
-                                newElevation = 1 - abs( sin(newElevation * 2 * M_PI) );
-                            } else {
-                                newElevation = abs( sin(newElevation * 2 * M_PI) );
-                            }
                             
-                            //transpose newElevation, which is [0,1] to be in [_TrajectoryInitialElevation, 1]
-                            newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                            if (_TrajectoryIsDirectionReversed){
+                                newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhi) );  //only positive cos wave with phase _TrajectoriesPhi
+                            } else {
+                                newElevation = abs( sin(newElevation * 2 * M_PI) );                     //only positive sin wave
+                            }
                             
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
                             
@@ -267,7 +272,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                                 newAzimuth = modf(_TrajectoryInitialAzimuth - theta, &integralPart);                          //this is like adding a to theta
                             } else {
                                 newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                          //this is like adding a to theta
-                            }                          
+                            }
 
                             newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
 
@@ -289,10 +294,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     }
                     
 #if defined(DEBUG)
-                    cout << "newElevation: " << newElevation <<
-                    "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation <<
-                    "\t\t\tnewAzimuth: " << newAzimuth <<
-                    "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
+                    cout<< "newElevation: " << newElevation
+                        << "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation
+                        << "\t\t\tnewAzimuth: " << newAzimuth
+                        << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
 #endif
                 }
             }
