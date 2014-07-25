@@ -249,6 +249,8 @@ public:
     
 private:
     
+    void moveTrajectoriesWithConstraints(Point<float> &newLocation);
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
     //! Whether the editor has to refresh the GUI
