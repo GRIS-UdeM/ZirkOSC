@@ -187,8 +187,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
                 }
                 
-
-                
                 _WasPlayingOnPrevFrame = true;
                 
 #if defined(DEBUG)
@@ -307,10 +305,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         break;
                         
                     case ZirkOscjuceAudioProcessorEditor::Spiral :
-                        //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top, and is very slow in DP (I think?)
+                        //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
                         theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart); //result from this modf is theta [0,1]
                         if (_TrajectoryIsDirectionReversed){
-                            newAzimuth = modf(_TrajectoryInitialAzimuth - theta, &integralPart);                          //this is like adding a to theta
+                            newAzimuth = modf(_TrajectoryInitialAzimuth - theta, &integralPart);                          //this is like subtracting a to theta
                         } else {
                             newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                          //this is like adding a to theta
                         }
@@ -333,13 +331,13 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 }
                 
                 //update duration field in gui
-                _TrajectoriesDuration = _TrajectoriesDurationBuffer - (dCurrentTime - _TrajectoryBeginTime);
-                if (modf(_TrajectoriesDuration / .5, &integralPart) < 0.05){
-                    if (_TrajectoriesDuration < 0.05){
-                        _TrajectoriesDuration = 0;
-                    }
-                    _RefreshGui=true;
-                }
+//                _TrajectoriesDuration = _TrajectoriesDurationBuffer - (dCurrentTime - _TrajectoryBeginTime);
+//                if (modf(_TrajectoriesDuration / .5, &integralPart) < 0.05){
+//                    if (_TrajectoriesDuration < 0.05){
+//                        _TrajectoriesDuration = 0;
+//                    }
+//                    _RefreshGui=true;
+//                }
                 
 #if defined(DEBUG)
                 cout<< "newElevation: " << newElevation
@@ -735,11 +733,12 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     
     
     for(int i = 0; i<8;++i){
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return ZirkOSC_Azim_name[i];
-        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i];
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return ZirkOSC_Elev_name[i];
-        else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i];
-        else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i];
+        string strSourceId = " Src: " + std::to_string(getSources()[i].getChannel());
+        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return ZirkOSC_Azim_name[i] + strSourceId;
+        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i] + strSourceId;
+        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return ZirkOSC_Elev_name[i] + strSourceId;
+        else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i] + strSourceId;
+        else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i] + strSourceId;
     }
     return String::empty;
 }

@@ -106,7 +106,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes);
     
     //! returns the sources
-    SoundSource* getSources(){ return _AllSources; }
+    inline SoundSource* getSources(){ return _AllSources; }
     //! returns the number of sources on the screen.
     int getNbrSources() { return _NbrSources; }
     //! Set the number of sources.
