@@ -22,7 +22,7 @@ const float  ZirkOSC_Elev_Def = 0.0f;
 const String ZirkOSC_AzimDelta_name = "Azim delta";
 const float  ZirkOSC_AzimDelta_Min = 0.0f;
 const float  ZirkOSC_AzimDelta_Max = ZirkOSC_Azim_Max * 2.0;
-const float  Zigit rkOSC_AzimDelta_Def = 0.0f;
+const float  ZirkOSC_AzimDelta_Def = 0.0f;
 
 const String ZirkOSC_ElevDelta_name = "Elevation Delta";
 const float  ZirkOSC_ElevDelta_Min = 0.0f;
