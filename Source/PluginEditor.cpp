@@ -163,7 +163,8 @@ _TrajectoryComboBox("Trajectory")
     addAndMakeVisible(&_MovementConstraintComboBox);
     
     //---------- TRAJECTORY COMPONENTS ----------
-    _TrajectoryComboBox.addItem("Spiral",   Spiral);
+    _TrajectoryComboBox.addItem("Upward Spiral",   UpwardSpiral);
+    _TrajectoryComboBox.addItem("Downward Spiral",   DownwardSpiral);
     _TrajectoryComboBox.addItem("Pendulum",   Pendulum);
     _TrajectoryComboBox.addItem("Circle",   Circle);
     selected_id = ourProcessor->getSelectedTrajectoryAsInteger();
