@@ -46,7 +46,8 @@ public:
     
     //! Enum of the programmed trajectories
     enum AllTrajectories {
-        Spiral = 1,
+        UpwardSpiral = 1,
+        DownwardSpiral,
         Pendulum,
         Circle,
         TotalNumberTrajectories
