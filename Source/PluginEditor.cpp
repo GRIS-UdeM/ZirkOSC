@@ -148,7 +148,7 @@ _TrajectoryComboBox("Trajectory")
     _WriteTrajectoryButton.addListener(this);
     _WriteTrajectoryButton.setClickingTogglesState(true);
     bool isWriteTrajectory = ourProcessor->getIsWriteTrajectory();
-    _OscActiveButton.setToggleState(isWriteTrajectory, dontSendNotification);
+    _WriteTrajectoryButton.setToggleState(isWriteTrajectory, dontSendNotification);
     
     //---------- CONSTRAINT COMBO BOX ----------
     _MovementConstraintComboBox.addItem("Independant",   Independant);

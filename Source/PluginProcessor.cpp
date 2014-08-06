@@ -7,7 +7,7 @@
 #ifndef DEBUG
 #define DEBUG
 #endif
-#undef DEBUG
+//#undef DEBUG
 
 //lo_send(mOsc, "/pan/az", "i", ch);
 
@@ -40,7 +40,7 @@ int ZirkOscjuceAudioProcessor::s_iDomeRadius = 150;
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :_NbrSources(1),
 _SelectedMovementConstraint(.0f),
-m_iSelectedMovementConstraint(0),
+m_iSelectedMovementConstraint(Independant),
 _SelectedTrajectory(.0f),
 _SelectedSource(0),
 _OscPortZirkonium(18032),
@@ -148,7 +148,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             m_bCurrentlyPlaying = true;
             
             //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
-            if (host.isLogic() && iProcessBlockCounter < 3){
+            if ((host.isLogic() || host.isDigitalPerformer()) && iProcessBlockCounter < 3){
                 ++iProcessBlockCounter;
                 return;
             }
@@ -172,6 +172,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 }
                 
                 //store initial parameter value
+#warning TODO somehow these are not updated correctly sometimes, especially in touch mode in DP
                 _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
                 _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
                 
@@ -384,7 +385,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     break;
                 case ZirkOscjuceAudioProcessorEditor::UpwardSpiral :
                 case ZirkOscjuceAudioProcessorEditor::DownwardSpiral :
-                    
                 case ZirkOscjuceAudioProcessorEditor::Pendulum :
                     if (m_iSelectedMovementConstraint == Independant){
                         endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
