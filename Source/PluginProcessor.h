@@ -161,7 +161,7 @@ public:
         ZirkOSC_AzimSpan_ParamId_1,
         ZirkOSC_ElevSpan_ParamId_1,
         ZirkOSC_Gain_ParamId_1,
-        ZirkOSC_Azim_ParamId_2,
+        ZirkOSC_Azim_ParamId_2,     //10
         ZirkOSC_Elev_ParamId_2,
         ZirkOSC_AzimSpan_ParamId_2,
         ZirkOSC_ElevSpan_ParamId_2,
@@ -171,7 +171,7 @@ public:
         ZirkOSC_AzimSpan_ParamId_3,
         ZirkOSC_ElevSpan_ParamId_3,
         ZirkOSC_Gain_ParamId_3,
-        ZirkOSC_Azim_ParamId_4,
+        ZirkOSC_Azim_ParamId_4,     //20
         ZirkOSC_Elev_ParamId_4,
         ZirkOSC_AzimSpan_ParamId_4,
         ZirkOSC_ElevSpan_ParamId_4,
@@ -181,7 +181,7 @@ public:
         ZirkOSC_AzimSpan_ParamId_5,
         ZirkOSC_ElevSpan_ParamId_5,
         ZirkOSC_Gain_ParamId_5,
-        ZirkOSC_Azim_ParamId_6,
+        ZirkOSC_Azim_ParamId_6,     //30
         ZirkOSC_Elev_ParamId_6,
         ZirkOSC_AzimSpan_ParamId_6,
         ZirkOSC_ElevSpan_ParamId_6,
@@ -191,7 +191,7 @@ public:
         ZirkOSC_AzimSpan_ParamId_7,
         ZirkOSC_ElevSpan_ParamId_7,
         ZirkOSC_Gain_ParamId_7,
-        ZirkOSC_MovementConstraint_ParamId,
+        ZirkOSC_MovementConstraint_ParamId, //40
         ZirkOSC_isSpanLinked_ParamId,
         ZirkOSC_isOscActive_ParamId,
         ZirkOSC_SelectedTrajectory_ParamId,
@@ -199,8 +199,23 @@ public:
         ZirkOSC_TrajectoriesDuration_ParamId,
         ZirkOSC_SyncWTempo_ParamId,
         ZirkOSC_WriteTrajectories_ParamId,
-        totalNumParams
+        totalNumParams                      //48
     };
+    
+    struct allParameters{
+        SoundSource _AllSources [8];
+        float   fMovementConstraint; //40
+        bool    bisSpanLinked;
+        bool    bisOscActive;
+        float   fSelectedTrajectory;
+        float   fSelectedSource;
+        double  dTrajectoryCount;
+        double  dTrajectoriesDuration;
+        bool    bSyncWTempo;
+        bool    bWriteTrajectories;
+    };
+    
+    
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     
@@ -241,6 +256,9 @@ public:
     int getDomeRadius();
     //! Set the size of the dome radius
     void setDomeRadius(int iNewRadius);
+    
+    
+    
     //radius of the dome
     static int s_iDomeRadius;
     
@@ -251,7 +269,9 @@ private:
     
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
     
+    void saveAllParameters();
     
+    void restoreAllSavedParameters();
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
@@ -342,6 +362,9 @@ private:
     
     //contains the information returned from the playHead
     juce::AudioPlayHead::CurrentPositionInfo _CurrentPlayHeadInfo;
+    
+    
+    allParameters m_parameterBuffer;
 
 };
 

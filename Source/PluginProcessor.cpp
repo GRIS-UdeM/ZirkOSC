@@ -7,7 +7,7 @@
 #ifndef DEBUG
 #define DEBUG
 #endif
-//#undef DEBUG
+#undef DEBUG
 
 //lo_send(mOsc, "/pan/az", "i", ch);
 
@@ -68,11 +68,12 @@ _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
 _WasPlayingOnPrevFrame(false),
-_JustsEndedPlaying(false)
+_JustsEndedPlaying(false),
+m_parameterBuffer()
 {
  
     //this toggles everything related to the ipad
-    m_bUseIpad = false;
+    m_bUseIpad = true;
     
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
@@ -133,7 +134,7 @@ ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
     _OscIpad = NULL;
 }
 
-//this will only be called in logic when actually processing sound, ie need to toggle I button in track
+//this will only be called in logic when actually processing sound, ie need to toggle I button in track if no audio present
 void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 
@@ -148,7 +149,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             m_bCurrentlyPlaying = true;
             
             //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
-            if ((host.isLogic() || host.isDigitalPerformer()) && iProcessBlockCounter < 3){
+            if (host.isLogic() && iProcessBlockCounter < 3){
                 ++iProcessBlockCounter;
                 return;
             }
@@ -156,6 +157,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             //--------------------------- FIRST PLAYING FRAME ---------------------
             //if we were not playing on previous frame, this is the first playing frame.
             if (!_WasPlayingOnPrevFrame){
+                
+                //restoreAllSavedParameters();
 
                 //store begin time
                 _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
@@ -235,7 +238,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
                 cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << endl;
 #endif
-                
+                //we've done enough for this call to processBlock, return and continue on the next
+                return;
             }
             
             
@@ -326,11 +330,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         }
                         
                         //this is to make sure we end up back at the initial elevation instead of at the top of the dome... definitely sub-ideal
-                        if ((iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::UpwardSpiral && newElevation > 0.995) ||
-                            (iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::DownwardSpiral && newElevation < 0.005)){
-                            newElevation = _TrajectoryInitialElevation;
-                            newAzimuth = _TrajectoryInitialAzimuth;
-                        }
+//                        if ((iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::UpwardSpiral && newElevation > 0.995) ||
+//                            (iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::DownwardSpiral && newElevation < 0.005)){
+//                            newElevation = _TrajectoryInitialElevation;
+//                            newAzimuth = _TrajectoryInitialAzimuth;
+//                        }
                         
                         if (m_iSelectedMovementConstraint == Independant){
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
@@ -410,6 +414,47 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         }
         
     }
+}
+
+void ZirkOscjuceAudioProcessor::saveAllParameters(){
+    
+    //find a way to copy arrays of objects
+    for (int iCurSource = 0; iCurSource<8; ++iCurSource){
+        m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
+    }
+    _AllSources[0].setAzimReverse(true);
+
+    m_parameterBuffer.fMovementConstraint =  _SelectedMovementConstraint;
+    m_parameterBuffer.bisSpanLinked = _isSpanLinked;
+    m_parameterBuffer.bisOscActive = _isOscActive;
+    m_parameterBuffer.fSelectedTrajectory = _SelectedTrajectory;
+    m_parameterBuffer.fSelectedSource = _SelectedSource;
+    m_parameterBuffer.dTrajectoryCount = _TrajectoryCount;
+    m_parameterBuffer.dTrajectoriesDuration = _TrajectoriesDuration;
+    m_parameterBuffer.bSyncWTempo = _isSyncWTempo;
+    m_parameterBuffer.bWriteTrajectories = _isWriteTrajectory;
+
+}
+
+void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
+    
+    //find a way to copy arrays of objects
+    for (int iCurSource = 0; iCurSource<8; ++iCurSource){
+        _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
+    }
+    _AllSources[0].setAzimReverse(true);
+    
+    _SelectedMovementConstraint = m_parameterBuffer.fMovementConstraint;
+    m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+    _isSpanLinked = m_parameterBuffer.bisSpanLinked;
+    _isOscActive = m_parameterBuffer.bisOscActive;
+    _SelectedTrajectory = m_parameterBuffer.fSelectedTrajectory;
+    _SelectedSource = m_parameterBuffer.fSelectedSource;
+    _TrajectoryCount = m_parameterBuffer.dTrajectoryCount;
+    _TrajectoriesDuration = m_parameterBuffer.dTrajectoriesDuration;
+    _isSyncWTempo = m_parameterBuffer.bSyncWTempo;
+    _isWriteTrajectory = m_parameterBuffer.bWriteTrajectories;
+    
 }
 
 void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &newLocation){
@@ -523,6 +568,7 @@ const String ZirkOscjuceAudioProcessor::getProgramName (int index)
 
 void ZirkOscjuceAudioProcessor::changeProgramName (int index, const String& newName)
 {
+
 }
 
 //==============================================================================
@@ -608,6 +654,9 @@ bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
 
 void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
     _isWriteTrajectory = isWriteTrajectory;
+//    if (_isWriteTrajectory){
+//        saveAllParameters();
+//    }
 }
 
 bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){
@@ -677,6 +726,9 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
 // UI-related, or anything at all that may block in any way!
 void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
 {
+#if defined(DEBUG)
+    cout << "setParameter() with index: " << index << " and newValue: " << newValue << endl;
+#endif
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
             _SelectedMovementConstraint = newValue;
