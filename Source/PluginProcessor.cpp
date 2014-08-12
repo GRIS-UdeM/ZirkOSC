@@ -216,6 +216,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     case ZirkOscjuceAudioProcessorEditor::Pendulum :
                     case ZirkOscjuceAudioProcessorEditor::UpwardSpiral :
                     case ZirkOscjuceAudioProcessorEditor::DownwardSpiral :
+                    case ZirkOscjuceAudioProcessorEditor::UpAndDownSpiral :
+                    case ZirkOscjuceAudioProcessorEditor::DownAndUpSpiral :
                         if (m_iSelectedMovementConstraint == Independant){
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                             beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
@@ -329,12 +331,66 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                        //this is like adding a to theta
                         }
                         
-                        //this is to make sure we end up back at the initial elevation instead of at the top of the dome... definitely sub-ideal
-//                        if ((iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::UpwardSpiral && newElevation > 0.995) ||
-//                            (iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::DownwardSpiral && newElevation < 0.005)){
-//                            newElevation = _TrajectoryInitialElevation;
-//                            newAzimuth = _TrajectoryInitialAzimuth;
+                        if (m_iSelectedMovementConstraint == Independant){
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+                            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
+                        } else {
+                            SoundSource newLocationSource(newAzimuth, newElevation);
+                            Point<float> newLocation = newLocationSource.getPositionXY();
+                            moveTrajectoriesWithConstraints(newLocation);
+                        }
+                        
+                        break;
+                        
+                    case ZirkOscjuceAudioProcessorEditor::UpAndDownSpiral :
+                    case ZirkOscjuceAudioProcessorEditor::DownAndUpSpiral :
+                        //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
+//                        theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);   //result from this modf is theta [0,1]
+//                        
+//                        //first phase of double spiral
+//                        if (theta > .5){
+//                            theta *= 2;                                                                                 //maps theta[0,.5] to [0,1]
+//                            newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;     //newElevation is a mapping of theta[0,1] to [_TrajectoryInitialElevation, 1]
 //                        }
+//                        //second phase
+//                        else {
+//                            theta = (theta - .5)/.5 ;                                                                   //maps theta[.5,1] to [0,1]
+//                            newElevation = _TrajectoryInitialElevation - theta * _TrajectoryInitialElevation;           //map newElevation from theta[0, 1] to [_TrajectoryInitialElevation, 0]
+//                        }
+                        
+                        //this just grows linearly with time
+                        newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
+                        
+                        if (_TrajectoryIsDirectionReversed){
+                            newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhi) );  //only positive cos wave with phase _TrajectoriesPhi
+                        } else {
+                            newElevation = abs( sin(newElevation * 2 * M_PI) );                     //only positive sin wave
+                        }
+                        
+                        //when we get to the top of the dome, we need to get back down
+                        #warning TODO ideally though we would not mess with _TrajectoryInitialAzimuth but use a buffered version
+//                        if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
+//                            (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+//                            m_bTrajectoryElevationDecreasing = true;
+//                        }
+//                        //reset flag m_bTrajectoryElevationDecreasing as we go down
+//                        if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
+//                            m_bTrajectoryElevationDecreasing = false;
+//                        }
+                        
+                        
+                        if (_TrajectoryIsDirectionReversed){
+                            newAzimuth = modf(_TrajectoryInitialAzimuth - newElevation, &integralPart);                        //this is like subtracting a to theta
+                        } else {
+                            newAzimuth = modf(_TrajectoryInitialAzimuth + newElevation, &integralPart);                        //this is like adding a to theta
+                        }
+                        
+                        //this is to make sure we end up back at the initial elevation instead of at the top of the dome... definitely sub-ideal
+                        //                        if ((iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::UpwardSpiral && newElevation > 0.995) ||
+                        //                            (iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::DownwardSpiral && newElevation < 0.005)){
+                        //                            newElevation = _TrajectoryInitialElevation;
+                        //                            newAzimuth = _TrajectoryInitialAzimuth;
+                        //                        }
                         
                         if (m_iSelectedMovementConstraint == Independant){
                             setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
@@ -389,6 +445,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     break;
                 case ZirkOscjuceAudioProcessorEditor::UpwardSpiral :
                 case ZirkOscjuceAudioProcessorEditor::DownwardSpiral :
+                case ZirkOscjuceAudioProcessorEditor::UpAndDownSpiral :
+                case ZirkOscjuceAudioProcessorEditor::DownAndUpSpiral :
                 case ZirkOscjuceAudioProcessorEditor::Pendulum :
                     if (m_iSelectedMovementConstraint == Independant){
                         endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));

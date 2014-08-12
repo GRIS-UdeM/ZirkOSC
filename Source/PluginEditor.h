@@ -48,6 +48,8 @@ public:
     enum AllTrajectories {
         UpwardSpiral = 1,
         DownwardSpiral,
+        UpAndDownSpiral,
+        DownAndUpSpiral,
         Pendulum,
         Circle,
         TotalNumberTrajectories
