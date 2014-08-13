@@ -357,6 +357,8 @@ private:
     bool _WasPlayingOnPrevFrame;
     
     bool _JustsEndedPlaying;
+
+    float m_fOldElevation;
     
     PluginHostType host;
     
