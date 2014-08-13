@@ -354,10 +354,17 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                             newAzimuth = modf(_TrajectoryInitialAzimuth - 2 * theta, &integralPart);        //this is like subtracting a to theta
 
                         } else {
-                            newElevation = abs( sin(newElevation  * M_PI) );                                //only positive, first half of a sin wave, so [0,1] then [1,0]
+                            if (iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::UpAndDownSpiral){
+                                newElevation = abs( sin(newElevation  * M_PI) );                                //only positive, first half of a sin wave, so [0,1] then [1,0]
+                            } else {
+                                newElevation = abs( sin(newElevation  * M_PI + _TrajectoriesPhi) );                                //only positive, first half of a sin wave, so [0,1] then [1,0]
+                                //if down and up, instead of up and down, map elevation from [0,1] to [1,0]
+                                newElevation = 1-newElevation;
+                            }
                             newAzimuth = modf(_TrajectoryInitialAzimuth + 2 * theta, &integralPart);        //this is like adding a to theta
-
                         }
+                        
+                        
                         
                         cout << "newElevation: " << newElevation << "\n";
                         
