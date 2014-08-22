@@ -14,6 +14,7 @@ Download links :
 - VST :
 			https://github.com/GRIS-UdeM/ZirkOSC2/blob/master/bin/ZirkOSC2.0.6.1.vst.zip?raw=true
 
+
 You can also download here the source code and the mac and windows builds of the Octogris2:
 
 - Source code: 
