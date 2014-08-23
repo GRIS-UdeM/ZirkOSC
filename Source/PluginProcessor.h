@@ -323,7 +323,9 @@ private:
     
     double _TrajectoriesDurationBuffer;
 
-    double _TrajectoriesPhi;
+    double _TrajectoriesPhiAsin;
+    
+    double _TrajectoriesPhiAcos;
     
     double _TrajectoryBeginTime;
 
