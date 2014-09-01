@@ -70,7 +70,11 @@ _TrajectoryDurationTextEditor("trajectoryDurationTE"),
 _MovementConstraintComboBox("MovementConstraint"),
 _TrajectoryComboBox("Trajectory")
 {
-
+    
+    //---------- TRAJECTORIES ----------
+    addAndMakeVisible (propertyPanel);
+    
+    propertyPanel.addSection ("Text Editors", addProperties());
     
     addAndMakeVisible(_TrajectoryGroup);
     
@@ -223,14 +227,26 @@ _TrajectoryComboBox("Trajectory")
     startTimer (100);
 }
 
-
-
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
     //stopTimer();
 }
 
+Array<PropertyComponent*> ZirkOscjuceAudioProcessorEditor::addProperties()
+{
+    Array<PropertyComponent*> comps;
+    
+    comps.add (new TextPropertyComponent (Value ("This is a single-line Text Property"), "Text 1", 200, false));
+    comps.add (new TextPropertyComponent (Value ("Another one"), "Text 2", 200, false));
+    
+    return comps;
+}
+
 //this is called upon opening the window so
 void ZirkOscjuceAudioProcessorEditor::resized() {
+    
+    
+    
+    
     int iCurWidth  = getWidth();
     int iCurHeight = getHeight();
 
@@ -283,13 +299,24 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     //_MovementConstraintComboBox.setBounds(100, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
     _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
     
-    _TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
     
-    _TrajectoryComboBox.setBounds(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+25, 230, 25);
-    setLabelAndTextEditorPosition(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 230, 25, &_TrajectoryDurationLabel, &_TrajectoryDurationTextEditor);
+    
+    
+    
+    
+    // stuff related to trajectories
+    _TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
+    propertyPanel.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
 
+    //traj combo box
+    _TrajectoryComboBox.setBounds(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+25, 230, 25);
+    //nbr trajectory text editor
+    setLabelAndTextEditorPosition(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 230, 25, &_TrajectoryDurationLabel, &_TrajectoryDurationTextEditor);
+    //trajectory count text editor
     setLabelAndTextEditorPosition(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+5, 125, 25, &_TrajectoryCountLabel, &_TrajectoryCountTextEditor);
+    //sync with tempo button
     _SyncWTempoButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 125, 25);
+    //write button
     _WriteTrajectoryButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+75, 125, 25);
 }
 
@@ -1207,3 +1234,8 @@ void ZirkOscjuceAudioProcessorEditor::setDraggableSource(bool drag){
 bool ZirkOscjuceAudioProcessorEditor::isDraggableSource(){
     return _isSourceBeingDragged;
 }
+
+
+
+
+

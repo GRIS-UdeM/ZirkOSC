@@ -130,8 +130,6 @@ private:
     //! Bounds of the resizable window
     ComponentBoundsConstrainer _ResizeLimits;
     
-    GroupComponent _TrajectoryGroup;
-    
     //! Toggle Button to link the span
     ToggleButton _LinkSpanButton;
     
@@ -247,6 +245,8 @@ private:
     Point <float> degreeToXy (Point <float>);
     //! projects screen coords to dome coords (circle to sphere)
     Point <float> xyToDegree (Point <float>);
+    
+    Array<PropertyComponent*> addProperties();
 
     //! converts degree to radian
     inline float degreeToRadian (float);
@@ -257,6 +257,10 @@ private:
     
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;
+    
+    PropertyPanel propertyPanel;
+    
+    GroupComponent _TrajectoryGroup;
 };
 
 //! Conversion of percent value to Human readeable value
@@ -268,4 +272,7 @@ int PercentToInt(float percent, int max=TotalNumberConstraints);
 //! Conversion of integer value to percent. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
 float IntToPercent(int integer, int max=TotalNumberConstraints);
 
+
+
 #endif  // __PLUGINEDITOR_H_4624BC76__
+
