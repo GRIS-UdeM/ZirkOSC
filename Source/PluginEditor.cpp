@@ -65,8 +65,8 @@ _IpadIncomingOscPortTextEditor("OSCIpadIncoTE"),
 _IpadIpAddressTextEditor("ipaddress"),
 //_TrajectoryCountTextEditor("trajectoryCountTE"),
 //_TrajectoryDurationTextEditor("trajectoryDurationTE"),
-_MovementConstraintComboBox("MovementConstraint"),
-_TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
+_MovementConstraintComboBox("MovementConstraint")
+//_TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
 //_TrajectoryComboBox("Trajectory")
 {
     
@@ -163,6 +163,7 @@ _TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
     //    _TrajectoryComboBox.addListener(this);
     
     //COMBO BOX
+
     m_oTrajectoryComboBoxProperty = new TrajectoryComboBoxComponent("Trajectory:", ourProcessor);
     m_oTrajectoryComboBoxProperty->setIndex(ourProcessor->getSelectedTrajectoryAsInteger());
     comps.add (m_oTrajectoryComboBoxProperty);
@@ -284,18 +285,12 @@ _TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
+
     //stopTimer();
 }
 
 
-
-
-//this is called upon opening the window so
 void ZirkOscjuceAudioProcessorEditor::resized() {
-    
-    
-    
-    
     int iCurWidth  = getWidth();
     int iCurHeight = getHeight();
 
@@ -349,12 +344,8 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
     
     
-    
-    
-    
-    
     // stuff related to trajectories
-    _TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
+    //_TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
     propertyPanel.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
 
     //traj combo box

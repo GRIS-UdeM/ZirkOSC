@@ -56,7 +56,7 @@ const String ZirkOSC_isWriteTrajectory_name = "WriteTrajectory";
 
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 
-const int ZirkOSC_TrajectoryGroupHeight = 120;
+const int ZirkOSC_TrajectoryGroupHeight = 160;
 const int ZirkOSC_SlidersGroupHeight = 180;
 
 const int ZirkOSC_Window_Default_Width  = 430;

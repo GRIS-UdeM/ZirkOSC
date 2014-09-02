@@ -270,7 +270,7 @@ private:
     
     PropertyPanel propertyPanel;
     
-    GroupComponent _TrajectoryGroup;
+    //GroupComponent _TrajectoryGroup;
 
     TrajectoryComboBoxComponent* m_oTrajectoryComboBoxProperty;
     
