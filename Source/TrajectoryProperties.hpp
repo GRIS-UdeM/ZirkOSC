@@ -62,25 +62,20 @@ public:
         choiceVars.add (Circle);
         
     }
-    
-    
-    
     void setIndex(int newIndex) override{
-        m_iSelectedIndex = newIndex;
-        
-        
-        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, IntToPercent2(m_iSelectedIndex, TotalNumberTrajectories));
-        
+        //m_iSelectedIndex = newIndex;
+        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, IntToPercent2(newIndex, TotalNumberTrajectories));
         refresh();
     }
     
     int getIndex () const override {
-        return m_iSelectedIndex;
+        //return m_iSelectedIndex;
+        return ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId);
     }
     
     
 private:
-    int m_iSelectedIndex;
+    //int m_iSelectedIndex;
     Array<var> choiceVars;
     ZirkOscjuceAudioProcessor* ourProcessor;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryComboBoxComponent)
@@ -102,13 +97,13 @@ public:
     
     void setState (const bool newState) override
     {
-        m_bState = newState;
+        //m_bState = newState;
         if (m_bIsTempo){
-            ourProcessor->setIsSyncWTempo(m_bState);
+            ourProcessor->setIsSyncWTempo(newState);
         } else {
             //set isWriteTrajectory property in processor, only if not currently playing
             if (!ourProcessor->isCurrentlyPlaying()){
-                ourProcessor->setIsWriteTrajectory(m_bState);
+                ourProcessor->setIsWriteTrajectory(newState);
             }
         }
         refresh();
@@ -116,11 +111,15 @@ public:
     
     bool getState () const override
     {
-        return m_bState;
+        if (m_bIsTempo){
+            return ourProcessor->getIsSyncWTempo();
+        } else {
+            return ourProcessor->getIsWriteTrajectory();
+        }
     }
     
 private:
-    bool m_bState;
+    //bool m_bState;
     bool m_bIsTempo;
     ZirkOscjuceAudioProcessor* ourProcessor;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryButtonComponent)
@@ -145,23 +144,25 @@ public:
             if ((doubleValue > 0 && doubleValue < 10000) || (doubleValue < 0 && doubleValue > -10000)){
                 ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
             }
-            text = String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId));
         } else {
             if (doubleValue > 0 && doubleValue < 10000){
                 ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
             }
-            text = String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId));
-            std::cout << text.toStdString();
+
         }
         refresh();
     }
     
     String getText() const override {
-        return text;
+        if (m_bIsCount){
+            return String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId));
+        } else {
+            return String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId));
+        }
     }
     
 private:
-    String text;
+    //String text;
     bool m_bIsCount;
     ZirkOscjuceAudioProcessor* ourProcessor;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryTextComponent)

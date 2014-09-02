@@ -141,7 +141,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
     //if write trajectory is enabled (button toggled on in editor)
     if (_isWriteTrajectory){
-        
+        cout << "is writing trajectory\n";
         //get current playhead info
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         

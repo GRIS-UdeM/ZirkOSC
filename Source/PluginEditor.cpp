@@ -36,8 +36,8 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 :   AudioProcessorEditor (ownerFilter),
 _LinkSpanButton("Link Span"),
 _OscActiveButton("OSC active"),
-_SyncWTempoButton("Sync with Tempo"),
-_WriteTrajectoryButton("Write Trajectory"),
+//_SyncWTempoButton("Sync with Tempo"),
+//_WriteTrajectoryButton("Write Trajectory"),
 _isReturnKeyPressedCalledFromFocusLost(false),
 _AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
 _ElevationSlider(ZirkOSC_ElevSpan_name[0]),
@@ -63,8 +63,8 @@ _NbrSourceTextEditor("NbrSource"),
 _IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE"),
 _IpadIncomingOscPortTextEditor("OSCIpadIncoTE"),
 _IpadIpAddressTextEditor("ipaddress"),
-_TrajectoryCountTextEditor("trajectoryCountTE"),
-_TrajectoryDurationTextEditor("trajectoryDurationTE"),
+//_TrajectoryCountTextEditor("trajectoryCountTE"),
+//_TrajectoryDurationTextEditor("trajectoryDurationTE"),
 _MovementConstraintComboBox("MovementConstraint"),
 _TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
 //_TrajectoryComboBox("Trajectory")
@@ -360,13 +360,13 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     //traj combo box
     //_TrajectoryComboBox.setBounds(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+25, 230, 25);
     //nbr trajectory text editor
-    setLabelAndTextEditorPosition(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 230, 25, &_TrajectoryDurationLabel, &_TrajectoryDurationTextEditor);
+    //setLabelAndTextEditorPosition(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 230, 25, &_TrajectoryDurationLabel, &_TrajectoryDurationTextEditor);
     //trajectory count text editor
-    setLabelAndTextEditorPosition(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+5, 125, 25, &_TrajectoryCountLabel, &_TrajectoryCountTextEditor);
+    //setLabelAndTextEditorPosition(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+5, 125, 25, &_TrajectoryCountLabel, &_TrajectoryCountTextEditor);
     //sync with tempo button
-    _SyncWTempoButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 125, 25);
+    //_SyncWTempoButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 125, 25);
     //write button
-    _WriteTrajectoryButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+75, 125, 25);
+    //_WriteTrajectoryButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+75, 125, 25);
 }
 
 //Automatic function to set label and Slider
@@ -642,13 +642,20 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
     _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraintAsInteger());
-    //_TrajectoryComboBox.setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
-    _SyncWTempoButton.setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
-    _WriteTrajectoryButton.setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
-    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
-    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+
+//    _TrajectoryComboBox.setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
+//    _SyncWTempoButton.setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
+//    _WriteTrajectoryButton.setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
+//    _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
+//    _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+    
+    m_oTrajectoryComboBoxProperty->refresh();
+    m_oTrajectoryCountTextProperty->refresh();
+    m_oTrajectoryTempoButtonProperty->refresh();
+    m_oTrajectoryDurationTextProperty->refresh();
+    m_oTrajectoryWriteButtonProperty->refresh();
 
     
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
@@ -1203,13 +1210,13 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
 //        _TrajectoryCountTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
 //    }
     
-    else if(&_TrajectoryDurationTextEditor == &textEditor){
-        double doubleValue = textEditor.getText().getDoubleValue();
-        if (doubleValue > 0 && doubleValue < 10000){
-            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
-        }
-        _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
-    }
+//    else if(&_TrajectoryDurationTextEditor == &textEditor){
+//        double doubleValue = textEditor.getText().getDoubleValue();
+//        if (doubleValue > 0 && doubleValue < 10000){
+//            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
+//        }
+//        _TrajectoryDurationTextEditor.setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+//    }
     
     else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
         int newIpadOutgoingPort = intValue;

@@ -142,9 +142,9 @@ private:
     //! Toggle Button to de/activate osc messages to Zirkonium
     ToggleButton _OscActiveButton;
     
-    ToggleButton _SyncWTempoButton;
+    //ToggleButton _SyncWTempoButton;
     
-    TextButton _WriteTrajectoryButton;
+    //TextButton _WriteTrajectoryButton;
     
     static bool _AlreadySetTrajectorySource;
     
@@ -203,9 +203,9 @@ private:
     //! TextEditor for the iPad ip address
     TextEditor _IpadIpAddressTextEditor;
     
-    TextEditor _TrajectoryCountTextEditor;
+    //TextEditor _TrajectoryCountTextEditor;
     
-    TextEditor _TrajectoryDurationTextEditor;
+    //TextEditor _TrajectoryDurationTextEditor;
 
     //! Combobox to choose constrain type
     ComboBox _MovementConstraintComboBox;
