@@ -11,11 +11,17 @@
 #define __PLUGINEDITOR_H_4624BC76__
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "PluginProcessor.h"
+
+#include "TrajectoryProperties.hpp"
 
 //==============================================================================
 /**
  */
+
+
+
+
+
 class ZirkOscjuceAudioProcessor;
 class ZirkOscjuceAudioProcessorEditor  : public AudioProcessorEditor,
 public ButtonListener,
@@ -205,7 +211,8 @@ private:
     ComboBox _MovementConstraintComboBox;
     
     //! Combobox to choose trajectory
-    ComboBox _TrajectoryComboBox;
+    //ChoicePropertyComponent* _TrajectoryComboBox;
+    //TrajectoryGroupComponent* _TrajectoryComboBox;
 
     //! If there is a source beeing drag
     bool _isSourceBeingDragged = false;
@@ -246,7 +253,7 @@ private:
     //! projects screen coords to dome coords (circle to sphere)
     Point <float> xyToDegree (Point <float>);
     
-    Array<PropertyComponent*> addProperties();
+
 
     //! converts degree to radian
     inline float degreeToRadian (float);
@@ -258,9 +265,23 @@ private:
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;
     
+
+    //TRAJECTORY PROPERTIES
+    
     PropertyPanel propertyPanel;
     
     GroupComponent _TrajectoryGroup;
+
+    TrajectoryComboBoxComponent* m_oTrajectoryComboBoxProperty;
+    
+    TrajectoryTextComponent* m_oTrajectoryCountTextProperty;
+    
+    TrajectoryButtonComponent* m_oTrajectoryTempoButtonProperty;
+    
+    TrajectoryTextComponent* m_oTrajectoryDurationTextProperty;
+    
+    TrajectoryButtonComponent* m_oTrajectoryWriteButtonProperty;
+    
 };
 
 //! Conversion of percent value to Human readeable value
