@@ -12,9 +12,11 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "ZirkConstants.h"
+//#include "ZirkConstants.h"
 #include "lo.h"
 #include "SoundSource.h"
+
+
 
 //==============================================================================
 /**

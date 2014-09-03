@@ -4,9 +4,11 @@
 //
 //
 
+
 #include "SoundSource.h"
 #include "ZirkConstants.h"
-#include "PluginEditor.h"
+//#include "PluginEditor.h"
+#include "PluginProcessor.h"
 
 
 SoundSource::SoundSource(){

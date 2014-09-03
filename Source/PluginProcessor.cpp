@@ -12,6 +12,7 @@
 //lo_send(mOsc, "/pan/az", "i", ch);
 
 #include "PluginEditor.h"
+#include "ZirkConstants.h"
 #include <string.h>
 #include <sstream>
 #include <regex.h>
@@ -141,7 +142,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
     //if write trajectory is enabled (button toggled on in editor)
     if (_isWriteTrajectory){
-        cout << "is writing trajectory\n";
         //get current playhead info
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
@@ -201,7 +201,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 _SelectedSourceForTrajectory = getSelectedSource();
                 
                 //if circle, only azimuth will change; else both azimuth and elevation will change
-                if (getSelectedTrajectoryAsInteger() == ZirkOscjuceAudioProcessorEditor::Circle){
+                if (getSelectedTrajectoryAsInteger() == Circle){
                     if (m_iSelectedMovementConstraint == Independant){
                         beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                     } else {
@@ -246,7 +246,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
                 switch (iSelectedTrajectory) {
                         
-                    case ZirkOscjuceAudioProcessorEditor::Circle :
+                    case Circle :
                         newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
                         if (_TrajectoryIsDirectionReversed){
                             newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
@@ -264,7 +264,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         break;
                         
                         
-                    case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                    case Pendulum :
                         
                         //this just grows linearly with time
                         newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
@@ -303,13 +303,13 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         
                         break;
                         
-                    case ZirkOscjuceAudioProcessorEditor::UpAndDownSpiral :
-                    case ZirkOscjuceAudioProcessorEditor::DownAndUpSpiral :
+                    case UpAndDownSpiral :
+                    case DownAndUpSpiral :
                     
                         newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength);   //this just grows linearly with time
                         theta = modf(newElevation, &integralPart);                                          //result from this modf is theta [0,1]
 
-                        if (iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::UpAndDownSpiral){
+                        if (iSelectedTrajectory == UpAndDownSpiral){
                             //newElevation = abs( sin(newElevation * M_PI + _TrajectoriesPhiAsin) );    //using only this line produced this: part d'une élévation initiale; monte vers le haut du dôme; redescend jusqu'en bas; remonte jusqu'à l'élévation initiale
                             newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
                             newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
@@ -336,14 +336,14 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         }
                         break;
                         
-                    case ZirkOscjuceAudioProcessorEditor::UpwardSpiral :
-                    case ZirkOscjuceAudioProcessorEditor::DownwardSpiral :
+                    case UpwardSpiral :
+                    case DownwardSpiral :
                         //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
                         theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);   //result from this modf is theta [0,1]
                         
                         newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;         //newElevation is a mapping of theta[0,1] to [_TrajectoryInitialElevation, 1]
                         
-                        if (iSelectedTrajectory == ZirkOscjuceAudioProcessorEditor::DownwardSpiral){
+                        if (iSelectedTrajectory == DownwardSpiral){
                             newElevation = _TrajectoryInitialElevation * (1 - newElevation) / (1-_TrajectoryInitialElevation);  //map newElevation from [_TrajectoryInitialElevation, 1] to [_TrajectoryInitialElevation, 0]
                         }
                         
@@ -395,7 +395,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
 #endif
             switch (getSelectedTrajectoryAsInteger()) {
-                case ZirkOscjuceAudioProcessorEditor::Circle :
+                case Circle :
                     if (m_iSelectedMovementConstraint == Independant){
                         endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                     } else {
@@ -404,12 +404,12 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         }
                     }
                     break;
-                case ZirkOscjuceAudioProcessorEditor::UpwardSpiral :
-                case ZirkOscjuceAudioProcessorEditor::DownwardSpiral :
-                case ZirkOscjuceAudioProcessorEditor::UpAndDownSpiral :
-                case ZirkOscjuceAudioProcessorEditor::DownAndUpSpiral :
+                case UpwardSpiral :
+                case DownwardSpiral :
+                case UpAndDownSpiral :
+                case DownAndUpSpiral :
                     m_fOldElevation = -1.f;
-                case ZirkOscjuceAudioProcessorEditor::Pendulum :
+                case Pendulum :
                     if (m_iSelectedMovementConstraint == Independant){
                         endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
                         endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
@@ -465,7 +465,9 @@ void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
     _AllSources[0].setAzimReverse(true);
     
     _SelectedMovementConstraint = m_parameterBuffer.fMovementConstraint;
-    m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+    //m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+    m_iSelectedMovementConstraint = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
+    
     _isSpanLinked = m_parameterBuffer.bisSpanLinked;
     _isOscActive = m_parameterBuffer.bisOscActive;
     _SelectedTrajectory = m_parameterBuffer.fSelectedTrajectory;
@@ -752,7 +754,8 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
             _SelectedMovementConstraint = newValue;
-            m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+            //m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+            m_iSelectedMovementConstraint = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
             return;
         case ZirkOSC_isOscActive_ParamId:
             if (newValue > .5f)
@@ -903,10 +906,12 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
             _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
             _SelectedMovementConstraint = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
-            m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+            
+            //m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+            m_iSelectedMovementConstraint = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
+            
             _isOscActive = xmlState->getBoolAttribute("isOscActive", true);
             _isSpanLinked = xmlState->getBoolAttribute("isSpanLinked", false);
-            
             _SelectedTrajectory = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
             _TrajectoryCount = xmlState->getIntAttribute("nbrTrajectory", 0);
             _TrajectoriesDuration = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
@@ -1164,7 +1169,11 @@ int ZirkOscjuceAudioProcessor::getSelectedMovementConstraintAsInteger() {
 }
 
 int ZirkOscjuceAudioProcessor::getSelectedTrajectoryAsInteger() {
-    return _SelectedTrajectory * (ZirkOscjuceAudioProcessorEditor::TotalNumberTrajectories-1) + 1;
+    
+    //int value = _SelectedTrajectory * (TotalNumberTrajectories-1) + 1;
+    cout << _SelectedTrajectory << endl;
+    int value = PercentToIntStartsAtZero(_SelectedTrajectory, TotalNumberTrajectories);
+    return value;
 }
 
 

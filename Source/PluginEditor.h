@@ -11,7 +11,7 @@
 #define __PLUGINEDITOR_H_4624BC76__
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
+#include "PluginProcessor.h"
 #include "TrajectoryProperties.hpp"
 
 //==============================================================================
@@ -50,16 +50,16 @@ public:
     
 
     
-    //! Enum of the programmed trajectories
-    enum AllTrajectories {
-        UpwardSpiral = 1,
-        DownwardSpiral,
-        UpAndDownSpiral,
-        DownAndUpSpiral,
-        Pendulum,
-        Circle,
-        TotalNumberTrajectories
-    };
+//    //! Enum of the programmed trajectories
+//    enum AllTrajectories {
+//        UpwardSpiral = 0,
+//        DownwardSpiral,
+//        UpAndDownSpiral,
+//        DownAndUpSpiral,
+//        Pendulum,
+//        Circle,
+//        TotalNumberTrajectories
+//    };
     
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
@@ -268,7 +268,7 @@ private:
 
     //TRAJECTORY PROPERTIES
     
-    PropertyPanel propertyPanel;
+    PropertyPanel m_oPropertyPanel;
     
     //GroupComponent _TrajectoryGroup;
 
@@ -282,16 +282,18 @@ private:
     
     TrajectoryButtonComponent* m_oTrajectoryWriteButtonProperty;
     
+    //Viewport m_oViewport;
+    
 };
 
-//! Conversion of percent value to Human readeable value
-float PercentToHR(float , float , float );
-//! Conversion of human readable value to percent value
-float HRToPercent(float , float , float );
-//! Conversion of percent value to integer. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-int PercentToInt(float percent, int max=TotalNumberConstraints);
-//! Conversion of integer value to percent. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-float IntToPercent(int integer, int max=TotalNumberConstraints);
+////! Conversion of percent value to Human readeable value
+//float PercentToHR(float , float , float );
+////! Conversion of human readable value to percent value
+//float HRToPercent(float , float , float );
+////! Conversion of percent value to integer. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
+//int PercentToInt(float percent, int max=TotalNumberConstraints);
+////! Conversion of integer value to percent. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
+//float IntToPercent(int integer, int max=TotalNumberConstraints);
 
 
 

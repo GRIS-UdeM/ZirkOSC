@@ -7,6 +7,7 @@
 
 #ifndef ZirkOSCJUCE_ZirkConstants_h
 #define ZirkOSCJUCE_ZirkConstants_h
+
 const int ZirkOSC_Max_Sources = 8;
 
 const String ZirkOSC_Azim_name [ZirkOSC_Max_Sources] = {"1 Azimuth", "2 Azimuth","3 Azimuth","4 Azimuth","5 Azimuth","6 Azimuth","7 Azimuth","8 Azimuth"};
@@ -78,5 +79,42 @@ enum AllConstraints {
     DeltaLocked,    /*!< Delta lock mode */
     TotalNumberConstraints
 };
+
+enum AllTrajectories {
+    UpwardSpiral = 0,
+    DownwardSpiral,
+    UpAndDownSpiral,
+    DownAndUpSpiral,
+    Pendulum,
+    Circle,
+    TotalNumberTrajectories
+};
+
+static float PercentToHR(float percent, float min, float max){
+    return percent*(max-min)+min;
+}
+
+static float HRToPercent(float HRValue, float min, float max){
+    return (HRValue-min)/(max-min);
+}
+
+static int PercentToIntStartsAtOne(float percent, int max){
+    return percent * (max-1) + 1;
+}
+
+//max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
+static float IntToPercentStartsAtOne(int integer, int max){
+    return static_cast<float>((integer-1)) / (max - 1);
+}
+
+//max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
+static float IntToPercentStartsAtZero(int integer, int max){
+    return static_cast<float>(integer) / max;
+}
+
+static int PercentToIntStartsAtZero(float percent, int max){
+    return percent * max;
+}
+
 
 #endif

@@ -16,6 +16,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "ZirkConstants.h"
 #include <cstdlib>
 #include <string>
 #include <string.h>
@@ -66,6 +67,7 @@ _IpadIpAddressTextEditor("ipaddress"),
 //_TrajectoryCountTextEditor("trajectoryCountTE"),
 //_TrajectoryDurationTextEditor("trajectoryDurationTE"),
 _MovementConstraintComboBox("MovementConstraint")
+//m_oViewport()
 //_TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
 //_TrajectoryComboBox("Trajectory")
 {
@@ -154,7 +156,7 @@ _MovementConstraintComboBox("MovementConstraint")
     
     //---------- TRAJECTORY COMPONENTS ----------
     
-    addAndMakeVisible (propertyPanel);
+    addAndMakeVisible (m_oPropertyPanel);
     
     Array<PropertyComponent*> comps;
     
@@ -170,38 +172,31 @@ _MovementConstraintComboBox("MovementConstraint")
 
     
     
-    //    comps.add (new TrajectoryGroupComponent (Value(ourProcessor->getSelectedTrajectoryAsInteger()), "Trajectory:", choices, choiceVars));
     
     //NBR TRAJECTORY TEXT EDITOR
     bool bAllowsMultiLine = false;
     m_oTrajectoryCountTextProperty = new TrajectoryTextComponent (Value ("useless"), "Nbr Trajectories", 8, bAllowsMultiLine, ourProcessor, true);
     m_oTrajectoryCountTextProperty->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     comps.add (m_oTrajectoryCountTextProperty);
-    //    comps.add (new TextPropertyComponent (Value (String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId))), "Nbr Trajectories", 8, bAllowsMultiLine));
 
     //SYNC W TEMPO
     m_oTrajectoryTempoButtonProperty = new TrajectoryButtonComponent("Sync with...", "tempo", "measures", ourProcessor, true);
     m_oTrajectoryTempoButtonProperty->setState(ourProcessor->getIsSyncWTempo());
     comps.add (m_oTrajectoryTempoButtonProperty);
-    //    comps.add (new TrajectoryButtonComponent (Value (ourProcessor->getIsSyncWTempo()), "Sync with tempo", ""));
     
     //TRAJECTORY DURATION EDITOR
     m_oTrajectoryDurationTextProperty = new TrajectoryTextComponent(Value ("useless"), "Duration/Nbr Measures", 8, bAllowsMultiLine, ourProcessor, false);
     m_oTrajectoryDurationTextProperty->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     comps.add (m_oTrajectoryDurationTextProperty);
-    //    comps.add (new TextPropertyComponent (Value (String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId))), "Duration/Nbr Measures", 8, bAllowsMultiLine));
     
     //WRITE TOGGLE BUTTON
     m_oTrajectoryWriteButtonProperty = new TrajectoryButtonComponent("Write Trajectory...", "will write", "will NOT write", ourProcessor, false);
     m_oTrajectoryWriteButtonProperty->setState(ourProcessor->getIsWriteTrajectory());
     comps.add (m_oTrajectoryWriteButtonProperty);
-    //    comps.add (new TrajectoryButtonComponent(Value (ourProcessor->getIsWriteTrajectory()), "Write Trajectory", ""));
     
-    propertyPanel.addSection ("Trajectories", comps);
+    m_oPropertyPanel.addSection ("Trajectories", comps);
     
-    //addAndMakeVisible(_TrajectoryGroup);
-    
-    
+//    addAndMakeVisible(_TrajectoryGroup);
 //TRAJECTORY COMBO BOX
 //    _TrajectoryComboBox.addItem("Upward Spiral",   UpwardSpiral);
 //    _TrajectoryComboBox.addItem("Downward Spiral",   DownwardSpiral);
@@ -247,7 +242,8 @@ _MovementConstraintComboBox("MovementConstraint")
     
     
     
-    
+    //SCROLL BAR
+    //m_oViewport.setViewedComponent(this);
     
     
     
@@ -346,7 +342,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     
     // stuff related to trajectories
     //_TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
-    propertyPanel.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
+    m_oPropertyPanel.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
 
     //traj combo box
     //_TrajectoryComboBox.setBounds(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+25, 230, 25);
@@ -358,6 +354,8 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     //_SyncWTempoButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+50, 125, 25);
     //write button
     //_WriteTrajectoryButton.setBounds(iCurWidth-150, iCurHeight-ZirkOSC_TrajectoryGroupHeight+75, 125, 25);
+    
+    //m_oViewport.visibleAreaChanged(Rectangle<int>(ZirkOSC_Window_Default_Width, ZirkOSC_Window_Default_Height, 16, 16));
 }
 
 //Automatic function to set label and Slider
@@ -681,22 +679,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
 //    }
 }
 
-float PercentToHR(float percent, float min, float max){
-    return percent*(max-min)+min;
-}
 
-float HRToPercent(float HRValue, float min, float max){
-    return (HRValue-min)/(max-min);
-}
-
-int PercentToInt(float percent, int max){
-    return percent * (max-1) + 1;
-}
-
-//max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
-float IntToPercent(int integer, int max){
-    return static_cast<float>((integer-1)) / (max - 1);
-}
 
 void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
@@ -1254,7 +1237,7 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
 
             
         ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId,
-                                                IntToPercent(comboBoxThatHasChanged->getSelectedId(), TotalNumberConstraints));
+                                                IntToPercentStartsAtOne(comboBoxThatHasChanged->getSelectedId(), TotalNumberConstraints));
 
         int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
         if( selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
