@@ -45,37 +45,63 @@ int TrajectoryComboBoxComponent::getIndex () const {
 
 
 //--------------------------------------------------------------------------------------------
-
-
-TrajectoryButtonComponent::TrajectoryButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
-                           const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor, bool p_bIsTempo)
+TrajectoryTempoButtonComponent::TrajectoryTempoButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
+                           const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor)
 : BooleanPropertyComponent (propertyName, buttonTextWhenTrue, buttonTextWhenFalse){
     ourProcessor = p_pProcessor;
-    m_bIsTempo = p_bIsTempo;
     refresh();
 }
 
-void TrajectoryButtonComponent::setState (const bool newState)
+void TrajectoryTempoButtonComponent::setState (const bool newState)
 {
-    //m_bState = newState;
-    if (m_bIsTempo){
-        ourProcessor->setIsSyncWTempo(newState);
-    } else {
-        //set isWriteTrajectory property in processor, only if not currently playing
-        if (!ourProcessor->isCurrentlyPlaying()){
-            ourProcessor->setIsWriteTrajectory(newState);
-        }
+    ourProcessor->setIsSyncWTempo(newState);
+    refresh();
+}
+
+bool TrajectoryTempoButtonComponent::getState () const
+{
+    return ourProcessor->getIsSyncWTempo();
+}
+
+//--------------------------------------------------------------------------------------------
+TrajectoryWriteButtonComponent::TrajectoryWriteButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
+                                                      const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor)
+: BooleanPropertyComponent (propertyName, buttonTextWhenTrue, buttonTextWhenFalse){
+    ourProcessor = p_pProcessor;
+    refresh();
+}
+
+void TrajectoryWriteButtonComponent::setState (const bool newState) {
+    //set isWriteTrajectory property in processor, only if not currently playing
+    if (!ourProcessor->isCurrentlyPlaying()){
+        ourProcessor->setIsWriteTrajectory(newState);
     }
     refresh();
 }
 
-bool TrajectoryButtonComponent::getState () const
-{
-    if (m_bIsTempo){
-        return ourProcessor->getIsSyncWTempo();
-    } else {
-        return ourProcessor->getIsWriteTrajectory();
-    }
+bool TrajectoryWriteButtonComponent::getState () const {
+    return ourProcessor->getIsWriteTrajectory();
+    
+}
+
+
+//--------------------------------------------------------------------------------------------
+
+
+TrajectoryPreviewButtonComponent::TrajectoryPreviewButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
+                                                      const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor)
+: BooleanPropertyComponent (propertyName, buttonTextWhenTrue, buttonTextWhenFalse){
+    ourProcessor = p_pProcessor;
+    refresh();
+}
+
+void TrajectoryPreviewButtonComponent::setState (const bool newState){
+    ourProcessor->setIsPreviewTrajectory(newState);
+    refresh();
+}
+
+bool TrajectoryPreviewButtonComponent::getState () const {
+    return ourProcessor->getIsPreviewTrajectory();
 }
 
 

@@ -63,6 +63,7 @@ _TrajectorySingleLength(0),
 m_bTrajectoryElevationDecreasing(false),
 m_bTrajectoryAddPositive(true),
 _TrajectoryJustCompletedSingle(false),
+m_dTrajectoryTimeDone(.0),
 m_bCurrentlyPlaying(false),
 iProcessBlockCounter(0),
 _isSyncWTempo(false),
@@ -70,6 +71,8 @@ _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
 _WasPlayingOnPrevFrame(false),
 _JustsEndedPlaying(false),
+m_bIsPreviewTrajectory(false),
+m_bWasPreviewingTrajectory(false),
 m_fOldElevation(-1.f),
 m_parameterBuffer()
 {
@@ -141,11 +144,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 {
 
     //if write trajectory is enabled (button toggled on in editor)
-    if (_isWriteTrajectory){
+    if (_isWriteTrajectory || m_bIsPreviewTrajectory || m_bWasPreviewingTrajectory){
         //get current playhead info
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
-        if(_CurrentPlayHeadInfo.isPlaying){
+        if(_CurrentPlayHeadInfo.isPlaying || m_bIsPreviewTrajectory){
             
             m_bCurrentlyPlaying = true;
             
@@ -162,6 +165,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 //restoreAllSavedParameters();
 
                 //store begin time
+                m_dTrajectoryTimeDone = .0;
                 _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
                 _TrajectorySingleBeginTime = _TrajectoryBeginTime;
                 
@@ -228,16 +232,23 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << "\n";
                 cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << "\n";
 #endif
+                
+                
+                
                 //we've done enough for this call to processBlock, return and continue on the next
                 return;
             }
             
             //--------------------------- ALL OTHER FRAMES ---------------------
-            //store current time
-            double dCurrentTime = _CurrentPlayHeadInfo.timeInSeconds;
+#warning not too sure whether it is worth it to keep those 2 ways of updating time
+            if (m_bIsPreviewTrajectory){
+                m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
+            } else {
+                m_dTrajectoryTimeDone = _CurrentPlayHeadInfo.timeInSeconds;
+            }
             
             //if we still need to write automation (currentTime smaller than begin time + whole duration
-            if (dCurrentTime < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
+            if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
                 
                 //calculate new position
                 float newAzimuth, newElevation, theta;
@@ -247,7 +258,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 switch (iSelectedTrajectory) {
                         
                     case Circle :
-                        newAzimuth = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+                        newAzimuth = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
                         if (_TrajectoryIsDirectionReversed){
                             newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
                         } else {
@@ -267,7 +278,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     case Pendulum :
                         
                         //this just grows linearly with time
-                        newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
+                        newElevation = ((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
                         
                         if (_TrajectoryIsDirectionReversed){
                             newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhiAcos) );  //only positive cos wave with phase _TrajectoriesPhi
@@ -306,7 +317,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     case UpAndDownSpiral :
                     case DownAndUpSpiral :
                     
-                        newElevation = ((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength);   //this just grows linearly with time
+                        newElevation = ((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength);   //this just grows linearly with time
                         theta = modf(newElevation, &integralPart);                                          //result from this modf is theta [0,1]
 
                         if (iSelectedTrajectory == UpAndDownSpiral){
@@ -339,7 +350,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     case UpwardSpiral :
                     case DownwardSpiral :
                         //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-                        theta = modf((dCurrentTime - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);   //result from this modf is theta [0,1]
+                        theta = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);   //result from this modf is theta [0,1]
                         
                         newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;         //newElevation is a mapping of theta[0,1] to [_TrajectoryInitialElevation, 1]
                         
@@ -383,6 +394,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 << "\t\t\tnewAzimuth: " << newAzimuth
                 << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
 #endif
+            } else {
+                m_bIsPreviewTrajectory = false;
+                m_bWasPreviewingTrajectory = true;
             }
             
             
@@ -429,7 +443,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             iProcessBlockCounter = 0;
 
             //untoggle write trajectory button
-            _isWriteTrajectory = false;
+            if (!m_bWasPreviewingTrajectory){
+                _isWriteTrajectory = false;
+            }
+            m_bWasPreviewingTrajectory = false;
+            
             _RefreshGui=true;
         }
         
@@ -683,6 +701,14 @@ void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
 
 bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){
     return _isWriteTrajectory;
+}
+
+void ZirkOscjuceAudioProcessor::setIsPreviewTrajectory(bool p_bIsPreview){
+    m_bIsPreviewTrajectory = p_bIsPreview;
+}
+
+bool ZirkOscjuceAudioProcessor::getIsPreviewTrajectory(){
+    return m_bIsPreviewTrajectory;
 }
 
 //==============================================================================
@@ -1171,7 +1197,7 @@ int ZirkOscjuceAudioProcessor::getSelectedMovementConstraintAsInteger() {
 int ZirkOscjuceAudioProcessor::getSelectedTrajectoryAsInteger() {
     
     //int value = _SelectedTrajectory * (TotalNumberTrajectories-1) + 1;
-    cout << _SelectedTrajectory << endl;
+    //cout << _SelectedTrajectory << endl;
     int value = PercentToIntStartsAtZero(_SelectedTrajectory, TotalNumberTrajectories);
     return value;
 }

@@ -158,7 +158,7 @@ _MovementConstraintComboBox("MovementConstraint")
     
     addAndMakeVisible (m_oPropertyPanel);
     
-    Array<PropertyComponent*> comps;
+    Array<PropertyComponent*> allProperties;
     
     
     //this needs to be replaced by a call to ChoicePropertyComponent::setIndex()
@@ -168,7 +168,7 @@ _MovementConstraintComboBox("MovementConstraint")
 
     m_oTrajectoryComboBoxProperty = new TrajectoryComboBoxComponent("Trajectory:", ourProcessor);
     m_oTrajectoryComboBoxProperty->setIndex(ourProcessor->getSelectedTrajectoryAsInteger());
-    comps.add (m_oTrajectoryComboBoxProperty);
+    allProperties.add (m_oTrajectoryComboBoxProperty);
 
     
     
@@ -177,24 +177,29 @@ _MovementConstraintComboBox("MovementConstraint")
     bool bAllowsMultiLine = false;
     m_oTrajectoryCountTextProperty = new TrajectoryTextComponent (Value ("useless"), "Nbr Trajectories", 8, bAllowsMultiLine, ourProcessor, true);
     m_oTrajectoryCountTextProperty->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
-    comps.add (m_oTrajectoryCountTextProperty);
+    allProperties.add (m_oTrajectoryCountTextProperty);
 
-    //SYNC W TEMPO
-    m_oTrajectoryTempoButtonProperty = new TrajectoryButtonComponent("Sync with...", "tempo", "measures", ourProcessor, true);
-    m_oTrajectoryTempoButtonProperty->setState(ourProcessor->getIsSyncWTempo());
-    comps.add (m_oTrajectoryTempoButtonProperty);
-    
     //TRAJECTORY DURATION EDITOR
-    m_oTrajectoryDurationTextProperty = new TrajectoryTextComponent(Value ("useless"), "Duration/Nbr Measures", 8, bAllowsMultiLine, ourProcessor, false);
+    m_oTrajectoryDurationTextProperty = new TrajectoryTextComponent(Value ("useless"), "Duration", 8, bAllowsMultiLine, ourProcessor, false);
     m_oTrajectoryDurationTextProperty->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
-    comps.add (m_oTrajectoryDurationTextProperty);
+    allProperties.add (m_oTrajectoryDurationTextProperty);
+    
+    //SYNC W TEMPO
+    m_oTrajectoryTempoButtonProperty = new TrajectoryTempoButtonComponent("Count duration in...", "measures", "seconds", ourProcessor);
+    m_oTrajectoryTempoButtonProperty->setState(ourProcessor->getIsSyncWTempo());
+    allProperties.add (m_oTrajectoryTempoButtonProperty);
     
     //WRITE TOGGLE BUTTON
-    m_oTrajectoryWriteButtonProperty = new TrajectoryButtonComponent("Write Trajectory...", "will write", "will NOT write", ourProcessor, false);
+    m_oTrajectoryWriteButtonProperty = new TrajectoryWriteButtonComponent("Write Trajectory...", "will write", "will NOT write", ourProcessor);
     m_oTrajectoryWriteButtonProperty->setState(ourProcessor->getIsWriteTrajectory());
-    comps.add (m_oTrajectoryWriteButtonProperty);
+    allProperties.add (m_oTrajectoryWriteButtonProperty);
     
-    m_oPropertyPanel.addSection ("Trajectories", comps);
+    //PREVIEW TOGGLE BUTTON
+    m_oTrajectoryPreviewButtonProperty = new TrajectoryPreviewButtonComponent("Preview Trajectory", "Previewing...", "", ourProcessor);
+    m_oTrajectoryPreviewButtonProperty->setState(false);
+    allProperties.add (m_oTrajectoryPreviewButtonProperty);
+    
+    m_oPropertyPanel.addSection ("Trajectories", allProperties);
     
 //    addAndMakeVisible(_TrajectoryGroup);
 //TRAJECTORY COMBO BOX
@@ -645,6 +650,7 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     m_oTrajectoryTempoButtonProperty->refresh();
     m_oTrajectoryDurationTextProperty->refresh();
     m_oTrajectoryWriteButtonProperty->refresh();
+    m_oTrajectoryPreviewButtonProperty->refresh();
 
     
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());

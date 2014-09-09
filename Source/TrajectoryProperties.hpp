@@ -38,13 +38,48 @@ private:
 };
 
 
-
-class TrajectoryButtonComponent : public BooleanPropertyComponent
+//--------------------------------------------------------------------------------------------
+class TrajectoryTempoButtonComponent : public BooleanPropertyComponent
 {
 public:
     
-    TrajectoryButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
-                               const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor, bool p_bIsTempo);
+    TrajectoryTempoButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
+                               const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor);
+    
+    void setState (const bool newState) override;
+    
+    bool getState () const override;
+    
+private:
+    ZirkOscjuceAudioProcessor* ourProcessor;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryTempoButtonComponent)
+};
+
+//--------------------------------------------------------------------------------------------
+class TrajectoryWriteButtonComponent : public BooleanPropertyComponent
+{
+public:
+    
+    TrajectoryWriteButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
+                               const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor);
+    
+    void setState (const bool newState) override;
+    
+    bool getState () const override;
+    
+private:
+    ZirkOscjuceAudioProcessor* ourProcessor;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryWriteButtonComponent)
+};
+
+
+//--------------------------------------------------------------------------------------------
+class TrajectoryPreviewButtonComponent : public BooleanPropertyComponent
+{
+public:
+    
+    TrajectoryPreviewButtonComponent (const String &propertyName, const String &buttonTextWhenTrue,
+                               const String &buttonTextWhenFalse, ZirkOscjuceAudioProcessor* p_pProcessor);
     
     void setState (const bool newState) override;
     
@@ -52,13 +87,15 @@ public:
     
 private:
     //bool m_bState;
+    
+    //whether this instance is a tempo or a write toggle button
     bool m_bIsTempo;
     ZirkOscjuceAudioProcessor* ourProcessor;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryButtonComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryPreviewButtonComponent)
 };
 
 
-
+//--------------------------------------------------------------------------------------------
 class TrajectoryTextComponent : public TextPropertyComponent
 {
 public:

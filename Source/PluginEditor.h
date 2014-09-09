@@ -276,11 +276,13 @@ private:
     
     TrajectoryTextComponent* m_oTrajectoryCountTextProperty;
     
-    TrajectoryButtonComponent* m_oTrajectoryTempoButtonProperty;
+    TrajectoryTempoButtonComponent* m_oTrajectoryTempoButtonProperty;
     
     TrajectoryTextComponent* m_oTrajectoryDurationTextProperty;
     
-    TrajectoryButtonComponent* m_oTrajectoryWriteButtonProperty;
+    TrajectoryWriteButtonComponent* m_oTrajectoryWriteButtonProperty;
+    
+    TrajectoryPreviewButtonComponent* m_oTrajectoryPreviewButtonProperty;
     
     //Viewport m_oViewport;
     
