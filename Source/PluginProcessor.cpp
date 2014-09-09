@@ -149,6 +149,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
         if(_CurrentPlayHeadInfo.isPlaying || m_bIsPreviewTrajectory){
+            cout << "playing\n";
             
             m_bCurrentlyPlaying = true;
             
@@ -161,12 +162,17 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             //--------------------------- FIRST PLAYING FRAME ---------------------
             //if we were not playing on previous frame, this is the first playing frame.
             if (!_WasPlayingOnPrevFrame){
+                cout << "first playing frame\n";
                 
                 //restoreAllSavedParameters();
 
                 //store begin time
                 m_dTrajectoryTimeDone = .0;
-                _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                if (m_bIsPreviewTrajectory){
+                    _TrajectoryBeginTime = 0;
+                } else {
+                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                }
                 _TrajectorySingleBeginTime = _TrajectoryBeginTime;
                 
                 if (_isSyncWTempo) {
@@ -240,13 +246,15 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             }
             
             //--------------------------- ALL OTHER FRAMES ---------------------
-#warning not too sure whether it is worth it to keep those 2 ways of updating time
+            //is it worth it to keep those 2 ways of updating time, instead of just keeping the buffer way?
             if (m_bIsPreviewTrajectory){
                 m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
             } else {
                 m_dTrajectoryTimeDone = _CurrentPlayHeadInfo.timeInSeconds;
             }
             
+            cout << "m_dTrajectoryTimeDone : " << m_dTrajectoryTimeDone << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "_TrajectoriesDurationBuffer: " << _TrajectoriesDurationBuffer << "\n";
+        
             //if we still need to write automation (currentTime smaller than begin time + whole duration
             if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
                 
@@ -394,7 +402,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 << "\t\t\tnewAzimuth: " << newAzimuth
                 << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
 #endif
-            } else {
+            }
+            
+            //m_dTrajectoryTimeDone IS NOT SMALLER THAN (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
+            else {
+                cout << "m_dTrajectoryTimeDone is done\n";
                 m_bIsPreviewTrajectory = false;
                 m_bWasPreviewingTrajectory = true;
             }
@@ -404,6 +416,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             
             //if we were playing on prev frame, this is the first frame after we stopped
         } else if (_WasPlayingOnPrevFrame){
+            cout << "was playing on prev frame, wrapping this up\n";
             
 #if defined(DEBUG)
             cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
@@ -450,7 +463,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             
             _RefreshGui=true;
         }
-        
     }
 }
 
