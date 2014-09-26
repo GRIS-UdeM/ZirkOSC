@@ -35,11 +35,13 @@
  using namespace juce;
 #endif
 
+#if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
     const char* const  projectName    = "ZirkOSC2";
-    const char* const  versionString  = "2.0.6.1";
-    const int          versionNumber  = 0x2000601;
+    const char* const  versionString  = "2.0.8";
+    const int          versionNumber  = 0x20008;
 }
+#endif
 
 #endif   // __APPHEADERFILE_PUQM6U__

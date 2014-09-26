@@ -70,6 +70,7 @@ _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
 _WasPlayingOnPrevFrame(false),
+m_bUserInterruptedPreview(false),
 _JustsEndedPlaying(false),
 m_bIsPreviewTrajectory(false),
 m_bWasPreviewingTrajectory(false),
@@ -149,7 +150,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         playHead->getCurrentPosition(_CurrentPlayHeadInfo);
         
         if(_CurrentPlayHeadInfo.isPlaying || m_bIsPreviewTrajectory){
+#if defined(DEBUG)
             cout << "playing\n";
+#endif
             
             m_bCurrentlyPlaying = true;
             
@@ -162,8 +165,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             //--------------------------- FIRST PLAYING FRAME ---------------------
             //if we were not playing on previous frame, this is the first playing frame.
             if (!_WasPlayingOnPrevFrame){
+#if defined(DEBUG)
                 cout << "first playing frame\n";
-                
+#endif
                 //restoreAllSavedParameters();
 
                 //store begin time
@@ -252,9 +256,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             } else {
                 m_dTrajectoryTimeDone = _CurrentPlayHeadInfo.timeInSeconds;
             }
-            
+#if defined(DEBUG)
             cout << "m_dTrajectoryTimeDone : " << m_dTrajectoryTimeDone << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "_TrajectoriesDurationBuffer: " << _TrajectoriesDurationBuffer << "\n";
-        
+#endif
             //if we still need to write automation (currentTime smaller than begin time + whole duration
             if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
                 
@@ -297,7 +301,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         }
                         
                         //when we get to the top of the dome, we need to get back down
-                        #warning TODO ideally though we would not mess with _TrajectoryInitialAzimuth but use a buffered version
                         if (!m_bTrajectoryElevationDecreasing && newElevation > .98){
                             (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
                             m_bTrajectoryElevationDecreasing = true;
@@ -406,19 +409,17 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             
             //m_dTrajectoryTimeDone IS NOT SMALLER THAN (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
             else {
+#if defined(DEBUG)
                 cout << "m_dTrajectoryTimeDone is done\n";
+#endif
                 m_bIsPreviewTrajectory = false;
                 m_bWasPreviewingTrajectory = true;
             }
-            
-            
-            
-            
+
             //if we were playing on prev frame, this is the first frame after we stopped
-        } else if (_WasPlayingOnPrevFrame){
-            cout << "was playing on prev frame, wrapping this up\n";
-            
+        } else if (_WasPlayingOnPrevFrame || m_bUserInterruptedPreview){
 #if defined(DEBUG)
+            cout << "was playing on prev frame, wrapping this up\n";
             cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
 #endif
             switch (getSelectedTrajectoryAsInteger()) {
@@ -460,6 +461,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 _isWriteTrajectory = false;
             }
             m_bWasPreviewingTrajectory = false;
+            m_bUserInterruptedPreview = false;
             
             _RefreshGui=true;
         }
@@ -606,7 +608,7 @@ int ZirkOscjuceAudioProcessor::getNumPrograms()
 
 int ZirkOscjuceAudioProcessor::getCurrentProgram()
 {
-    return 0;
+    return 1;
 }
 
 void ZirkOscjuceAudioProcessor::setCurrentProgram (int index)
@@ -716,7 +718,15 @@ bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){
 }
 
 void ZirkOscjuceAudioProcessor::setIsPreviewTrajectory(bool p_bIsPreview){
+    
+    //user interupted preview
+    if (m_bIsPreviewTrajectory && !p_bIsPreview){
+        m_bUserInterruptedPreview = true;
+        m_bWasPreviewingTrajectory = true;
+        
+    }
     m_bIsPreviewTrajectory = p_bIsPreview;
+    
 }
 
 bool ZirkOscjuceAudioProcessor::getIsPreviewTrajectory(){

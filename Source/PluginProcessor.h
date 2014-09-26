@@ -371,6 +371,8 @@ private:
     bool m_bIsPreviewTrajectory;
     
     bool m_bWasPreviewingTrajectory;
+    
+    bool m_bUserInterruptedPreview;
 
     float m_fOldElevation;
     
