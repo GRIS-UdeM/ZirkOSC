@@ -85,8 +85,8 @@ public:
         
        //ZirkOscjuceAudioProcessorEditor::setSliderAndLabel("Gain", m_pGainSlider, m_pGainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
         
-        m_pGainSlider->setBounds (45, 46, 180, 22);
-        m_pGainLabel ->setBounds (45, 46 + 22, 180, 22);
+//        m_pGainSlider->setBounds (45, 46, 180, 22);
+//        m_pGainLabel ->setBounds (45, 46 + 22, 180, 22);
     }
     
     
@@ -157,7 +157,6 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pGainSlider = slidersTab->getGainSlider();
     m_pGainLabel  = slidersTab->getGainLabel();
     setSliderAndLabel("Gain", m_pGainSlider, m_pGainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
-    
     m_pGainSlider->addListener(this);
     
     
@@ -428,7 +427,10 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     _SliderComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
 
     //------------ LABELS AND SLIDERS ------------
-    //setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-40, 20, m_pGainSlider, &_GainLabel);
+    //setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-40, 20, m_pGainSlider, m_pGainLabel);
+    setSliderAndLabelPosition(15, 15, iCurWidth-40, 20, m_pGainSlider, m_pGainLabel);
+//    m_pGainSlider->setBounds (45, 46, 180, 22);
+//    m_pGainLabel ->setBounds (45, 46 + 22, 180, 22);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+30, iCurWidth-40, 20, &_AzimuthSlider ,&_AzimuthLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+60, iCurWidth-40, 20, &_ElevationSlider, &_ElevationLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+90, iCurWidth-40, 20, &_AzimuthSpanSlider, &_AzimuthSpanLabel);
