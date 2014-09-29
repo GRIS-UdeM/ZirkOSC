@@ -146,6 +146,12 @@ private:
     
     //TextButton _WriteTrajectoryButton;
     
+    TabbedComponent _TabComponent;
+
+    Component _SliderComponent;
+    
+    Component _TrajectoryComponent;
+    
     static bool _AlreadySetTrajectorySource;
     
     bool _isReturnKeyPressedCalledFromFocusLost;

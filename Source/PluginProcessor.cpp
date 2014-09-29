@@ -70,10 +70,10 @@ _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
 _WasPlayingOnPrevFrame(false),
-m_bUserInterruptedPreview(false),
 _JustsEndedPlaying(false),
 m_bIsPreviewTrajectory(false),
 m_bWasPreviewingTrajectory(false),
+m_bUserInterruptedPreview(false),
 m_fOldElevation(-1.f),
 m_parameterBuffer()
 {

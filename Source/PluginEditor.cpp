@@ -29,6 +29,54 @@ using namespace std;
 
 bool ZirkOscjuceAudioProcessorEditor::_AlreadySetTrajectorySource = false;
 
+
+
+
+
+class TrajectoryTab : public Component{
+    
+    OwnedArray<Component> components;
+    
+    // This little function avoids a bit of code-duplication by adding a component to
+    // our list as well as calling addAndMakeVisible on it..
+    template <typename ComponentType>
+    ComponentType* addToList (ComponentType* newComp)
+    {
+        components.add (newComp);
+        addAndMakeVisible (newComp);
+        return newComp;
+    }
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryTab)
+    
+public:
+    
+    TrajectoryTab(){
+        
+        for (int i = 0; i < 4; ++i)
+        {
+            ToggleButton* tb = addToList (new ToggleButton ("Radio Button #" + String (i + 1)));
+            
+            tb->setRadioGroupId (1234);
+            tb->setBounds (45, 46 + i * 22, 180, 22);
+            tb->setTooltip ("A set of mutually-exclusive radio buttons");
+            
+            if (i == 0)
+                tb->setToggleState (true, dontSendNotification);
+        }
+        
+    }
+    
+};
+
+
+
+
+
+
+
+
+
 /*!
 *  \param ownerFilter : the processor processor
 */
@@ -39,7 +87,10 @@ _LinkSpanButton("Link Span"),
 _OscActiveButton("OSC active"),
 //_SyncWTempoButton("Sync with Tempo"),
 //_WriteTrajectoryButton("Write Trajectory"),
-_isReturnKeyPressedCalledFromFocusLost(false),
+_TabComponent(TabbedButtonBar::TabsAtTop),
+_SliderComponent(),
+_TrajectoryComponent(),
+//_isReturnKeyPressedCalledFromFocusLost(false),
 _AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
 _ElevationSlider(ZirkOSC_ElevSpan_name[0]),
 _ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
@@ -71,27 +122,50 @@ _MovementConstraintComboBox("MovementConstraint")
 //_TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
 //_TrajectoryComboBox("Trajectory")
 {
+//    
+//    _TrajectoryComponent.setBounds(0, 0, ZirkOSC_Window_Default_Width, 260);
+//    _SliderComponent.setBounds(0, 0, ZirkOSC_Window_Default_Width, 260);
+    Colour color = Colours::lightgrey;
+    
+    _TabComponent.addTab("Sliders", color, &_SliderComponent, true);
+    _TabComponent.addTab("Trajectories", color, &_TrajectoryComponent, true);
+    _TabComponent.addTab("Properties", color, &m_oPropertyPanel, true);
+    addAndMakeVisible(_TabComponent);
+    
+    
+    ComboBox cb;
+    int index = 1;
+    cb.addItem("Independant", index++);
+    cb.addListener(this);
+    cb.setBounds(15, getHeight()-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, getWidth()-40, 20);
+    _SliderComponent.addAndMakeVisible(cb);
     
     //---------- SLIDERS ----------
     setSliderAndLabel("Gain", &_GainSlider,&_GainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
-    addAndMakeVisible(&_GainSlider);
-    addAndMakeVisible(&_GainLabel);
+    _SliderComponent.addAndMakeVisible(&_GainSlider);
+    _SliderComponent.addAndMakeVisible(&_GainLabel);
+    //setSliderAndLabelPosition(15, getHeight()-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, getWidth()-40, 20, &_GainSlider, &_GainLabel);
+    _GainSlider.addListener(this);
 
     setSliderAndLabel("Azimuth", &_AzimuthSlider ,&_AzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    addAndMakeVisible(&_AzimuthSlider);
-    addAndMakeVisible(&_AzimuthLabel);
+    _SliderComponent.addAndMakeVisible(&_AzimuthSlider);
+    _SliderComponent.addAndMakeVisible(&_AzimuthLabel);
+    _AzimuthSlider.addListener(this);
 
     setSliderAndLabel("Elevation", &_ElevationSlider, &_ElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    addAndMakeVisible(&_ElevationSlider);
-    addAndMakeVisible(&_ElevationLabel);
+    _SliderComponent.addAndMakeVisible(&_ElevationSlider);
+    _SliderComponent.addAndMakeVisible(&_ElevationLabel);
+    _ElevationSlider.addListener(this);
 
     setSliderAndLabel("Elev. Span.", &_ElevationSpanSlider, &_ElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
-    addAndMakeVisible(&_ElevationSpanSlider);
-    addAndMakeVisible(&_ElevationSpanLabel);
+    _SliderComponent.addAndMakeVisible(&_ElevationSpanSlider);
+    _SliderComponent.addAndMakeVisible(&_ElevationSpanLabel);
+    _ElevationSpanSlider.addListener(this);
 
     setSliderAndLabel("Azim. Span.", &_AzimuthSpanSlider, &_AzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
-    addAndMakeVisible(&_AzimuthSpanSlider);
-    addAndMakeVisible(&_AzimuthSpanLabel);
+    _SliderComponent.addAndMakeVisible(&_AzimuthSpanSlider);
+    _SliderComponent.addAndMakeVisible(&_AzimuthSpanLabel);
+    _AzimuthSpanSlider.addListener(this);
 
     //---------- LABELS ----------
     _NbrSourceLabel.setText("Nbr Sources",  dontSendNotification);
@@ -148,7 +222,7 @@ _MovementConstraintComboBox("MovementConstraint")
     int selected_id = ourProcessor->getSelectedMovementConstraintAsInteger();
     _MovementConstraintComboBox.setSelectedId(selected_id);
     _MovementConstraintComboBox.addListener(this);
-    addAndMakeVisible(&_MovementConstraintComboBox);
+    _SliderComponent.addAndMakeVisible(&_MovementConstraintComboBox);
     
     
     
@@ -156,7 +230,8 @@ _MovementConstraintComboBox("MovementConstraint")
     
     //---------- TRAJECTORY COMPONENTS ----------
     
-    addAndMakeVisible (m_oPropertyPanel);
+    //addAndMakeVisible (m_oPropertyPanel);
+
     
     Array<PropertyComponent*> allProperties;
     
@@ -269,12 +344,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _FirstSourceIdTextEditor.addListener(this);
     _ZkmOscPortTextEditor.addListener(this);
     _NbrSourceTextEditor.addListener(this);
-    _ElevationSlider.addListener(this);
-    _AzimuthSlider.addListener(this);
-    _GainSlider.addListener(this);
-    _ElevationSpanSlider.addListener(this);
-    _AzimuthSpanSlider.addListener(this);
-    if (m_bUseIpad){
+        if (m_bUseIpad){
         _IpadOutgoingOscPortTextEditor.addListener(this);
         _IpadIncomingOscPortTextEditor.addListener(this);
         _IpadIpAddressTextEditor.addListener(this);
@@ -332,6 +402,12 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     int iXRadius = (iCurWidth -85)/2;
     int iYRadius = (iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight-10)/2;
     ZirkOscjuceAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
+    
+    
+    //------------ TABS ------------
+    _TabComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
+    _TrajectoryComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
+    _SliderComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
 
     //------------ LABELS AND SLIDERS ------------
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-40, 20, &_GainSlider, &_GainLabel);
@@ -347,7 +423,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     
     // stuff related to trajectories
     //_TrajectoryGroup.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
-    m_oPropertyPanel.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
+    //m_oPropertyPanel.setBounds (15, iCurHeight-ZirkOSC_TrajectoryGroupHeight, iCurWidth-30, ZirkOSC_TrajectoryGroupHeight-10);
 
     //traj combo box
     //_TrajectoryComboBox.setBounds(30, iCurHeight-ZirkOSC_TrajectoryGroupHeight+25, 230, 25);
