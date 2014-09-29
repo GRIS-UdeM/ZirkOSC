@@ -31,17 +31,11 @@ bool ZirkOscjuceAudioProcessorEditor::_AlreadySetTrajectorySource = false;
 
 
 
-
-
 class TrajectoryTab : public Component{
     
     OwnedArray<Component> components;
     
-    // This little function avoids a bit of code-duplication by adding a component to
-    // our list as well as calling addAndMakeVisible on it..
-    template <typename ComponentType>
-    ComponentType* addToList (ComponentType* newComp)
-    {
+    template <typename ComponentType> ComponentType* addToList (ComponentType* newComp){
         components.add (newComp);
         addAndMakeVisible (newComp);
         return newComp;
@@ -50,27 +44,54 @@ class TrajectoryTab : public Component{
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TrajectoryTab)
     
 public:
-    
     TrajectoryTab(){
         
-        for (int i = 0; i < 4; ++i)
-        {
-            ToggleButton* tb = addToList (new ToggleButton ("Radio Button #" + String (i + 1)));
-            
-            tb->setRadioGroupId (1234);
-            tb->setBounds (45, 46 + i * 22, 180, 22);
-            tb->setTooltip ("A set of mutually-exclusive radio buttons");
-            
-            if (i == 0)
-                tb->setToggleState (true, dontSendNotification);
-        }
-        
     }
-    
 };
 
 
 
+
+class SlidersTab : public Component{
+    
+    OwnedArray<Component> components;
+    
+    Slider* m_pGainSlider;
+    
+    Label* m_pGainLabel;
+
+public:
+    template <typename ComponentType> ComponentType* addToList (ComponentType* newComp){
+        components.add (newComp);
+        addAndMakeVisible (newComp);
+        return newComp;
+    }
+    
+
+    
+    Slider* getGainSlider(){
+        return m_pGainSlider;
+    }
+    
+    Label* getGainLabel(){
+        return m_pGainLabel;
+    }
+
+    
+    SlidersTab(){
+        m_pGainSlider = addToList (new Slider(ZirkOSC_Gain_name[0]));
+        m_pGainLabel  = addToList (new Label( ZirkOSC_Gain_name[0]));
+
+        
+       //ZirkOscjuceAudioProcessorEditor::setSliderAndLabel("Gain", m_pGainSlider, m_pGainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
+        
+        m_pGainSlider->setBounds (45, 46, 180, 22);
+        m_pGainLabel ->setBounds (45, 46 + 22, 180, 22);
+    }
+    
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SlidersTab)
+};
 
 
 
@@ -94,11 +115,11 @@ _TrajectoryComponent(),
 _AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
 _ElevationSlider(ZirkOSC_ElevSpan_name[0]),
 _ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
-_GainSlider (ZirkOSC_Gain_name[0]),
+//_GainSlider (ZirkOSC_Gain_name[0]),
 _AzimuthLabel(ZirkOSC_Azim_name[0]),
 _AzimuthSpanLabel(ZirkOSC_AzimSpan_name[0]),
 _ElevationLabel(ZirkOSC_Elev_name[0]),
-_GainLabel(ZirkOSC_Gain_name[0]),
+//_GainLabel(ZirkOSC_Gain_name[0]),
 
 //strings in parameters are all used as juce::component names
 _FirstSourceIdLabel("channelNbr"),
@@ -118,34 +139,31 @@ _IpadIpAddressTextEditor("ipaddress"),
 //_TrajectoryCountTextEditor("trajectoryCountTE"),
 //_TrajectoryDurationTextEditor("trajectoryDurationTE"),
 _MovementConstraintComboBox("MovementConstraint")
-//m_oViewport()
 //_TrajectoryGroup("trajectoryGroup", "Programmed Trajectories")
 //_TrajectoryComboBox("Trajectory")
 {
-//    
-//    _TrajectoryComponent.setBounds(0, 0, ZirkOSC_Window_Default_Width, 260);
-//    _SliderComponent.setBounds(0, 0, ZirkOSC_Window_Default_Width, 260);
-    Colour color = Colours::lightgrey;
+
     
-    _TabComponent.addTab("Sliders", color, &_SliderComponent, true);
-    _TabComponent.addTab("Trajectories", color, &_TrajectoryComponent, true);
-    _TabComponent.addTab("Properties", color, &m_oPropertyPanel, true);
+    //---------- SETTING UP TABS ----------
+    slidersTab = new SlidersTab();
+    _TabComponent.addTab("Sliders", Colours::lightgrey, slidersTab, true);
+//    _TabComponent.addTab("Trajectories", Colours::lightgrey, &_TrajectoryComponent, true);
+//    _TabComponent.addTab("Properties", Colours::lightgrey, &m_oPropertyPanel, true);
     addAndMakeVisible(_TabComponent);
     
     
-    ComboBox cb;
-    int index = 1;
-    cb.addItem("Independant", index++);
-    cb.addListener(this);
-    cb.setBounds(15, getHeight()-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, getWidth()-40, 20);
-    _SliderComponent.addAndMakeVisible(cb);
     
     //---------- SLIDERS ----------
-    setSliderAndLabel("Gain", &_GainSlider,&_GainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
-    _SliderComponent.addAndMakeVisible(&_GainSlider);
-    _SliderComponent.addAndMakeVisible(&_GainLabel);
-    //setSliderAndLabelPosition(15, getHeight()-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, getWidth()-40, 20, &_GainSlider, &_GainLabel);
-    _GainSlider.addListener(this);
+    m_pGainSlider = slidersTab->getGainSlider();
+    m_pGainLabel  = slidersTab->getGainLabel();
+    setSliderAndLabel("Gain", m_pGainSlider, m_pGainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
+    
+    m_pGainSlider->addListener(this);
+    
+    
+    
+    
+    
 
     setSliderAndLabel("Azimuth", &_AzimuthSlider ,&_AzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     _SliderComponent.addAndMakeVisible(&_AzimuthSlider);
@@ -410,7 +428,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     _SliderComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
 
     //------------ LABELS AND SLIDERS ------------
-    setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-40, 20, &_GainSlider, &_GainLabel);
+    //setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-40, 20, m_pGainSlider, &_GainLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+30, iCurWidth-40, 20, &_AzimuthSlider ,&_AzimuthLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+60, iCurWidth-40, 20, &_ElevationSlider, &_ElevationLabel);
     setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+90, iCurWidth-40, 20, &_AzimuthSpanSlider, &_AzimuthSpanLabel);
@@ -448,7 +466,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
 * \param min : minimum value of the slider
 * \param max : maximum value of the slider
 */
-void ZirkOscjuceAudioProcessorEditor::setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max){
+ void ZirkOscjuceAudioProcessorEditor::setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max){
     slider->setTextBoxStyle(Slider::TextBoxRight, false, 80, 20);
     label->setText(labelText,  dontSendNotification);
     slider->setRange (min, max, 0.01);
@@ -665,7 +683,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     int selectedSource = ourProcessor->getSelectedSource();
     
     //based on selected source, update all sliders
-    _GainSlider.setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
+    m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
 
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     _AzimuthSlider.setValue(HRValue,dontSendNotification);
@@ -769,7 +787,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
-    if (slider == &_GainSlider) {
+    if (slider == m_pGainSlider) {
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
     }
     else if (slider == &_AzimuthSlider) {
@@ -817,7 +835,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
-    if (slider == &_GainSlider) {
+    if (slider == m_pGainSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
     }
     else if (slider == &_AzimuthSlider) {
@@ -869,8 +887,8 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     SoundSource curLocationSource = ourProcessor->getSources()[selectedSource];
     Point<float> newLocation;
     
-    if (slider == &_GainSlider) {
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) _GainSlider.getValue());
+    if (slider == m_pGainSlider) {
+        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) m_pGainSlider->getValue());
     }
     
     else if (slider == &_AzimuthSlider || slider == &_ElevationSlider) {
@@ -978,7 +996,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         }
         //repaint();
     }
-    _GainSlider.grabKeyboardFocus();
+    m_pGainSlider->grabKeyboardFocus();
 }
 
 int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
@@ -1032,7 +1050,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         //repaint();
     }
     getProcessor()->sendOSCValues();
-    _GainSlider.grabKeyboardFocus();
+    m_pGainSlider->grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
@@ -1052,7 +1070,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         }
         _isSourceBeingDragged=false;
     }
-    _GainSlider.grabKeyboardFocus();
+    m_pGainSlider->grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
@@ -1302,7 +1320,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     ourProcessor->sendOSCValues();
     ourProcessor->sendOSCMovementType();
     if (!_isReturnKeyPressedCalledFromFocusLost){
-        _GainSlider.grabKeyboardFocus();
+        m_pGainSlider->grabKeyboardFocus();
     }
 }
 
@@ -1326,7 +1344,7 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
             _isNeedToSetFixedAngles=true;
         }
         ourProcessor->sendOSCMovementType();
-        //_GainSlider.grabKeyboardFocus();
+        //m_pGainSlider->grabKeyboardFocus();
     }
 
 }

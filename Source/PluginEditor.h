@@ -19,7 +19,7 @@
  */
 
 
-
+class SlidersTab;
 
 
 class ZirkOscjuceAudioProcessor;
@@ -85,6 +85,10 @@ public:
     bool isDraggableSource();
     
     int getDomeRadius();
+    
+    //! Function to set the combination of Slider and Label.
+    static void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);
+
 
 private:
     
@@ -121,8 +125,6 @@ private:
     void textEditorReturnKeyPressed (TextEditor &editor);
     //! Called when text is changed in a TextEditor
     void textEditorFocusLost (TextEditor &editor);
-    //! Function to set the combination of Slider and Label.
-    void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);
     //! Function to set the position of one Slider and associated Label.
     void setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label);
     //! Function to set the position of one label and associated text editor.   
@@ -165,7 +167,7 @@ private:
     //! Slider to change the Elevation Span
     Slider _ElevationSpanSlider;
     //! Slider to change the gain
-    Slider _GainSlider;
+    Slider* m_pGainSlider;
 
     //! Azimuth's Label
     Label _AzimuthLabel;
@@ -176,7 +178,7 @@ private:
     //! Elevation span's Label
     Label _ElevationSpanLabel;
     //! Gain's Label
-    Label _GainLabel;
+    Label* m_pGainLabel;
     
     //! Label of the channel number of the selectedSource
     Label _FirstSourceIdLabel;
@@ -291,6 +293,8 @@ private:
     TrajectoryPreviewButtonComponent* m_oTrajectoryPreviewButtonProperty;
     
     //Viewport m_oViewport;
+    
+    SlidersTab* slidersTab;
     
 };
 
