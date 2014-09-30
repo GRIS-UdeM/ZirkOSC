@@ -57,8 +57,20 @@ class SlidersTab : public Component{
     OwnedArray<Component> components;
     
     Slider* m_pGainSlider;
+    Label*  m_pGainLabel;
     
-    Label* m_pGainLabel;
+    Slider* m_pAzimuthSlider;
+    Label*  m_pAzimuthLabel;
+
+    Slider* m_pElevationSlider;
+    Label*  m_pElevationLabel;
+
+    Slider* m_pAzimuthSpanSlider;
+    Label*  m_pAzimuthSpanLabel;
+
+    Slider* m_pElevationSpanSlider;
+    Label*  m_pElevationSpanLabel;
+
 
 public:
     template <typename ComponentType> ComponentType* addToList (ComponentType* newComp){
@@ -67,35 +79,43 @@ public:
         return newComp;
     }
     
-
+    Slider* getGainSlider() { return m_pGainSlider; }
+    Label*  getGainLabel()  { return m_pGainLabel;  }
     
-    Slider* getGainSlider(){
-        return m_pGainSlider;
-    }
+    Slider* getAzimuthSlider(){ return m_pAzimuthSlider; }
+    Label*  getAzimuthLabel() { return m_pAzimuthLabel;  }
     
-    Label* getGainLabel(){
-        return m_pGainLabel;
-    }
+    Slider* getElevationSlider(){ return m_pElevationSlider; }
+    Label*  getElevationLabel() { return m_pElevationLabel;  }
+    
+    Slider* getAzimuthSpanSlider(){ return m_pAzimuthSpanSlider; }
+    Label*  getAzimuthSpanLabel() { return m_pAzimuthSpanLabel;  }
+    
+    Slider* getElevationSpanSlider(){ return m_pElevationSpanSlider; }
+    Label*  getElevationSpanLabel() { return m_pElevationSpanLabel;  }
 
     
     SlidersTab(){
-        m_pGainSlider = addToList (new Slider(ZirkOSC_Gain_name[0]));
-        m_pGainLabel  = addToList (new Label( ZirkOSC_Gain_name[0]));
+        m_pGainSlider           = addToList (new Slider(ZirkOSC_Gain_name[0]));
+        m_pGainLabel            = addToList (new Label( ZirkOSC_Gain_name[0]));
 
+        m_pAzimuthSlider        = addToList (new Slider(ZirkOSC_Azim_name[0]));
+        m_pAzimuthLabel         = addToList (new Label( ZirkOSC_Azim_name[0]));
         
-       //ZirkOscjuceAudioProcessorEditor::setSliderAndLabel("Gain", m_pGainSlider, m_pGainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
+        m_pElevationSlider      = addToList (new Slider(ZirkOSC_Elev_name[0]));
+        m_pElevationLabel       = addToList (new Label( ZirkOSC_Elev_name[0]));
         
-//        m_pGainSlider->setBounds (45, 46, 180, 22);
-//        m_pGainLabel ->setBounds (45, 46 + 22, 180, 22);
+        m_pAzimuthSpanSlider    = addToList (new Slider(ZirkOSC_AzimSpan_name[0]));
+        m_pAzimuthSpanLabel     = addToList (new Label( ZirkOSC_AzimSpan_name[0]));
+        
+        m_pElevationSpanSlider  = addToList (new Slider(ZirkOSC_ElevSpan_name[0]));
+        m_pElevationSpanLabel   = addToList (new Label( ZirkOSC_ElevSpan_name[0]));
+
     }
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SlidersTab)
 };
-
-
-
-
 
 
 /*!
@@ -109,16 +129,17 @@ _OscActiveButton("OSC active"),
 //_SyncWTempoButton("Sync with Tempo"),
 //_WriteTrajectoryButton("Write Trajectory"),
 _TabComponent(TabbedButtonBar::TabsAtTop),
-_SliderComponent(),
-_TrajectoryComponent(),
+//_SliderComponent(),
+//_TrajectoryComponent(),
+
 //_isReturnKeyPressedCalledFromFocusLost(false),
-_AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
-_ElevationSlider(ZirkOSC_ElevSpan_name[0]),
-_ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
+//_AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
+//_ElevationSlider(ZirkOSC_ElevSpan_name[0]),
+//_ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
+//_AzimuthLabel(ZirkOSC_Azim_name[0]),
+//_AzimuthSpanLabel(ZirkOSC_AzimSpan_name[0]),
+//_ElevationLabel(ZirkOSC_Elev_name[0]),
 //_GainSlider (ZirkOSC_Gain_name[0]),
-_AzimuthLabel(ZirkOSC_Azim_name[0]),
-_AzimuthSpanLabel(ZirkOSC_AzimSpan_name[0]),
-_ElevationLabel(ZirkOSC_Elev_name[0]),
 //_GainLabel(ZirkOSC_Gain_name[0]),
 
 //strings in parameters are all used as juce::component names
@@ -128,6 +149,8 @@ _NbrSourceLabel("NbrSources"),
 _IpadOutgoingOscPortLabel("OSCPortOutgoingIPad"),
 _IpadIncomingOscPortLabel("OSCIpadInco"),
 _IpadIpAddressLabel("ipadadressLabel"),
+
+
 _TrajectoryCountLabel("trajectoryCountLabel"),
 _TrajectoryDurationLabel("trajectoryDurationLabel"),
 _FirstSourceIdTextEditor("channelNbr"),
@@ -144,6 +167,39 @@ _MovementConstraintComboBox("MovementConstraint")
 {
 
     
+    //---------- RIGHT SIDE LABELS ----------
+    _NbrSourceLabel.setText("Nbr Sources",  dontSendNotification);
+    _NbrSourceTextEditor.setText(String(getProcessor()->getNbrSources()));
+    addAndMakeVisible(&_NbrSourceLabel);
+    addAndMakeVisible(&_NbrSourceTextEditor);
+    
+    _FirstSourceIdLabel.setText("1st source ID",  dontSendNotification);
+    _FirstSourceIdTextEditor.setText(String(getProcessor()->getSources()[0].getChannel()));
+    addAndMakeVisible(&_FirstSourceIdLabel);
+    addAndMakeVisible(&_FirstSourceIdTextEditor);
+    
+    _ZkmOscPortLabel.setText("ZKM OSC Port",  dontSendNotification);
+    _ZkmOscPortTextEditor.setText(String(getProcessor()->getOscPortZirkonium()));
+    addAndMakeVisible(&_ZkmOscPortLabel);
+    addAndMakeVisible(&_ZkmOscPortTextEditor);
+    
+    _IpadIncomingOscPortLabel.setText("Inc. port",  dontSendNotification);
+    _IpadIncomingOscPortTextEditor.setText(String(getProcessor()->getOscPortIpadIncoming()));
+    addAndMakeVisible(&_IpadIncomingOscPortLabel);
+    addAndMakeVisible(&_IpadIncomingOscPortTextEditor);
+    
+    _IpadOutgoingOscPortLabel.setText("Out. port",  dontSendNotification);
+    _IpadOutgoingOscPortTextEditor.setText(String(getProcessor()->getOscPortIpadOutgoing()));
+    addAndMakeVisible(&_IpadOutgoingOscPortLabel);
+    addAndMakeVisible(&_IpadOutgoingOscPortTextEditor);
+    
+    _IpadIpAddressLabel.setText("iPad IP add.",  dontSendNotification);
+    _IpadIpAddressTextEditor.setText(String(getProcessor()->getOscAddressIpad()));
+    addAndMakeVisible(&_IpadIpAddressLabel);
+    addAndMakeVisible(&_IpadIpAddressTextEditor);
+    
+    
+    
     //---------- SETTING UP TABS ----------
     slidersTab = new SlidersTab();
     _TabComponent.addTab("Sliders", Colours::lightgrey, slidersTab, true);
@@ -159,61 +215,56 @@ _MovementConstraintComboBox("MovementConstraint")
     setSliderAndLabel("Gain", m_pGainSlider, m_pGainLabel, ZirkOSC_Gain_Min, ZirkOSC_Gain_Max);
     m_pGainSlider->addListener(this);
     
+    m_pAzimuthSlider = slidersTab->getAzimuthSlider();
+    m_pAzimuthLabel  = slidersTab->getAzimuthLabel();
+    setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    m_pAzimuthSlider->addListener(this);
+    
+    m_pElevationSlider = slidersTab->getElevationSlider();
+    m_pElevationLabel  = slidersTab->getElevationLabel();
+    setSliderAndLabel("Elevation", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    m_pElevationSlider->addListener(this);
+    
+    m_pElevationSpanSlider = slidersTab->getElevationSpanSlider();
+    m_pElevationSpanLabel  = slidersTab->getElevationSpanLabel();
+    setSliderAndLabel("ElevationSpan", m_pElevationSpanSlider, m_pElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+    m_pElevationSpanSlider->addListener(this);
+    
+    m_pAzimuthSpanSlider = slidersTab->getAzimuthSpanSlider();
+    m_pAzimuthSpanLabel  = slidersTab->getAzimuthSpanLabel();
+    setSliderAndLabel("AzimuthSpan", m_pAzimuthSpanSlider, m_pAzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+    m_pAzimuthSpanSlider->addListener(this);
     
     
     
     
 
-    setSliderAndLabel("Azimuth", &_AzimuthSlider ,&_AzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    _SliderComponent.addAndMakeVisible(&_AzimuthSlider);
-    _SliderComponent.addAndMakeVisible(&_AzimuthLabel);
-    _AzimuthSlider.addListener(this);
-
-    setSliderAndLabel("Elevation", &_ElevationSlider, &_ElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    _SliderComponent.addAndMakeVisible(&_ElevationSlider);
-    _SliderComponent.addAndMakeVisible(&_ElevationLabel);
-    _ElevationSlider.addListener(this);
-
-    setSliderAndLabel("Elev. Span.", &_ElevationSpanSlider, &_ElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
-    _SliderComponent.addAndMakeVisible(&_ElevationSpanSlider);
-    _SliderComponent.addAndMakeVisible(&_ElevationSpanLabel);
-    _ElevationSpanSlider.addListener(this);
-
-    setSliderAndLabel("Azim. Span.", &_AzimuthSpanSlider, &_AzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
-    _SliderComponent.addAndMakeVisible(&_AzimuthSpanSlider);
-    _SliderComponent.addAndMakeVisible(&_AzimuthSpanLabel);
-    _AzimuthSpanSlider.addListener(this);
-
-    //---------- LABELS ----------
-    _NbrSourceLabel.setText("Nbr Sources",  dontSendNotification);
-    _NbrSourceTextEditor.setText(String(getProcessor()->getNbrSources()));
-    addAndMakeVisible(&_NbrSourceLabel);
-    addAndMakeVisible(&_NbrSourceTextEditor);
-
-    _FirstSourceIdLabel.setText("1st source ID",  dontSendNotification);
-    _FirstSourceIdTextEditor.setText(String(getProcessor()->getSources()[0].getChannel()));
-    addAndMakeVisible(&_FirstSourceIdLabel);
-    addAndMakeVisible(&_FirstSourceIdTextEditor);
+//    setSliderAndLabel("Azimuth", &_AzimuthSlider ,&_AzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+//    _SliderComponent.addAndMakeVisible(&_AzimuthSlider);
+//    _SliderComponent.addAndMakeVisible(&_AzimuthLabel);
+//    _AzimuthSlider.addListener(this);
+//
+//    setSliderAndLabel("Elevation", &_ElevationSlider, &_ElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+//    _SliderComponent.addAndMakeVisible(&_ElevationSlider);
+//    _SliderComponent.addAndMakeVisible(&_ElevationLabel);
+//    _ElevationSlider.addListener(this);
+//
+//    setSliderAndLabel("Elev. Span.", &_ElevationSpanSlider, &_ElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+//    _SliderComponent.addAndMakeVisible(&_ElevationSpanSlider);
+//    _SliderComponent.addAndMakeVisible(&_ElevationSpanLabel);
+//    _ElevationSpanSlider.addListener(this);
+//
+//    setSliderAndLabel("Azim. Span.", &_AzimuthSpanSlider, &_AzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+//    _SliderComponent.addAndMakeVisible(&_AzimuthSpanSlider);
+//    _SliderComponent.addAndMakeVisible(&_AzimuthSpanLabel);
+//    _AzimuthSpanSlider.addListener(this);
     
-    _ZkmOscPortLabel.setText("ZKM OSC Port",  dontSendNotification);
-    _ZkmOscPortTextEditor.setText(String(getProcessor()->getOscPortZirkonium()));
-    addAndMakeVisible(&_ZkmOscPortLabel);
-    addAndMakeVisible(&_ZkmOscPortTextEditor);
+    
+    
+    
+    
 
-    _IpadIncomingOscPortLabel.setText("Inc. port",  dontSendNotification);
-    _IpadIncomingOscPortTextEditor.setText(String(getProcessor()->getOscPortIpadIncoming()));
-    addAndMakeVisible(&_IpadIncomingOscPortLabel);
-    addAndMakeVisible(&_IpadIncomingOscPortTextEditor);
 
-    _IpadOutgoingOscPortLabel.setText("Out. port",  dontSendNotification);
-    _IpadOutgoingOscPortTextEditor.setText(String(getProcessor()->getOscPortIpadOutgoing()));
-    addAndMakeVisible(&_IpadOutgoingOscPortLabel);
-    addAndMakeVisible(&_IpadOutgoingOscPortTextEditor);
-
-    _IpadIpAddressLabel.setText("iPad IP add.",  dontSendNotification);
-    _IpadIpAddressTextEditor.setText(String(getProcessor()->getOscAddressIpad()));
-    addAndMakeVisible(&_IpadIpAddressLabel);
-    addAndMakeVisible(&_IpadIpAddressTextEditor);
     
 
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
@@ -239,7 +290,8 @@ _MovementConstraintComboBox("MovementConstraint")
     int selected_id = ourProcessor->getSelectedMovementConstraintAsInteger();
     _MovementConstraintComboBox.setSelectedId(selected_id);
     _MovementConstraintComboBox.addListener(this);
-    _SliderComponent.addAndMakeVisible(&_MovementConstraintComboBox);
+#warning make sure this is displayed above the tabs
+    addAndMakeVisible(&_MovementConstraintComboBox);
     
     
     
@@ -373,7 +425,6 @@ _MovementConstraintComboBox("MovementConstraint")
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
-
     //stopTimer();
 }
 
@@ -423,18 +474,16 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     
     //------------ TABS ------------
     _TabComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
-    _TrajectoryComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
-    _SliderComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
+//    _TrajectoryComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
+//    _SliderComponent.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-30, ZirkOSC_SlidersGroupHeight);
 
     //------------ LABELS AND SLIDERS ------------
     //setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight, iCurWidth-40, 20, m_pGainSlider, m_pGainLabel);
     setSliderAndLabelPosition(15, 15, iCurWidth-40, 20, m_pGainSlider, m_pGainLabel);
-//    m_pGainSlider->setBounds (45, 46, 180, 22);
-//    m_pGainLabel ->setBounds (45, 46 + 22, 180, 22);
-    setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+30, iCurWidth-40, 20, &_AzimuthSlider ,&_AzimuthLabel);
-    setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+60, iCurWidth-40, 20, &_ElevationSlider, &_ElevationLabel);
-    setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+90, iCurWidth-40, 20, &_AzimuthSpanSlider, &_AzimuthSpanLabel);
-    setSliderAndLabelPosition(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+120, iCurWidth-40, 20, &_ElevationSpanSlider, &_ElevationSpanLabel);
+    setSliderAndLabelPosition(15, 15+30,  iCurWidth-40, 20, m_pAzimuthSlider,       m_pAzimuthLabel);
+    setSliderAndLabelPosition(15, 15+60,  iCurWidth-40, 20, m_pElevationSlider,     m_pElevationLabel);
+    setSliderAndLabelPosition(15, 15+90,  iCurWidth-40, 20, m_pAzimuthSpanSlider,   m_pAzimuthSpanLabel);
+    setSliderAndLabelPosition(15, 15+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
 
     //combo box
     //_MovementConstraintComboBox.setBounds(100, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
@@ -688,16 +737,16 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
 
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    _AzimuthSlider.setValue(HRValue,dontSendNotification);
+    m_pAzimuthSlider->setValue(HRValue,dontSendNotification);
 
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    _ElevationSlider.setValue(HRValue,dontSendNotification);
+    m_pElevationSlider->setValue(HRValue,dontSendNotification);
 
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
-    _AzimuthSpanSlider.setValue(HRValue,dontSendNotification);
+    m_pAzimuthSpanSlider->setValue(HRValue,dontSendNotification);
 
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
-    _ElevationSpanSlider.setValue(HRValue,dontSendNotification);
+    m_pElevationSpanSlider->setValue(HRValue,dontSendNotification);
 
 #if defined(DEBUG)
     clock_t sliders = clock();
@@ -792,7 +841,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     if (slider == m_pGainSlider) {
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
     }
-    else if (slider == &_AzimuthSlider) {
+    else if (slider == m_pAzimuthSlider) {
         if (selectedConstraint == Independant){
             ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (selectedSource*5));
         } else {
@@ -801,7 +850,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
             }
         }
     }
-    else if (slider == &_ElevationSlider) {
+    else if (slider == m_pElevationSlider) {
         if (selectedConstraint == Independant){
             ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (selectedSource*5));
         } else {
@@ -810,7 +859,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
             }
         }
     }
-    else if (slider == &_ElevationSpanSlider) {
+    else if (slider == m_pElevationSpanSlider) {
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5));
@@ -820,7 +869,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
         }
         
     }
-    else if (slider == &_AzimuthSpanSlider) {
+    else if (slider == m_pAzimuthSpanSlider) {
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5));
@@ -840,7 +889,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     if (slider == m_pGainSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
     }
-    else if (slider == &_AzimuthSlider) {
+    else if (slider == m_pAzimuthSlider) {
         if (selectedConstraint == Independant){
             ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (selectedSource*5));
         } else {
@@ -849,7 +898,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
             }
         }
     }
-    else if (slider == &_ElevationSlider) {
+    else if (slider == m_pElevationSlider) {
         if (selectedConstraint == Independant){
             ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (selectedSource*5));
         } else {
@@ -858,7 +907,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
             }
         }
     }
-    else if (slider == &_ElevationSpanSlider) {
+    else if (slider == m_pElevationSpanSlider) {
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5));
@@ -868,7 +917,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
         }
         
     }
-    else if (slider == &_AzimuthSpanSlider) {
+    else if (slider == m_pAzimuthSpanSlider) {
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5));
@@ -893,14 +942,14 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) m_pGainSlider->getValue());
     }
     
-    else if (slider == &_AzimuthSlider || slider == &_ElevationSlider) {
+    else if (slider == m_pAzimuthSlider || slider == m_pElevationSlider) {
 
         //get selected movement constraint
         int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
         
-        if (slider == &_AzimuthSlider ){
+        if (slider == m_pAzimuthSlider ){
             //figure out where the slider should move the point
-            percentValue = HRToPercent((float) _AzimuthSlider.getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+            percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
             if (selectedConstraint == Independant){
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (selectedSource*5), percentValue);
                 return;
@@ -912,7 +961,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
                 newLocation = newLocationSource.getPositionXY();
             }
         } else {
-            percentValue = HRToPercent((float) _ElevationSlider.getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+            percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
             if (selectedConstraint == Independant){
                 ourProcessor->setParameterNotifyingHost  (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (selectedSource * 5), percentValue);
                 return;
@@ -944,8 +993,8 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         }
     }
 
-    else if (slider == &_ElevationSpanSlider) {
-        percentValue = HRToPercent((float) _ElevationSpanSlider.getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+    else if (slider == m_pElevationSpanSlider) {
+        percentValue = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5), percentValue);
@@ -956,8 +1005,8 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         }
         
     }
-    else if (slider == &_AzimuthSpanSlider) {
-        percentValue = HRToPercent((float) _AzimuthSpanSlider.getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+    else if (slider == m_pAzimuthSpanSlider) {
+        percentValue = HRToPercent((float) m_pAzimuthSpanSlider->getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5), percentValue);

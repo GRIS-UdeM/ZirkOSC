@@ -48,19 +48,6 @@ public:
     //! called when window is resized
     void resized() override;
     
-
-    
-//    //! Enum of the programmed trajectories
-//    enum AllTrajectories {
-//        UpwardSpiral = 0,
-//        DownwardSpiral,
-//        UpAndDownSpiral,
-//        DownAndUpSpiral,
-//        Pendulum,
-//        Circle,
-//        TotalNumberTrajectories
-//    };
-    
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
     //! Move sources with a delta x and delta y (delta lock)
@@ -150,33 +137,37 @@ private:
     
     TabbedComponent _TabComponent;
 
-    Component _SliderComponent;
-    
-    Component _TrajectoryComponent;
+//    Component _SliderComponent;
+//    
+//    Component _TrajectoryComponent;
     
     static bool _AlreadySetTrajectorySource;
     
     bool _isReturnKeyPressedCalledFromFocusLost;
     
+    //---------------- SLIDERS ------------------
+    
     //! Slider to change the Azimuth
-    Slider _AzimuthSlider;
+    Slider* m_pAzimuthSlider;
     //! Slider to change the Azimuth Span
-    Slider _AzimuthSpanSlider;
+    Slider* m_pAzimuthSpanSlider;
     //! Slider to change the Elevation
-    Slider _ElevationSlider;
+    Slider* m_pElevationSlider;
     //! Slider to change the Elevation Span
-    Slider _ElevationSpanSlider;
+    Slider* m_pElevationSpanSlider;
     //! Slider to change the gain
     Slider* m_pGainSlider;
 
+    //---------------- LABELS ------------------
+    
     //! Azimuth's Label
-    Label _AzimuthLabel;
+    Label* m_pAzimuthLabel;
     //! Azimuth span's Label
-    Label _AzimuthSpanLabel;
+    Label* m_pAzimuthSpanLabel;
     //! Elevation's Label
-    Label _ElevationLabel;
+    Label* m_pElevationLabel;
     //! Elevation span's Label
-    Label _ElevationSpanLabel;
+    Label* m_pElevationSpanLabel;
     //! Gain's Label
     Label* m_pGainLabel;
     
