@@ -23,10 +23,5 @@ User Guide : https://github.com/ludoviclaffineur/ZirkOSCJUCE/raw/master/bin/Zirk
 
 Code documentation link : http://ludoviclaffineur.github.io/ZirkOSCJUCE/
 
-Download links :
-
-- AudioUnit :
-			https://github.com/GRIS-UdeM/ZirkOSC2/blob/master/bin/ZirkOSC2.0.6.1.component.zip?raw=true
-- VST :
-			https://github.com/GRIS-UdeM/ZirkOSC2/blob/master/bin/ZirkOSC2.0.6.1.vst.zip?raw=true
+Download link (AudioUnit and VST): https://www.dropbox.com/s/i4su2cy46oevhbl/ZirkOSC2.0.7.zip?dl=0
 
