@@ -179,6 +179,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 }
                 _TrajectorySingleBeginTime = _TrajectoryBeginTime;
                 
+                
+                
                 if (_isSyncWTempo) {
                     //convert measure count to a duration
                     double dMesureLength = _CurrentPlayHeadInfo.timeSigNumerator * (4 / _CurrentPlayHeadInfo.timeSigDenominator) *  60 / _CurrentPlayHeadInfo.bpm;
@@ -186,6 +188,25 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 } else {
                     _TrajectoriesDurationBuffer = _TrajectoriesDuration;
                 }
+                
+                
+                
+                //if trajectory count is negative, toggle _TrajectoryIsDirectionReversed but still use positive value in calculations
+                if (_TrajectoryCount < 0){
+                    _TrajectoryIsDirectionReversed = true;
+
+                    _TrajectoriesDurationBuffer *= -_TrajectoryCount;
+                    _TrajectorySingleLength = _TrajectoriesDurationBuffer / -_TrajectoryCount;
+                    
+                } else {
+                    _TrajectoryIsDirectionReversed = false;
+                    
+                    _TrajectoriesDurationBuffer *= _TrajectoryCount;
+                    _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
+                }
+                
+                
+
                 
                 //store initial parameter value
                 _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
@@ -195,15 +216,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
                 _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
                 
-                //if trajectory count is negative, toggle _TrajectoryIsDirectionReversed but still use positive value in calculations
-                if (_TrajectoryCount < 0){
-                    _TrajectoryIsDirectionReversed = true;
-                    _TrajectorySingleLength = _TrajectoriesDurationBuffer / -_TrajectoryCount;
-                    
-                } else {
-                    _TrajectoryIsDirectionReversed = false;
-                    _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
-                }
                 
                 _WasPlayingOnPrevFrame = true;
                 
