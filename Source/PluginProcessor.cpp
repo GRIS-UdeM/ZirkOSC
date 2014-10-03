@@ -390,15 +390,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         break;
                 }
                 
-                //update duration field in gui
-//                _TrajectoriesDuration = _TrajectoriesDurationBuffer - (dCurrentTime - _TrajectoryBeginTime);
-//                if (modf(_TrajectoriesDuration / .5, &integralPart) < 0.05){
-//                    if (_TrajectoriesDuration < 0.05){
-//                        _TrajectoriesDuration = 0;
-//                    }
-//                    _RefreshGui=true;
-//                }
-                
 #if defined(DEBUG)
                 cout<< "newElevation: " << newElevation
                 << "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation
@@ -818,7 +809,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
                 _isSpanLinked = false;
             return;
         case ZirkOSC_SelectedTrajectory_ParamId:
-            _SelectedTrajectory = newValue;
+            _SelectedTrajectory = newValue; //PercentToIntStartsAtOne(newValue, TotalNumberTrajectories);
             return;
         case ZirkOSC_TrajectoryCount_ParamId:
             _TrajectoryCount = newValue;

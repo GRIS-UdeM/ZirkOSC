@@ -92,6 +92,11 @@ enum AllTrajectories {
     TotalNumberTrajectories
 };
 
+enum AllSyncOptions {
+    SyncWTime = 1,
+    SyncWTempo
+};
+
 static float PercentToHR(float percent, float min, float max){
     return percent*(max-min)+min;
 }

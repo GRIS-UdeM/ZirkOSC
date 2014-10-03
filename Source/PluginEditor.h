@@ -131,22 +131,33 @@ private:
     
     //! Toggle Button to de/activate osc messages to Zirkonium
     ToggleButton _OscActiveButton;
+
+    bool _isReturnKeyPressedCalledFromFocusLost;
     
-    ToggleButton*   m_pSyncWTempoButton;
+    TabbedComponent _TabComponent;
+    
+    
+    //-------------TRAJECTORIES------------------
+    ComboBox* m_pTrajectoryComboBox;
+    
+    ComboBox* m_pSyncWTempoComboBox;
+    //ToggleButton*   m_pSyncWTempoButton;
     
     TextButton*     m_pWriteTrajectoryButton;
     
     TextButton*     m_pTrajectoryPreviewButton;
     
-    TabbedComponent _TabComponent;
-
-//    Component _SliderComponent;
-//    
-//    Component _TrajectoryComponent;
-    
     static bool _AlreadySetTrajectorySource;
     
-    bool _isReturnKeyPressedCalledFromFocusLost;
+    Label* m_pTrajectoryCountLabel;
+    
+    Label* m_pTrajectoryDurationLabel;
+    
+    TextEditor* m_pTrajectoryCountTextEditor;
+    
+    TextEditor* m_pTrajectoryDurationTextEditor;
+    
+
     
     //---------------- SLIDERS ------------------
     
@@ -187,9 +198,7 @@ private:
     //! Label of the iPad address
     Label _IpadIpAddressLabel;
     
-    Label* m_pTrajectoryCountLabel;
-    
-    Label* m_pTrajectoryDurationLabel;
+
 
 
     //! TextEditor for the channel number of the selected source
@@ -205,16 +214,11 @@ private:
     //! TextEditor for the iPad ip address
     TextEditor _IpadIpAddressTextEditor;
     
-    TextEditor* m_pTrajectoryCountTextEditor;
-    
-    TextEditor* m_pTrajectoryDurationTextEditor;
+
 
     //! Combobox to choose constrain type
     ComboBox _MovementConstraintComboBox;
     
-    //! Combobox to choose trajectory
-    ComboBox* m_pTrajectoryComboBox;
-
     //! If there is a source beeing drag
     bool _isSourceBeingDragged = false;
     //! Whether the angles between the sources need to all be set equal
@@ -253,8 +257,6 @@ private:
     Point <float> degreeToXy (Point <float>);
     //! projects screen coords to dome coords (circle to sphere)
     Point <float> xyToDegree (Point <float>);
-    
-
 
     //! converts degree to radian
     inline float degreeToRadian (float);
@@ -270,34 +272,8 @@ private:
     
     TrajectoryTab* m_oTrajectoryTab;
 
-    //GroupComponent _TrajectoryGroup;
-    
-    //TRAJECTORY PROPERTIES
-//    PropertyPanel m_oPropertyPanel;
-//
-//    TrajectoryComboBoxComponent* m_oTrajectoryComboBoxProperty;
-//    
-//    TrajectoryTextComponent* m_oTrajectoryCountTextProperty;
-//    
-//    TrajectoryTempoButtonComponent* m_oTrajectoryTempoButtonProperty;
-//    
-//    TrajectoryTextComponent* m_oTrajectoryDurationTextProperty;
-//    
-//    TrajectoryWriteButtonComponent* m_oTrajectoryWriteButtonProperty;
-//    
-//    TrajectoryPreviewButtonComponent* m_oTrajectoryPreviewButtonProperty;
     
 };
-
-////! Conversion of percent value to Human readeable value
-//float PercentToHR(float , float , float );
-////! Conversion of human readable value to percent value
-//float HRToPercent(float , float , float );
-////! Conversion of percent value to integer. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-//int PercentToInt(float percent, int max=TotalNumberConstraints);
-////! Conversion of integer value to percent. The min and max values represent the bounds of the integer range, ie, those values would respectively be converted to 0 and 1
-//float IntToPercent(int integer, int max=TotalNumberConstraints);
-
 
 
 #endif  // __PLUGINEDITOR_H_4624BC76__

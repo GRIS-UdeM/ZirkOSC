@@ -98,13 +98,15 @@ class TrajectoryTab : public Component{
     
     ComboBox*   m_pComboBox;
     
+    ComboBox*   m_pSyncWTempoComboBox;
+    
     Label*      m_pCountLabel;
     TextEditor* m_pCountTextEditor;
     
     Label*      m_pDurationLabel;
     TextEditor* m_pDurationTextEditor;
     
-    ToggleButton* m_pSyncWTempoButton;
+    //ToggleButton* m_pSyncWTempoButton;
     
     TextButton* m_pWriteButton;
     
@@ -125,13 +127,15 @@ public:
 
         m_pComboBox             = addToList (new ComboBox());
         
+        m_pSyncWTempoComboBox   = addToList (new ComboBox());
+        
         m_pCountLabel           = addToList (new Label());
         m_pCountTextEditor      = addToList (new TextEditor());
 
         m_pDurationLabel        = addToList (new Label());
         m_pDurationTextEditor   = addToList (new TextEditor());
         
-        m_pSyncWTempoButton     = addToList(new ToggleButton());
+        //m_pSyncWTempoButton     = addToList(new ToggleButton());
         
         m_pWriteButton          = addToList(new TextButton());
         
@@ -139,6 +143,8 @@ public:
     }
     
     ComboBox*       getComboBox(){          return m_pComboBox;}
+
+    ComboBox*       getSyncWTempoComboBox(){return m_pSyncWTempoComboBox;}
     
     Label*          getCountLabel(){        return m_pCountLabel;}
     TextEditor*     getCountTextEditor(){   return m_pCountTextEditor;}
@@ -150,7 +156,7 @@ public:
 
     TextButton*     getPreviewButton(){     return m_pPreviewButton;}
     
-    ToggleButton*   getSyncWTempoButton(){  return m_pSyncWTempoButton;}
+    //ToggleButton*   getSyncWTempoButton(){  return m_pSyncWTempoButton;}
 };
 
 
@@ -163,18 +169,7 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 _LinkSpanButton("Link Span"),
 _OscActiveButton("OSC active"),
 _TabComponent(TabbedButtonBar::TabsAtTop),
-//_SliderComponent(),
-//_TrajectoryComponent(),
 
-//_isReturnKeyPressedCalledFromFocusLost(false),
-//_AzimuthSlider(ZirkOSC_AzimSpan_name[0]),
-//_ElevationSlider(ZirkOSC_ElevSpan_name[0]),
-//_ElevationSpanSlider(ZirkOSC_ElevSpan_name[0]),
-//_AzimuthLabel(ZirkOSC_Azim_name[0]),
-//_AzimuthSpanLabel(ZirkOSC_AzimSpan_name[0]),
-//_ElevationLabel(ZirkOSC_Elev_name[0]),
-//_GainSlider (ZirkOSC_Gain_name[0]),
-//_GainLabel(ZirkOSC_Gain_name[0]),
 
 //strings in parameters are all used as juce::component names
 _FirstSourceIdLabel("channelNbr"),
@@ -285,31 +280,7 @@ _MovementConstraintComboBox("MovementConstraint")
     setSliderAndLabel("AzimuthSpan", m_pAzimuthSpanSlider, m_pAzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
     m_pAzimuthSpanSlider->addListener(this);
 
-//    setSliderAndLabel("Azimuth", &_AzimuthSlider ,&_AzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-//    _SliderComponent.addAndMakeVisible(&_AzimuthSlider);
-//    _SliderComponent.addAndMakeVisible(&_AzimuthLabel);
-//    _AzimuthSlider.addListener(this);
-//
-//    setSliderAndLabel("Elevation", &_ElevationSlider, &_ElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-//    _SliderComponent.addAndMakeVisible(&_ElevationSlider);
-//    _SliderComponent.addAndMakeVisible(&_ElevationLabel);
-//    _ElevationSlider.addListener(this);
-//
-//    setSliderAndLabel("Elev. Span.", &_ElevationSpanSlider, &_ElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
-//    _SliderComponent.addAndMakeVisible(&_ElevationSpanSlider);
-//    _SliderComponent.addAndMakeVisible(&_ElevationSpanLabel);
-//    _ElevationSpanSlider.addListener(this);
-//
-//    setSliderAndLabel("Azim. Span.", &_AzimuthSpanSlider, &_AzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
-//    _SliderComponent.addAndMakeVisible(&_AzimuthSpanSlider);
-//    _SliderComponent.addAndMakeVisible(&_AzimuthSpanLabel);
-//    _AzimuthSpanSlider.addListener(this);
-
-
-    
-    //---------- TRAJECTORY GROUPS ----------
-    //addAndMakeVisible(_TrajectoryGroup);
-    
+    //---------- TRAJECTORIES ----------
     //TRAJECTORY COMBO BOX
     m_pTrajectoryComboBox = m_oTrajectoryTab->getComboBox();
     m_pTrajectoryComboBox->addItem("Upward Spiral",        UpwardSpiral);
@@ -336,10 +307,15 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pTrajectoryCountLabel->setText("cycle(s)",  dontSendNotification);
     
     //SYNC W TEMPO TOGGLE BUTTON
-    m_pSyncWTempoButton = m_oTrajectoryTab->getSyncWTempoButton();
-    m_pSyncWTempoButton->setButtonText("Sync W Tempo");
-    m_pSyncWTempoButton->addListener(this);
-    m_pSyncWTempoButton->setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
+    m_pSyncWTempoComboBox = m_oTrajectoryTab->getSyncWTempoComboBox();
+    m_pSyncWTempoComboBox->addItem("Second(s)",    SyncWTime);
+    m_pSyncWTempoComboBox->addItem("Beat(s)",      SyncWTempo);
+    ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
+    m_pSyncWTempoComboBox->addListener(this);
+//    m_pSyncWTempoButton = m_oTrajectoryTab->getSyncWTempoButton();
+//    m_pSyncWTempoButton->setButtonText("Sync W Tempo");
+//    m_pSyncWTempoButton->addListener(this);
+//    m_pSyncWTempoButton->setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
     
     //WRITE TRAJECTORY BUTTON
     m_pWriteTrajectoryButton = m_oTrajectoryTab->getWriteButton();
@@ -355,48 +331,6 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pTrajectoryPreviewButton->setToggleState(false, dontSendNotification);
     m_pTrajectoryPreviewButton->addListener(this);
 
-    
-    
-    
-//    //---------- TRAJECTORY PROPERTIES ----------
-//    
-//    Array<PropertyComponent*> allProperties;
-//    
-//    //COMBO BOX
-//    m_oTrajectoryComboBoxProperty = new TrajectoryComboBoxComponent("Trajectory:", ourProcessor);
-//    m_oTrajectoryComboBoxProperty->setIndex(ourProcessor->getSelectedTrajectoryAsInteger());
-//    allProperties.add (m_oTrajectoryComboBoxProperty);
-//    
-//    //NBR TRAJECTORY TEXT EDITOR
-//    bool bAllowsMultiLine = false;
-//    m_oTrajectoryCountTextProperty = new TrajectoryTextComponent (Value ("useless"), "Nbr Trajectories", 8, bAllowsMultiLine, ourProcessor, true);
-//    m_oTrajectoryCountTextProperty->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
-//    allProperties.add (m_oTrajectoryCountTextProperty);
-//
-//    //TRAJECTORY DURATION EDITOR
-//    m_oTrajectoryDurationTextProperty = new TrajectoryTextComponent(Value ("useless"), "Duration", 8, bAllowsMultiLine, ourProcessor, false);
-//    m_oTrajectoryDurationTextProperty->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
-//    allProperties.add (m_oTrajectoryDurationTextProperty);
-//    
-//    //SYNC W TEMPO
-//    m_oTrajectoryTempoButtonProperty = new TrajectoryTempoButtonComponent("Count duration in...", "measures", "seconds", ourProcessor);
-//    m_oTrajectoryTempoButtonProperty->setState(ourProcessor->getIsSyncWTempo());
-//    allProperties.add (m_oTrajectoryTempoButtonProperty);
-//    
-//    //WRITE TOGGLE BUTTON
-//    m_oTrajectoryWriteButtonProperty = new TrajectoryWriteButtonComponent("Write Trajectory...", "will write", "will NOT write", ourProcessor);
-//    m_oTrajectoryWriteButtonProperty->setState(ourProcessor->getIsWriteTrajectory());
-//    allProperties.add (m_oTrajectoryWriteButtonProperty);
-//    
-//    //PREVIEW TOGGLE BUTTON
-//    m_oTrajectoryPreviewButtonProperty = new TrajectoryPreviewButtonComponent("Preview Trajectory", "Previewing...", "", ourProcessor);
-//    m_oTrajectoryPreviewButtonProperty->setState(false);
-//    allProperties.add (m_oTrajectoryPreviewButtonProperty);
-//    
-//    m_oPropertyPanel.addSection ("Trajectories", allProperties);
-
-    
-    
 
     //---------- RESIZABLE CORNER ----------
     // add the triangular resizer component for the bottom-right of the UI
@@ -414,7 +348,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _FirstSourceIdTextEditor.addListener(this);
     _ZkmOscPortTextEditor.addListener(this);
     _NbrSourceTextEditor.addListener(this);
-        if (m_bUseIpad){
+    if (m_bUseIpad){
         _IpadOutgoingOscPortTextEditor.addListener(this);
         _IpadIncomingOscPortTextEditor.addListener(this);
         _IpadIpAddressTextEditor.addListener(this);
@@ -489,16 +423,15 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     setSliderAndLabelPosition(15, 15+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
     
     //------------ TRAJECTORIES ------------
-    m_pTrajectoryComboBox->             setBounds(15,       15,    230, 25);
+    m_pTrajectoryComboBox->             setBounds(15,           15,    230, 25);
     
-    m_pTrajectoryDurationTextEditor->   setBounds(15,       15+25, 230, 25);
-    m_pTrajectoryDurationLabel->        setBounds(15+230,   15+25, 65,  25);
-    m_pSyncWTempoButton->               setBounds(15+230+65,15+25, 125, 25);
+    m_pTrajectoryDurationTextEditor->   setBounds(15,           15+25, 230, 25);
+    m_pSyncWTempoComboBox->             setBounds(15+230,       15+25, 125, 25);
+    m_pTrajectoryDurationLabel->        setBounds(15+230+125,   15+25, 65,  25);
+    //m_pSyncWTempoButton->             setBounds(15+230+65,15+25, 125, 25);
   
     m_pTrajectoryCountTextEditor->      setBounds(15,       15+50, 230, 25);
     m_pTrajectoryCountLabel->           setBounds(15+230,   15+50, 75,  25);
-    
-    
 
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     m_pTrajectoryPreviewButton->        setBounds(iCurWidth-210, 125, 100, 25);
@@ -782,7 +715,8 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
 
     m_pTrajectoryComboBox->setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
-    m_pSyncWTempoButton->setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
+    //m_pSyncWTempoButton->setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
+    ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
     m_pWriteTrajectoryButton->setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
@@ -824,9 +758,9 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         }
 
     }
-    else if(button == m_pSyncWTempoButton){
-        ourProcessor->setIsSyncWTempo(m_pSyncWTempoButton->getToggleState());
-    }
+//    else if(button == m_pSyncWTempoButton){
+//        ourProcessor->setIsSyncWTempo(m_pSyncWTempoButton->getToggleState());
+//    }
     else if(button == m_pTrajectoryPreviewButton){
         ourProcessor->setIsPreviewTrajectory(m_pTrajectoryPreviewButton->getToggleState());
     }
@@ -1381,23 +1315,33 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
 
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
-    
-    if (comboBoxThatHasChanged == m_pTrajectoryComboBox){
-        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId,
-                                                IntToPercentStartsAtOne(comboBoxThatHasChanged->getSelectedId(), TotalNumberTrajectories));
-    } else
-        if (comboBoxThatHasChanged == &_MovementConstraintComboBox){
 
-            
-        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId,
-                                                IntToPercentStartsAtOne(comboBoxThatHasChanged->getSelectedId(), TotalNumberConstraints));
-
+    if (comboBoxThatHasChanged == &_MovementConstraintComboBox){
+        
         int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
-        if( selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
+        
+        float fSelectedConstraint = IntToPercentStartsAtOne(selectedConstraint, TotalNumberConstraints);
+        
+        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
+
+        if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
             _isNeedToSetFixedAngles=true;
         }
         ourProcessor->sendOSCMovementType();
-        //m_pGainSlider->grabKeyboardFocus();
+    }
+    
+    else if (comboBoxThatHasChanged == m_pTrajectoryComboBox){
+        int iSelectedTraj = comboBoxThatHasChanged->getSelectedId();
+        float fSelectedTraj = IntToPercentStartsAtOne(iSelectedTraj, TotalNumberTrajectories);
+        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, fSelectedTraj);
+    }
+    
+    else if(comboBoxThatHasChanged == m_pSyncWTempoComboBox){
+        if (comboBoxThatHasChanged->getSelectedId() == SyncWTempo){
+            ourProcessor->setIsSyncWTempo(true);
+        } else {
+            ourProcessor->setIsSyncWTempo(false);
+        }
     }
 
 }
