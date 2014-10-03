@@ -20,6 +20,7 @@
 
 
 class SlidersTab;
+class TrajectoryTab;
 
 
 class ZirkOscjuceAudioProcessor;
@@ -131,9 +132,11 @@ private:
     //! Toggle Button to de/activate osc messages to Zirkonium
     ToggleButton _OscActiveButton;
     
-    //ToggleButton _SyncWTempoButton;
+    ToggleButton*   m_pSyncWTempoButton;
     
-    //TextButton _WriteTrajectoryButton;
+    TextButton*     m_pWriteTrajectoryButton;
+    
+    TextButton*     m_pTrajectoryPreviewButton;
     
     TabbedComponent _TabComponent;
 
@@ -184,9 +187,9 @@ private:
     //! Label of the iPad address
     Label _IpadIpAddressLabel;
     
-    Label _TrajectoryCountLabel;
+    Label* m_pTrajectoryCountLabel;
     
-    Label _TrajectoryDurationLabel;
+    Label* m_pTrajectoryDurationLabel;
 
 
     //! TextEditor for the channel number of the selected source
@@ -202,16 +205,15 @@ private:
     //! TextEditor for the iPad ip address
     TextEditor _IpadIpAddressTextEditor;
     
-    //TextEditor _TrajectoryCountTextEditor;
+    TextEditor* m_pTrajectoryCountTextEditor;
     
-    //TextEditor _TrajectoryDurationTextEditor;
+    TextEditor* m_pTrajectoryDurationTextEditor;
 
     //! Combobox to choose constrain type
     ComboBox _MovementConstraintComboBox;
     
     //! Combobox to choose trajectory
-    //ChoicePropertyComponent* _TrajectoryComboBox;
-    //TrajectoryGroupComponent* _TrajectoryComboBox;
+    ComboBox* m_pTrajectoryComboBox;
 
     //! If there is a source beeing drag
     bool _isSourceBeingDragged = false;
@@ -264,28 +266,26 @@ private:
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;
     
+    SlidersTab* m_oSlidersTab;
+    
+    TrajectoryTab* m_oTrajectoryTab;
 
-    //TRAJECTORY PROPERTIES
-    
-    PropertyPanel m_oPropertyPanel;
-    
     //GroupComponent _TrajectoryGroup;
-
-    TrajectoryComboBoxComponent* m_oTrajectoryComboBoxProperty;
     
-    TrajectoryTextComponent* m_oTrajectoryCountTextProperty;
-    
-    TrajectoryTempoButtonComponent* m_oTrajectoryTempoButtonProperty;
-    
-    TrajectoryTextComponent* m_oTrajectoryDurationTextProperty;
-    
-    TrajectoryWriteButtonComponent* m_oTrajectoryWriteButtonProperty;
-    
-    TrajectoryPreviewButtonComponent* m_oTrajectoryPreviewButtonProperty;
-    
-    //Viewport m_oViewport;
-    
-    SlidersTab* slidersTab;
+    //TRAJECTORY PROPERTIES
+//    PropertyPanel m_oPropertyPanel;
+//
+//    TrajectoryComboBoxComponent* m_oTrajectoryComboBoxProperty;
+//    
+//    TrajectoryTextComponent* m_oTrajectoryCountTextProperty;
+//    
+//    TrajectoryTempoButtonComponent* m_oTrajectoryTempoButtonProperty;
+//    
+//    TrajectoryTextComponent* m_oTrajectoryDurationTextProperty;
+//    
+//    TrajectoryWriteButtonComponent* m_oTrajectoryWriteButtonProperty;
+//    
+//    TrajectoryPreviewButtonComponent* m_oTrajectoryPreviewButtonProperty;
     
 };
 

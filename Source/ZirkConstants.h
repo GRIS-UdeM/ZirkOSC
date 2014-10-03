@@ -83,7 +83,7 @@ enum AllConstraints {
 };
 
 enum AllTrajectories {
-    UpwardSpiral = 0,
+    UpwardSpiral = 1,//0,
     DownwardSpiral,
     UpAndDownSpiral,
     DownAndUpSpiral,

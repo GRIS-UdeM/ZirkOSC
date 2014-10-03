@@ -30,13 +30,15 @@ TrajectoryComboBoxComponent::TrajectoryComboBoxComponent(const String &propertyN
 void TrajectoryComboBoxComponent::setIndex(int newIndex) {
     //this index starts at 0, everything else starts at 1
     //++newIndex;
-    float percent = IntToPercentStartsAtZero(newIndex, TotalNumberTrajectories);
+    //float percent = IntToPercentStartsAtZero(newIndex, TotalNumberTrajectories);
+    float percent = IntToPercentStartsAtOne(newIndex, TotalNumberTrajectories);
     ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, percent);
     refresh();
 }
 
 int TrajectoryComboBoxComponent::getIndex () const {
-    int value = PercentToIntStartsAtZero(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId), TotalNumberTrajectories);
+    //int value = PercentToIntStartsAtZero(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId), TotalNumberTrajectories);
+    int value = PercentToIntStartsAtOne(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId), TotalNumberTrajectories);
     return value;
 }
 

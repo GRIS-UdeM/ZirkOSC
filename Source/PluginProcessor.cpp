@@ -1218,9 +1218,8 @@ int ZirkOscjuceAudioProcessor::getSelectedMovementConstraintAsInteger() {
 
 int ZirkOscjuceAudioProcessor::getSelectedTrajectoryAsInteger() {
     
-    //int value = _SelectedTrajectory * (TotalNumberTrajectories-1) + 1;
-    //cout << _SelectedTrajectory << endl;
-    int value = PercentToIntStartsAtZero(_SelectedTrajectory, TotalNumberTrajectories);
+    //int value = PercentToIntStartsAtZero(_SelectedTrajectory, TotalNumberTrajectories);
+    int value = PercentToIntStartsAtOne(_SelectedTrajectory, TotalNumberTrajectories);
     return value;
 }
 
