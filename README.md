@@ -1,4 +1,4 @@
-ZirkOSC2
+ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
 
 Copyright (C) 2014  GRIS-UdeM, octogris@gmail.com
 
@@ -15,9 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-===========
-
-ZirkOSC rebuild with JUCE Framework. Vst and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
+=========== 
 
 User Guide : https://github.com/ludoviclaffineur/ZirkOSCJUCE/raw/master/bin/ZirkOSCJuce_Setup_13-08-14.pdf
 
