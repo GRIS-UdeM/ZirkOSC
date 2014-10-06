@@ -187,7 +187,7 @@ public:
 
 ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter)
 :   AudioProcessorEditor (ownerFilter),
-_LinkSpanButton("Link Span"),
+_LinkSpanButton("Link span"),
 _OscActiveButton("OSC active"),
 _TabComponent(TabbedButtonBar::TabsAtTop),
 
@@ -210,7 +210,7 @@ _MovementConstraintComboBox("MovementConstraint")
 
     
     //---------- RIGHT SIDE LABELS ----------
-    _NbrSourceLabel.setText("Nbr Sources",  dontSendNotification);
+    _NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
     _NbrSourceTextEditor.setText(String(getProcessor()->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
@@ -220,7 +220,7 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_FirstSourceIdLabel);
     addAndMakeVisible(&_FirstSourceIdTextEditor);
     
-    _ZkmOscPortLabel.setText("ZKM OSC Port",  dontSendNotification);
+    _ZkmOscPortLabel.setText("ZKM OSC port",  dontSendNotification);
     _ZkmOscPortTextEditor.setText(String(getProcessor()->getOscPortZirkonium()));
     addAndMakeVisible(&_ZkmOscPortLabel);
     addAndMakeVisible(&_ZkmOscPortTextEditor);
@@ -293,12 +293,12 @@ _MovementConstraintComboBox("MovementConstraint")
     
     m_pElevationSpanSlider = m_oSlidersTab->getElevationSpanSlider();
     m_pElevationSpanLabel  = m_oSlidersTab->getElevationSpanLabel();
-    setSliderAndLabel("ElevationSpan", m_pElevationSpanSlider, m_pElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+    setSliderAndLabel("Elev. span", m_pElevationSpanSlider, m_pElevationSpanLabel, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->addListener(this);
     
     m_pAzimuthSpanSlider = m_oSlidersTab->getAzimuthSpanSlider();
     m_pAzimuthSpanLabel  = m_oSlidersTab->getAzimuthSpanLabel();
-    setSliderAndLabel("AzimuthSpan", m_pAzimuthSpanSlider, m_pAzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+    setSliderAndLabel("Azim. span", m_pAzimuthSpanSlider, m_pAzimuthSpanLabel, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
     m_pAzimuthSpanSlider->addListener(this);
 
     //---------- TRAJECTORIES ----------
@@ -329,14 +329,10 @@ _MovementConstraintComboBox("MovementConstraint")
     
     //SYNC W TEMPO TOGGLE BUTTON
     m_pSyncWTempoComboBox = m_oTrajectoryTab->getSyncWTempoComboBox();
-    m_pSyncWTempoComboBox->addItem("Second(s)",    SyncWTime);
-    m_pSyncWTempoComboBox->addItem("Beat(s)",      SyncWTempo);
+    m_pSyncWTempoComboBox->addItem("second(s)",    SyncWTime);
+    m_pSyncWTempoComboBox->addItem("beat(s)",      SyncWTempo);
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
     m_pSyncWTempoComboBox->addListener(this);
-//    m_pSyncWTempoButton = m_oTrajectoryTab->getSyncWTempoButton();
-//    m_pSyncWTempoButton->setButtonText("Sync W Tempo");
-//    m_pSyncWTempoButton->addListener(this);
-//    m_pSyncWTempoButton->setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
     
     //WRITE TRAJECTORY BUTTON
     m_pWriteTrajectoryButton = m_oTrajectoryTab->getWriteButton();
@@ -447,8 +443,8 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     m_pTrajectoryComboBox->             setBounds(15,           15,    230, 25);
     
     m_pTrajectoryDurationTextEditor->   setBounds(15,           15+25, 230, 25);
-    m_pSyncWTempoComboBox->             setBounds(15+230,       15+25, 125, 25);
-    m_pTrajectoryDurationLabel->        setBounds(15+230+125,   15+25, 65,  25);
+    m_pSyncWTempoComboBox->             setBounds(15+230,       15+25, 100, 25);
+    m_pTrajectoryDurationLabel->        setBounds(15+230+100,   15+25, 65,  25);
     //m_pSyncWTempoButton->             setBounds(15+230+65,15+25, 125, 25);
   
     m_pTrajectoryCountTextEditor->      setBounds(15,       15+50, 230, 25);
@@ -475,8 +471,9 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
 }
 
 void ZirkOscjuceAudioProcessorEditor::setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label){
-    label->setBounds (x,    y, 70, height);
-    slider->setBounds(x+70, y, width-70,  height);
+    int iLabelWidth = 75; //70;
+    label->setBounds (x,    y, iLabelWidth, height);
+    slider->setBounds(x+iLabelWidth, y, width-iLabelWidth,  height);
 }
 
 void ZirkOscjuceAudioProcessorEditor::setLabelAndTextEditorPosition(int x, int y, int width, int height, Label* p_label, TextEditor* p_textEditor){
