@@ -1283,7 +1283,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     
     else if(m_pTrajectoryCountTextEditor == &textEditor ){
         double doubleValue = textEditor.getText().getDoubleValue();
-        if ((doubleValue > 0 && doubleValue < 10000) || (doubleValue < 0 && doubleValue > -10000)){
+        if ((doubleValue >= 0 && doubleValue < 10000) || (doubleValue < 0 && doubleValue > -10000)){
             ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
         }
         m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
@@ -1291,7 +1291,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     
     else if(m_pTrajectoryDurationTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
-        if (doubleValue > 0 && doubleValue < 10000){
+        if (doubleValue >= 0 && doubleValue < 10000){
             ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
         }
         m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));

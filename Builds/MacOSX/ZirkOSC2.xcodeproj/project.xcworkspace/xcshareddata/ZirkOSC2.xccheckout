@@ -10,29 +10,29 @@
 	<string>ZirkOSC2</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>9CE3A7B4-DE97-47FF-824E-B3C0A431CD7E</key>
+		<key>E140C8D3D39EB9E2DF404438F78369D56D204062</key>
 		<string>https://github.com/GRIS-UdeM/ZirkOSC2</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Builds/MacOSX/ZirkOSC2.xcodeproj/project.xcworkspace</string>
+	<string>Builds/MacOSX/ZirkOSC2.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>9CE3A7B4-DE97-47FF-824E-B3C0A431CD7E</key>
+		<key>E140C8D3D39EB9E2DF404438F78369D56D204062</key>
 		<string>../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/GRIS-UdeM/ZirkOSC2</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>9CE3A7B4-DE97-47FF-824E-B3C0A431CD7E</string>
+	<string>E140C8D3D39EB9E2DF404438F78369D56D204062</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>9CE3A7B4-DE97-47FF-824E-B3C0A431CD7E</string>
+			<string>E140C8D3D39EB9E2DF404438F78369D56D204062</string>
 			<key>IDESourceControlWCCName</key>
 			<string>ZirkOSCJUCE</string>
 		</dict>
