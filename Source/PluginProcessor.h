@@ -169,6 +169,8 @@ public:
     //! Returns the iPad's IP address.
     String getOscAddressIpad() {return _OscAddressIpad; }
     
+    float getTrajectoryProgress();
+    
     enum ParameterIds
     {
         ZirkOSC_Azim_ParamId = 0,

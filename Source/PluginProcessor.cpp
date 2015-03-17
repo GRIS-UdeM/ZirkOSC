@@ -493,6 +493,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     }
 }
 
+float ZirkOscjuceAudioProcessor::getTrajectoryProgress(){
+    return m_dTrajectoryTimeDone / (_TrajectoryBeginTime + _TrajectoriesDurationBuffer);
+}
+
 void ZirkOscjuceAudioProcessor::saveAllParameters(){
     
     JUCE_COMPILER_WARNING("find a way to copy arrays of objects")

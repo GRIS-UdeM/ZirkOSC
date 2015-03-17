@@ -48,7 +48,27 @@
 
 using namespace std;
 
-bool ZirkOscjuceAudioProcessorEditor::_AlreadySetTrajectorySource = false;
+//bool ZirkOscjuceAudioProcessorEditor::_AlreadySetTrajectorySource = false;
+
+class MiniProgressBar : public Component
+{
+public:
+    MiniProgressBar() : mValue(0) {}
+    void paint(Graphics &g)
+    {
+        Rectangle<int> box = getLocalBounds();
+        
+        g.setColour(Colours::black);
+        g.fillRect(box);
+        
+        g.setColour(Colour::fromRGB(0,255,0));
+        box.setWidth(box.getWidth() * mValue);
+        g.fillRect(box);
+    }
+    void setValue(float v) { mValue = v; repaint(); }
+private:
+    float mValue;
+};
 
 class SlidersTab : public Component{
     
@@ -127,11 +147,11 @@ class TrajectoryTab : public Component{
     Label*      m_pDurationLabel;
     TextEditor* m_pDurationTextEditor;
     
-    //ToggleButton* m_pSyncWTempoButton;
-    
     TextButton* m_pWriteButton;
     
     TextButton* m_pPreviewButton;
+    
+    MiniProgressBar* mTrProgressBarTab;
     
     OwnedArray<Component> components;
     
@@ -156,11 +176,11 @@ public:
         m_pDurationLabel        = addToList (new Label());
         m_pDurationTextEditor   = addToList (new TextEditor());
         
-        //m_pSyncWTempoButton     = addToList(new ToggleButton());
-        
         m_pWriteButton          = addToList(new TextButton());
         
         m_pPreviewButton        = addToList(new TextButton());
+        
+        mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
     
     ComboBox*       getComboBox(){          return m_pComboBox;}
@@ -177,8 +197,11 @@ public:
 
     TextButton*     getPreviewButton(){     return m_pPreviewButton;}
     
-    //ToggleButton*   getSyncWTempoButton(){  return m_pSyncWTempoButton;}
+    MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
+    
 };
+
+
 
 
 /*!
@@ -348,6 +371,9 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pTrajectoryPreviewButton->setToggleState(false, dontSendNotification);
     m_pTrajectoryPreviewButton->addListener(this);
 
+    //PROGRESS BAR
+    mTrProgressBar = m_oTrajectoryTab->getProgressBar();
+    mTrProgressBar->setVisible(false);
 
     //---------- RESIZABLE CORNER ----------
     // add the triangular resizer component for the bottom-right of the UI
@@ -452,7 +478,8 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
 
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     m_pTrajectoryPreviewButton->        setBounds(iCurWidth-210, 125, 100, 25);
-    
+    mTrProgressBar->                    setBounds(iCurWidth-315, 125, 100, 25);
+
 }
 
 //Automatic function to set label and Slider
@@ -695,6 +722,12 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->setValue(HRValue,dontSendNotification);
+    
+    if (ourProcessor->getIsPreviewTrajectory()){
+        mTrProgressBar->setValue(ourProcessor->getTrajectoryProgress());
+    } else {
+        mTrProgressBar->setVisible(false);
+    }
 
 #if defined(DEBUG)
     clock_t sliders = clock();
@@ -745,6 +778,7 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
         ourProcessor->restoreCurrentLocations();
         m_pTrajectoryPreviewButton->setButtonText("Preview");
         m_bWasPreviewingTrajectoryEd = false;
+        mTrProgressBar->setVisible(false);
     }
 
     
@@ -785,10 +819,14 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             m_pTrajectoryPreviewButton->setButtonText("Cancel");
             ourProcessor->storeCurrentLocations();
             m_bWasPreviewingTrajectoryEd = true;
+            
+            mTrProgressBar->setValue(0);
+            mTrProgressBar->setVisible(true);
         } else {
             m_pTrajectoryPreviewButton->setButtonText("Preview");
             ourProcessor->restoreCurrentLocations();
             m_bWasPreviewingTrajectoryEd = false;
+            mTrProgressBar->setVisible(false);
         }
         ourProcessor->setIsPreviewTrajectory(bIsPreviewing);
     }

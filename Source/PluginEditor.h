@@ -32,7 +32,7 @@
 /**
  */
 
-
+class MiniProgressBar;
 class SlidersTab;
 class TrajectoryTab;
 
@@ -161,7 +161,7 @@ private:
     
     TextButton* m_pTrajectoryPreviewButton;
     
-    static bool _AlreadySetTrajectorySource;
+    //static bool _AlreadySetTrajectorySource;
     
     Label* m_pTrajectoryCountLabel;
     
@@ -172,6 +172,8 @@ private:
     TextEditor* m_pTrajectoryDurationTextEditor;
     
     bool m_bWasPreviewingTrajectoryEd;
+    
+  	MiniProgressBar *mTrProgressBar;
     
 
     
