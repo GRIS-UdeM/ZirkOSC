@@ -190,7 +190,7 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 _LinkSpanButton("Link span"),
 _OscActiveButton("OSC active"),
 _TabComponent(TabbedButtonBar::TabsAtTop),
-
+m_bWasPreviewingTrajectoryEd(false),
 
 //strings in parameters are all used as juce::component names
 _FirstSourceIdLabel("channelNbr"),
@@ -738,15 +738,14 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     m_pWriteTrajectoryButton->setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
-    m_pTrajectoryPreviewButton->setToggleState(ourProcessor->getIsPreviewTrajectory(), dontSendNotification);
-
     
-//    m_oTrajectoryComboBoxProperty->refresh();
-//    m_oTrajectoryCountTextProperty->refresh();
-//    m_oTrajectoryTempoButtonProperty->refresh();
-//    m_oTrajectoryDurationTextProperty->refresh();
-//    m_oTrajectoryWriteButtonProperty->refresh();
-//    m_oTrajectoryPreviewButtonProperty->refresh();
+    bool bIsPreviewing = ourProcessor->getIsPreviewTrajectory();
+    m_pTrajectoryPreviewButton->setToggleState(bIsPreviewing, dontSendNotification);
+    if (!bIsPreviewing && m_bWasPreviewingTrajectoryEd){
+        ourProcessor->restoreCurrentLocations();
+        m_pTrajectoryPreviewButton->setButtonText("Preview");
+        m_bWasPreviewingTrajectoryEd = false;
+    }
 
     
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
@@ -780,7 +779,18 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
 //        ourProcessor->setIsSyncWTempo(m_pSyncWTempoButton->getToggleState());
 //    }
     else if(button == m_pTrajectoryPreviewButton){
-        ourProcessor->setIsPreviewTrajectory(m_pTrajectoryPreviewButton->getToggleState());
+        bool bIsPreviewing = m_pTrajectoryPreviewButton->getToggleState();
+
+        if (bIsPreviewing){
+            m_pTrajectoryPreviewButton->setButtonText("Cancel");
+            ourProcessor->storeCurrentLocations();
+            m_bWasPreviewingTrajectoryEd = true;
+        } else {
+            m_pTrajectoryPreviewButton->setButtonText("Preview");
+            ourProcessor->restoreCurrentLocations();
+            m_bWasPreviewingTrajectoryEd = false;
+        }
+        ourProcessor->setIsPreviewTrajectory(bIsPreviewing);
     }
 }
 

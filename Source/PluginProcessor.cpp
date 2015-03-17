@@ -163,10 +163,15 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
     //if write trajectory is enabled (button toggled on in editor)
     if (_isWriteTrajectory || m_bIsPreviewTrajectory || m_bWasPreviewingTrajectory){
+
         //get current playhead info
-        playHead->getCurrentPosition(_CurrentPlayHeadInfo);
+        AudioPlayHead::CurrentPositionInfo cpi;
+        getPlayHead()->getCurrentPosition(cpi);
         
-        if(_CurrentPlayHeadInfo.isPlaying || m_bIsPreviewTrajectory){
+        
+        playHead->getCurrentPosition(cpi);
+        
+        if(cpi.isPlaying || m_bIsPreviewTrajectory){
 #if defined(DEBUG)
             cout << "playing\n";
 #endif
@@ -192,7 +197,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 if (m_bIsPreviewTrajectory){
                     _TrajectoryBeginTime = 0;
                 } else {
-                    _TrajectoryBeginTime = _CurrentPlayHeadInfo.timeInSeconds;
+                    _TrajectoryBeginTime = cpi.timeInSeconds;
                 }
                 _TrajectorySingleBeginTime = _TrajectoryBeginTime;
                 
@@ -200,7 +205,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 
                 if (_isSyncWTempo) {
                     //convert measure count to a duration
-                    double dMesureLength = _CurrentPlayHeadInfo.timeSigNumerator * (4 / _CurrentPlayHeadInfo.timeSigDenominator) *  60 / _CurrentPlayHeadInfo.bpm;
+                    double dMesureLength = cpi.timeSigNumerator * (4 / cpi.timeSigDenominator) *  60 / cpi.bpm;
                     _TrajectoriesDurationBuffer = _TrajectoriesDuration * dMesureLength;
                 } else {
                     _TrajectoriesDurationBuffer = _TrajectoriesDuration;
@@ -283,7 +288,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             if (m_bIsPreviewTrajectory){
                 m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
             } else {
-                m_dTrajectoryTimeDone = _CurrentPlayHeadInfo.timeInSeconds;
+                m_dTrajectoryTimeDone = cpi.timeInSeconds;
             }
 #if defined(DEBUG)
             cout << "m_dTrajectoryTimeDone : " << m_dTrajectoryTimeDone << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "_TrajectoriesDurationBuffer: " << _TrajectoriesDurationBuffer << "\n";
@@ -490,10 +495,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
 void ZirkOscjuceAudioProcessor::saveAllParameters(){
     
-    //find a way to copy arrays of objects
+    JUCE_COMPILER_WARNING("find a way to copy arrays of objects")
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
     }
+    JUCE_COMPILER_WARNING("why are we doing this")
     _AllSources[0].setAzimReverse(true);
 
     m_parameterBuffer.fMovementConstraint =  _SelectedMovementConstraint;
@@ -510,7 +516,7 @@ void ZirkOscjuceAudioProcessor::saveAllParameters(){
 
 void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
     
-    //find a way to copy arrays of objects
+    JUCE_COMPILER_WARNING("find a way to copy arrays of objects")
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
     }
@@ -529,6 +535,22 @@ void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
     _isSyncWTempo = m_parameterBuffer.bSyncWTempo;
     _isWriteTrajectory = m_parameterBuffer.bWriteTrajectories;
     
+}
+
+void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
+    JUCE_COMPILER_WARNING(new string(find a way to copy arrays of objects))
+    for (int iCurSource = 0; iCurSource<8; ++iCurSource){
+        m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
+    }
+}
+
+void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
+    JUCE_COMPILER_WARNING("find a way to copy arrays of objects")
+    for (int iCurSource = 0; iCurSource<8; ++iCurSource){
+        _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
+    }
+    _AllSources[0].setAzimReverse(true);
+
 }
 
 void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &newLocation){
@@ -582,10 +604,6 @@ const String ZirkOscjuceAudioProcessor::getInputChannelName (int channelIndex) c
 const String ZirkOscjuceAudioProcessor::getOutputChannelName (int channelIndex) const
 {
     return String (channelIndex + 1);
-}
-
-juce::AudioPlayHead::CurrentPositionInfo &ZirkOscjuceAudioProcessor::getCurrentPlayHeadInfo(){
-    return _CurrentPlayHeadInfo;
 }
 
 bool ZirkOscjuceAudioProcessor::isInputChannelStereoPair (int index) const

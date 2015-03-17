@@ -157,9 +157,9 @@ private:
     ComboBox* m_pSyncWTempoComboBox;
     //ToggleButton*   m_pSyncWTempoButton;
     
-    TextButton*     m_pWriteTrajectoryButton;
+    TextButton* m_pWriteTrajectoryButton;
     
-    TextButton*     m_pTrajectoryPreviewButton;
+    TextButton* m_pTrajectoryPreviewButton;
     
     static bool _AlreadySetTrajectorySource;
     
@@ -170,6 +170,8 @@ private:
     TextEditor* m_pTrajectoryCountTextEditor;
     
     TextEditor* m_pTrajectoryDurationTextEditor;
+    
+    bool m_bWasPreviewingTrajectoryEd;
     
 
     

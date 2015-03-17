@@ -244,9 +244,6 @@ public:
     
     //! Getter for trajectory as integer, since parameters need to be stored as floats [0,1]
     int getSelectedTrajectoryAsInteger();
-
-    //returns info about the current host position, tempo, etc
-    juce::AudioPlayHead::CurrentPositionInfo &getCurrentPlayHeadInfo();
     
     //! Retunrs true if the Editor has to refresh the Gui.
     bool hasToRefreshGui(){return _RefreshGui;};
@@ -277,7 +274,8 @@ public:
     //! Set the size of the dome radius
     void setDomeRadius(int iNewRadius);
     
-    
+    void storeCurrentLocations();
+    void restoreCurrentLocations();
     
     //radius of the dome
     static int s_iDomeRadius;
@@ -391,11 +389,7 @@ private:
     float m_fOldElevation;
     
     PluginHostType host;
-    
-    //contains the information returned from the playHead
-    juce::AudioPlayHead::CurrentPositionInfo _CurrentPlayHeadInfo;
-    
-    
+
     allParameters m_parameterBuffer;
 
 };
