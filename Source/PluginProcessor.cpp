@@ -1,8 +1,10 @@
 /*
  ==============================================================================
- Copyright (C) 2014  GRIS-UdeM
+ ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
  
- authors: Ludovic Laffineur, Vincent Berthiaume
+ Copyright (C) 2015  GRIS-UdeM
+ 
+ Developers: Ludovic Laffineur, Vincent Berthiaume
  
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

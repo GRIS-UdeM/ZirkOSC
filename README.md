@@ -19,7 +19,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 User Guide : https://github.com/ludoviclaffineur/ZirkOSCJUCE/raw/master/bin/ZirkOSCJuce_Setup_13-08-14.pdf
 
-Code documentation link : http://ludoviclaffineur.github.io/ZirkOSCJUCE/
-
-Download link (AudioUnit and VST): https://www.dropbox.com/s/i4su2cy46oevhbl/ZirkOSC2.0.7.zip?dl=0
 
