@@ -214,6 +214,7 @@ _LinkSpanButton("Link span"),
 _OscActiveButton("OSC active"),
 _TabComponent(TabbedButtonBar::TabsAtTop),
 m_bWasPreviewingTrajectoryEd(false),
+m_bWasWritingTrajectoryEd(false),
 
 //strings in parameters are all used as juce::component names
 _FirstSourceIdLabel("channelNbr"),
@@ -359,7 +360,7 @@ _MovementConstraintComboBox("MovementConstraint")
     
     //WRITE TRAJECTORY BUTTON
     m_pWriteTrajectoryButton = m_oTrajectoryTab->getWriteButton();
-    m_pWriteTrajectoryButton->setButtonText("Write");
+    m_pWriteTrajectoryButton->setButtonText("Ready");
     m_pWriteTrajectoryButton->setClickingTogglesState(true);
     m_pWriteTrajectoryButton->setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     m_pWriteTrajectoryButton->addListener(this);
@@ -471,7 +472,6 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     m_pTrajectoryDurationTextEditor->   setBounds(15,           15+25, 230, 25);
     m_pSyncWTempoComboBox->             setBounds(15+230,       15+25, 100, 25);
     m_pTrajectoryDurationLabel->        setBounds(15+230+100,   15+25, 65,  25);
-    //m_pSyncWTempoButton->             setBounds(15+230+65,15+25, 125, 25);
   
     m_pTrajectoryCountTextEditor->      setBounds(15,       15+50, 230, 25);
     m_pTrajectoryCountLabel->           setBounds(15+230,   15+50, 75,  25);
@@ -723,7 +723,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->setValue(HRValue,dontSendNotification);
     
-    if (ourProcessor->getIsPreviewTrajectory()){
+    if (ourProcessor->getIsPreviewTrajectory() || ourProcessor->getIsWriteTrajectory()){
         mTrProgressBar->setValue(ourProcessor->getTrajectoryProgress());
     } else {
         mTrProgressBar->setVisible(false);
@@ -766,11 +766,18 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
 
     m_pTrajectoryComboBox->setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
-    //m_pSyncWTempoButton->setToggleState(ourProcessor->getIsSyncWTempo(), dontSendNotification);
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
-    m_pWriteTrajectoryButton->setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+
+    bool bIsWriting = ourProcessor->getIsWriteTrajectory();
+    m_pWriteTrajectoryButton->setToggleState(bIsWriting, dontSendNotification);
+//    if (!bIsWriting && m_bWasWritingTrajectoryEd){
+    if (ourProcessor->isTrajectoryDone()){
+        m_pWriteTrajectoryButton->setButtonText("Ready");
+        m_bWasWritingTrajectoryEd = false;
+        mTrProgressBar->setVisible(false);
+    }
     
     bool bIsPreviewing = ourProcessor->getIsPreviewTrajectory();
     m_pTrajectoryPreviewButton->setToggleState(bIsPreviewing, dontSendNotification);
@@ -780,12 +787,9 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
         m_bWasPreviewingTrajectoryEd = false;
         mTrProgressBar->setVisible(false);
     }
-
-    
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
     _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
-
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
@@ -799,19 +803,25 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         ourProcessor->setIsOscActive(_OscActiveButton.getToggleState());
     }
     else if(button == m_pWriteTrajectoryButton){
+    
+        bool isWritingTrajectory = m_pWriteTrajectoryButton->getToggleState();
         
-        //set isWriteTrajectory property in processor, only if not currently playing
-        if (!ourProcessor->isCurrentlyPlaying()){
-            bool isWriteTrajectory = m_pWriteTrajectoryButton->getToggleState();
-            ourProcessor->setIsWriteTrajectory(isWriteTrajectory);
+        if (isWritingTrajectory){
+            m_pWriteTrajectoryButton->setButtonText("Cancel");
+            m_bWasWritingTrajectoryEd = true;
+            mTrProgressBar->setValue(0);
+            mTrProgressBar->setVisible(true);
         } else {
-            m_pWriteTrajectoryButton->setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
+            m_pWriteTrajectoryButton->setButtonText("Ready");
+            m_bWasWritingTrajectoryEd = false;
+            mTrProgressBar->setVisible(false);
         }
-
+        
+        ourProcessor->setIsWriteTrajectory(isWritingTrajectory);
+        
+        
     }
-//    else if(button == m_pSyncWTempoButton){
-//        ourProcessor->setIsSyncWTempo(m_pSyncWTempoButton->getToggleState());
-//    }
+
     else if(button == m_pTrajectoryPreviewButton){
         bool bIsPreviewing = m_pTrajectoryPreviewButton->getToggleState();
 

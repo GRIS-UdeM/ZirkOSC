@@ -90,6 +90,7 @@ TrajectoryWriteButtonComponent::TrajectoryWriteButtonComponent (const String &pr
 
 void TrajectoryWriteButtonComponent::setState (const bool newState) {
     //set isWriteTrajectory property in processor, only if not currently playing
+    JUCE_COMPILER_WARNING("why???")
     if (!ourProcessor->isCurrentlyPlaying()){
         ourProcessor->setIsWriteTrajectory(newState);
     }

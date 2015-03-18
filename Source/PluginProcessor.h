@@ -282,8 +282,9 @@ public:
     //radius of the dome
     static int s_iDomeRadius;
     
-    bool isCurrentlyPlaying();
     bool m_bUseIpad;
+    
+    bool isTrajectoryDone();
     
 private:
     
@@ -367,8 +368,6 @@ private:
     
     double m_dTrajectoryTimeDone;
     
-    bool m_bCurrentlyPlaying;
-    
     int iProcessBlockCounter;
     
     //!Whether to sync trajectories with tempo
@@ -378,7 +377,9 @@ private:
     
     int _SelectedSourceForTrajectory;
     
-    bool _WasPlayingOnPrevFrame;
+    bool m_bWasWritingTrajectory;
+    
+    bool m_bTrajectoryDone;
     
     bool _JustsEndedPlaying;
     
@@ -387,6 +388,8 @@ private:
     bool m_bWasPreviewingTrajectory;
     
     bool m_bUserInterruptedPreview;
+    
+    bool m_bUserInterruptedWriting;
 
     float m_fOldElevation;
     

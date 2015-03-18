@@ -81,16 +81,17 @@ m_bTrajectoryElevationDecreasing(false),
 m_bTrajectoryAddPositive(true),
 _TrajectoryJustCompletedSingle(false),
 m_dTrajectoryTimeDone(.0),
-m_bCurrentlyPlaying(false),
 iProcessBlockCounter(0),
 _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
-_WasPlayingOnPrevFrame(false),
+m_bWasWritingTrajectory(false),
+m_bTrajectoryDone(true),
 _JustsEndedPlaying(false),
 m_bIsPreviewTrajectory(false),
 m_bWasPreviewingTrajectory(false),
 m_bUserInterruptedPreview(false),
+m_bUserInterruptedWriting(false),
 m_fOldElevation(-1.f),
 m_parameterBuffer()
 {
@@ -166,42 +167,27 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
         //get current playhead info
         AudioPlayHead::CurrentPositionInfo cpi;
-        getPlayHead()->getCurrentPosition(cpi);
-        
-        
         playHead->getCurrentPosition(cpi);
         
         if(cpi.isPlaying || m_bIsPreviewTrajectory){
-#if defined(DEBUG)
-            cout << "playing\n";
-#endif
-            
-            m_bCurrentlyPlaying = true;
             
             //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
             if (host.isLogic() && iProcessBlockCounter < 3){
+                JUCE_COMPILER_WARNING("is this really useful?")
                 ++iProcessBlockCounter;
                 return;
             }
             
-            //--------------------------- FIRST PLAYING FRAME ---------------------
-            //if we were not playing on previous frame, this is the first playing frame.
-            if (!_WasPlayingOnPrevFrame){
-#if defined(DEBUG)
-                cout << "first playing frame\n";
-#endif
-                //restoreAllSavedParameters();
+            //--------------------------- FIRST PLAYING BUFER ---------------------
+            //if we were not playing on previous buffer, this is the first playing buffer.
+            if (!m_bWasWritingTrajectory){
+                
+                m_bWasWritingTrajectory = true;
+                m_bTrajectoryDone = false;
 
-                //store begin time
                 m_dTrajectoryTimeDone = .0;
-                if (m_bIsPreviewTrajectory){
-                    _TrajectoryBeginTime = 0;
-                } else {
-                    _TrajectoryBeginTime = cpi.timeInSeconds;
-                }
-                _TrajectorySingleBeginTime = _TrajectoryBeginTime;
-                
-                
+                _TrajectoryBeginTime = .0;
+                _TrajectorySingleBeginTime = .0;
                 
                 if (_isSyncWTempo) {
                     //convert measure count to a duration
@@ -210,8 +196,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 } else {
                     _TrajectoriesDurationBuffer = _TrajectoriesDuration;
                 }
-                
-                
                 
                 //if trajectory count is negative, toggle _TrajectoryIsDirectionReversed but still use positive value in calculations
                 if (_TrajectoryCount < 0){
@@ -226,10 +210,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     _TrajectoriesDurationBuffer *= _TrajectoryCount;
                     _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
                 }
-                
-                
 
-                
                 //store initial parameter value
                 _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
                 _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
@@ -237,9 +218,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 //convert current elevation as a radian offset for trajectories that use sin/cos
                 _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
                 _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
-                
-                
-                _WasPlayingOnPrevFrame = true;
                 
 #if defined(DEBUG)
                 cout << "____________________________BEGIN PARAMETER CHANGE_____________________________\n";
@@ -276,20 +254,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << "\n";
                 cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << "\n";
 #endif
-                
-                
-                
-                //we've done enough for this call to processBlock, return and continue on the next
-                return;
             }
             
-            //--------------------------- ALL OTHER FRAMES ---------------------
-            //is it worth it to keep those 2 ways of updating time, instead of just keeping the buffer way?
-            if (m_bIsPreviewTrajectory){
-                m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
-            } else {
-                m_dTrajectoryTimeDone = cpi.timeInSeconds;
-            }
+            //--------------------------- ALL OTHER BUFFERS ---------------------
+            m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
 #if defined(DEBUG)
             cout << "m_dTrajectoryTimeDone : " << m_dTrajectoryTimeDone << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "_TrajectoriesDurationBuffer: " << _TrajectoriesDurationBuffer << "\n";
 #endif
@@ -432,17 +400,15 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 #endif
             }
             
-            //m_dTrajectoryTimeDone IS NOT SMALLER THAN (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
+            //trajectory is done, ie, m_dTrajectoryTimeDone >= (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
             else {
-#if defined(DEBUG)
-                cout << "m_dTrajectoryTimeDone is done\n";
-#endif
+                m_bTrajectoryDone = true;
                 m_bIsPreviewTrajectory = false;
                 m_bWasPreviewingTrajectory = true;
             }
 
-            //if we were playing on prev frame, this is the first frame after we stopped
-        } else if (_WasPlayingOnPrevFrame || m_bUserInterruptedPreview){
+            //if we were writing trajectories, this is the first buffer after
+        } else if (m_bWasWritingTrajectory || m_bUserInterruptedPreview || m_bUserInterruptedWriting){
 #if defined(DEBUG)
             cout << "was playing on prev frame, wrapping this up\n";
             cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
@@ -477,20 +443,26 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 default:
                     break;
             }
-            m_bCurrentlyPlaying = false;
-            _WasPlayingOnPrevFrame = false;
+            
+            //reset everything
+            m_dTrajectoryTimeDone = .0;
             iProcessBlockCounter = 0;
-
-            //untoggle write trajectory button
-            if (!m_bWasPreviewingTrajectory){
-                _isWriteTrajectory = false;
-            }
+            m_bWasWritingTrajectory = false;
+            
             m_bWasPreviewingTrajectory = false;
             m_bUserInterruptedPreview = false;
+            
+            m_bUserInterruptedWriting = false;
+            
+            m_bTrajectoryDone = true;
             
             _RefreshGui=true;
         }
     }
+}
+
+bool ZirkOscjuceAudioProcessor::isTrajectoryDone(){
+    return m_bTrajectoryDone;
 }
 
 float ZirkOscjuceAudioProcessor::getTrajectoryProgress(){
@@ -577,10 +549,6 @@ void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &ne
     else if (m_iSelectedMovementConstraint == Circular){
         editor->moveCircular(newLocation);
     }
-}
-
-bool ZirkOscjuceAudioProcessor::isCurrentlyPlaying(){
-    return m_bCurrentlyPlaying;
 }
 
 float ZirkOscjuceAudioProcessor::getSmallAlternatingValue(){
@@ -749,10 +717,12 @@ bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
 }
 
 void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
+    if (_isWriteTrajectory && !isWriteTrajectory){
+        m_bUserInterruptedWriting = true;
+        
+    }
     _isWriteTrajectory = isWriteTrajectory;
-//    if (_isWriteTrajectory){
-//        saveAllParameters();
-//    }
+
 }
 
 bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){

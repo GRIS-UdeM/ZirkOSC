@@ -26,7 +26,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "TrajectoryProperties.hpp"
 
 //==============================================================================
 /**
@@ -155,7 +154,6 @@ private:
     ComboBox* m_pTrajectoryComboBox;
     
     ComboBox* m_pSyncWTempoComboBox;
-    //ToggleButton*   m_pSyncWTempoButton;
     
     TextButton* m_pWriteTrajectoryButton;
     
@@ -172,6 +170,8 @@ private:
     TextEditor* m_pTrajectoryDurationTextEditor;
     
     bool m_bWasPreviewingTrajectoryEd;
+
+    bool m_bWasWritingTrajectoryEd;
     
   	MiniProgressBar *mTrProgressBar;
     
