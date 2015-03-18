@@ -377,7 +377,7 @@ private:
     
     int _SelectedSourceForTrajectory;
     
-    bool m_bWasWritingTrajectory;
+    bool m_bFirstPlayingBuffer;
     
     bool m_bTrajectoryDone;
     
@@ -388,8 +388,6 @@ private:
     bool m_bWasPreviewingTrajectory;
     
     bool m_bUserInterruptedPreview;
-    
-    bool m_bUserInterruptedWriting;
 
     float m_fOldElevation;
     

@@ -723,10 +723,9 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->setValue(HRValue,dontSendNotification);
     
-    if (ourProcessor->getIsPreviewTrajectory() || ourProcessor->getIsWriteTrajectory()){
+    if (!ourProcessor->isTrajectoryDone() && (ourProcessor->getIsPreviewTrajectory()
+                                              || ourProcessor->getIsWriteTrajectory())){
         mTrProgressBar->setValue(ourProcessor->getTrajectoryProgress());
-    } else {
-        mTrProgressBar->setVisible(false);
     }
 
 #if defined(DEBUG)
@@ -773,8 +772,11 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     bool bIsWriting = ourProcessor->getIsWriteTrajectory();
     m_pWriteTrajectoryButton->setToggleState(bIsWriting, dontSendNotification);
 //    if (!bIsWriting && m_bWasWritingTrajectoryEd){
-    if (ourProcessor->isTrajectoryDone()){
+    float progress = ourProcessor->getTrajectoryProgress();
+    cout << progress << endl;
+    if (progress >= .99){
         m_pWriteTrajectoryButton->setButtonText("Ready");
+        m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
         m_bWasWritingTrajectoryEd = false;
         mTrProgressBar->setVisible(false);
     }
@@ -787,6 +789,7 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
         m_bWasPreviewingTrajectoryEd = false;
         mTrProgressBar->setVisible(false);
     }
+
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
     _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
