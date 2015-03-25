@@ -180,7 +180,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             if (m_bFirstPlayingBuffer){
                 
                 m_bFirstPlayingBuffer = false;
-                m_bTrajectoryDone = false;
 
                 m_dTrajectoryTimeDone = .0;
                 _TrajectoryBeginTime = .0;
@@ -251,9 +250,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             cout << "m_dTrajectoryTimeDone : " << m_dTrajectoryTimeDone << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "_TrajectoriesDurationBuffer: " << _TrajectoriesDurationBuffer << "\n";
 #endif
             //if we still need to write automation (currentTime smaller than begin time + whole duration
-            if (!m_bTrajectoryDone && m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
+            if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
                 
-                m_bTrajectoryDone = false;
                 //calculate new position
                 float newAzimuth, newElevation, theta;
                 float integralPart; //useless here
@@ -433,8 +431,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             
             _RefreshGui=true;
         }
-    } else {
-        m_bTrajectoryDone = false;
     }
 }
 
