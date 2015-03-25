@@ -143,10 +143,6 @@ public:
     //!get wheter programmed trajectories are written in sync with host tempo
     bool getIsSyncWTempo();
     
-    void setIsPreviewTrajectory(bool p_bIsPreview);
-    
-    bool getIsPreviewTrajectory();
-    
     //!set wheter to write programmed trajectory on next host play
     void setIsWriteTrajectory(bool isWriteTrajectory);
     //!get wheter to write programmed trajectory on next host play
@@ -382,12 +378,6 @@ private:
     bool m_bTrajectoryDone;
     
     bool _JustsEndedPlaying;
-    
-    bool m_bIsPreviewTrajectory;
-    
-    bool m_bWasPreviewingTrajectory;
-    
-    bool m_bUserInterruptedPreview;
 
     float m_fOldElevation;
     

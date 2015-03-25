@@ -157,8 +157,6 @@ private:
     
     TextButton* m_pWriteTrajectoryButton;
     
-    TextButton* m_pTrajectoryPreviewButton;
-    
     //static bool _AlreadySetTrajectorySource;
     
     Label* m_pTrajectoryCountLabel;
@@ -168,8 +166,6 @@ private:
     TextEditor* m_pTrajectoryCountTextEditor;
     
     TextEditor* m_pTrajectoryDurationTextEditor;
-    
-    bool m_bWasPreviewingTrajectoryEd;
 
     bool m_bWasWritingTrajectoryEd;
     

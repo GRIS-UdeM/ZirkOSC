@@ -149,8 +149,6 @@ class TrajectoryTab : public Component{
     
     TextButton* m_pWriteButton;
     
-    TextButton* m_pPreviewButton;
-    
     MiniProgressBar* mTrProgressBarTab;
     
     OwnedArray<Component> components;
@@ -178,8 +176,6 @@ public:
         
         m_pWriteButton          = addToList(new TextButton());
         
-        m_pPreviewButton        = addToList(new TextButton());
-        
         mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
     
@@ -194,8 +190,6 @@ public:
     TextEditor*     getDurationTextEditor(){return m_pDurationTextEditor;}
     
     TextButton*     getWriteButton(){       return m_pWriteButton;}
-
-    TextButton*     getPreviewButton(){     return m_pPreviewButton;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -213,7 +207,6 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 _LinkSpanButton("Link span"),
 _OscActiveButton("OSC active"),
 _TabComponent(TabbedButtonBar::TabsAtTop),
-m_bWasPreviewingTrajectoryEd(false),
 m_bWasWritingTrajectoryEd(false),
 
 //strings in parameters are all used as juce::component names
@@ -365,13 +358,6 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pWriteTrajectoryButton->setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     m_pWriteTrajectoryButton->addListener(this);
 
-    //PREVIEW TOGGLE BUTTON
-    m_pTrajectoryPreviewButton = m_oTrajectoryTab->getPreviewButton();//new TrajectoryPreviewButtonComponent("Preview Trajectory", "Previewing...", "", ourProcessor);
-    m_pTrajectoryPreviewButton->setButtonText("Preview");
-    m_pTrajectoryPreviewButton->setClickingTogglesState(true);
-    m_pTrajectoryPreviewButton->setToggleState(false, dontSendNotification);
-    m_pTrajectoryPreviewButton->addListener(this);
-
     //PROGRESS BAR
     mTrProgressBar = m_oTrajectoryTab->getProgressBar();
     mTrProgressBar->setVisible(false);
@@ -477,7 +463,6 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     m_pTrajectoryCountLabel->           setBounds(15+230,   15+50, 75,  25);
 
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
-    m_pTrajectoryPreviewButton->        setBounds(iCurWidth-210, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-315, 125, 100, 25);
 
 }
@@ -723,8 +708,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->setValue(HRValue,dontSendNotification);
     
-    if (!ourProcessor->isTrajectoryDone() && (ourProcessor->getIsPreviewTrajectory()
-                                              || ourProcessor->getIsWriteTrajectory())){
+    if (!ourProcessor->isTrajectoryDone() && ourProcessor->getIsWriteTrajectory()){
         mTrProgressBar->setValue(ourProcessor->getTrajectoryProgress());
     }
 
@@ -781,15 +765,6 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
         mTrProgressBar->setVisible(false);
     }
     
-    bool bIsPreviewing = ourProcessor->getIsPreviewTrajectory();
-    m_pTrajectoryPreviewButton->setToggleState(bIsPreviewing, dontSendNotification);
-    if (!bIsPreviewing && m_bWasPreviewingTrajectoryEd){
-        ourProcessor->restoreCurrentLocations();
-        m_pTrajectoryPreviewButton->setButtonText("Preview");
-        m_bWasPreviewingTrajectoryEd = false;
-        mTrProgressBar->setVisible(false);
-    }
-
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
     _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
     _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
@@ -823,25 +798,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         ourProcessor->setIsWriteTrajectory(isWritingTrajectory);
         
         
-    }
-
-    else if(button == m_pTrajectoryPreviewButton){
-        bool bIsPreviewing = m_pTrajectoryPreviewButton->getToggleState();
-
-        if (bIsPreviewing){
-            m_pTrajectoryPreviewButton->setButtonText("Cancel");
-            ourProcessor->storeCurrentLocations();
-            m_bWasPreviewingTrajectoryEd = true;
-            
-            mTrProgressBar->setValue(0);
-            mTrProgressBar->setVisible(true);
-        } else {
-            m_pTrajectoryPreviewButton->setButtonText("Preview");
-            ourProcessor->restoreCurrentLocations();
-            m_bWasPreviewingTrajectoryEd = false;
-            mTrProgressBar->setVisible(false);
-        }
-        ourProcessor->setIsPreviewTrajectory(bIsPreviewing);
     }
 }
 

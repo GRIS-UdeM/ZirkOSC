@@ -88,9 +88,6 @@ _SelectedSourceForTrajectory(0),
 m_bFirstPlayingBuffer(true),
 m_bTrajectoryDone(false),
 _JustsEndedPlaying(false),
-m_bIsPreviewTrajectory(false),
-m_bWasPreviewingTrajectory(false),
-m_bUserInterruptedPreview(false),
 m_fOldElevation(-1.f),
 m_parameterBuffer()
 {
@@ -162,14 +159,14 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 {
 
     //if write trajectory is enabled (button toggled on in editor)
-    if (_isWriteTrajectory || m_bIsPreviewTrajectory || m_bWasPreviewingTrajectory){
+    if (_isWriteTrajectory){
 
         //get current playhead info
         AudioPlayHead::CurrentPositionInfo cpi;
         playHead->getCurrentPosition(cpi);
         
         //----------------------------------- PLAYING
-        if((cpi.isPlaying && !m_bTrajectoryDone) || m_bIsPreviewTrajectory){
+        if(cpi.isPlaying && !m_bTrajectoryDone){
             
             //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
             if (host.isLogic() && iProcessBlockCounter < 3){
@@ -404,12 +401,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             //trajectory is done, ie, m_dTrajectoryTimeDone >= (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
             else {
                 m_bTrajectoryDone = true;
-                m_bIsPreviewTrajectory = false;
-                //m_bWasPreviewingTrajectory = true;
             }
 
             //----------------------------------- NOT PLAYING
-        } else if (!m_bFirstPlayingBuffer && (m_bTrajectoryDone || m_bUserInterruptedPreview)){
+        } else if (!m_bFirstPlayingBuffer && m_bTrajectoryDone){
 #if defined(DEBUG)
             cout << "was playing on prev frame, wrapping this up\n";
             cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
@@ -450,9 +445,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             iProcessBlockCounter = 0;
             m_bFirstPlayingBuffer = true;
             
-            m_bWasPreviewingTrajectory = false;
-            m_bUserInterruptedPreview = false;
-
             _RefreshGui=true;
         }
     } else {
@@ -725,22 +717,6 @@ void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
 
 bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){
     return _isWriteTrajectory;
-}
-
-void ZirkOscjuceAudioProcessor::setIsPreviewTrajectory(bool p_bIsPreview){
-    
-    //user interupted preview
-    if (m_bIsPreviewTrajectory && !p_bIsPreview){
-        m_bUserInterruptedPreview = true;
-        m_bWasPreviewingTrajectory = true;
-        
-    }
-    m_bIsPreviewTrajectory = p_bIsPreview;
-    
-}
-
-bool ZirkOscjuceAudioProcessor::getIsPreviewTrajectory(){
-    return m_bIsPreviewTrajectory;
 }
 
 //==============================================================================
