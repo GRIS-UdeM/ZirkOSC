@@ -243,14 +243,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                         }
                     }
                 }
-                
-#if defined(DEBUG)
-                cout << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "\n";
-                cout << "_TrajectoriesDuration: " << _TrajectoriesDuration << "\n";
-                cout << "_TrajectoryCount: " << _TrajectoryCount << "\n";
-                cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << "\n";
-                cout << "_TrajectoryInitialElevation: " << _TrajectoryInitialElevation << "\n";
-#endif
             }
             
             //--------------------------- ALL OTHER BUFFERS ---------------------
@@ -259,7 +251,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             cout << "m_dTrajectoryTimeDone : " << m_dTrajectoryTimeDone << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "_TrajectoriesDurationBuffer: " << _TrajectoriesDurationBuffer << "\n";
 #endif
             //if we still need to write automation (currentTime smaller than begin time + whole duration
-            if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
+            if (!m_bTrajectoryDone && m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
                 
                 m_bTrajectoryDone = false;
                 //calculate new position
@@ -389,13 +381,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                     default:
                         break;
                 }
-                
-#if defined(DEBUG)
-                cout<< "newElevation: " << newElevation
-                << "\t\t\t_TrajectoryInitialElevation: " << _TrajectoryInitialElevation
-                << "\t\t\tnewAzimuth: " << newAzimuth
-                << "\t\t\t_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << endl;
-#endif
             }
             
             //trajectory is done, ie, m_dTrajectoryTimeDone >= (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
@@ -441,7 +426,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             }
             
             //reset everything
-            //m_dTrajectoryTimeDone = .0;
+            m_bTrajectoryDone = false;
+            m_dTrajectoryTimeDone = .0;
             iProcessBlockCounter = 0;
             m_bFirstPlayingBuffer = true;
             
@@ -450,6 +436,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     } else {
         m_bTrajectoryDone = false;
     }
+}
+
+void ZirkOscjuceAudioProcessor::cancelTrajectory(){
+    m_bTrajectoryDone = true;
 }
 
 bool ZirkOscjuceAudioProcessor::isTrajectoryDone(){

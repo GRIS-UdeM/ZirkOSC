@@ -166,11 +166,8 @@ private:
     TextEditor* m_pTrajectoryCountTextEditor;
     
     TextEditor* m_pTrajectoryDurationTextEditor;
-
-    bool m_bWasWritingTrajectoryEd;
     
   	MiniProgressBar *mTrProgressBar;
-    
 
     
     //---------------- SLIDERS ------------------

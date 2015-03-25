@@ -207,8 +207,6 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 _LinkSpanButton("Link span"),
 _OscActiveButton("OSC active"),
 _TabComponent(TabbedButtonBar::TabsAtTop),
-m_bWasWritingTrajectoryEd(false),
-
 //strings in parameters are all used as juce::component names
 _FirstSourceIdLabel("channelNbr"),
 _ZkmOscPortLabel("OscPort"),
@@ -393,7 +391,6 @@ ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
     //stopTimer();
 }
 
-
 void ZirkOscjuceAudioProcessorEditor::resized() {
     int iCurWidth  = getWidth();
     int iCurHeight = getHeight();
@@ -424,7 +421,6 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     _OscActiveButton.setBounds(iCurWidth-80, 300, 80, 25);
     
     // link button
-    //_LinkSpanButton.setBounds(15, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+146, 80, 30);
     _LinkSpanButton.setBounds(iCurWidth-80, 325, 80, 25);
 
     
@@ -438,7 +434,6 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     
     
     //------------ CONSTRAINT COMBO BOX ------------
-    //_MovementConstraintComboBox.setBounds(100, iCurHeight-ZirkOSC_TrajectoryGroupHeight-ZirkOSC_SlidersGroupHeight+150, 220, 25);
     _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight - ZirkOSC_SlidersGroupHeight - ZirkOSC_ConstraintComboBoxHeight+20, 220, ZirkOSC_ConstraintComboBoxHeight);
     
     
@@ -463,7 +458,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     m_pTrajectoryCountLabel->           setBounds(15+230,   15+50, 75,  25);
 
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
-    mTrProgressBar->                    setBounds(iCurWidth-315, 125, 100, 25);
+    mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
 
 }
 
@@ -755,13 +750,10 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
 
     bool bIsWriting = ourProcessor->getIsWriteTrajectory();
     m_pWriteTrajectoryButton->setToggleState(bIsWriting, dontSendNotification);
-//    if (!bIsWriting && m_bWasWritingTrajectoryEd){
-    float progress = ourProcessor->getTrajectoryProgress();
-    cout << progress << endl;
-    if (progress >= .99){
+
+    if (ourProcessor->getTrajectoryProgress() >= .99){
         m_pWriteTrajectoryButton->setButtonText("Ready");
         m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
-        m_bWasWritingTrajectoryEd = false;
         mTrProgressBar->setVisible(false);
     }
     
@@ -786,12 +778,11 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         
         if (isWritingTrajectory){
             m_pWriteTrajectoryButton->setButtonText("Cancel");
-            m_bWasWritingTrajectoryEd = true;
             mTrProgressBar->setValue(0);
             mTrProgressBar->setVisible(true);
         } else {
             m_pWriteTrajectoryButton->setButtonText("Ready");
-            m_bWasWritingTrajectoryEd = false;
+            ourProcessor->cancelTrajectory();
             mTrProgressBar->setVisible(false);
         }
         

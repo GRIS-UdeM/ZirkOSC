@@ -282,6 +282,9 @@ public:
     
     bool isTrajectoryDone();
     
+    void cancelTrajectory();
+    
+    
 private:
     
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
