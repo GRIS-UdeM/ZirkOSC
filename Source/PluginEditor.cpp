@@ -751,7 +751,7 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     bool bIsWriting = ourProcessor->getIsWriteTrajectory();
     m_pWriteTrajectoryButton->setToggleState(bIsWriting, dontSendNotification);
 
-    if (ourProcessor->getTrajectoryProgress() >= .99){
+    if (ourProcessor->getTrajectoryProgress() >= .98 || ourProcessor->isTrajectoryDone()){
         m_pWriteTrajectoryButton->setButtonText("Ready");
         m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
         mTrProgressBar->setVisible(false);
@@ -796,6 +796,11 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
 
 void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
+    if (ourProcessor->getIsWriteTrajectory()){
+        return;
+    }
+    
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
     int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
@@ -844,6 +849,11 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
 
 void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
+    if (ourProcessor->getIsWriteTrajectory()){
+        return;
+    }
+    
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
     int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
@@ -894,6 +904,11 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
 void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     //get processor and selected source
     ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
+    if (ourProcessor->getIsWriteTrajectory()){
+        return;
+    }
+    
     int selectedSource = ourProcessor->getSelectedSource();
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     float percentValue=0;
@@ -981,6 +996,13 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
+    
+    ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+    
+    if (ourProcessor->getIsWriteTrajectory()){
+        return;
+    }
+    
     int source=-1;
 
     //if event is within the wall circle, select source that is clicked on (if any)
@@ -991,10 +1013,13 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
     
     //if a source is clicked on, flag _isSourceBeingDragged to true
     _isSourceBeingDragged = (source!=-1);
+
+
+    
     if(_isSourceBeingDragged){
 
         //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture). Logic needs this
-        getProcessor()->setSelectedSource(source);
+        ourProcessor->setSelectedSource(source);
         int selectedConstraint = getProcessor()->getSelectedMovementConstraintAsInteger();
         if (selectedConstraint == Independant) {
             getProcessor()->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + source*5);
@@ -1027,6 +1052,11 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         
         //get processor and selected source
         ZirkOscjuceAudioProcessor* ourProcessor = getProcessor();
+        
+        if (ourProcessor->getIsWriteTrajectory()){
+            return;
+        }
+        
         int selectedSource = ourProcessor->getSelectedSource();
         
         //get point of current event
@@ -1067,6 +1097,11 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
+    
+    if (getProcessor()->getIsWriteTrajectory()){
+        return;
+    }
+    
     if(_isSourceBeingDragged){
         int selectedConstrain = getProcessor()->getSelectedMovementConstraintAsInteger();
         if(selectedConstrain == Independant){

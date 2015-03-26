@@ -289,6 +289,8 @@ private:
     
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
     
+    void stopTrajectory();
+    
     void saveAllParameters();
     
     void restoreAllSavedParameters();

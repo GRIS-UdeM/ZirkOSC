@@ -388,50 +388,55 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
             //----------------------------------- NOT PLAYING
         } else if (!m_bFirstPlayingBuffer && m_bTrajectoryDone){
-#if defined(DEBUG)
-            cout << "was playing on prev frame, wrapping this up\n";
-            cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
-#endif
-            switch (getSelectedTrajectoryAsInteger()) {
-                case Circle :
-                    if (m_iSelectedMovementConstraint == Independant){
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                    } else {
-                        for(int i = 0;i < getNbrSources(); ++i){
-                            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5);
-                        }
-                    }
-                    break;
-                case UpwardSpiral :
-                case DownwardSpiral :
-                case UpAndDownSpiral :
-                case DownAndUpSpiral :
-                    m_fOldElevation = -1.f;
-                case Pendulum :
-                    if (m_iSelectedMovementConstraint == Independant){
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-                        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
-                    } else {
-                        for(int i = 0;i < getNbrSources(); ++i){
-                            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (i*5));
-                            endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (i*5));
-                        }
-                    }
-                    break;
-                    
-                default:
-                    break;
-            }
             
-            //reset everything
-            m_bTrajectoryDone = false;
-            m_dTrajectoryTimeDone = .0;
-            iProcessBlockCounter = 0;
-            m_bFirstPlayingBuffer = true;
-            
-            _RefreshGui=true;
+            stopTrajectory();
         }
     }
+}
+
+void ZirkOscjuceAudioProcessor::stopTrajectory(){
+#if defined(DEBUG)
+    cout << "was playing on prev frame, wrapping this up\n";
+    cout << "____________________________END PARAMETER CHANGE______________________________________________\n";
+#endif
+    switch (getSelectedTrajectoryAsInteger()) {
+        case Circle :
+            if (m_iSelectedMovementConstraint == Independant){
+                endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+            } else {
+                for(int i = 0;i < getNbrSources(); ++i){
+                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5);
+                }
+            }
+            break;
+        case UpwardSpiral :
+        case DownwardSpiral :
+        case UpAndDownSpiral :
+        case DownAndUpSpiral :
+            m_fOldElevation = -1.f;
+        case Pendulum :
+            if (m_iSelectedMovementConstraint == Independant){
+                endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+                endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+            } else {
+                for(int i = 0;i < getNbrSources(); ++i){
+                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (i*5));
+                    endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (i*5));
+                }
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
+    //reset everything
+    //m_bTrajectoryDone = false;
+    m_dTrajectoryTimeDone = .0;
+    iProcessBlockCounter = 0;
+    m_bFirstPlayingBuffer = true;
+    _isWriteTrajectory = false;
+    _RefreshGui=true;
 }
 
 void ZirkOscjuceAudioProcessor::cancelTrajectory(){
@@ -698,6 +703,11 @@ bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
 
 void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
     _isWriteTrajectory = isWriteTrajectory;
+    if (_isWriteTrajectory){
+        m_bTrajectoryDone = false;
+    } else {
+        stopTrajectory();
+    }
 
 }
 
