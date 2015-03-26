@@ -81,7 +81,6 @@ m_bTrajectoryElevationDecreasing(false),
 m_bTrajectoryAddPositive(true),
 _TrajectoryJustCompletedSingle(false),
 m_dTrajectoryTimeDone(.0),
-iProcessBlockCounter(0),
 _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
@@ -168,12 +167,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         //----------------------------------- PLAYING
         if(cpi.isPlaying && !m_bTrajectoryDone){
             
-            //this is just to let Logic time to clear its buffers, to get a clean, up-to-date _CurrentPlayHeadInfo
-            if (host.isLogic() && iProcessBlockCounter < 3){
-                JUCE_COMPILER_WARNING("is this really useful?")
-                ++iProcessBlockCounter;
-                return;
-            }
+
             
             //--------------------------- FIRST PLAYING BUFFER ---------------------
             //if we were not playing on previous buffer, this is the first playing buffer.
@@ -433,7 +427,6 @@ void ZirkOscjuceAudioProcessor::stopTrajectory(){
     //reset everything
     //m_bTrajectoryDone = false;
     m_dTrajectoryTimeDone = .0;
-    iProcessBlockCounter = 0;
     m_bFirstPlayingBuffer = true;
     _isWriteTrajectory = false;
     _RefreshGui=true;
