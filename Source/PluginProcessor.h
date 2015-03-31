@@ -289,6 +289,10 @@ private:
     
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
     
+    void initTrajectories(AudioPlayHead::CurrentPositionInfo cpi);
+    
+    void processTrajectories();
+    
     void stopTrajectory();
     
     void saveAllParameters();
