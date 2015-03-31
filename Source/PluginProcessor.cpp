@@ -449,11 +449,10 @@ float ZirkOscjuceAudioProcessor::getTrajectoryProgress(){
 
 void ZirkOscjuceAudioProcessor::saveAllParameters(){
     
-    JUCE_COMPILER_WARNING("find a way to copy arrays of objects")
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
     }
-    JUCE_COMPILER_WARNING("why are we doing this")
+
     _AllSources[0].setAzimReverse(true);
 
     m_parameterBuffer.fMovementConstraint =  _SelectedMovementConstraint;
@@ -470,7 +469,6 @@ void ZirkOscjuceAudioProcessor::saveAllParameters(){
 
 void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
     
-    JUCE_COMPILER_WARNING("find a way to copy arrays of objects")
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
     }
@@ -492,14 +490,12 @@ void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
 }
 
 void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
-    JUCE_COMPILER_WARNING(new string(find a way to copy arrays of objects))
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
     }
 }
 
 void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
-    JUCE_COMPILER_WARNING("find a way to copy arrays of objects")
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
     }
