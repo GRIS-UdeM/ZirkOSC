@@ -284,12 +284,13 @@ public:
     
     void cancelTrajectory();
     
+    void initTrajectories();
     
 private:
     
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
     
-    void initTrajectories(AudioPlayHead::CurrentPositionInfo cpi);
+    
     
     void processTrajectories();
     

@@ -168,10 +168,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             
             //--------------------------- FIRST PLAYING BUFFER ---------------------
             //if we were not playing on previous buffer, this is the first playing buffer.
-            if (m_bFirstPlayingBuffer){
-                
-                initTrajectories(cpi);
-            }
+//            if (m_bFirstPlayingBuffer){
+//                
+//                JUCE_COMPILER_WARNING("this should potentially be called when pressing ready? Since position is locked anyways.")
+//                initTrajectories(cpi);
+//            }
             
             //--------------------------- ALL OTHER BUFFERS ---------------------
             m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
@@ -197,7 +198,11 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     }
 }
 
-void ZirkOscjuceAudioProcessor::initTrajectories(AudioPlayHead::CurrentPositionInfo cpi){
+void ZirkOscjuceAudioProcessor::initTrajectories(){
+    
+    AudioPlayHead::CurrentPositionInfo cpi;
+    playHead->getCurrentPosition(cpi);
+    
     m_bFirstPlayingBuffer = false;
     
     m_dTrajectoryTimeDone = .0;
@@ -430,7 +435,6 @@ void ZirkOscjuceAudioProcessor::stopTrajectory(){
     }
     
     //reset everything
-    //m_bTrajectoryDone = false;
     m_dTrajectoryTimeDone = .0;
     m_bFirstPlayingBuffer = true;
     _isWriteTrajectory = false;

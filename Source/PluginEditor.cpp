@@ -778,6 +778,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         
         if (isWritingTrajectory){
             m_pWriteTrajectoryButton->setButtonText("Cancel");
+            ourProcessor->initTrajectories();
             mTrProgressBar->setValue(0);
             mTrProgressBar->setVisible(true);
         } else {
@@ -787,7 +788,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         }
         
         ourProcessor->setIsWriteTrajectory(isWritingTrajectory);
-        
         
     }
 }
@@ -1067,6 +1067,11 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         if (selectedConstraint == Independant) {
             //set source position to current event point
             ourProcessor->getSources()[selectedSource].setPositionXY(pointRelativeCenter);
+            
+            if (selectedSource == 0){
+                cout << "(" << pointRelativeCenter.getX() << ", " << pointRelativeCenter.getY() << ")\n";
+            }
+            
             //notify the host+processor of the source position
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + selectedSource*5, ourProcessor->getSources()[selectedSource].getAzimuth());
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*5, ourProcessor->getSources()[selectedSource].getElevation());
@@ -1200,6 +1205,11 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
     //figure out new location that source should move to
     SoundSource sourceNewLocation = SoundSource();
     sourceNewLocation.setPositionXY(pointRelativeCenter);
+    
+    if (selectedSource == 0){
+        cout << "(" << pointRelativeCenter.getX() << ", " << pointRelativeCenter.getY() << ")\n";
+    }
+    
     float HRNewElevation = PercentToHR(sourceNewLocation.getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     float HRNewAzimuth   = PercentToHR(sourceNewLocation.getAzimuth(),   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     
