@@ -1067,10 +1067,12 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         if (selectedConstraint == Independant) {
             //set source position to current event point
             ourProcessor->getSources()[selectedSource].setPositionXY(pointRelativeCenter);
-            
+
+#if defined(DEBUG)
             if (selectedSource == 0){
                 cout << "(" << pointRelativeCenter.getX() << ", " << pointRelativeCenter.getY() << ")\n";
             }
+#endif
             
             //notify the host+processor of the source position
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + selectedSource*5, ourProcessor->getSources()[selectedSource].getAzimuth());
@@ -1206,9 +1208,11 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
     SoundSource sourceNewLocation = SoundSource();
     sourceNewLocation.setPositionXY(pointRelativeCenter);
     
+#if defined(DEBUG)
     if (selectedSource == 0){
         cout << "(" << pointRelativeCenter.getX() << ", " << pointRelativeCenter.getY() << ")\n";
     }
+#endif
     
     float HRNewElevation = PercentToHR(sourceNewLocation.getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     float HRNewAzimuth   = PercentToHR(sourceNewLocation.getAzimuth(),   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);

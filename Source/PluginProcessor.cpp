@@ -234,6 +234,7 @@ void ZirkOscjuceAudioProcessor::initTrajectories(){
     //store initial parameter value
     _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
     _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
+    storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
     _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
@@ -435,6 +436,7 @@ void ZirkOscjuceAudioProcessor::stopTrajectory(){
     }
     
     //reset everything
+    restoreCurrentLocations();
     m_dTrajectoryTimeDone = .0;
     m_bFirstPlayingBuffer = true;
     _isWriteTrajectory = false;
