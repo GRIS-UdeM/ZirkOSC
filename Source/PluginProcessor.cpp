@@ -280,7 +280,8 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
         case Circle :
             newAzimuth = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
             if (_TrajectoryIsDirectionReversed){
-                newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+//                newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+                newAzimuth = modf(_TrajectoryInitialAzimuth - newAzimuth, &integralPart);
             } else {
                 newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
             }
@@ -301,7 +302,13 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
             newElevation = ((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
             
             if (_TrajectoryIsDirectionReversed){
-                newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhiAcos) );  //only positive cos wave with phase _TrajectoriesPhi
+                
+                //old way, goes first from _TrajectoryInitialElevation to 0, then passes the center down to _TrajectoryInitialElevation on the other side
+                //newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhiAcos) );  //only positive cos wave with phase _TrajectoriesPhi
+                
+                //new way, simply oscilates between _TrajectoryInitialElevation and 0
+                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * 2 * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
+                
             } else {
                 //newElevation = abs( sin(newElevation * 2 * M_PI + _TrajectoriesPhiAsin) );  //using only this line produced this: part d'une élévation initiale; monte vers le haut du dôme; redescend de l'autre coté jusqu'en bas; remonte vers le haut, passe le dessus du dôme; redescend jusqu'en bas; remonte jusqu'à l'élévation initiale
                 newElevation = abs( sin(newElevation * 2 * M_PI) );  //varies between [0,1]
@@ -317,10 +324,11 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
             if (m_bTrajectoryElevationDecreasing && newElevation < .96f){
                 m_bTrajectoryElevationDecreasing = false;
             }
-            
-            if (host.isLogic()){
-                _TrajectoryInitialAzimuth += getSmallAlternatingValue();
-            }
+
+            //Apparently no longer needed?
+//            if (host.isLogic()){
+//                _TrajectoryInitialAzimuth += getSmallAlternatingValue();
+//            }
             
             if (m_iSelectedMovementConstraint == Independant){
                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);

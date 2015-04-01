@@ -31,9 +31,15 @@
 
 
 #ifndef DEBUG
-    #define DEBUG
+#define DEBUG
 #endif
 #undef DEBUG
+
+#ifndef TIMING_TESTS
+#define TIMING_TESTS
+#endif
+#undef TIMING_TESTS
+
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -723,7 +729,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
           repaint();
     //}
     
-#if defined(DEBUG)
+#if defined(TIMING_TESTS)
     clock_t end = clock();
     cout << "processor:\t" << proc - begin <<"ms"<< endl;
     cout << "sliders:\t" << sliders - proc <<"ms"<< endl;
