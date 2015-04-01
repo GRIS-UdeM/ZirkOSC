@@ -266,7 +266,6 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
         case Circle :
             newAzimuth = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
             if (_TrajectoryIsDirectionReversed){
-//                newAzimuth = 1 - modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
                 newAzimuth = modf(_TrajectoryInitialAzimuth - newAzimuth, &integralPart);
             } else {
                 newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
