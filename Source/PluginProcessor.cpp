@@ -216,9 +216,13 @@ void ZirkOscjuceAudioProcessor::initTrajectories(){
     //store initial parameter value
     _TrajectoryInitialAzimuth   = getParameter(_SelectedSourceForTrajectory*5);
     _TrajectoryInitialElevation = getParameter((_SelectedSourceForTrajectory*5)+1);
+    
+    cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << "\n";
+    
     storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
+    JUCE_COMPILER_WARNING("these variables are not used anywhere, remove")
     _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
     _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
     
@@ -279,7 +283,6 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
             
             
         case Pendulum :
-            
             //this just grows linearly with time
             newElevation = ((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength) ;
             
@@ -311,7 +314,7 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
 //            if (host.isLogic()){
 //                _TrajectoryInitialAzimuth += getSmallAlternatingValue();
 //            }
-            
+
             if (m_iSelectedMovementConstraint == Independant){
                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), _TrajectoryInitialAzimuth);
                 setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5), newElevation);
@@ -331,8 +334,12 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
             
             if (iSelectedTrajectory == UpAndDownSpiral){
                 //newElevation = abs( sin(newElevation * M_PI + _TrajectoriesPhiAsin) );    //using only this line produced this: part d'une élévation initiale; monte vers le haut du dôme; redescend jusqu'en bas; remonte jusqu'à l'élévation initiale
-                newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
-                newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
+//                newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
+//                newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
+                
+                //what i want is a sinus that oscillates from _TrajectoryInitialElevation to 1
+                newElevation = abs( (1 - _TrajectoryInitialElevation) * sin(newElevation * M_PI) ) + _TrajectoryInitialElevation;
+                
             }
             
             //down and up
@@ -341,8 +348,7 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
 //                newElevation = abs( cos(newElevation * M_PI + _TrajectoriesPhiAcos) );  //only positive cos wave with phase _TrajectoriesPhi
                 
                 //new way, simply oscilates between _TrajectoryInitialElevation and 0
-                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
-
+                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
             if (_TrajectoryIsDirectionReversed){
@@ -510,6 +516,7 @@ void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
 
 void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &newLocation){
 
+    JUCE_COMPILER_WARNING("this is terrible. processor calls editor calls processor")
     ZirkOscjuceAudioProcessorEditor* editor = (ZirkOscjuceAudioProcessorEditor*) getEditor();
     //if we get here, we're not in independent mode
     if (m_iSelectedMovementConstraint == FixedAngles){
