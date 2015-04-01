@@ -84,7 +84,6 @@ m_dTrajectoryTimeDone(.0),
 _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
-m_bFirstPlayingBuffer(true),
 m_bTrajectoryDone(false),
 _JustsEndedPlaying(false),
 m_fOldElevation(-1.f),
@@ -163,25 +162,12 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         AudioPlayHead::CurrentPositionInfo cpi;
         playHead->getCurrentPosition(cpi);
         
-        //----------------------------------- PLAYING
-        if(cpi.isPlaying && !m_bTrajectoryDone){
+         if(cpi.isPlaying && !m_bTrajectoryDone){
             
-            //--------------------------- FIRST PLAYING BUFFER ---------------------
-            //if we were not playing on previous buffer, this is the first playing buffer.
-//            if (m_bFirstPlayingBuffer){
-//                
-//                JUCE_COMPILER_WARNING("this should potentially be called when pressing ready? Since position is locked anyways.")
-//                initTrajectories(cpi);
-//            }
-            
-            //--------------------------- ALL OTHER BUFFERS ---------------------
-            m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
-#if defined(DEBUG)
-            cout << "m_dTrajectoryTimeDone : " << m_dTrajectoryTimeDone << "_TrajectoryBeginTime: " << _TrajectoryBeginTime << "_TrajectoriesDurationBuffer: " << _TrajectoriesDurationBuffer << "\n";
-#endif
-            //if we still need to write automation (currentTime smaller than begin time + whole duration
+             m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
+
+             //if we still need to write automation (currentTime smaller than begin time + whole duration
             if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
-                
                 processTrajectories();
             }
             
@@ -190,9 +176,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
                 m_bTrajectoryDone = true;
             }
 
-            //----------------------------------- NOT PLAYING
-        } else if (!m_bFirstPlayingBuffer && m_bTrajectoryDone){
-            
+        } else if (m_bTrajectoryDone){
             stopTrajectory();
         }
     }
@@ -202,8 +186,6 @@ void ZirkOscjuceAudioProcessor::initTrajectories(){
     
     AudioPlayHead::CurrentPositionInfo cpi;
     playHead->getCurrentPosition(cpi);
-    
-    m_bFirstPlayingBuffer = false;
     
     m_dTrajectoryTimeDone = .0;
     _TrajectoryBeginTime = .0;
@@ -307,7 +289,7 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
                 //newElevation = abs( cos(newElevation * 2 * M_PI + _TrajectoriesPhiAcos) );  //only positive cos wave with phase _TrajectoriesPhi
                 
                 //new way, simply oscilates between _TrajectoryInitialElevation and 0
-                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * 2 * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
+                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
                 
             } else {
                 //newElevation = abs( sin(newElevation * 2 * M_PI + _TrajectoriesPhiAsin) );  //using only this line produced this: part d'une élévation initiale; monte vers le haut du dôme; redescend de l'autre coté jusqu'en bas; remonte vers le haut, passe le dessus du dôme; redescend jusqu'en bas; remonte jusqu'à l'élévation initiale
@@ -451,7 +433,6 @@ void ZirkOscjuceAudioProcessor::stopTrajectory(){
     //reset everything
     restoreCurrentLocations();
     m_dTrajectoryTimeDone = .0;
-    m_bFirstPlayingBuffer = true;
     _isWriteTrajectory = false;
     _RefreshGui=true;
 }

@@ -381,8 +381,6 @@ private:
     
     int _SelectedSourceForTrajectory;
     
-    bool m_bFirstPlayingBuffer;
-    
     bool m_bTrajectoryDone;
     
     bool _JustsEndedPlaying;
