@@ -359,7 +359,7 @@ void ZirkOscjuceAudioProcessor::processTrajectories(){
 //                newElevation = abs( cos(newElevation * M_PI + _TrajectoriesPhiAcos) );  //only positive cos wave with phase _TrajectoriesPhi
                 
                 //new way, simply oscilates between _TrajectoryInitialElevation and 0
-                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * 2 * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
+                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
 
             }
             
