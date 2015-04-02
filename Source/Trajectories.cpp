@@ -208,6 +208,23 @@ protected:
 //			FPoint p = mSourcesInitRT.getUnchecked(i);
 //			mFilter->setSourceRT(i, FPoint(p.x, p.y + da));
 //		}
+        float newAzimuth, newElevation, theta;
+        float integralPart; //useless here
+        
+        newAzimuth = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+        if (_TrajectoryIsDirectionReversed){
+            newAzimuth = modf(_TrajectoryInitialAzimuth - newAzimuth, &integralPart);
+        } else {
+            newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+        }
+        
+        if (ourProcessor->getSelectedMovementConstraintAsInteger() == Independant){
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);
+        } else {
+            SoundSource newLocationSource(newAzimuth, _TrajectoryInitialElevation);
+            Point<float> newLocation = newLocationSource.getPositionXY();
+            ourProcessor->moveTrajectoriesWithConstraints(newLocation);
+        }
         
         
         

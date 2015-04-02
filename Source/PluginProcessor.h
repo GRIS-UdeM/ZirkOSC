@@ -291,10 +291,12 @@ public:
     //NEW TRAJECTORY CLASS METHODS
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
   	Trajectory::Ptr getTrajectory() { return mTrajectory; }
+
+    void moveTrajectoriesWithConstraints(Point<float> &newLocation);
     
 private:
     
-    void moveTrajectoriesWithConstraints(Point<float> &newLocation);
+
     
     
     

@@ -193,6 +193,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         if (cpi.timeInSamples != mLastTimeInSamples)
         {
             // we're playing!
+            JUCE_COMPILER_WARNING("how can you distinguish playing and moving around?")
             mLastTimeInSamples = cpi.timeInSamples;
             
             double bps = cpi.bpm / 60;
@@ -203,6 +204,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             if (done) mTrajectory = NULL;
         }
     }
+
 }
 
 void ZirkOscjuceAudioProcessor::initTrajectories(){
