@@ -282,6 +282,14 @@ private:
     SlidersTab* m_oSlidersTab;
     
     TrajectoryTab* m_oTrajectoryTab;
+    
+    //NEW TRAJECTORIES
+    enum
+    {
+        kTrReady,
+        kTrWriting
+    };
+    int mTrState;
 
     
 };

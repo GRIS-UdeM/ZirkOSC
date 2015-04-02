@@ -29,6 +29,7 @@
 //#include "ZirkConstants.h"
 #include "lo.h"
 #include "SoundSource.h"
+#include "Trajectories.h"
 
 
 
@@ -286,6 +287,11 @@ public:
     
     void initTrajectories();
     
+    
+    //NEW TRAJECTORY CLASS METHODS
+    void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
+  	Trajectory::Ptr getTrajectory() { return mTrajectory; }
+    
 private:
     
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
@@ -340,6 +346,18 @@ private:
     bool _isOscActive;
     //! If the span are linked
     bool _isSpanLinked;
+    
+    float getSmallAlternatingValue();
+    
+    float m_fOldElevation;
+    
+    PluginHostType host;
+    
+    allParameters m_parameterBuffer;
+
+
+    //OLD TRAJECTORIES
+    
     //! Number of trajectories to draw in trajectory section
     double _TrajectoryCount;
     
@@ -350,9 +368,8 @@ private:
     
     double _TrajectoriesDurationBuffer;
 
-    double _TrajectoriesPhiAsin;
-    
-    double _TrajectoriesPhiAcos;
+//    double _TrajectoriesPhiAsin;
+  //  double _TrajectoriesPhiAcos;
     
     double _TrajectoryBeginTime;
 
@@ -367,10 +384,6 @@ private:
     bool m_bTrajectoryElevationDecreasing;
     
     bool m_bTrajectoryAddPositive;
-
-    float getSmallAlternatingValue();
-    
-    bool _TrajectoryJustCompletedSingle;
     
     double m_dTrajectoryTimeDone;
     
@@ -383,13 +396,10 @@ private:
     
     bool m_bTrajectoryDone;
     
-    bool _JustsEndedPlaying;
-
-    float m_fOldElevation;
+    //NEW TRAJECTORY
+    Trajectory::Ptr mTrajectory;
     
-    PluginHostType host;
-
-    allParameters m_parameterBuffer;
+    int64 mLastTimeInSamples;
 
 };
 

@@ -70,8 +70,8 @@ _TrajectoryCount(0),
 _TrajectoryIsDirectionReversed(false),
 _TrajectoriesDuration(0),
 _TrajectoriesDurationBuffer(0),
-_TrajectoriesPhiAsin(0),
-_TrajectoriesPhiAcos(0),
+//_TrajectoriesPhiAsin(0),
+//_TrajectoriesPhiAcos(0),
 _TrajectoryBeginTime(0),
 _TrajectorySingleBeginTime(0),
 _TrajectoryInitialAzimuth(0),
@@ -79,13 +79,11 @@ _TrajectoryInitialElevation(0),
 _TrajectorySingleLength(0),
 m_bTrajectoryElevationDecreasing(false),
 m_bTrajectoryAddPositive(true),
-_TrajectoryJustCompletedSingle(false),
 m_dTrajectoryTimeDone(.0),
 _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
 m_bTrajectoryDone(false),
-_JustsEndedPlaying(false),
 m_fOldElevation(-1.f),
 m_parameterBuffer()
 {
@@ -155,29 +153,54 @@ ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
 void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 
-    //if write trajectory is enabled (button toggled on in editor)
-    if (_isWriteTrajectory){
+    //OLD TRAJECTORIES
+//    //if write trajectory is enabled (button toggled on in editor)
+//    if (_isWriteTrajectory){
+//
+//        //get current playhead info
+//        AudioPlayHead::CurrentPositionInfo cpi;
+//        playHead->getCurrentPosition(cpi);
+//        
+//         if(cpi.isPlaying && !m_bTrajectoryDone){
+//            
+//             m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
+//
+//             //if we still need to write automation (currentTime smaller than begin time + whole duration
+//            if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
+//                processTrajectories();
+//            }
+//            
+//            //trajectory is done, ie, m_dTrajectoryTimeDone >= (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
+//            else {
+//                m_bTrajectoryDone = true;
+//            }
+//
+//        } else if (m_bTrajectoryDone){
+//            stopTrajectory();
+//        }
+//    }
 
-        //get current playhead info
+    //NEW TRAJECTORIES
+    double sampleRate = getSampleRate();
+    unsigned int oriFramesToProcess = buffer.getNumSamples();
+    
+    Trajectory::Ptr trajectory = mTrajectory;
+    if (trajectory)
+    {
         AudioPlayHead::CurrentPositionInfo cpi;
-        playHead->getCurrentPosition(cpi);
+        getPlayHead()->getCurrentPosition(cpi);
         
-         if(cpi.isPlaying && !m_bTrajectoryDone){
+        if (cpi.timeInSamples != mLastTimeInSamples)
+        {
+            // we're playing!
+            mLastTimeInSamples = cpi.timeInSamples;
             
-             m_dTrajectoryTimeDone += buffer.getNumSamples() / getSampleRate();
-
-             //if we still need to write automation (currentTime smaller than begin time + whole duration
-            if (m_dTrajectoryTimeDone < (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)){
-                processTrajectories();
-            }
+            double bps = cpi.bpm / 60;
+            float seconds = oriFramesToProcess / sampleRate;
+            float beats = seconds * bps;
             
-            //trajectory is done, ie, m_dTrajectoryTimeDone >= (_TrajectoryBeginTime + _TrajectoriesDurationBuffer)
-            else {
-                m_bTrajectoryDone = true;
-            }
-
-        } else if (m_bTrajectoryDone){
-            stopTrajectory();
+            bool done = trajectory->process(seconds, beats);
+            if (done) mTrajectory = NULL;
         }
     }
 }
@@ -185,7 +208,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 void ZirkOscjuceAudioProcessor::initTrajectories(){
     
     AudioPlayHead::CurrentPositionInfo cpi;
-    playHead->getCurrentPosition(cpi);
+    getPlayHead()->getCurrentPosition(cpi);
     
     m_dTrajectoryTimeDone = .0;
     _TrajectoryBeginTime = .0;
@@ -222,9 +245,8 @@ void ZirkOscjuceAudioProcessor::initTrajectories(){
     storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
-    JUCE_COMPILER_WARNING("these variables are not used anywhere, remove")
-    _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
-    _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
+//    _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
+//    _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
     
 #if defined(DEBUG)
     cout << "____________________________BEGIN PARAMETER CHANGE_____________________________\n";

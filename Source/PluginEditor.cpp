@@ -44,6 +44,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "ZirkConstants.h"
+#include "Trajectories.h"
 #include <cstdlib>
 #include <string>
 #include <string.h>
@@ -325,12 +326,20 @@ _MovementConstraintComboBox("MovementConstraint")
     //---------- TRAJECTORIES ----------
     //TRAJECTORY COMBO BOX
     m_pTrajectoryComboBox = m_oTrajectoryTab->getComboBox();
-    m_pTrajectoryComboBox->addItem("Upward Spiral",        UpwardSpiral);
-    m_pTrajectoryComboBox->addItem("Downward Spiral",      DownwardSpiral);
-    m_pTrajectoryComboBox->addItem("Up and Down Spiral",   UpAndDownSpiral);
-    m_pTrajectoryComboBox->addItem("Down and Up Spiral",   DownAndUpSpiral);
-    m_pTrajectoryComboBox->addItem("Pendulum",             Pendulum);
-    m_pTrajectoryComboBox->addItem("Circle",               Circle);
+    
+    //OLD TRAJECTORIES
+//    m_pTrajectoryComboBox->addItem("Upward Spiral",        UpwardSpiral);
+//    m_pTrajectoryComboBox->addItem("Downward Spiral",      DownwardSpiral);
+//    m_pTrajectoryComboBox->addItem("Up and Down Spiral",   UpAndDownSpiral);
+//    m_pTrajectoryComboBox->addItem("Down and Up Spiral",   DownAndUpSpiral);
+//    m_pTrajectoryComboBox->addItem("Pendulum",             Pendulum);
+//    m_pTrajectoryComboBox->addItem("Circle",               Circle);
+
+    //NEW TRAJECTORIES
+    for (int i = 0, index = 1; i < Trajectory::NumberOfTrajectories(); i++){
+        m_pTrajectoryComboBox->addItem(Trajectory::GetTrajectoryName(i), index++);
+    }
+    
     m_pTrajectoryComboBox->setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
     m_pTrajectoryComboBox->addListener(this);
     
@@ -709,8 +718,30 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->setValue(HRValue,dontSendNotification);
     
+    
+    // OLD TRAJECTORIES
     if (!ourProcessor->isTrajectoryDone() && ourProcessor->getIsWriteTrajectory()){
         mTrProgressBar->setValue(ourProcessor->getTrajectoryProgress());
+    }
+    
+    //NEW TRAJECTORIES
+    switch(mTrState)
+    {
+        case kTrWriting:
+        {
+            Trajectory::Ptr t = ourProcessor->getTrajectory();
+            if (t)
+            {
+                mTrProgressBar->setValue(t->progress());
+            }
+            else
+            {
+                m_pWriteTrajectoryButton->setButtonText("Ready");
+                mTrProgressBar->setVisible(false);
+                mTrState = kTrReady;
+            }
+        }
+            break;
     }
 
 #if defined(DEBUG)
@@ -779,21 +810,49 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         ourProcessor->setIsOscActive(_OscActiveButton.getToggleState());
     }
     else if(button == m_pWriteTrajectoryButton){
-    
-        bool isWritingTrajectory = m_pWriteTrajectoryButton->getToggleState();
         
-        if (isWritingTrajectory){
+    //------------ OLD TRAJECTORIES  ----------------------
+//        bool isWritingTrajectory = m_pWriteTrajectoryButton->getToggleState();
+//        
+//        if (isWritingTrajectory){
+//            m_pWriteTrajectoryButton->setButtonText("Cancel");
+//            ourProcessor->initTrajectories();
+//            mTrProgressBar->setValue(0);
+//            mTrProgressBar->setVisible(true);
+//        } else {
+//            m_pWriteTrajectoryButton->setButtonText("Ready");
+//            ourProcessor->cancelTrajectory();
+//            mTrProgressBar->setVisible(false);
+//        }
+//        
+//        ourProcessor->setIsWriteTrajectory(isWritingTrajectory);
+        
+        
+        //------------ NEW TRAJECTORY CLASS ----------------------
+        Trajectory::Ptr t = ourProcessor->getTrajectory();
+        if (t)
+        {
+            ourProcessor->setTrajectory(NULL);
+            m_pWriteTrajectoryButton->setButtonText("Ready");
+            mTrProgressBar->setVisible(false);
+            mTrState = kTrReady;
+            t->stop();
+        }
+        else
+        {
+            float duration = m_pTrajectoryDurationTextEditor->getText().getFloatValue();
+            bool beats = m_pSyncWTempoComboBox->getSelectedId() == 1;
+            float repeats = m_pTrajectoryCountTextEditor->getText().getFloatValue();
+            int type = m_pTrajectoryComboBox->getSelectedId()-1;
+            int source = ourProcessor->getSelectedSource();
+            
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, repeats, source));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
-            ourProcessor->initTrajectories();
+            mTrState = kTrWriting;
+            
             mTrProgressBar->setValue(0);
             mTrProgressBar->setVisible(true);
-        } else {
-            m_pWriteTrajectoryButton->setButtonText("Ready");
-            ourProcessor->cancelTrajectory();
-            mTrProgressBar->setVisible(false);
         }
-        
-        ourProcessor->setIsWriteTrajectory(isWritingTrajectory);
         
     }
 }
@@ -1347,7 +1406,10 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     else if(m_pTrajectoryCountTextEditor == &textEditor ){
         double doubleValue = textEditor.getText().getDoubleValue();
         if ((doubleValue >= 0 && doubleValue < 10000) || (doubleValue < 0 && doubleValue > -10000)){
-            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
+//            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
+            JUCE_COMPILER_WARNING("using setPArameter instead of setParameterNotifyingHost should prevent the weird thing in reaper where duration and such are automatable")
+            ourProcessor->setParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
+
         }
         m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     }
@@ -1355,7 +1417,9 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     else if(m_pTrajectoryDurationTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue >= 0 && doubleValue < 10000){
-            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
+            JUCE_COMPILER_WARNING("using setPArameter instead of setParameterNotifyingHost should prevent the weird thing in reaper where duration and such are automatable")
+            //ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
+            ourProcessor->setParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
         }
         m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     }
