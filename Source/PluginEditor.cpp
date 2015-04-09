@@ -359,8 +359,8 @@ _MovementConstraintComboBox("MovementConstraint")
     
     //SYNC W TEMPO TOGGLE BUTTON
     m_pSyncWTempoComboBox = m_oTrajectoryTab->getSyncWTempoComboBox();
-    m_pSyncWTempoComboBox->addItem("second(s)",    SyncWTime);
     m_pSyncWTempoComboBox->addItem("beat(s)",      SyncWTempo);
+    m_pSyncWTempoComboBox->addItem("second(s)",    SyncWTime);
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
     m_pSyncWTempoComboBox->addListener(this);
     
@@ -837,6 +837,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             mTrProgressBar->setVisible(false);
             mTrState = kTrReady;
             t->stop();
+            refreshGui();
         }
         else
         {

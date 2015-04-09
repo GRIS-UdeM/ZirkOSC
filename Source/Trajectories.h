@@ -58,11 +58,23 @@ protected:
 	Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source);
 	
 	ZirkOscjuceAudioProcessor *ourProcessor;
+    
+    JUCE_COMPILER_WARNING("needed?")
 	bool mStarted, mStopped;
+
+    JUCE_COMPILER_WARNING("needed?")
 	float mDone;
-	float mDuration;
-	float mTotalDuration;
-	bool mBeats;
+    
+    JUCE_COMPILER_WARNING("needed?")
+    float mDuration;
+
+    JUCE_COMPILER_WARNING("replaced by _TrajectoriesDuration")
+	//float mTotalDuration;
+
+    JUCE_COMPILER_WARNING("replaced by _isSyncWTempo")
+//	bool mBeats;
+    
+    JUCE_COMPILER_WARNING("needed?")
 	int mSource;
     
     //OLD TRAJECTORIES

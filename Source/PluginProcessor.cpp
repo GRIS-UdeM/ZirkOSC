@@ -84,7 +84,6 @@ _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0),
 m_bTrajectoryDone(false),
-m_fOldElevation(-1.f),
 m_parameterBuffer()
 {
  
@@ -442,7 +441,6 @@ void ZirkOscjuceAudioProcessor::stopTrajectory(){
         case DownwardSpiral :
         case UpAndDownSpiral :
         case DownAndUpSpiral :
-            m_fOldElevation = -1.f;
         case Pendulum :
             if (m_iSelectedMovementConstraint == Independant){
                 endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));

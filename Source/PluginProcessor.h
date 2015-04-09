@@ -351,8 +351,6 @@ private:
     
     float getSmallAlternatingValue();
     
-    float m_fOldElevation;
-    
     PluginHostType host;
     
     allParameters m_parameterBuffer;

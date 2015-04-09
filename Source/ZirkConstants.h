@@ -111,8 +111,9 @@ enum AllTrajectories {
 };
 
 enum AllSyncOptions {
-    SyncWTime = 1,
-    SyncWTempo
+    SyncWTempo = 1,
+    SyncWTime
+    
 };
 
 static float PercentToHR(float percent, float min, float max){
