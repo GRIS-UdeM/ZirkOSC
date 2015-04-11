@@ -485,7 +485,7 @@ void ZirkOscjuceAudioProcessor::saveAllParameters(){
         m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
     }
 
-    _AllSources[0].setAzimReverse(true);
+    _AllSources[0].setAzimReverse(true); JUCE_COMPILER_WARNING("why???")
 
     m_parameterBuffer.fMovementConstraint =  _SelectedMovementConstraint;
     m_parameterBuffer.bisSpanLinked = _isSpanLinked;
@@ -504,7 +504,7 @@ void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
     }
-    _AllSources[0].setAzimReverse(true);
+    _AllSources[0].setAzimReverse(true); JUCE_COMPILER_WARNING("why???")
     
     _SelectedMovementConstraint = m_parameterBuffer.fMovementConstraint;
     //m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
@@ -531,7 +531,7 @@ void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
     }
-    _AllSources[0].setAzimReverse(true);
+    //_AllSources[0].setAzimReverse(true);
 
 }
 

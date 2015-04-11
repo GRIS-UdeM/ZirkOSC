@@ -34,21 +34,9 @@ using namespace std;
 // ==============================================================================
 void Trajectory::start()
 {
-//	if (mSource < 0)
-//	{
-//		for (int j = 0; j < mFilter->getNumberOfSources(); j++)
-//		{
-//			mFilter->beginParameterChangeGesture(mFilter->getParamForSourceX(j));
-//			mFilter->beginParameterChangeGesture(mFilter->getParamForSourceY(j));
-//		}
-//	}
-//	else
-//	{
-//		mFilter->beginParameterChangeGesture(mFilter->getParamForSourceX(mSource));
-//		mFilter->beginParameterChangeGesture(mFilter->getParamForSourceY(mSource));
-//	}
-//	spInit();
-//	mStarted = true;
+
+	spInit();
+	mStarted = true;
     
     AudioPlayHead::CurrentPositionInfo cpi;
     ourProcessor->getPlayHead()->getCurrentPosition(cpi);
@@ -65,19 +53,23 @@ void Trajectory::start()
         _TrajectoriesDurationBuffer = _TrajectoriesDuration;
     }
     
+    JUCE_COMPILER_WARNING("should check elsewhere that number of trajectories is positive...")
     //if trajectory count is negative, toggle _TrajectoryIsDirectionReversed but still use positive value in calculations
-    if (_TrajectoryCount < 0){
-        _TrajectoryIsDirectionReversed = true;
-        
-        _TrajectoriesDurationBuffer *= -_TrajectoryCount;
-        _TrajectorySingleLength = _TrajectoriesDurationBuffer / -_TrajectoryCount;
-        
-    } else {
-        _TrajectoryIsDirectionReversed = false;
-        
+//    if (_TrajectoryCount < 0){
+//        _TrajectoryIsDirectionReversed = true;
+//        
+//        _TrajectoriesDurationBuffer *= -_TrajectoryCount;
+//        _TrajectorySingleLength = _TrajectoriesDurationBuffer / -_TrajectoryCount;
+//        
+//    } else {
+//        _TrajectoryIsDirectionReversed = false;
+    
         _TrajectoriesDurationBuffer *= _TrajectoryCount;
         _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
-    }
+//    }
+    
+    //get automation started on currently selected source
+    _SelectedSourceForTrajectory = ourProcessor->getSelectedSource();
     
     //store initial parameter value
     _TrajectoryInitialAzimuth   = ourProcessor->getParameter(_SelectedSourceForTrajectory*5);
@@ -95,8 +87,7 @@ void Trajectory::start()
     cout << "____________________________BEGIN PARAMETER CHANGE_____________________________\n";
 #endif
     
-    //get automation started on currently selected source
-    _SelectedSourceForTrajectory = ourProcessor->getSelectedSource();
+    
     
     //if circle, only azimuth will change; else both azimuth and elevation will change
 //    if (ourProcessor->getSelectedTrajectoryAsInteger() == Circle){
@@ -153,7 +144,7 @@ float Trajectory::progress()
 
 void Trajectory::stop()
 {
-//	if (!mStarted || mStopped) return;
+	if (!mStarted || mStopped) return;
 //	if (mSource < 0)
 //	{
 //		for (int j = 0; j < mFilter->getNumberOfSources(); j++)
@@ -209,6 +200,8 @@ void Trajectory::stop()
     ourProcessor->restoreCurrentLocations();
     m_dTrajectoryTimeDone = .0;
     _isWriteTrajectory = false;
+    
+    ourProcessor->askForGuiRefresh();
 }
 
 Trajectory::Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool syncWTempo, float times, int source)
@@ -257,15 +250,12 @@ protected:
         float integralPart; //useless here
         
         newAzimuth = mDone / mDuration; //modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
-        if (_TrajectoryIsDirectionReversed){
-            newAzimuth = modf(_TrajectoryInitialAzimuth - newAzimuth, &integralPart);
-        } else {
+        if (mCCW){
             newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+        } else {
+            newAzimuth = modf(_TrajectoryInitialAzimuth - newAzimuth, &integralPart);
         }
-        
-
-        
-        
+        cout << _TrajectoryInitialAzimuth << "\t\t" << newAzimuth << "\n";
         
         if (ourProcessor->getSelectedMovementConstraintAsInteger() == Independant){
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5), newAzimuth);

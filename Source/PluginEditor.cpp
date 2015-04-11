@@ -738,6 +738,7 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
             {
                 m_pWriteTrajectoryButton->setButtonText("Ready");
                 mTrProgressBar->setVisible(false);
+                m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
                 mTrState = kTrReady;
             }
         }
@@ -785,14 +786,14 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
 
-    bool bIsWriting = ourProcessor->getIsWriteTrajectory();
-    m_pWriteTrajectoryButton->setToggleState(bIsWriting, dontSendNotification);
-
-    if (ourProcessor->getTrajectoryProgress() >= .98 || ourProcessor->isTrajectoryDone()){
-        m_pWriteTrajectoryButton->setButtonText("Ready");
-        m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
-        mTrProgressBar->setVisible(false);
-    }
+//    bool bIsWriting = ourProcessor->getIsWriteTrajectory();
+//    m_pWriteTrajectoryButton->setToggleState(bIsWriting, dontSendNotification);
+//
+//    if (ourProcessor->getTrajectoryProgress() >= .98 || ourProcessor->isTrajectoryDone()){
+//        m_pWriteTrajectoryButton->setButtonText("Ready");
+//        m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
+//        mTrProgressBar->setVisible(false);
+//    }
     
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
     _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
@@ -830,11 +831,13 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         
         //------------ NEW TRAJECTORY CLASS ----------------------
         Trajectory::Ptr t = ourProcessor->getTrajectory();
+        //if there's already a trajectory, we are cancelling it
         if (t)
         {
             ourProcessor->setTrajectory(NULL);
             m_pWriteTrajectoryButton->setButtonText("Ready");
             mTrProgressBar->setVisible(false);
+            m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
             mTrState = kTrReady;
             t->stop();
             refreshGui();

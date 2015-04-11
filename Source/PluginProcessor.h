@@ -294,6 +294,8 @@ public:
 
     void moveTrajectoriesWithConstraints(Point<float> &newLocation);
     
+    void askForGuiRefresh(){_RefreshGui=true;};
+    
 private:
     
 
