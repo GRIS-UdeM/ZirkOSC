@@ -67,15 +67,9 @@ protected:
     
     JUCE_COMPILER_WARNING("needed?")
     float mDuration;
-
-    JUCE_COMPILER_WARNING("replaced by _TrajectoriesDuration")
-	//float mTotalDuration;
-
-    JUCE_COMPILER_WARNING("replaced by _isSyncWTempo")
-//	bool mBeats;
     
     JUCE_COMPILER_WARNING("needed?")
-	int mSource;
+	//int mSource;
     
     //OLD TRAJECTORIES
     
