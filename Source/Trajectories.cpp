@@ -34,7 +34,6 @@ using namespace std;
 // ==============================================================================
 void Trajectory::start()
 {
-
 	spInit();
 	mStarted = true;
     
@@ -53,20 +52,8 @@ void Trajectory::start()
         _TrajectoriesDurationBuffer = m_TotalTrajectoriesDuration;
     }
     
-    JUCE_COMPILER_WARNING("should check elsewhere that number of trajectories is positive...")
-    //if trajectory count is negative, toggle mCCW but still use positive value in calculations
-//    if (_TrajectoryCount < 0){
-//        mCCW = true;
-//        
-//        _TrajectoriesDurationBuffer *= -_TrajectoryCount;
-//        _TrajectorySingleLength = _TrajectoriesDurationBuffer / -_TrajectoryCount;
-//        
-//    } else {
-//        mCCW = false;
-    
-        _TrajectoriesDurationBuffer *= _TrajectoryCount;
-        _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
-//    }
+    _TrajectoriesDurationBuffer *= _TrajectoryCount;
+    _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
     
     //get automation started on currently selected source
     _SelectedSourceForTrajectory = ourProcessor->getSelectedSource();
@@ -75,23 +62,21 @@ void Trajectory::start()
     _TrajectoryInitialAzimuth   = ourProcessor->getParameter(_SelectedSourceForTrajectory*5);
     _TrajectoryInitialElevation = ourProcessor->getParameter((_SelectedSourceForTrajectory*5)+1);
     
-    //cout << "_TrajectoryInitialAzimuth: " << _TrajectoryInitialAzimuth << "\n";
-    
     ourProcessor->storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
     //    _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
     //    _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
     
-        if (ourProcessor->getSelectedMovementConstraintAsInteger() == Independant){
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
-        } else {
-            for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (i*5));
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (i*5));
-            }
+    if (ourProcessor->getSelectedMovementConstraintAsInteger() == Independant){
+        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (_SelectedSourceForTrajectory*5));
+        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (_SelectedSourceForTrajectory*5));
+    } else {
+        for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
+            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (i*5));
+            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (i*5));
         }
+    }
 }
 
 bool Trajectory::process(float seconds, float beats)
@@ -233,36 +218,26 @@ protected:
 //			mFilter->setSourceRT(i, FPoint(r, p.y));
 //		}
         
-        float newElevation;
+        float newElevation, integralPart;
+        //this just grows linearly with time from 0 to _TrajectoryCount
+        newElevation = mDone / mDurationSingleTrajectory;
+        
         if (mRT){
-            //this just grows linearly with time
-            newElevation = mDone / mDurationSingleTrajectory;
-            
             if (mIn){
                 newElevation = abs( sin(newElevation * 2 * M_PI) );  //varies between [0,1]
                 newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
-                
-                if (oldElevationBuffer != -1.f){
-                    //when we get to the top of the dome, we need to get back down
-                    if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
-                        (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
-                        m_bTrajectoryElevationDecreasing = true;
-                    }
-                    
-                    //reset flag m_bTrajectoryElevationDecreasing as we go down
-                    if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
-                        m_bTrajectoryElevationDecreasing = false;
-                    }
-                }
-                oldElevationBuffer = newElevation;
-                
             } else {
                 //new way, simply oscilates between _TrajectoryInitialElevation and 0
                 newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
         } else {
-        
+            newElevation = modf(newElevation, &integralPart); //should be [0,1]
+            if (mIn){
+                newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+            } else {
+                newElevation = _TrajectoryInitialElevation*(1-newElevation);
+            }
         
         }
         
@@ -270,6 +245,19 @@ protected:
         //            if (host.isLogic()){
         //                _TrajectoryInitialAzimuth += getSmallAlternatingValue();
         //            }
+        
+        if (oldElevationBuffer != -1.f && mIn && mRT){
+            //when we get to the top of the dome, we need to get back down
+            if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
+                (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                m_bTrajectoryElevationDecreasing = true;
+            }
+            //reset flag m_bTrajectoryElevationDecreasing as we go down
+            if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
+                m_bTrajectoryElevationDecreasing = false;
+            }
+        }
+        oldElevationBuffer = newElevation;
         
         move (_TrajectoryInitialAzimuth, newElevation);
         

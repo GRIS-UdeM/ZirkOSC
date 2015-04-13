@@ -1409,9 +1409,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     
     else if(m_pTrajectoryCountTextEditor == &textEditor ){
         double doubleValue = textEditor.getText().getDoubleValue();
-        if ((doubleValue >= 0 && doubleValue < 10000) || (doubleValue < 0 && doubleValue > -10000)){
-//            ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
-            JUCE_COMPILER_WARNING("using setPArameter instead of setParameterNotifyingHost should prevent the weird thing in reaper where duration and such are automatable")
+        if (doubleValue >= 0 && doubleValue < 10000){
             ourProcessor->setParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
 
         }
@@ -1421,8 +1419,6 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     else if(m_pTrajectoryDurationTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue >= 0 && doubleValue < 10000){
-            JUCE_COMPILER_WARNING("using setPArameter instead of setParameterNotifyingHost should prevent the weird thing in reaper where duration and such are automatable")
-            //ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
             ourProcessor->setParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
         }
         m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
