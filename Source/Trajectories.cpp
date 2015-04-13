@@ -201,31 +201,27 @@ protected:
 	}
 	void spProcess(float duration, float seconds)
 	{
-//		float da;
-//		if (mRT)
-//			da = mDone / mDurationSingleTrajectory * (2 * M_PI);
-//		else
-//		{
-//			if (mDone < mTotalDuration) da = fmodf(mDone / mDurationSingleTrajectory * M_PI, M_PI);
-//			else da = M_PI;
-//		}
-//		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-//		if (mSource < 0 || mSource == i)
-//		{
-//			FPoint p = mSourcesInitRT.getUnchecked(i);
-//			float l = (mRT && mIn) ? cos(da) : (cos(da)+1)*0.5;
-//			float r = mIn ? (p.x * l) : (p.x + (2 - p.x) * (1 - l));
-//			mFilter->setSourceRT(i, FPoint(r, p.y));
-//		}
         
-        float newElevation, integralPart;
+        float newElevation = mDone / mDurationSingleTrajectory, integralPart;
         //this just grows linearly with time from 0 to _TrajectoryCount
-        newElevation = mDone / mDurationSingleTrajectory;
         
         if (mRT){
             if (mIn){
                 newElevation = abs( sin(newElevation * 2 * M_PI) );  //varies between [0,1]
                 newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
+                
+                if (oldElevationBuffer != -1.f){
+                    //when we get to the top of the dome, we need to get back down
+                    if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
+                        (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                        m_bTrajectoryElevationDecreasing = true;
+                    }
+                    //reset flag m_bTrajectoryElevationDecreasing as we go down
+                    if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
+                        m_bTrajectoryElevationDecreasing = false;
+                    }
+                }
+                oldElevationBuffer = newElevation;
             } else {
                 //new way, simply oscilates between _TrajectoryInitialElevation and 0
                 newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
@@ -240,27 +236,7 @@ protected:
             }
         
         }
-        
-        //Apparently no longer needed?
-        //            if (host.isLogic()){
-        //                _TrajectoryInitialAzimuth += getSmallAlternatingValue();
-        //            }
-        
-        if (oldElevationBuffer != -1.f && mIn && mRT){
-            //when we get to the top of the dome, we need to get back down
-            if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
-                (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
-                m_bTrajectoryElevationDecreasing = true;
-            }
-            //reset flag m_bTrajectoryElevationDecreasing as we go down
-            if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
-                m_bTrajectoryElevationDecreasing = false;
-            }
-        }
-        oldElevationBuffer = newElevation;
-        
-        move (_TrajectoryInitialAzimuth, newElevation);
-        
+        move (_TrajectoryInitialAzimuth, newElevation);        
 	}
 	
 private:
@@ -307,56 +283,34 @@ protected:
         float newAzimuth, newElevation, theta;
         float integralPart; //useless here
         
+        newElevation = mDone / mDurationSingleTrajectory;
+        theta = modf(newElevation, &integralPart);                                          //result from this modf is theta [0,1]
+        
         //UP AND DOWN SPIRAL
         if (mRT){
-            
-            newElevation = ((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength);   //this just grows linearly with time
-            theta = modf(newElevation, &integralPart);                                          //result from this modf is theta [0,1]
-            
             if (mIn){
-                //newElevation = abs( sin(newElevation * M_PI + _TrajectoriesPhiAsin) );    //using only this line produced this: part d'une élévation initiale; monte vers le haut du dôme; redescend jusqu'en bas; remonte jusqu'à l'élévation initiale
-                //                newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
-                //                newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
-                
-                //what i want is a sinus that oscillates from _TrajectoryInitialElevation to 1
                 newElevation = abs( (1 - _TrajectoryInitialElevation) * sin(newElevation * M_PI) ) + _TrajectoryInitialElevation;
-                
-            }
-            
-            //down and up
-            else {
-                //old way, goes first from _TrajectoryInitialElevation to 0, then passes the center down to _TrajectoryInitialElevation on the other side
-                //                newElevation = abs( cos(newElevation * M_PI + _TrajectoriesPhiAcos) );  //only positive cos wave with phase _TrajectoriesPhi
-                
-                //new way, simply oscilates between _TrajectoryInitialElevation and 0
+            } else {
                 newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
-            if (mCCW){
-                newAzimuth = modf(_TrajectoryInitialAzimuth - 2 * theta, &integralPart);        //this is like adding a to theta
-            } else {
-                newAzimuth = modf(_TrajectoryInitialAzimuth + 2 * theta, &integralPart);        //this is like adding a to theta
-            }
+            if (!mCCW) theta = -theta;
+            theta *= 2;
             
         } else {
             
-            //UPWARD AND DOWNWARD SPIRAL
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-            theta = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);   //result from this modf is theta [0,1]
+            //theta = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);   //result from this modf is theta [0,1]
             
             newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;         //newElevation is a mapping of theta[0,1] to [_TrajectoryInitialElevation, 1]
             
-            if (ourProcessor->getSelectedMovementConstraintAsInteger() == DownwardSpiral){
+            if (!mIn){
                 newElevation = _TrajectoryInitialElevation * (1 - newElevation) / (1-_TrajectoryInitialElevation);  //map newElevation from [_TrajectoryInitialElevation, 1] to [_TrajectoryInitialElevation, 0]
             }
             
-            if (mCCW){
-                newAzimuth = modf(_TrajectoryInitialAzimuth - theta, &integralPart);                        //this is like subtracting a to theta
-            } else {
-                newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                        //this is like adding a to theta
-            }
-            
+            if (!mCCW) theta = -theta;
         }
+        newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                        //this is like adding a to theta
         move(newAzimuth, newElevation);
     }
     

@@ -725,11 +725,11 @@ bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
 
 void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
     _isWriteTrajectory = isWriteTrajectory;
-    if (_isWriteTrajectory){
-        m_bTrajectoryDone = false;
-    } else {
-        stopTrajectory();
-    }
+//    if (_isWriteTrajectory){
+//        m_bTrajectoryDone = false;
+//    } else {
+//        stopTrajectory();
+//    }
 
 }
 

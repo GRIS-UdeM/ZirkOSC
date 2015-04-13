@@ -826,8 +826,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
 //            mTrProgressBar->setVisible(false);
 //        }
 //        
-//        ourProcessor->setIsWriteTrajectory(isWritingTrajectory);
-        
         
         //------------ NEW TRAJECTORY CLASS ----------------------
         Trajectory::Ptr t = ourProcessor->getTrajectory();
@@ -835,6 +833,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         if (t)
         {
             ourProcessor->setTrajectory(NULL);
+            ourProcessor->setIsWriteTrajectory(false);
             m_pWriteTrajectoryButton->setButtonText("Ready");
             mTrProgressBar->setVisible(false);
             m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
@@ -844,6 +843,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
         }
         else
         {
+            ourProcessor->setIsWriteTrajectory(true);
             float duration = m_pTrajectoryDurationTextEditor->getText().getFloatValue();
             bool beats = m_pSyncWTempoComboBox->getSelectedId() == 1;
             float repeats = m_pTrajectoryCountTextEditor->getText().getFloatValue();
