@@ -50,6 +50,7 @@ public:
 protected:
 	virtual void spInit() {}
 	virtual void spProcess(float duration, float seconds) = 0;
+    void move (float newAzimuth, float newElevation);
 	
 private:
 	void start();
@@ -58,18 +59,12 @@ protected:
 	Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source);
 	
 	ZirkOscjuceAudioProcessor *ourProcessor;
-    
-    JUCE_COMPILER_WARNING("needed?")
+
 	bool mStarted, mStopped;
 
-    JUCE_COMPILER_WARNING("needed?")
 	float mDone;
     
-    JUCE_COMPILER_WARNING("needed?")
-    float mDuration;
-    
-    JUCE_COMPILER_WARNING("needed?")
-	//int mSource;
+    float mDurationSingleTrajectory;
     
     //OLD TRAJECTORIES
     
@@ -79,7 +74,7 @@ protected:
 //    bool _TrajectoryIsDirectionReversed;
     
     //! Duration of trajectory movement
-    double _TrajectoriesDuration;
+    double m_TotalTrajectoriesDuration;
     
     double _TrajectoriesDurationBuffer;
     
@@ -95,8 +90,6 @@ protected:
     float _TrajectoryInitialElevation;
     
     double _TrajectorySingleLength;
-    
-    bool m_bTrajectoryElevationDecreasing;
     
     double m_dTrajectoryTimeDone;
     
