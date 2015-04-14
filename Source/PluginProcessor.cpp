@@ -189,10 +189,9 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         AudioPlayHead::CurrentPositionInfo cpi;
         getPlayHead()->getCurrentPosition(cpi);
         
-        if (cpi.timeInSamples != mLastTimeInSamples)
+        if (cpi.isPlaying && cpi.timeInSamples != mLastTimeInSamples)
         {
             // we're playing!
-            JUCE_COMPILER_WARNING("how can you distinguish playing and moving around?")
             mLastTimeInSamples = cpi.timeInSamples;
             
             double bps = cpi.bpm / 60;
@@ -200,7 +199,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             float beats = seconds * bps;
             
             bool done = trajectory->process(seconds, beats);
-            if (done) mTrajectory = NULL;
+            if (done){
+                mTrajectory = NULL;
+                _isWriteTrajectory = false;
+            }
         }
     }
 

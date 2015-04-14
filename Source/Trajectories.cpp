@@ -261,25 +261,6 @@ protected:
     }
     void spProcess(float duration, float seconds)
     {
-        //		float da;
-        //		if (mRT)
-        //			da = mDone / mDurationSingleTrajectory * (2 * M_PI);
-        //		else
-        //		{
-        //			if (mDone < mTotalDuration) da = fmodf(mDone / mDurationSingleTrajectory * M_PI, M_PI);
-        //			else da = M_PI;
-        //		}
-        //		if (!mCCW) da = -da;
-        //		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-        //		if (mSource < 0 || mSource == i)
-        //		{
-        //			FPoint p = mSourcesInitRT.getUnchecked(i);
-        //			float l = (cos(da)+1)*0.5;
-        //			float r = mIn ? (p.x * l) : (p.x + (2 - p.x) * (1 - l));
-        //			float t = p.y + da;
-        //			mFilter->setSourceRT(i, FPoint(r, t));
-        //		}
-        
         float newAzimuth, newElevation, theta;
         float integralPart; //useless here
         
@@ -300,13 +281,10 @@ protected:
         } else {
             
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-            //theta = modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);   //result from this modf is theta [0,1]
-            
             newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;         //newElevation is a mapping of theta[0,1] to [_TrajectoryInitialElevation, 1]
             
-            if (!mIn){
+            if (!mIn)
                 newElevation = _TrajectoryInitialElevation * (1 - newElevation) / (1-_TrajectoryInitialElevation);  //map newElevation from [_TrajectoryInitialElevation, 1] to [_TrajectoryInitialElevation, 0]
-            }
             
             if (!mCCW) theta = -theta;
         }
@@ -333,28 +311,70 @@ protected:
 //		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
 //			mSourcesInitRT.add(mFilter->getSourceRT(i));
 	}
-	void spProcess(float duration, float seconds)
-	{
-//		float da = mDone / mDurationSingleTrajectory * (2 * M_PI);
-//		if (!mCCW) da = -da;
-//		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-//		if (mSource < 0 || mSource == i)
-//		{
-//			FPoint p = mSourcesInitRT.getUnchecked(i);
-//			
-//			// http://www.edmath.org/MATtours/ellipses/ellipses1.07.3.html
-//			float a = 1;
-//			float b = 0.5;
-//			float cosDa = cos(da);
-//			float a2 = a*a;
-//			float b2 = b*b;
-//			float cosDa2 = cosDa*cosDa;
-//			float r2 = (a2*b2)/((b2-a2)*cosDa2+a2);
-//			float r = sqrt(r2);
-//			
-//			mFilter->setSourceRT(i, FPoint(p.x * r, p.y + da));
-//		}
-	}
+    void spProcess(float duration, float seconds)
+    {
+//        float da = mDone / mDurationSingleTrajectory * (2 * M_PI);
+//        if (!mCCW) da = -da;
+//        
+//        // http://www.edmath.org/MATtours/ellipses/ellipses1.07.3.html
+//        float a = 1;
+//        float b = 0.5;
+//        float cosDa = cos(da);
+//        float a2 = a*a;
+//        float b2 = b*b;
+//        float cosDa2 = cosDa*cosDa;
+//        float r2 = (a2*b2)/((b2-a2)*cosDa2+a2);
+//        float r = sqrt(r2);
+//        
+//        //get curAzimuth and curElevation
+//        float curAzimuth   = ourProcessor->getParameter(_SelectedSourceForTrajectory*5);
+//        float curElevation = ourProcessor->getParameter((_SelectedSourceForTrajectory*5)+1);
+//
+//        float newAzimuth = curAzimuth  + da;
+//        float newElevation = curElevation * r;
+//        
+//        cout << curAzimuth << "\t" << newAzimuth << "\t" << curElevation << "\t" << newElevation << "\n";
+//
+//        move(newAzimuth, newElevation);
+        
+        
+//        float integralPart; //useless here
+//        float theta = mDone / mDurationSingleTrajectory;   //goes from 0 to _TrajectoryCount
+//        theta = modf(theta, &integralPart); //does 0 -> 1 for _TrajectoryCount times
+//        if (!mCCW) theta = -theta;
+//        
+//        float newAzimuth = _TrajectoryInitialAzimuth + theta;
+//        
+//        // http://www.edmath.org/MATtours/ellipses/ellipses1.07.3.html
+//        float a = 1;
+//        float b = 0.5;
+//        float cosDa = cos(newAzimuth * 2 * M_PI);
+//        float a2 = a*a;
+//        float b2 = b*b;
+//        float cosDa2 = cosDa*cosDa;
+//        float r2 = (a2*b2)/((b2-a2)*cosDa2+a2);
+//        float r = sqrt(r2);
+//        
+//        //float curElevation = ourProcessor->getParameter((_SelectedSourceForTrajectory*5)+1);
+//        float newElevation = _TrajectoryInitialElevation * (1-r);
+//        
+//        cout << _TrajectoryInitialAzimuth << "\t" << newAzimuth << "\t" << _TrajectoryInitialElevation << "\t" << r  << "\t" << newElevation << "\n";
+//        
+//        move(newAzimuth, newElevation);
+        
+        float integralPart; //useless here
+        float theta = mDone / mDurationSingleTrajectory;   //goes from 0 to _TrajectoryCount
+        theta = modf(theta, &integralPart); //does 0 -> 1 for _TrajectoryCount times
+        if (!mCCW) theta = -theta;
+        
+        float newAzimuth = _TrajectoryInitialAzimuth + theta;
+        
+        float newElevation = _TrajectoryInitialElevation + _TrajectoryInitialElevation/4 * abs(sin(theta * 2 * M_PI))  ;
+        
+        cout << _TrajectoryInitialElevation << "\t" << newElevation << "\n";
+        
+        move(newAzimuth, newElevation);
+    }
 	
 private:
 //	Array<FPoint> mSourcesInitRT;
