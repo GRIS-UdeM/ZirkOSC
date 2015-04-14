@@ -41,7 +41,9 @@ public:
 	static Trajectory::Ptr CreateTrajectory(int i, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source);
 	
 public:
-	virtual ~Trajectory() {}
+	virtual ~Trajectory() {
+        stop();
+    }
 	
 	bool process(float seconds, float beats);
 	float progress();

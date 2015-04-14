@@ -313,54 +313,6 @@ protected:
 	}
     void spProcess(float duration, float seconds)
     {
-//        float da = mDone / mDurationSingleTrajectory * (2 * M_PI);
-//        if (!mCCW) da = -da;
-//        
-//        // http://www.edmath.org/MATtours/ellipses/ellipses1.07.3.html
-//        float a = 1;
-//        float b = 0.5;
-//        float cosDa = cos(da);
-//        float a2 = a*a;
-//        float b2 = b*b;
-//        float cosDa2 = cosDa*cosDa;
-//        float r2 = (a2*b2)/((b2-a2)*cosDa2+a2);
-//        float r = sqrt(r2);
-//        
-//        //get curAzimuth and curElevation
-//        float curAzimuth   = ourProcessor->getParameter(_SelectedSourceForTrajectory*5);
-//        float curElevation = ourProcessor->getParameter((_SelectedSourceForTrajectory*5)+1);
-//
-//        float newAzimuth = curAzimuth  + da;
-//        float newElevation = curElevation * r;
-//        
-//        cout << curAzimuth << "\t" << newAzimuth << "\t" << curElevation << "\t" << newElevation << "\n";
-//
-//        move(newAzimuth, newElevation);
-        
-        
-//        float integralPart; //useless here
-//        float theta = mDone / mDurationSingleTrajectory;   //goes from 0 to _TrajectoryCount
-//        theta = modf(theta, &integralPart); //does 0 -> 1 for _TrajectoryCount times
-//        if (!mCCW) theta = -theta;
-//        
-//        float newAzimuth = _TrajectoryInitialAzimuth + theta;
-//        
-//        // http://www.edmath.org/MATtours/ellipses/ellipses1.07.3.html
-//        float a = 1;
-//        float b = 0.5;
-//        float cosDa = cos(newAzimuth * 2 * M_PI);
-//        float a2 = a*a;
-//        float b2 = b*b;
-//        float cosDa2 = cosDa*cosDa;
-//        float r2 = (a2*b2)/((b2-a2)*cosDa2+a2);
-//        float r = sqrt(r2);
-//        
-//        //float curElevation = ourProcessor->getParameter((_SelectedSourceForTrajectory*5)+1);
-//        float newElevation = _TrajectoryInitialElevation * (1-r);
-//        
-//        cout << _TrajectoryInitialAzimuth << "\t" << newAzimuth << "\t" << _TrajectoryInitialElevation << "\t" << r  << "\t" << newElevation << "\n";
-//        
-//        move(newAzimuth, newElevation);
         
         float integralPart; //useless here
         float theta = mDone / mDurationSingleTrajectory;   //goes from 0 to _TrajectoryCount
@@ -369,9 +321,7 @@ protected:
         
         float newAzimuth = _TrajectoryInitialAzimuth + theta;
         
-        float newElevation = _TrajectoryInitialElevation + _TrajectoryInitialElevation/4 * abs(sin(theta * 2 * M_PI))  ;
-        
-        cout << _TrajectoryInitialElevation << "\t" << newElevation << "\n";
+        float newElevation = _TrajectoryInitialElevation + (1-_TrajectoryInitialElevation)/2 * abs(sin(theta * 2 * M_PI));
         
         move(newAzimuth, newElevation);
     }
@@ -456,6 +406,20 @@ protected:
 //				mFilter->setSourceXY(i, p);
 //			}
 //		}
+        
+        mClock += seconds;
+        while(mClock > 0.01)
+        {
+            mClock -= 0.01;
+            float azimuth   = ourProcessor->getParameter(_SelectedSourceForTrajectory*5);
+            float elevation = ourProcessor->getParameter((_SelectedSourceForTrajectory*5)+1);
+            
+            float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+            float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+            azimuth += (r1 - 0.5) * mSpeed;
+            elevation += (r2 - 0.5) * mSpeed;
+            move(azimuth, elevation);
+        }
 	}
 	
 private:
