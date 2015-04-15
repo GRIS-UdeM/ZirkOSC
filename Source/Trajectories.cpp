@@ -560,7 +560,7 @@ protected:
 };
 
 // ==============================================================================
-int Trajectory::NumberOfTrajectories() { return 23; }
+int Trajectory::NumberOfTrajectories() { return 19; }
 String Trajectory::GetTrajectoryName(int i)
 {
 	switch(i)
@@ -581,10 +581,10 @@ String Trajectory::GetTrajectoryName(int i)
 		case 13: return "Pendulum (Out, RT)";
 		case 14: return "Pendulum (In, OW)";
 		case 15: return "Pendulum (Out, OW)";
-		case 16: return "Random Target";
-		case 17: return "Random (Slow)";
-		case 18: return "Random (Mid)";
-		case 19: return "Random (Fast)";
+		case 16: return "Random (Slow)";
+		case 17: return "Random (Mid)";
+		case 18: return "Random (Fast)";
+        case 19: return "Random Target";
 		case 20: return "Sym X Target";
 		case 21: return "Sym Y Target";
 		case 22: return "Closest Speaker Target";
@@ -612,10 +612,10 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int i, ZirkOscjuceAudioProcessor *f
 		case 13: return new PendulumTrajectory(filter, duration, beats, times, source, false, true);
 		case 14: return new PendulumTrajectory(filter, duration, beats, times, source, true, false);
 		case 15: return new PendulumTrajectory(filter, duration, beats, times, source, false, false);
-		case 16: return new RandomTargetTrajectory(filter, duration, beats, times, source);
-		case 17: return new RandomTrajectory(filter, duration, beats, times, source, 0.02);
-		case 18: return new RandomTrajectory(filter, duration, beats, times, source, 0.06);
-		case 19: return new RandomTrajectory(filter, duration, beats, times, source, 0.1);
+		case 16: return new RandomTrajectory(filter, duration, beats, times, source, 0.02);
+		case 17: return new RandomTrajectory(filter, duration, beats, times, source, 0.06);
+		case 18: return new RandomTrajectory(filter, duration, beats, times, source, 0.1);
+        case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
 		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
 		case 21: return new SymYTargetTrajectory(filter, duration, beats, times, source);
 		case 22: return new ClosestSpeakerTargetTrajectory(filter, duration, beats, times, source);
