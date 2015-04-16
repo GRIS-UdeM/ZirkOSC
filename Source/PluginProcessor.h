@@ -166,8 +166,6 @@ public:
     //! Returns the iPad's IP address.
     String getOscAddressIpad() {return _OscAddressIpad; }
     
-    float getTrajectoryProgress();
-    
     enum ParameterIds
     {
         ZirkOSC_Azim_ParamId = 0,
@@ -283,10 +281,6 @@ public:
     
     bool isTrajectoryDone();
     
-    void cancelTrajectory();
-    
-    void initTrajectories();
-    
     
     //NEW TRAJECTORY CLASS METHODS
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
@@ -351,8 +345,6 @@ private:
     //! If the span are linked
     bool _isSpanLinked;
     
-    float getSmallAlternatingValue();
-    
     PluginHostType host;
     
     allParameters m_parameterBuffer;
@@ -363,40 +355,16 @@ private:
     //! Number of trajectories to draw in trajectory section
     double _TrajectoryCount;
     
-    bool _TrajectoryIsDirectionReversed;
-    
     //! Duration of trajectory movement
     double _TrajectoriesDuration;
     
-    double _TrajectoriesDurationBuffer;
-
-//    double _TrajectoriesPhiAsin;
-  //  double _TrajectoriesPhiAcos;
-    
-    double _TrajectoryBeginTime;
-
-    double _TrajectorySingleBeginTime;
-    
-    float _TrajectoryInitialAzimuth;
-    
-    float _TrajectoryInitialElevation;
-    
-    double _TrajectorySingleLength;
-    
-    bool m_bTrajectoryElevationDecreasing;
-    
-    bool m_bTrajectoryAddPositive;
-    
-    double m_dTrajectoryTimeDone;
-    
     //!Whether to sync trajectories with tempo
     bool _isSyncWTempo;
+    
     //!Whether to write trajectory or not
     bool _isWriteTrajectory;
     
     int _SelectedSourceForTrajectory;
-    
-    bool m_bTrajectoryDone;
     
     //NEW TRAJECTORY
     Trajectory::Ptr mTrajectory;

@@ -68,12 +68,8 @@ protected:
     
     float mDurationSingleTrajectory;
     
-    //OLD TRAJECTORIES
-    
     //! Number of trajectories to draw in trajectory section
     double _TrajectoryCount;
-    
-//    bool _TrajectoryIsDirectionReversed;
     
     //! Duration of trajectory movement
     double m_TotalTrajectoriesDuration;
@@ -101,8 +97,6 @@ protected:
     bool _isWriteTrajectory;
     
     int _SelectedSourceForTrajectory;
-    
-    bool m_bTrajectoryDone;
 };
 
 #endif  // TRAJECTORIES_H_INCLUDED

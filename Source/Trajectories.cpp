@@ -171,7 +171,7 @@ protected:
         
         newAzimuth = mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
         
-        if (mCCW) newAzimuth = - newAzimuth;
+        if (!mCCW) newAzimuth = - newAzimuth;
         newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
         
         move(newAzimuth, _TrajectoryInitialElevation);
@@ -391,22 +391,7 @@ public:
 protected:
 	void spProcess(float duration, float seconds)
 	{
-//		mClock += seconds;
-//		while(mClock > 0.01)
-//		{
-//			mClock -= 0.01;
-//			for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-//			if (mSource < 0 || mSource == i)
-//			{
-//				FPoint p = mFilter->getSourceXY(i);
-//				float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
-//				float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
-//				p.x += (r1 - 0.5) * mSpeed;
-//				p.y += (r2 - 0.5) * mSpeed;
-//				mFilter->setSourceXY(i, p);
-//			}
-//		}
-        
+       
         mClock += seconds;
         while(mClock > 0.01)
         {

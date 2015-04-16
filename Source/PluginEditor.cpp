@@ -327,15 +327,6 @@ _MovementConstraintComboBox("MovementConstraint")
     //TRAJECTORY COMBO BOX
     m_pTrajectoryComboBox = m_oTrajectoryTab->getComboBox();
     
-    //OLD TRAJECTORIES
-//    m_pTrajectoryComboBox->addItem("Upward Spiral",        UpwardSpiral);
-//    m_pTrajectoryComboBox->addItem("Downward Spiral",      DownwardSpiral);
-//    m_pTrajectoryComboBox->addItem("Up and Down Spiral",   UpAndDownSpiral);
-//    m_pTrajectoryComboBox->addItem("Down and Up Spiral",   DownAndUpSpiral);
-//    m_pTrajectoryComboBox->addItem("Pendulum",             Pendulum);
-//    m_pTrajectoryComboBox->addItem("Circle",               Circle);
-
-    //NEW TRAJECTORIES
     for (int i = 0, index = 1; i < Trajectory::NumberOfTrajectories(); i++){
         m_pTrajectoryComboBox->addItem(Trajectory::GetTrajectoryName(i), index++);
     }
@@ -718,13 +709,6 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->setValue(HRValue,dontSendNotification);
     
-    
-    // OLD TRAJECTORIES
-    if (!ourProcessor->isTrajectoryDone() && ourProcessor->getIsWriteTrajectory()){
-        mTrProgressBar->setValue(ourProcessor->getTrajectoryProgress());
-    }
-    
-    //NEW TRAJECTORIES
     switch(mTrState)
     {
         case kTrWriting:
@@ -785,15 +769,6 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
-
-//    bool bIsWriting = ourProcessor->getIsWriteTrajectory();
-//    m_pWriteTrajectoryButton->setToggleState(bIsWriting, dontSendNotification);
-//
-//    if (ourProcessor->getTrajectoryProgress() >= .98 || ourProcessor->isTrajectoryDone()){
-//        m_pWriteTrajectoryButton->setButtonText("Ready");
-//        m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
-//        mTrProgressBar->setVisible(false);
-//    }
     
     _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
     _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
@@ -812,22 +787,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
     }
     else if(button == m_pWriteTrajectoryButton){
         
-    //------------ OLD TRAJECTORIES  ----------------------
-//        bool isWritingTrajectory = m_pWriteTrajectoryButton->getToggleState();
-//        
-//        if (isWritingTrajectory){
-//            m_pWriteTrajectoryButton->setButtonText("Cancel");
-//            ourProcessor->initTrajectories();
-//            mTrProgressBar->setValue(0);
-//            mTrProgressBar->setVisible(true);
-//        } else {
-//            m_pWriteTrajectoryButton->setButtonText("Ready");
-//            ourProcessor->cancelTrajectory();
-//            mTrProgressBar->setVisible(false);
-//        }
-//        
-        
-        //------------ NEW TRAJECTORY CLASS ----------------------
         Trajectory::Ptr t = ourProcessor->getTrajectory();
         //if there's already a trajectory, we are cancelling it
         if (t)
