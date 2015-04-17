@@ -68,6 +68,8 @@ const String ZirkOSC_Movement_Constraint_name = "Move_Constraint";
 const String ZirkOSC_isOscActive_name = "is_OSC_Active";
 const String ZirkOSC_isSpanLinked_name = "is_Span_Linked";
 const String ZirkOSC_SelectedTrajectory_name = "SelectedTrajectory";
+const String ZirkOSC_SelectedTrajectoryDirection_name = "SelectedTrajectoryDirection";
+const String ZirkOSC_SelectedTrajectoryReturn_name = "SelectedTrajectoryReturn";
 const String ZirkOSC_NbrTrajectories_name = "NbrTrajectories";
 const String ZirkOSC_DurationTrajectories_name = "DurationTrajectories";
 const String ZirkOSC_isSyncWTempo_name = "SyncWTempo";
@@ -100,20 +102,32 @@ enum AllConstraints {
     TotalNumberConstraints
 };
 
-enum AllTrajectories {
-    UpwardSpiral = 1,//0,
-    DownwardSpiral,
-    UpAndDownSpiral,
-    DownAndUpSpiral,
+enum AllTrajectoryTypes {
+    Circle = 1,
+    Ellipse,
+    Spiral,
     Pendulum,
-    Circle,
-    TotalNumberTrajectories
+    Random,
+    TotalNumberTrajectories    
+};
+
+enum AllTrajectoryDirections {
+    CW,
+    CCW,
+    In,
+    Out,
+    InCW,
+    InCCW,
+    OutCW,
+    OutCCW,
+    Slow,
+    Mid,
+    Fast
 };
 
 enum AllSyncOptions {
     SyncWTempo = 1,
     SyncWTime
-    
 };
 
 static float PercentToHR(float percent, float min, float max){

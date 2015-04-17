@@ -59,6 +59,8 @@ ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 _SelectedMovementConstraint(.0f),
 m_iSelectedMovementConstraint(Independant),
 _SelectedTrajectory(.0f),
+m_fSelectedTrajectoryDirection(.0f),
+m_fSelectedTrajectoryReturn(.0f),
 _SelectedSource(0),
 _OscPortZirkonium(18032),
 _OscPortIpadOutgoing("10112"),
@@ -166,48 +168,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         }
     }
 
-}
-
-void ZirkOscjuceAudioProcessor::saveAllParameters(){
-    
-    for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
-    }
-
-    _AllSources[0].setAzimReverse(true); JUCE_COMPILER_WARNING("why???")
-
-    m_parameterBuffer.fMovementConstraint =  _SelectedMovementConstraint;
-    m_parameterBuffer.bisSpanLinked = _isSpanLinked;
-    m_parameterBuffer.bisOscActive = _isOscActive;
-    m_parameterBuffer.fSelectedTrajectory = _SelectedTrajectory;
-    m_parameterBuffer.fSelectedSource = _SelectedSource;
-    m_parameterBuffer.dTrajectoryCount = _TrajectoryCount;
-    m_parameterBuffer.dTrajectoriesDuration = _TrajectoriesDuration;
-    m_parameterBuffer.bSyncWTempo = _isSyncWTempo;
-    m_parameterBuffer.bWriteTrajectories = _isWriteTrajectory;
-
-}
-
-void ZirkOscjuceAudioProcessor::restoreAllSavedParameters(){
-    
-    for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
-    }
-    _AllSources[0].setAzimReverse(true); JUCE_COMPILER_WARNING("why???")
-    
-    _SelectedMovementConstraint = m_parameterBuffer.fMovementConstraint;
-    //m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
-    m_iSelectedMovementConstraint = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
-    
-    _isSpanLinked = m_parameterBuffer.bisSpanLinked;
-    _isOscActive = m_parameterBuffer.bisOscActive;
-    _SelectedTrajectory = m_parameterBuffer.fSelectedTrajectory;
-    _SelectedSource = m_parameterBuffer.fSelectedSource;
-    _TrajectoryCount = m_parameterBuffer.dTrajectoryCount;
-    _TrajectoriesDuration = m_parameterBuffer.dTrajectoriesDuration;
-    _isSyncWTempo = m_parameterBuffer.bSyncWTempo;
-    _isWriteTrajectory = m_parameterBuffer.bWriteTrajectories;
-    
 }
 
 void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
@@ -439,6 +399,10 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
                 return 0.0f;
         case ZirkOSC_SelectedTrajectory_ParamId:
             return _SelectedTrajectory;
+        case ZirkOSC_SelectedTrajectoryDirection_ParamId:
+            return m_fSelectedTrajectoryDirection;
+        case ZirkOSC_SelectedTrajectoryReturn_ParamId:
+            return m_fSelectedTrajectoryReturn;
         case ZirkOSC_TrajectoryCount_ParamId:
             return _TrajectoryCount;
         case ZirkOSC_TrajectoriesDuration_ParamId:
@@ -493,8 +457,17 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
                 _isSpanLinked = false;
             return;
         case ZirkOSC_SelectedTrajectory_ParamId:
-            _SelectedTrajectory = newValue; //PercentToIntStartsAtOne(newValue, TotalNumberTrajectories);
+            _SelectedTrajectory = newValue;
             return;
+            
+        case ZirkOSC_SelectedTrajectoryDirection_ParamId:
+            m_fSelectedTrajectoryDirection = newValue;
+            return;
+
+        case ZirkOSC_SelectedTrajectoryReturn_ParamId:
+            m_fSelectedTrajectoryReturn = newValue;
+            return;
+            
         case ZirkOSC_TrajectoryCount_ParamId:
             _TrajectoryCount = newValue;
             return;
@@ -536,6 +509,10 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
             return ZirkOSC_isSpanLinked_name;
         case ZirkOSC_SelectedTrajectory_ParamId:
             return ZirkOSC_SelectedTrajectory_name;
+        case ZirkOSC_SelectedTrajectoryDirection_ParamId:
+            return ZirkOSC_SelectedTrajectoryDirection_name;
+        case ZirkOSC_SelectedTrajectoryReturn_ParamId:
+            return ZirkOSC_SelectedTrajectoryReturn_name;
         case ZirkOSC_TrajectoryCount_ParamId:
             return ZirkOSC_NbrTrajectories_name;
         case ZirkOSC_TrajectoriesDuration_ParamId:
@@ -559,6 +536,7 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 }
 
 
+static const int kDataVersion = 2;
 //==============================================================================
 void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
@@ -603,6 +581,11 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         xml.setAttribute(gain, _AllSources[i].getGain());
         
     }
+
+    //version 2
+    xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
+    xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
+    
     copyXmlToBinary (xml, destData);
 }
 
@@ -662,6 +645,11 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
                 float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
                 _AllSources[i].setGain(fGain);
+            }
+            
+            if (kDataVersion >=2){
+                m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
+                m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
             }
             
             changeZirkoniumOSCPort(_OscPortZirkonium);
@@ -892,9 +880,17 @@ int ZirkOscjuceAudioProcessor::getSelectedMovementConstraintAsInteger() {
 }
 
 int ZirkOscjuceAudioProcessor::getSelectedTrajectoryAsInteger() {
-    
-    //int value = PercentToIntStartsAtZero(_SelectedTrajectory, TotalNumberTrajectories);
     int value = PercentToIntStartsAtOne(_SelectedTrajectory, TotalNumberTrajectories);
+    return value;
+}
+
+int ZirkOscjuceAudioProcessor::getSelectedTrajectoryDirection() {
+    int value = PercentToIntStartsAtOne(m_fSelectedTrajectoryDirection, TotalNumberTrajectories);
+    return value;
+}
+
+int ZirkOscjuceAudioProcessor::getSelectedTrajectoryReturn() {
+    int value = PercentToIntStartsAtOne(m_fSelectedTrajectoryReturn, TotalNumberTrajectories);
     return value;
 }
 

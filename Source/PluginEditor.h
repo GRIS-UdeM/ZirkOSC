@@ -93,6 +93,10 @@ public:
 
 private:
     
+    ZirkOscjuceAudioProcessor* ourProcessor;
+    
+    void updateSliders();
+    
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     //! Called when a button is clicked
@@ -151,7 +155,11 @@ private:
     
     
     //-------------TRAJECTORIES------------------
-    ComboBox* m_pTrajectoryComboBox;
+    ComboBox* m_pTrajectoryTypeComboBox;
+    
+    ComboBox* m_pTrajectoryDirectionComboBox;
+    
+    ComboBox* m_pTrajectoryReturnComboBox;
     
     ComboBox* m_pSyncWTempoComboBox;
     
@@ -168,7 +176,8 @@ private:
     TextEditor* m_pTrajectoryDurationTextEditor;
     
   	MiniProgressBar *mTrProgressBar;
-
+    
+    void updateTrajectoryComboboxes();
     
     //---------------- SLIDERS ------------------
     
@@ -283,7 +292,6 @@ private:
     
     TrajectoryTab* m_oTrajectoryTab;
     
-    //NEW TRAJECTORIES
     enum
     {
         kTrReady,

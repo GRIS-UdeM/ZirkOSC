@@ -28,6 +28,7 @@
 #define TRAJECTORIES_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "ZirkConstants.h"
 
 class ZirkOscjuceAudioProcessor;
 
@@ -38,7 +39,7 @@ public:
 
 	static int NumberOfTrajectories();
 	static String GetTrajectoryName(int i);
-	static Trajectory::Ptr CreateTrajectory(int i, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source);
+	static Trajectory::Ptr CreateTrajectory(int i, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source);
 	
 public:
 	virtual ~Trajectory() {
@@ -48,7 +49,12 @@ public:
 	bool process(float seconds, float beats);
 	float progress();
 	void stop();
-	
+    
+    static std::unique_ptr<std::vector<String>> getTrajectoryPossibleDirections(int p_iTrajectory);
+    static std::unique_ptr<AllTrajectoryDirections> getTrajectoryDirection(int p_iSelectedTrajectory, int p_iSelectedDirection);
+    
+    static std::unique_ptr<std::vector<String>> getTrajectoryPossibleReturns(int p_iTrajectory);
+
 protected:
 	virtual void spInit() {}
 	virtual void spProcess(float duration, float seconds) = 0;

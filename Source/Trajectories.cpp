@@ -545,65 +545,186 @@ protected:
 };
 
 // ==============================================================================
-int Trajectory::NumberOfTrajectories() { return 19; }
+int Trajectory::NumberOfTrajectories() { return TotalNumberTrajectories-1; }
+
 String Trajectory::GetTrajectoryName(int i)
 {
 	switch(i)
 	{
-		case 0: return "Circle (CW)";
-		case 1: return "Circle (CCW)";
-		case 2: return "Ellipse (CW)";
-		case 3: return "Ellipse (CCW)";
-		case 4: return "Spiral (In, RT, CW)";
-		case 5: return "Spiral (In, RT, CCW)";
-		case 6: return "Spiral (Out, RT, CW)";
-		case 7: return "Spiral (Out, RT, CCW)";
-		case 8: return "Spiral (In, OW, CW)";
-		case 9: return "Spiral (In, OW, CCW)";
-		case 10: return "Spiral (Out, OW, CW)";
-		case 11: return "Spiral (Out, OW, CCW)";
-		case 12: return "Pendulum (In, RT)";
-		case 13: return "Pendulum (Out, RT)";
-		case 14: return "Pendulum (In, OW)";
-		case 15: return "Pendulum (Out, OW)";
-		case 16: return "Random (Slow)";
-		case 17: return "Random (Mid)";
-		case 18: return "Random (Fast)";
-        case 19: return "Random Target";
-		case 20: return "Sym X Target";
-		case 21: return "Sym Y Target";
-		case 22: return "Closest Speaker Target";
+//		case 0: return "Circle (CW)";
+//		case 1: return "Circle (CCW)";
+//		case 2: return "Ellipse (CW)";
+//		case 3: return "Ellipse (CCW)";
+//		case 4: return "Spiral (In, RT, CW)";
+//		case 5: return "Spiral (In, RT, CCW)";
+//		case 6: return "Spiral (Out, RT, CW)";
+//		case 7: return "Spiral (Out, RT, CCW)";
+//		case 8: return "Spiral (In, OW, CW)";
+//		case 9: return "Spiral (In, OW, CCW)";
+//		case 10: return "Spiral (Out, OW, CW)";
+//		case 11: return "Spiral (Out, OW, CCW)";
+//		case 12: return "Pendulum (In, RT)";
+//		case 13: return "Pendulum (Out, RT)";
+//		case 14: return "Pendulum (In, OW)";
+//		case 15: return "Pendulum (Out, OW)";
+//		case 16: return "Random (Slow)";
+//		case 17: return "Random (Mid)";
+//		case 18: return "Random (Fast)";
+//        case 19: return "Random Target";
+//		case 20: return "Sym X Target";
+//		case 21: return "Sym Y Target";
+//		case 22: return "Closest Speaker Target";
+            
+        case Circle: return "Circle";
+        case Ellipse: return "Ellipse";
+        case Spiral: return "Spiral";
+        case Pendulum: return "Pendulum";
+        case AllTrajectoryTypes::Random: return "Random";
 	}
 	jassert(0);
 	return "";
 }
-Trajectory::Ptr Trajectory::CreateTrajectory(int i, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source)
+
+std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int p_iTrajectory){
+    unique_ptr<vector<String>> vDirections (new vector<String>);
+    
+    switch(p_iTrajectory) {
+        case Circle:
+        case Ellipse:
+            vDirections->push_back("Clockwise");
+            vDirections->push_back("Counter Clockwise");
+            break;
+        case Spiral:
+            vDirections->push_back("In, Clockwise");
+            vDirections->push_back("In, Counter Clockwise");
+            vDirections->push_back("Out, Clockwise");
+            vDirections->push_back("Out, Counter Clockwise");
+            break;
+        case Pendulum:
+            vDirections->push_back("In");
+            vDirections->push_back("Out");
+            break;
+        case AllTrajectoryTypes::Random:
+            vDirections->push_back("Slow");
+            vDirections->push_back("Mid");
+            vDirections->push_back("Fast");
+            break;
+        default:
+            jassert(0);
+    }
+
+    return vDirections;
+}
+
+unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSelectedTrajectory, int p_iSelectedDirection){
+    
+    unique_ptr<AllTrajectoryDirections> pDirection (new AllTrajectoryDirections);
+    
+    switch (p_iSelectedTrajectory) {
+
+        case Circle:
+        case Ellipse:
+            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
+            break;
+        case Spiral:
+            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+4);
+            break;
+        case Pendulum:
+            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+2);
+            break;
+        case AllTrajectoryTypes::Random:
+            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+8);
+            break;
+            
+        default:
+            break;
+    }
+    
+    return pDirection;
+}
+
+std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_iTrajectory){
+
+    unique_ptr<vector<String>> vReturns (new vector<String>);
+
+    switch(p_iTrajectory) {
+        case Circle:
+        case Ellipse:
+        case AllTrajectoryTypes::Random:
+            return nullptr;
+        case Spiral:
+        case Pendulum:
+            vReturns->push_back("One Way");
+            vReturns->push_back("Return");
+            break;
+        default:
+            jassert(0);
+    }
+    
+    return vReturns;
+}
+
+Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source)
 {
-	switch(i)
+   
+    bool ccw, in;
+    float speed;
+    
+    switch (direction) {
+        case CW:
+            ccw = false;
+            break;
+        case CCW:
+            ccw = true;
+            break;
+        case In:
+            in = true;
+            break;
+        case Out:
+            in = false;
+            break;
+        case InCW:
+            in = true;
+            ccw = false;
+            break;
+        case InCCW:
+            in = true;
+            ccw = true;
+            break;
+        case OutCW:
+            in = false;
+            ccw = false;
+            break;
+        case OutCCW:
+            in = false;
+            ccw = true;
+            break;
+        case Slow:
+            speed = .02;
+            break;
+        case Mid:
+            speed = .06;
+            break;
+        case Fast:
+            speed = .1;
+            break;
+        default:
+            break;
+    }
+
+    
+	switch(type)
 	{
-		case 0: return new CircleTrajectory(filter, duration, beats, times, source, false);
-		case 1: return new CircleTrajectory(filter, duration, beats, times, source, true);
-		case 2: return new EllipseTrajectory(filter, duration, beats, times, source, false);
-		case 3: return new EllipseTrajectory(filter, duration, beats, times, source, true);
-		case 4: return new SpiralTrajectory(filter, duration, beats, times, source, false, true, true);
-		case 5: return new SpiralTrajectory(filter, duration, beats, times, source, true, true, true);
-		case 6: return new SpiralTrajectory(filter, duration, beats, times, source, false, false, true);
-		case 7: return new SpiralTrajectory(filter, duration, beats, times, source, true, false, true);
-		case 8: return new SpiralTrajectory(filter, duration, beats, times, source, false, true, false);
-		case 9: return new SpiralTrajectory(filter, duration, beats, times, source, true, true, false);
-		case 10: return new SpiralTrajectory(filter, duration, beats, times, source, false, false, false);
-		case 11: return new SpiralTrajectory(filter, duration, beats, times, source, true, false, false);
-		case 12: return new PendulumTrajectory(filter, duration, beats, times, source, true, true);
-		case 13: return new PendulumTrajectory(filter, duration, beats, times, source, false, true);
-		case 14: return new PendulumTrajectory(filter, duration, beats, times, source, true, false);
-		case 15: return new PendulumTrajectory(filter, duration, beats, times, source, false, false);
-		case 16: return new RandomTrajectory(filter, duration, beats, times, source, 0.02);
-		case 17: return new RandomTrajectory(filter, duration, beats, times, source, 0.06);
-		case 18: return new RandomTrajectory(filter, duration, beats, times, source, 0.1);
-        case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
-		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
-		case 21: return new SymYTargetTrajectory(filter, duration, beats, times, source);
-		case 22: return new ClosestSpeakerTargetTrajectory(filter, duration, beats, times, source);
+		case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw);
+		case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw);
+		case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, in, bReturn);
+		case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, in, bReturn);
+        case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
+            
+//        case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
+//		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
+//		case 21: return new SymYTargetTrajectory(filter, duration, beats, times, source);
+//		case 22: return new ClosestSpeakerTargetTrajectory(filter, duration, beats, times, source);
 	}
 	jassert(0);
 	return NULL;
