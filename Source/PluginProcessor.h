@@ -212,11 +212,13 @@ public:
         ZirkOSC_isSpanLinked_ParamId,
         ZirkOSC_isOscActive_ParamId,
         ZirkOSC_SelectedTrajectory_ParamId,
+        ZirkOSC_SelectedTrajectoryDirection_ParamId,
+        ZirkOSC_SelectedTrajectoryReturn_ParamId,
         ZirkOSC_TrajectoryCount_ParamId,
         ZirkOSC_TrajectoriesDuration_ParamId,
         ZirkOSC_SyncWTempo_ParamId,
         ZirkOSC_WriteTrajectories_ParamId,
-        totalNumParams                      //48
+        totalNumParams                      //50
     };
     
     struct allParameters{
@@ -241,6 +243,10 @@ public:
     
     //! Getter for trajectory as integer, since parameters need to be stored as floats [0,1]
     int getSelectedTrajectoryAsInteger();
+    
+    int getSelectedTrajectoryDirection();
+    
+    int getSelectedTrajectoryReturn();
     
     //! Retunrs true if the Editor has to refresh the Gui.
     bool hasToRefreshGui(){return _RefreshGui;};
@@ -299,11 +305,7 @@ private:
     void processTrajectories();
     
     void stopTrajectory();
-    
-    void saveAllParameters();
-    
-    void restoreAllSavedParameters();
-    
+        
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
     //! Whether the editor has to refresh the GUI
@@ -316,6 +318,11 @@ private:
     int m_iSelectedMovementConstraint;
     //! float ID of the selected trajectory
     float _SelectedTrajectory;
+    
+    float m_fSelectedTrajectoryDirection;
+    
+    float m_fSelectedTrajectoryReturn;
+    
     //! Tab position of the selected source
     int _SelectedSource;
     //! Osc port to send to the Zirkonium 
