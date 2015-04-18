@@ -17,6 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =========== 
 
-User Guide : https://github.com/ludoviclaffineur/ZirkOSCJUCE/raw/master/bin/ZirkOSCJuce_Setup_13-08-14.pdf
+User Guide : https://github.com/GRIS-UdeM/ZirkOSC2/blob/master/ZirkOSC2%20Manual.pdf
 
 
