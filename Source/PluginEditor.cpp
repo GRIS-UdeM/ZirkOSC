@@ -849,7 +849,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             bool beats = m_pSyncWTempoComboBox->getSelectedId() == 1;
             int type = m_pTrajectoryTypeComboBox->getSelectedId();
             
-            unique_ptr<AllTrajectoryDirections> direction = Trajectory::getTrajectoryDirection(type+1, m_pTrajectoryDirectionComboBox->getSelectedId()-1);
+            unique_ptr<AllTrajectoryDirections> direction = Trajectory::getTrajectoryDirection(type, m_pTrajectoryDirectionComboBox->getSelectedId()-1);
             
             bool bReturn = m_pTrajectoryReturnComboBox->getSelectedId() == 2;
             

@@ -185,8 +185,8 @@ private:
 class PendulumTrajectory : public Trajectory
 {
 public:
-	PendulumTrajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source, bool in, bool rt)
-	: Trajectory(filter, duration, beats, times, source), mIn(in), mRT(rt) {
+	PendulumTrajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source, bool in, bool rt, bool cross)
+	: Trajectory(filter, duration, beats, times, source), mIn(in), mRT(rt), mCross(cross) {
         oldElevationBuffer = -1.f;
         
         if (mIn)    m_bTrajectoryElevationDecreasing = false;
@@ -201,16 +201,15 @@ protected:
 	}
 	void spProcess(float duration, float seconds)
 	{
-        
-        float newElevation = mDone / mDurationSingleTrajectory, integralPart;
-        //this just grows linearly with time from 0 to _TrajectoryCount
+        int multiple = mCross ? 2 : 1;
+        float newElevation = mDone / mDurationSingleTrajectory, integralPart; //this just grows linearly with time from 0 to _TrajectoryCount
         
         if (mRT){
             if (mIn){
-                newElevation = abs( sin(newElevation * 2 * M_PI) );  //varies between [0,1]
+                newElevation = abs( sin(newElevation * multiple * M_PI) );  //varies between [0,1]
                 newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
-                
-                if (oldElevationBuffer != -1.f){
+
+                if (mCross && oldElevationBuffer != -1.f){
                     //when we get to the top of the dome, we need to get back down
                     if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
                         (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
@@ -221,27 +220,52 @@ protected:
                         m_bTrajectoryElevationDecreasing = false;
                     }
                 }
-                oldElevationBuffer = newElevation;
+                
             } else {
                 //new way, simply oscilates between _TrajectoryInitialElevation and 0
                 newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
         } else {
+            
             newElevation = modf(newElevation, &integralPart); //should be [0,1]
             if (mIn){
-                newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                
+                if (mCross){
+                    newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
+                    newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                    if (oldElevationBuffer != -1.f){
+                        
+                        //when we get to the top of the dome, we need to get back down
+                        if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
+                            _TrajectoryInitialAzimuth > 0.5 ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                            m_bTrajectoryElevationDecreasing = true;
+                        }
+                        //reset flag m_bTrajectoryElevationDecreasing as we go down
+                        if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
+                            _TrajectoryInitialAzimuth > 0.5 ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                            m_bTrajectoryElevationDecreasing = false;
+                        }
+                    }
+                } else {
+                    newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                }
+                
+                
             } else {
                 newElevation = _TrajectoryInitialElevation*(1-newElevation);
             }
         
         }
-        move (_TrajectoryInitialAzimuth, newElevation);        
+        
+        oldElevationBuffer = newElevation;
+        
+        move (_TrajectoryInitialAzimuth, newElevation);
 	}
 	
 private:
 //	Array<FPoint> mSourcesInitRT;
-	bool mIn, mRT;
+	bool mIn, mRT, mCross;
     float oldElevationBuffer;
     bool m_bTrajectoryElevationDecreasing;
 };
@@ -551,30 +575,6 @@ String Trajectory::GetTrajectoryName(int i)
 {
 	switch(i)
 	{
-//		case 0: return "Circle (CW)";
-//		case 1: return "Circle (CCW)";
-//		case 2: return "Ellipse (CW)";
-//		case 3: return "Ellipse (CCW)";
-//		case 4: return "Spiral (In, RT, CW)";
-//		case 5: return "Spiral (In, RT, CCW)";
-//		case 6: return "Spiral (Out, RT, CW)";
-//		case 7: return "Spiral (Out, RT, CCW)";
-//		case 8: return "Spiral (In, OW, CW)";
-//		case 9: return "Spiral (In, OW, CCW)";
-//		case 10: return "Spiral (Out, OW, CW)";
-//		case 11: return "Spiral (Out, OW, CCW)";
-//		case 12: return "Pendulum (In, RT)";
-//		case 13: return "Pendulum (Out, RT)";
-//		case 14: return "Pendulum (In, OW)";
-//		case 15: return "Pendulum (Out, OW)";
-//		case 16: return "Random (Slow)";
-//		case 17: return "Random (Mid)";
-//		case 18: return "Random (Fast)";
-//        case 19: return "Random Target";
-//		case 20: return "Sym X Target";
-//		case 21: return "Sym Y Target";
-//		case 22: return "Closest Speaker Target";
-            
         case Circle: return "Circle";
         case Ellipse: return "Ellipse";
         case Spiral: return "Spiral";
@@ -603,6 +603,7 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
         case Pendulum:
             vDirections->push_back("In");
             vDirections->push_back("Out");
+            vDirections->push_back("Crossover");
             break;
         case AllTrajectoryTypes::Random:
             vDirections->push_back("Slow");
@@ -627,13 +628,13 @@ unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSe
             *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
             break;
         case Spiral:
-            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+4);
+            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+5);
             break;
         case Pendulum:
             *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+2);
             break;
         case AllTrajectoryTypes::Random:
-            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+8);
+            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+9);
             break;
             
         default:
@@ -667,7 +668,7 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_i
 Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source)
 {
    
-    bool ccw, in;
+    bool ccw, in, cross;
     float speed;
     
     switch (direction) {
@@ -679,9 +680,15 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor
             break;
         case In:
             in = true;
+            cross = false;
             break;
         case Out:
             in = false;
+            cross = false;
+            break;
+        case Crossover:
+            in = true;
+            cross = true;
             break;
         case InCW:
             in = true;
@@ -718,7 +725,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor
 		case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw);
 		case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw);
 		case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, in, bReturn);
-		case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, in, bReturn);
+		case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, in, bReturn, cross);
         case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
             
 //        case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
