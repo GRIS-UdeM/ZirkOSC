@@ -500,11 +500,13 @@ ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
         gElementCFArrayRef = NULL;
     }
     mHIDDel = NULL;
-    mController->enableGesture(Leap::Gesture::TYPE_INVALID);
-    mController->removeListener(*mleap);
-    mController=NULL;
-    gIsLeapConnected = 0;
-    
+    if(mController)
+    {
+        mController->enableGesture(Leap::Gesture::TYPE_INVALID);
+        mController->removeListener(*mleap);
+        mController=NULL;
+        gIsLeapConnected = 0;
+    }
     //stopTimer();
 }
 

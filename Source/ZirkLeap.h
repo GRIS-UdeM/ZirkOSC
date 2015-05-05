@@ -18,13 +18,18 @@ class ZirkLeap : public ReferenceCountedObject , public Leap::Listener
 {
 public:
     typedef ReferenceCountedObjectPtr<ZirkLeap> Ptr;
+    ZirkLeap::Ptr * CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
     
     ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    
+    
     virtual void onConnect(const Leap::Controller& controller);
     void onDisconnect(const Leap::Controller& controller);
     void onFrame(const Leap::Controller& controller);
     
     void onServiceDisconnect(const Leap::Controller& controller);
+    virtual ~ZirkLeap(){
+    }
 
     
 private:

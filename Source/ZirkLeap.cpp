@@ -35,7 +35,7 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
 
 		
 	}
-	
+
 	void ZirkLeap::onConnect(const Leap::Controller& controller)
 	{
 		const MessageManagerLock mmLock;
