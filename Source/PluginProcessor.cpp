@@ -1101,3 +1101,10 @@ AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 }
 
+int IndexedAngleCompare(const void *a, const void *b)
+{
+    IndexedAngle *ia = (IndexedAngle*)a;
+    IndexedAngle *ib = (IndexedAngle*)b;
+    return (ia->a < ib->a) ? -1 : ((ia->a > ib->a) ? 1 : 0);
+}
+

@@ -31,6 +31,116 @@
 #include "SoundSource.h"
 #include "Trajectories.h"
 
+typedef Point<float> FPoint;
+
+
+//import from octogris
+
+int IndexedAngleCompare(const void *a, const void *b);
+
+static const float kSmoothMin = 1;
+static const float kSmoothMax = 200;
+static const float kSmoothDefault = 10;
+
+static const float kVolumeNearMin = 0;
+static const float kVolumeNearMax = 30;
+static const float kVolumeNearDefault = 0;
+
+static const float kVolumeMidMin = -30;
+static const float kVolumeMidMax = 10;
+static const float kVolumeMidDefault = -6;
+
+static const float kVolumeFarMin = -120;
+static const float kVolumeFarMax = 0;
+static const float kVolumeFarDefault = -40;
+
+static const float kRadiusMax = 2;
+static const float kThetaMax = M_PI * 2;
+static const float kThetaLockRadius = 0.05;
+static const float kThetaLockRampRadius = 0.025;
+static const float kSourceMinDistance = 2.5 * 0.5;
+static const float kSourceMaxDistance = 20 * 0.5;
+
+static const float kMaxDistance = 2000;
+
+static const float kFilterNearMin = kMaxDistance;
+static const float kFilterNearMax = 0;
+static const float kFilterNearDefault = 0;
+
+static const float kFilterMidMin = kMaxDistance;
+static const float kFilterMidMax = 0;
+static const float kFilterMidDefault = 0;
+
+static const float kFilterFarMin = kMaxDistance;
+static const float kFilterFarMax = 0;
+static const float kFilterFarDefault = kMaxDistance;
+
+static const float kMaxSpanVolumeMin = 0;
+static const float kMaxSpanVolumeMax = 20;
+static const float kMaxSpanVolumeDefault = 0;
+
+static inline float normalize(float min, float max, float value)
+{
+    return (value - min) / (max - min);
+}
+
+static inline float denormalize(float min, float max, float value)
+{
+    return min + value * (max - min);
+}
+
+
+
+
+
+enum
+{
+    kFreeVolumeMode = 0,
+    kPanVolumeMode = 1,
+    kPanSpanMode = 2,
+    kNumberOfModes = 3
+};
+enum {
+    kSourceX = 0,
+    kSourceY,
+    kSourceD,
+    kSourceUnused,
+    kParamsPerSource
+};
+// x, y, attenuation, mute
+enum {
+    kSpeakerX = 0,
+    kSpeakerY,
+    kSpeakerA,
+    kSpeakerM,
+    kSpeakerUnused,
+    kParamsPerSpeakers };
+
+#define kConstantOffset (JucePlugin_MaxNumInputChannels * kParamsPerSource + JucePlugin_MaxNumOutputChannels * kParamsPerSpeakers)
+
+enum
+{
+    kLinkMovement =			0 + kConstantOffset,
+    kSmooth =				1 + kConstantOffset,
+    kVolumeNear =			2 + kConstantOffset,
+    kVolumeMid =			3 + kConstantOffset,
+    kVolumeFar =			4 + kConstantOffset,
+    kFilterNear =			5 + kConstantOffset,
+    kFilterMid =			6 + kConstantOffset,
+    kFilterFar =			7 + kConstantOffset,
+    kMaxSpanVolume =		8 + kConstantOffset,
+    kConstantParameters =	9
+};
+#define kNumberOfParameters (kConstantParameters + kConstantOffset)
+
+typedef struct
+{
+    int i;
+    float a;
+} IndexedAngle;
+
+
+
 
 
 //==============================================================================
@@ -165,6 +275,158 @@ public:
     String getOscPortIpadOutgoing(){ return _OscPortIpadOutgoing;}
     //! Returns the iPad's IP address.
     String getOscAddressIpad() {return _OscAddressIpad; }
+    
+    
+    
+    //Import from Octogris
+    
+    
+    
+    inline int getParamForSpeakerX(int index) const { return kSpeakerX + JucePlugin_MaxNumInputChannels * kParamsPerSource + index * kParamsPerSpeakers; }
+    inline int getParamForSpeakerY(int index) const { return kSpeakerY + JucePlugin_MaxNumInputChannels * kParamsPerSource + index * kParamsPerSpeakers; }
+    
+    int getOscLeapSource() const { return mOscLeapSource; }
+    void setOscLeapSource(int s) { mOscLeapSource = s; }
+    
+    bool getIsJoystickEnabled() const { return _isJoystickEnabled; }
+    void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
+    
+    float getSpeakerX(int index) const { return mParameters.getUnchecked(getParamForSpeakerX(index)); }
+    float getSpeakerY(int index) const { return mParameters.getUnchecked(getParamForSpeakerY(index)); }
+    float getSourceX(int index) const { return mParameters.getUnchecked(kSourceX + index * kParamsPerSource); }
+    float getSourceY(int index) const { return mParameters.getUnchecked(kSourceY + index * kParamsPerSource); }
+    float getSourceD(int index) const { return mParameters.getUnchecked(kSourceD + index * kParamsPerSource); }
+    
+    bool getShowGridLines() const { return mShowGridLines; }
+    void setShowGridLines(bool s) { mShowGridLines = s; }
+    
+    
+    int getProcessMode() const { return mProcessMode; }
+    void setProcessMode(int s) { mProcessMode = s; jassert(mProcessMode >= 0 && mProcessMode < kNumberOfModes); }
+    
+    int getParamForSourceX(int index) const { return kSourceX + index * kParamsPerSource; }
+    int getParamForSourceY(int index) const { return kSourceY + index * kParamsPerSource; }
+    int getParamForSourceD(int index) const { return kSourceD + index * kParamsPerSource; }
+    
+    int getMovementMode() const { return mMovementMode; }
+    void setMovementMode(int s) { mMovementMode = s; }
+    
+    bool getLinkMovement() { return getParameter(kLinkMovement) > 0.5; }
+    void setLinkMovement(bool s) { setParameterNotifyingHost(kLinkMovement, s ? 1 : 0); }
+    
+    float getDenormedSourceD(int index) const { return denormalize(kSourceMinDistance, kSourceMaxDistance, getSourceD(index)); }
+    
+    void setSourceXY(int i, FPoint p)
+    {
+        float r = hypotf(p.x, p.y);
+        if (r > kRadiusMax)
+        {
+            float c = kRadiusMax / r;
+            p.x *= c;
+            p.y *= c;
+        }
+        p.x = (p.x + kRadiusMax) / (kRadiusMax*2);
+        p.y = (p.y + kRadiusMax) / (kRadiusMax*2);
+        setParameterNotifyingHost(getParamForSourceX(i), p.x);
+        setParameterNotifyingHost(getParamForSourceY(i), p.y);
+    }
+    
+    
+    FPoint getSourceXY(int i)
+    {
+        float x = getSourceX(i) * (2*kRadiusMax) - kRadiusMax;
+        float y = getSourceY(i) * (2*kRadiusMax) - kRadiusMax;
+        return FPoint(x, y);
+    }
+    
+    FPoint getSourceXY01(int i)
+    {
+        float x = getSourceX(i);
+        float y = getSourceY(i);
+        return FPoint(x, y);
+    }
+    
+    FPoint getSpeakerXY(int i)
+    {
+        float x = getSpeakerX(i) * (2*kRadiusMax) - kRadiusMax;
+        float y = getSpeakerY(i) * (2*kRadiusMax) - kRadiusMax;
+        if (mProcessMode != kFreeVolumeMode)
+        {
+            // force radius to 1
+            float r = hypotf(x, y);
+            if (r == 0) return FPoint(1, 0);
+            x /= r;
+            y /= r;
+        }
+        return FPoint(x, y);
+    }
+    
+    FPoint getSourceRT(int i)
+    {
+        FPoint p = getSourceXY(i);
+        float r = hypotf(p.x, p.y);
+        float t = atan2f(p.y, p.x);
+        if (t < 0) t += kThetaMax;
+        return FPoint(r, t);
+    }
+    void setSourceXY01(int i, FPoint p)
+    {
+        p = clampRadius01(p);
+        setParameterNotifyingHost(getParamForSourceX(i), p.x);
+        setParameterNotifyingHost(getParamForSourceY(i), p.y);
+    }
+    
+    void setSourceRT(int i, FPoint p)
+    {
+        float x = p.x * cosf(p.y);
+        float y = p.x * sinf(p.y);
+        setSourceXY(i, FPoint(x, y));
+    }
+    
+    FPoint clampRadius01(FPoint p)
+    {
+        float dx = p.x - 0.5f;
+        float dy = p.y - 0.5f;
+        float r = hypotf(dx, dy);
+        if (r > 0.5f)
+        {
+            float c = 0.5f / r;
+            dx *= c;
+            dy *= c;
+            p.x = dx + 0.5f;
+            p.y = dy + 0.5f;
+        }
+        return p;
+    }
+    FPoint convertXY01(float r, float t)
+    {
+        float x = r * cosf(t);
+        float y = r * sinf(t);
+        return FPoint((x + kRadiusMax)/(kRadiusMax*2), (y + kRadiusMax)/(kRadiusMax*2));
+    }
+    FPoint convertRT(FPoint p)
+    {
+        float vx = p.x;
+        float vy = p.y;
+        float r = sqrtf(vx*vx + vy*vy) / kRadiusMax;
+        if (r > 1) r = 1;
+        float t = atan2f(vy, vx);
+        if (t < 0) t += kThetaMax;
+        t /= kThetaMax;
+        return FPoint(r, t);
+    }
+    FPoint convertRT01(FPoint p)
+    {
+        return convertRT(FPoint(p.x * (kRadiusMax*2) - kRadiusMax, p.y * (kRadiusMax*2) - kRadiusMax));
+    }
+    void setSpeakerXY01(int i, FPoint p)
+    {
+        p = clampRadius01(p);
+        //		setParameterNotifyingHost(getParamForSpeakerX(i), p.x);
+        //		setParameterNotifyingHost(getParamForSpeakerY(i), p.y);
+        setParameter(getParamForSpeakerX(i), p.x);
+        setParameter(getParamForSpeakerY(i), p.y);
+    }
     
     enum ParameterIds
     {
@@ -355,6 +617,15 @@ private:
     PluginHostType host;
     
     allParameters m_parameterBuffer;
+    
+    //Import from octogris 
+    
+    int mMovementMode;
+    Array<float> mParameters;
+    int mProcessMode;
+    bool mShowGridLines;
+    int mOscLeapSource = 1;
+    bool _isJoystickEnabled;
 
 
     //OLD TRAJECTORIES
