@@ -348,7 +348,7 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                     break;
                 case 49:
                     //printf("Axe Y !!!! \n");
-                    vy = (scaledValue-512)/2;
+                    vy = (scaledValue-(maxValue/2))/2;
                     //Converting the scaled value of the Y axis send by te joystick to the type of coordinates used by setSourceXY
                      printf("Y : %f", scaledValue);
                     selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();

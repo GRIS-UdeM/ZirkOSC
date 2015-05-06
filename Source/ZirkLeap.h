@@ -18,7 +18,7 @@ class ZirkLeap : public ReferenceCountedObject , public Leap::Listener
 {
 public:
     typedef ReferenceCountedObjectPtr<ZirkLeap> Ptr;
-    ZirkLeap::Ptr * CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    static ZirkLeap::Ptr CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
     
     ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
     
@@ -46,7 +46,6 @@ private:
     
 };
 
-ZirkLeap * CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
 void updateLeapComponent(Component * leapComponent);
 
 #endif  // OCTOLEAP_H_INCLUDED

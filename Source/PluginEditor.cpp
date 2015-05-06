@@ -507,6 +507,8 @@ ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
         mController=NULL;
         gIsLeapConnected = 0;
     }
+    this->getMover()->end(kLeap);
+    this->getMover()->end(kOsc);
     //stopTimer();
 }
 
@@ -991,7 +993,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
                 }
                 else
                 {
-                    mleap = CreateLeapComponent(ourProcessor, this);
+                    mleap = ZirkLeap::CreateLeapComponent(ourProcessor, this);
                     if(mleap)
                     {
                         //mStateLeap->setText("Leap connected", dontSendNotification);

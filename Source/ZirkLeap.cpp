@@ -168,7 +168,7 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
 
 
 
-ZirkLeap * CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor)
+ZirkLeap::Ptr ZirkLeap::CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor)
 {
 	return new ZirkLeap(filter, editor);
 }
