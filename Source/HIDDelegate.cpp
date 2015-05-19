@@ -306,7 +306,7 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                     
                     //printf("Axe X !!!! \n");
                     
-                    vx = (scaledValue-(maxValue/2))/2;
+                    vx = ((scaledValue-(maxValue/2))/maxValue/2)*700;
                     //Converting the scaled value of the X axis send by te joystick to the type of coordinates used by setSourceXY
                     printf("X : %f", scaledValue);
                     selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
@@ -348,7 +348,7 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                     break;
                 case 49:
                     //printf("Axe Y !!!! \n");
-                    vy = (scaledValue-(maxValue/2))/2;
+                    vy = ((scaledValue-(maxValue/2))/maxValue/2)*700;
                     //Converting the scaled value of the Y axis send by te joystick to the type of coordinates used by setSourceXY
                      printf("Y : %f", scaledValue);
                     selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
@@ -435,7 +435,7 @@ bool HIDDelegate::getButtonPressedTab(u_int32_t index)
     return buttonPressedTab[index];
 }
 
-HIDDelegate * HIDDelegate::CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor)
+HIDDelegate::Ptr HIDDelegate::CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor)
 {
     return new HIDDelegate(filter, editor);
 }

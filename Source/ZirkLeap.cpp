@@ -86,7 +86,7 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
                             Leap::Vector delta = pos- mLastPosition;
                             //std::cout << "dx: " << delta.x << " dy: " << delta.y << " dz: " << delta.z << std::endl;
                             
-                            float scale = 2.5;
+                            float scale = 3;
                             if (pos.z > zPlane1)
                             {
                                 float s = 1 - (pos.z - zPlane1) / (zPlane2 - zPlane1);

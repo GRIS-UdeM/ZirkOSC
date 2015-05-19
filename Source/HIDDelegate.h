@@ -21,7 +21,7 @@ public:
     virtual ~HIDDelegate() {};
     HIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
     OSStatus Initialize_HID(void *inContext);
-    static HIDDelegate * CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    static HIDDelegate::Ptr CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
     
     static void Handle_IOHIDDeviceInputValueCallback(void * inContext,IOReturn inResult,void * inSender, IOHIDValueRef   inIOHIDValueRef);
     static void Handle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
