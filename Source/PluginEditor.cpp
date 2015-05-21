@@ -404,7 +404,10 @@ _MovementConstraintComboBox("MovementConstraint")
 
     this->setFocusContainer(true);
     
-    startTimer (100);
+    int timerDelay = 1000 / 20; // 20 fps
+    
+    //startTimer (100);
+    startTimer (timerDelay);
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
