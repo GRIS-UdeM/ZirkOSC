@@ -28,7 +28,6 @@
 #include "modules/juce_gui_extra/juce_gui_extra.h"
 #include "modules/juce_opengl/juce_opengl.h"
 #include "modules/juce_video/juce_video.h"
-#include "BinaryData.h"
 
 #if ! DONT_SET_USING_JUCE_NAMESPACE
  // If your code uses a lot of JUCE classes, then this will obviously save you
@@ -40,8 +39,8 @@
 namespace ProjectInfo
 {
     const char* const  projectName    = "ZirkOSC2";
-    const char* const  versionString  = "2.1.2";
-    const int          versionNumber  = 0x20102;
+    const char* const  versionString  = "2.1.1";
+    const int          versionNumber  = 0x20101;
 }
 #endif
 

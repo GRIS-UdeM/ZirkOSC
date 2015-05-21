@@ -44,9 +44,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "ZirkConstants.h"
-#include "HIDDelegate.h"
-#include "HID_Utilities_External.h"
-#include "ZirkLeap.h"
+#include "Trajectories.h"
 #include <cstdlib>
 #include <string>
 #include <string.h>
@@ -214,51 +212,7 @@ public:
     
 };
 
-class InterfaceTab : public Component{
-    
-    ToggleButton* m_pEnableLeap;
-    
-    ToggleButton* m_pEnableJoystick;
-    
-    Label* m_pLeapState;
-    
-    Label* m_pJoystickState;
-    
-    ComboBox* m_pLeapSourceCombo;
-    
-    OwnedArray<Component> components;
-    
-    template <typename ComponentType> ComponentType* addToList (ComponentType* newComp){
-        components.add (newComp);
-        addAndMakeVisible (newComp);
-        return newComp;
-    }
-    
-public:
-    InterfaceTab(){
-        m_pEnableLeap = addToList(new ToggleButton());
-        
-        m_pEnableJoystick = addToList(new ToggleButton());
-        
-        m_pLeapState = addToList(new Label());
-        
-        m_pJoystickState = addToList(new Label());
-        
-        m_pLeapSourceCombo = addToList(new ComboBox());
-        
-    }
-    
-    ToggleButton* getLeapButton() {return m_pEnableLeap;}
-    
-    ToggleButton* getJoystickButton() {return m_pEnableJoystick;};
-    
-    Label* getLeapState(){return m_pLeapState;};
-    
-    Label* getJoystickState(){return m_pJoystickState;};
-    
-    ComboBox* getLeapSourceComboBox(){return m_pLeapSourceCombo;};
-    
-};
+
 
 
 /*!
@@ -283,8 +237,7 @@ _NbrSourceTextEditor("NbrSource"),
 _IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE"),
 _IpadIncomingOscPortTextEditor("OSCIpadIncoTE"),
 _IpadIpAddressTextEditor("ipaddress"),
-_MovementConstraintComboBox("MovementConstraint"),
-mMover(ownerFilter)
+_MovementConstraintComboBox("MovementConstraint")
 {
 
     ourProcessor = getProcessor();
@@ -347,10 +300,8 @@ mMover(ownerFilter)
     //---------- SETTING UP TABS ----------
     m_oSlidersTab = new SlidersTab();
     m_oTrajectoryTab = new TrajectoryTab();
-    m_oInterfaceTab = new InterfaceTab();
     _TabComponent.addTab("Sliders", Colours::lightgrey, m_oSlidersTab, true);
     _TabComponent.addTab("Trajectories", Colours::lightgrey, m_oTrajectoryTab, true);
-    _TabComponent.addTab("Interfaces", Colours::lightgrey, m_oInterfaceTab, true);
 //    _TabComponent.addTab("Properties", Colours::lightgrey, &m_oPropertyPanel, true);
     addAndMakeVisible(_TabComponent);
     
@@ -428,39 +379,6 @@ mMover(ownerFilter)
     //PROGRESS BAR
     mTrProgressBar = m_oTrajectoryTab->getProgressBar();
     mTrProgressBar->setVisible(false);
-    
-    //---------- INTERFACES ----------
-    //JOYSTICK INFOS LABEL
-    m_pLBJoystickState = m_oInterfaceTab->getJoystickState();
-    
-    //JOYSTICK TOGGLE BUTTON
-    m_pTBEnableJoystick = m_oInterfaceTab->getJoystickButton();
-    m_pTBEnableJoystick->setButtonText("Enable Joystick");
-    m_pTBEnableJoystick->addListener(this);
-    m_pTBEnableJoystick->setToggleState(false,dontSendNotification);
-    mButtonBeingPressed = -1;
-    
-    
-    //LEAP MOTION TOGGLE BUTTON
-    m_pTBEnableLeap = m_oInterfaceTab->getLeapButton();
-    m_pTBEnableLeap->setButtonText("Enable Leap");
-    m_pTBEnableLeap->addListener(this);
-    
-    //LEAP MOTION INFOS LABEL
-    m_pLBLeapState = m_oInterfaceTab->getLeapState();
-    
-    //LEAP MOTION SOURCE COMBOBOX
-    m_pCBLeapSource = m_oInterfaceTab->getLeapSourceComboBox();
-    
-    int firstSource =_FirstSourceIdTextEditor.getText().getIntValue();
-    int j=1;
-    for(int i = firstSource; i<ourProcessor->getNbrSources()+firstSource; i++)
-    {
-        m_pCBLeapSource->addItem((String)i, j);
-        j++;
-    }
-    m_pCBLeapSource->setSelectedId(ourProcessor->getOscLeapSource());
-    m_pCBLeapSource->addListener(this);
 
     //---------- RESIZABLE CORNER ----------
     // add the triangular resizer component for the bottom-right of the UI
@@ -486,27 +404,13 @@ mMover(ownerFilter)
 
     this->setFocusContainer(true);
     
-    startTimer (100);
+    int timerDelay = 1000 / 20; // 20 fps
+    
+    //startTimer (100);
+    startTimer (timerDelay);
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
-    if(gIOHIDManagerRef)
-    {
-        IOHIDManagerUnscheduleFromRunLoop(gIOHIDManagerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-        IOHIDManagerRegisterInputValueCallback(gIOHIDManagerRef, NULL,this);
-        IOHIDManagerClose(gIOHIDManagerRef, kIOHIDOptionsTypeNone);
-        gIOHIDManagerRef = NULL;
-        gDeviceCFArrayRef = NULL;
-        gElementCFArrayRef = NULL;
-    }
-    mHIDDel = NULL;
-    if(mController)
-    {
-        mController->enableGesture(Leap::Gesture::TYPE_INVALID);
-        mController->removeListener(*mleap);
-        mController=NULL;
-        gIsLeapConnected = 0;
-    }
     //stopTimer();
 }
 
@@ -608,14 +512,6 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
 
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
-    
-    //------------ INTERFACES ------------
-    m_pTBEnableLeap                     ->setBounds(15, 15, 100, 25);
-    m_pCBLeapSource                     ->setBounds(15, 15+25, 100, 25);
-    m_pTBEnableJoystick                     ->setBounds(15, 15+50, 100, 25);
-    
-    m_pLBLeapState->setBounds(15+100, 15, 200, 25);
-    m_pLBJoystickState->setBounds(15+100, 15+50, 200,25 );
 
 }
 
@@ -971,118 +867,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             mTrProgressBar->setVisible(true);
         }
         
-    }
-    else if(button == m_pTBEnableLeap)
-    {
-        bool state = m_pTBEnableLeap->getToggleState();
-        //mFilter->setIsLeapEnabled(state);
-        
-        if (state)
-        {
-            
-            
-            if (!gIsLeapConnected)
-            {
-                m_pLBLeapState->setText("Leap not connected", dontSendNotification);
-                mController = new Leap::Controller();
-                if(!mController)
-                {
-                    printf("Could not create leap controler");
-                }
-                else
-                {
-                    mleap = CreateLeapComponent(ourProcessor, this);
-                    if(mleap)
-                    {
-                        //mStateLeap->setText("Leap connected", dontSendNotification);
-                        gIsLeapConnected = 1;
-                        mController->addListener(*mleap);
-                    }
-                    else
-                    {
-                        m_pLBLeapState->setText("Leap not connected", dontSendNotification);
-                    }
-                }
-                
-            }
-            else
-            {
-                //mFilter->setIsLeapEnabled(false);
-                m_pLBLeapState->setText("Leap option used by another ZirkOSC", dontSendNotification);
-                m_pTBEnableLeap->setToggleState(false, dontSendNotification);
-                
-            }
-        }
-        else
-        {
-            if(gIsLeapConnected)
-            {
-                mController->enableGesture(Leap::Gesture::TYPE_INVALID);
-                mController->removeListener(*mleap);
-                mController = NULL;
-                gIsLeapConnected = 0;
-                m_pLBLeapState->setText("", dontSendNotification);
-            }
-        }
-    }
-    else if(button == m_pTBEnableJoystick)
-    {
-        bool state = m_pTBEnableJoystick->getToggleState();
-        mButtonBeingPressed = -1;
-        ourProcessor->setIsJoystickEnabled(state);
-        if (state)
-        {
-            
-            if (!gIOHIDManagerRef)
-            {
-                m_pLBJoystickState->setText("Joystick not connected", dontSendNotification);
-                gIOHIDManagerRef = IOHIDManagerCreate(CFAllocatorGetDefault(),kIOHIDOptionsTypeNone);
-                if(!gIOHIDManagerRef)
-                {
-                    printf("Could not create IOHIDManager");
-                }
-                else
-                {
-                    mHIDDel = HIDDelegate::CreateHIDDelegate(ourProcessor, this);
-                    //setHIDDelegate(HIDDelegate::CreateHIDDelegate(mFilter, this));
-                    mHIDDel->Initialize_HID(this);
-                    if(mHIDDel->getDeviceSetRef())
-                    {
-                        m_pLBJoystickState->setText("Joystick connected", dontSendNotification);
-                    }
-                    else
-                    {
-                        m_pLBJoystickState->setText("Joystick not connected", dontSendNotification);
-                        m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
-                        gIOHIDManagerRef = NULL;
-                    }
-                    
-                }
-                
-            }
-            else
-            {
-                ourProcessor->setIsJoystickEnabled(false);
-                m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
-                m_pLBJoystickState->setText("Joystick connected to another ZirkOSC", dontSendNotification);
-            }
-        }
-        else
-        {
-            if(gIOHIDManagerRef)
-            {
-                IOHIDManagerUnscheduleFromRunLoop(gIOHIDManagerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-                IOHIDManagerRegisterInputValueCallback(gIOHIDManagerRef, NULL,this);
-                IOHIDManagerClose(gIOHIDManagerRef, kIOHIDOptionsTypeNone);
-                gIOHIDManagerRef = NULL;
-                gDeviceCFArrayRef = NULL;
-                gElementCFArrayRef = NULL;
-                mHIDDel = NULL;
-                m_pLBJoystickState->setText("", dontSendNotification);
-                
-            }
-            
-        }
     }
 }
 
@@ -1579,17 +1363,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
             
             //need to give those new sources IDs, so get first source ID
             int sourceId = ourProcessor->getSources()[0].getChannel();
-            //updating leapSource Combobox
-            m_pCBLeapSource->clear();
-            int firstSource =_FirstSourceIdTextEditor.getText().getIntValue();
-            int j = 1;
-            for(int i = firstSource; i<intValue+firstSource; i++)
-            {
-                m_pCBLeapSource->addItem((String)i, j);
-                j++;
-            }
-            m_pCBLeapSource->setSelectedId(ourProcessor->getSelectedSource()+1);
-            m_pCBLeapSource->addListener(this);
+            
             //then set all subsequent source IDs to subsequent numbers
             for (int iCurSource = 1; iCurSource < 8; ++iCurSource){
                 ourProcessor->getSources()[iCurSource].setChannel(++sourceId);
@@ -1613,18 +1387,6 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         if (intValue > 999 - 8 || intValue < -99 ){
             return;
         }
-        //updating leapSource Combobox
-        m_pCBLeapSource->clear();
-        int nbSource =ourProcessor->getNbrSources();
-        int j =1;
-        for(int i = intValue; i<intValue+nbSource; i++)
-        {
-            m_pCBLeapSource->addItem((String)i, j);
-            j++;
-        }
-        ourProcessor->setSelectedSource(0);
-        m_pCBLeapSource->setSelectedId(1);
-        m_pCBLeapSource->addListener(this);
         
         int newChannel = intValue;
     
@@ -1723,11 +1485,6 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
             ourProcessor->setIsSyncWTempo(false);
         }
     }
-    else if (comboBoxThatHasChanged == m_pCBLeapSource)
-    {
-        ourProcessor->setSelectedSource(comboBoxThatHasChanged->getSelectedId()-1);
-        ourProcessor->setOscLeapSource(comboBoxThatHasChanged->getSelectedId());
-    }
 
 }
 
@@ -1747,21 +1504,6 @@ void ZirkOscjuceAudioProcessorEditor::setDraggableSource(bool drag){
 bool ZirkOscjuceAudioProcessorEditor::isDraggableSource(){
     return _isSourceBeingDragged;
 }
-
-int ZirkOscjuceAudioProcessorEditor::getNbSources()
-{
-    return getProcessor()->getNbrSources();
-}
-void ZirkOscjuceAudioProcessorEditor::uncheckJoystickButton()
-{
-    m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
-    buttonClicked(m_pTBEnableJoystick);
-}
-int ZirkOscjuceAudioProcessorEditor::getCBSelectedSource()
-{
-    return m_pCBLeapSource->getSelectedId();
-}
-
 
 
 

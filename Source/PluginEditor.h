@@ -26,8 +26,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "SourceMover.h"
-#include "Leap.h"
 
 //==============================================================================
 /**
@@ -36,9 +34,6 @@
 class MiniProgressBar;
 class SlidersTab;
 class TrajectoryTab;
-class InterfaceTab;
-class HIDDelegate;
-class ZirkLeap;
 
 
 class ZirkOscjuceAudioProcessor;
@@ -94,18 +89,6 @@ public:
     
     //! Function to set the combination of Slider and Label.
     static void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);
-    
-    //Import from octogris for Leap and Joystick
-    
-    void setHIDDelegate(HIDDelegate * hidDel){mHIDDel = hidDel;};
-    Label * getmStateLeap() {return m_pLBLeapState;}
-    SourceMover * getMover() { return &mMover; }
-    int getOscLeapSource() { return getProcessor()->getOscLeapSource(); }
-    void fieldChanged() { mFieldNeedRepaint = true; }
-    HIDDelegate * getHIDDel() {return mHIDDel;};
-    int getNbSources();
-    void uncheckJoystickButton();
-    int getCBSelectedSource();
 
 
 private:
@@ -260,32 +243,6 @@ private:
     bool _isSourceBeingDragged = false;
     //! Whether the angles between the sources need to all be set equal
     bool _isNeedToSetFixedAngles=false;
-    
-    
-    
-    //Import from Octogris
-    //-------------INTERFACES------------------
-    
-    //! Toggle Button to de/activate leap motion usage
-    ToggleButton* m_pTBEnableLeap;
-    Label* m_pLBLeapState;
-    ComboBox* m_pCBLeapSource;
-    
-    
-    //! Toggle Button to de/activate joystick usage
-    ToggleButton* m_pTBEnableJoystick;
-    
-    
-    
-    Label* m_pLBJoystickState;
-    
-    
-    
-    SourceMover mMover;
-    bool mFieldNeedRepaint;
-    //joystick
-    int mButtonBeingPressed;
-    HIDDelegate *mHIDDel;
 
 
 
@@ -334,12 +291,6 @@ private:
     SlidersTab* m_oSlidersTab;
     
     TrajectoryTab* m_oTrajectoryTab;
-    
-    InterfaceTab* m_oInterfaceTab;
-    
-    ScopedPointer<Leap::Controller> mController;
-    ZirkLeap *mleap;
-
     
     enum
     {
