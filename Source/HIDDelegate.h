@@ -1,10 +1,18 @@
-//
-//  HIDDelegate.h
-//  Octogris2
-//
-//  Created by GRIS on 2015-03-10.
-//
-//
+/*!
+ * ==============================================================================
+ *
+ *  HIDDelegate.h
+ *  Created: 12 March 2015 1:23:01pm
+ *  Author:  Antoine L.
+ *  Description :
+ *  HIDDelegate allows you to create a object handling the HIDManager through the help of Reference
+ *  Counted Object which deletes it in a safe and proper way.
+ *  First create the IOHIDManager then the HIDDelegate that you initialize with the Initialize_HID method.
+ *  HIDDelegate constructor needs two arguments which are the addresses of
+ *  the main components of the plugin the Audio Processor and the Audio Processor
+ *  Editor.
+ * ==============================================================================
+ */
 
 #ifndef __Octogris2__HIDDelegate__
 #define __Octogris2__HIDDelegate__
@@ -17,11 +25,10 @@ class HIDDelegate : public ReferenceCountedObject
 {
 public:
     typedef ReferenceCountedObjectPtr<HIDDelegate> Ptr;
-    
-    virtual ~HIDDelegate() {};
+    static HIDDelegate::Ptr CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
     HIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
     OSStatus Initialize_HID(void *inContext);
-    static HIDDelegate::Ptr CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    
     
     static void Handle_IOHIDDeviceInputValueCallback(void * inContext,IOReturn inResult,void * inSender, IOHIDValueRef   inIOHIDValueRef);
     static void Handle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
@@ -32,24 +39,21 @@ public:
     void setButtonPressedTab(u_int32_t index, bool state);
     bool getButtonPressedTab(u_int32_t index);
     int getNbButton(){return nbButton;};
-    IOHIDDeviceRef getDeviceRef(){return gDeviceRef;}
-    CFSetRef getDeviceSetRef(){return gDeviceSetRef;}
+    IOHIDDeviceRef getDeviceRef(){return deviceRef;}
+    CFSetRef getDeviceSetRef(){return deviceSetRef;}
+    virtual ~HIDDelegate() {};
 
 private:
     ZirkOscjuceAudioProcessor *mFilter;
     ZirkOscjuceAudioProcessorEditor *mEditor;
     int nbButton;
     bool* buttonPressedTab;
-    float vx, vy, equRes  ;
+    float vx, vy;
     
-    CFSetRef gDeviceSetRef;
-    IOHIDDeviceRef gDeviceRef;
+    CFSetRef deviceSetRef;
+    IOHIDDeviceRef deviceRef;
    
-    
-    
-    
-    
-    //JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HIDDelegate)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HIDDelegate)
 };
 
 

@@ -97,9 +97,7 @@ public:
     
     //Import from octogris for Leap and Joystick
     
-    void setHIDDelegate(HIDDelegate * hidDel){mHIDDel = hidDel;};
     Label * getmStateLeap() {return m_pLBLeapState;}
-    SourceMover * getMover() { return &mMover; }
     int getOscLeapSource() { return getProcessor()->getOscLeapSource(); }
     void fieldChanged() { mFieldNeedRepaint = true; }
     HIDDelegate * getHIDDel() {return mHIDDel;};
@@ -281,11 +279,10 @@ private:
     
     
     
-    SourceMover mMover;
     bool mFieldNeedRepaint;
     //joystick
     int mButtonBeingPressed;
-    HIDDelegate *mHIDDel;
+    ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
 
 
 

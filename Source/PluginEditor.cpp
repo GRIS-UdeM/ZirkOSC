@@ -20,6 +20,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==============================================================================
  
+ Description:
+ Creation and modelisation of the interface with the juice componements, adding listener and handling event linked to the interface.
+ 
  Notes: 
  - all parameter preceeded by HR are Human Readable
  - parameter without HR are in percent
@@ -283,8 +286,7 @@ _NbrSourceTextEditor("NbrSource"),
 _IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE"),
 _IpadIncomingOscPortTextEditor("OSCIpadIncoTE"),
 _IpadIpAddressTextEditor("ipaddress"),
-_MovementConstraintComboBox("MovementConstraint"),
-mMover(ownerFilter)
+_MovementConstraintComboBox("MovementConstraint")
 {
 
     ourProcessor = getProcessor();
@@ -507,9 +509,6 @@ ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
         mController=NULL;
         gIsLeapConnected = 0;
     }
-    this->getMover()->end(kLeap);
-    this->getMover()->end(kOsc);
-    //stopTimer();
 }
 
 void ZirkOscjuceAudioProcessorEditor::updateTrajectoryComboboxes(){
@@ -977,12 +976,8 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
     else if(button == m_pTBEnableLeap)
     {
         bool state = m_pTBEnableLeap->getToggleState();
-        //mFilter->setIsLeapEnabled(state);
-        
         if (state)
         {
-            
-            
             if (!gIsLeapConnected)
             {
                 m_pLBLeapState->setText("Leap not connected", dontSendNotification);
@@ -996,7 +991,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
                     mleap = ZirkLeap::CreateLeapComponent(ourProcessor, this);
                     if(mleap)
                     {
-                        //mStateLeap->setText("Leap connected", dontSendNotification);
                         gIsLeapConnected = 1;
                         mController->addListener(*mleap);
                     }
@@ -1009,10 +1003,8 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             }
             else
             {
-                //mFilter->setIsLeapEnabled(false);
                 m_pLBLeapState->setText("Leap option used by another ZirkOSC", dontSendNotification);
-                m_pTBEnableLeap->setToggleState(false, dontSendNotification);
-                
+                m_pTBEnableLeap->setToggleState(false, dontSendNotification); 
             }
         }
         else
@@ -1046,7 +1038,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
                 else
                 {
                     mHIDDel = HIDDelegate::CreateHIDDelegate(ourProcessor, this);
-                    //setHIDDelegate(HIDDelegate::CreateHIDDelegate(mFilter, this));
                     mHIDDel->Initialize_HID(this);
                     if(mHIDDel->getDeviceSetRef())
                     {

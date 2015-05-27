@@ -300,13 +300,13 @@ void FieldComponent::mouseDown(const MouseEvent &event)
 				mSavedValue = mFilter->getSourceRT(mSelectedItem).x;
 			mLastKeys = event.mods;
 			
-			mMover->begin(i, kField);
+			//mMover->begin(i, kField);
 			
 			float vx = (ml.x - kSourceRadius) / (padSize - kSourceDiameter);
 			float vy = 1 - (ml.y - kSourceRadius) / (padSize - kSourceDiameter);
 			if (vx < 0) vx = 0; else if (vx > 1) vx = 1;
 			if (vy < 0) vy = 0; else if (vy > 1) vy = 1;
-			mMover->move(FPoint(vx, vy), kField);
+			//mMover->move(FPoint(vx, vy), kField);
 			return;
 		}
 	}
@@ -378,7 +378,7 @@ void FieldComponent::mouseDrag(const MouseEvent &event)
 			}
 			mLastKeys = event.mods;
            
-			mMover->move(FPoint(vx, vy), kField);
+			//mMover->move(FPoint(vx, vy), kField);
 			break;
 		}
 			
@@ -406,7 +406,7 @@ void FieldComponent::mouseUp(const MouseEvent &event)
 //						mFilter->getParamForSourceX(mSelectedItem),
 //						mFilter->getParamForSourceY(mSelectedItem),
 //						mSelectedItem);
-			mMover->end(kField);
+			//mMover->end(kField);
 			break;
 			
 		case kSelectedSpeaker:

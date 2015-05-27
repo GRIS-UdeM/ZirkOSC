@@ -104,11 +104,6 @@ extern IOHIDManagerRef gIOHIDManagerRef;
 extern int gIsLeapConnected;
 extern CFMutableArrayRef gDeviceCFArrayRef;
 extern CFArrayRef gElementCFArrayRef;
-
-
-//extern CFSetRef gDeviceSetRef;
-//extern IOHIDDeviceRef gDeviceRef;
-
 // *************************************************************************
 //
 // HIDBuildMultiDeviceList(inUsagePages, inUsages, inNumDeviceTypes)

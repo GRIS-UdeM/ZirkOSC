@@ -1,9 +1,11 @@
-/*
+/*!
   ==============================================================================
 
     SourceMover.h
     Created: 8 Aug 2014 1:04:53pm
     Author:  makira
+    Description:
+    The SourceMover class allow you to easily and safely change to position of the source in the cirular space given by the dome.
 
   ==============================================================================
 */

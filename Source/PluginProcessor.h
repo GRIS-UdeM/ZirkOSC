@@ -38,22 +38,6 @@ typedef Point<float> FPoint;
 
 int IndexedAngleCompare(const void *a, const void *b);
 
-static const float kSmoothMin = 1;
-static const float kSmoothMax = 200;
-static const float kSmoothDefault = 10;
-
-static const float kVolumeNearMin = 0;
-static const float kVolumeNearMax = 30;
-static const float kVolumeNearDefault = 0;
-
-static const float kVolumeMidMin = -30;
-static const float kVolumeMidMax = 10;
-static const float kVolumeMidDefault = -6;
-
-static const float kVolumeFarMin = -120;
-static const float kVolumeFarMax = 0;
-static const float kVolumeFarDefault = -40;
-
 static const float kRadiusMax = 2;
 static const float kThetaMax = M_PI * 2;
 static const float kThetaLockRadius = 0.05;
@@ -61,23 +45,7 @@ static const float kThetaLockRampRadius = 0.025;
 static const float kSourceMinDistance = 2.5 * 0.5;
 static const float kSourceMaxDistance = 20 * 0.5;
 
-static const float kMaxDistance = 2000;
 
-static const float kFilterNearMin = kMaxDistance;
-static const float kFilterNearMax = 0;
-static const float kFilterNearDefault = 0;
-
-static const float kFilterMidMin = kMaxDistance;
-static const float kFilterMidMax = 0;
-static const float kFilterMidDefault = 0;
-
-static const float kFilterFarMin = kMaxDistance;
-static const float kFilterFarMax = 0;
-static const float kFilterFarDefault = kMaxDistance;
-
-static const float kMaxSpanVolumeMin = 0;
-static const float kMaxSpanVolumeMax = 20;
-static const float kMaxSpanVolumeDefault = 0;
 
 static inline float normalize(float min, float max, float value)
 {

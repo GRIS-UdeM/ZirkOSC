@@ -36,7 +36,7 @@ void SourceMover::updateNumberOfSources(){
     }
 }
 
-
+/** Begin is use to make sure the mouvements done by a source are complete and well ended by the end method. To do so it prepares everything that could be modified. */
 
 void SourceMover::begin(int s, MoverType mt)
 {
@@ -106,6 +106,8 @@ void SourceMover::begin(int s, MoverType mt)
 	}
 	
 }
+
+/** Move is the actual method that will change the data in order to create the move, it's also handling all the modification implied by the selected movement mode. */
 
 void SourceMover::move(FPoint p, MoverType mt)
 {
@@ -274,6 +276,7 @@ void SourceMover::move(FPoint p, MoverType mt)
 	}
 }
 
+/** End is the method that makes sure that everything is ok the way it has been modified. */
 void SourceMover::end(MoverType mt)
 {
 	if (mMover != mt) return;
