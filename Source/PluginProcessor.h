@@ -31,6 +31,82 @@
 #include "SoundSource.h"
 #include "Trajectories.h"
 
+typedef Point<float> FPoint;
+
+
+//import from octogris
+
+int IndexedAngleCompare(const void *a, const void *b);
+
+static const float kRadiusMax = 2;
+static const float kThetaMax = M_PI * 2;
+static const float kThetaLockRadius = 0.05;
+static const float kThetaLockRampRadius = 0.025;
+static const float kSourceMinDistance = 2.5 * 0.5;
+static const float kSourceMaxDistance = 20 * 0.5;
+
+
+
+static inline float normalize(float min, float max, float value)
+{
+    return (value - min) / (max - min);
+}
+
+static inline float denormalize(float min, float max, float value)
+{
+    return min + value * (max - min);
+}
+
+
+
+
+
+enum
+{
+    kFreeVolumeMode = 0,
+    kPanVolumeMode = 1,
+    kPanSpanMode = 2,
+    kNumberOfModes = 3
+};
+enum {
+    kSourceX = 0,
+    kSourceY,
+    kSourceD,
+    kSourceUnused,
+    kParamsPerSource
+};
+// x, y, attenuation, mute
+enum {
+    kSpeakerX = 0,
+    kSpeakerY,
+    kSpeakerA,
+    kSpeakerM,
+    kSpeakerUnused,
+    kParamsPerSpeakers };
+
+#define kConstantOffset (JucePlugin_MaxNumInputChannels * kParamsPerSource + JucePlugin_MaxNumOutputChannels * kParamsPerSpeakers)
+
+enum
+{
+    kLinkMovement =			0 + kConstantOffset,
+    kSmooth =				1 + kConstantOffset,
+    kVolumeNear =			2 + kConstantOffset,
+    kVolumeMid =			3 + kConstantOffset,
+    kVolumeFar =			4 + kConstantOffset,
+    kFilterNear =			5 + kConstantOffset,
+    kFilterMid =			6 + kConstantOffset,
+    kFilterFar =			7 + kConstantOffset,
+    kMaxSpanVolume =		8 + kConstantOffset,
+    kConstantParameters =	9
+};
+#define kNumberOfParameters (kConstantParameters + kConstantOffset)
+
+typedef struct
+{
+    int i;
+    float a;
+} IndexedAngle;
+
 
 
 //==============================================================================
@@ -296,6 +372,9 @@ public:
     
     void askForGuiRefresh(){_RefreshGui=true;};
     
+    bool getIsJoystickEnabled() const { return _isJoystickEnabled; }
+    void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
+    
 private:
     
 
@@ -355,6 +434,15 @@ private:
     PluginHostType host;
     
     allParameters m_parameterBuffer;
+    
+    //Import from octogris
+    
+    int mMovementMode;
+    Array<float> mParameters;
+    int mProcessMode;
+    bool mShowGridLines;
+    int mOscLeapSource = 1;
+    bool _isJoystickEnabled;
 
 
     //OLD TRAJECTORIES
@@ -377,6 +465,8 @@ private:
     Trajectory::Ptr mTrajectory;
     
     int64 mLastTimeInSamples;
+    
+    
 
 };
 

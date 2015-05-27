@@ -26,6 +26,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
+#include "Leap.h"
 
 //==============================================================================
 /**
@@ -34,6 +35,9 @@
 class MiniProgressBar;
 class SlidersTab;
 class TrajectoryTab;
+class InterfaceTab;
+class HIDDelegate;
+class ZirkLeap;
 
 
 class ZirkOscjuceAudioProcessor;
@@ -89,6 +93,16 @@ public:
     
     //! Function to set the combination of Slider and Label.
     static void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);
+    
+    //Import from octogris for Leap and Joystick
+    
+    Label * getmStateLeap() {return m_pLBLeapState;}
+    //int getOscLeapSource() { return getProcessor()->getOscLeapSource(); }
+    void fieldChanged() { mFieldNeedRepaint = true; }
+    HIDDelegate * getHIDDel() {return mHIDDel;};
+    void uncheckJoystickButton();
+    int getNbSources();
+    int getCBSelectedSource();
 
 
 private:
@@ -243,6 +257,31 @@ private:
     bool _isSourceBeingDragged = false;
     //! Whether the angles between the sources need to all be set equal
     bool _isNeedToSetFixedAngles=false;
+    
+    
+    
+    //Import from Octogris
+    //-------------INTERFACES------------------
+    
+    //! Toggle Button to de/activate leap motion usage
+    ToggleButton* m_pTBEnableLeap;
+    Label* m_pLBLeapState;
+    ComboBox* m_pCBLeapSource;
+    
+    
+    //! Toggle Button to de/activate joystick usage
+    ToggleButton* m_pTBEnableJoystick;
+    
+    
+    
+    Label* m_pLBJoystickState;
+    
+    
+    
+    bool mFieldNeedRepaint;
+    //joystick
+    int mButtonBeingPressed;
+    ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
 
 
 
@@ -291,6 +330,12 @@ private:
     SlidersTab* m_oSlidersTab;
     
     TrajectoryTab* m_oTrajectoryTab;
+    
+    InterfaceTab* m_oInterfaceTab;
+    
+    ScopedPointer<Leap::Controller> mController;
+    ReferenceCountedObjectPtr<ZirkLeap>  mleap;
+
     
     enum
     {

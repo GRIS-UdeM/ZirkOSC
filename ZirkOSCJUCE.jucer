@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="puQm6u" name="ZirkOSC2" projectType="audioplug" version="2.1.1"
+<JUCERPROJECT id="puQm6u" name="ZirkOSC2" projectType="audioplug" version="2.2.0"
               bundleIdentifier="com.UdeM.ZirkOSC2" buildVST="1" buildAU="1"
               pluginName="ZirkOSC2" pluginDesc="ZirkOSC2" pluginManufacturer="UdeM"
               pluginManufacturerCode="UdeM" pluginCode="Plug" pluginChannelConfigs="{8,2},{1,1}, {1,2}, {1,3}, {1,4}, {1,5}, {1,6}, {1,7}, {1,8}, {2,1}, {2,2}, {2,3}, {2,4}, {2,5}, {2,6}, {2,7}, {2,8}, {3,1}, {3,2}, {3,3}, {3,4},{3,5}, {3,6}, {3,7},{3,8}, {4,1}, {4,2}, {4,3}, {4,4}, {4,5}, {4,6}, {4,7}, {4,8}, {8,8},{6,6},{6,2},{8,2}"
@@ -11,6 +11,10 @@
               jucerVersion="3.1.0" buildVST3="1" buildRTAS="0" buildAAX="0"
               pluginManufacturerEmail="support@yourcompany.com" includeBinaryInAppConfig="1">
   <MAINGROUP id="NlVJUT" name="ZirkOSC2">
+    <GROUP id="{AF8672D5-0456-195A-C664-CD955466754A}" name="HIDManager">
+      <FILE id="bawDNr" name="HID_Utilities_External.h" compile="0" resource="0"
+            file="HIDManager/HID_Utilities_External.h"/>
+    </GROUP>
     <GROUP id="{EB299CA3-4504-DEB8-B478-92E9D7B38D8B}" name="liblo">
       <GROUP id="{A83DD439-110E-03A0-B3BE-499A5438235F}" name="lo">
         <FILE id="M5wKzq" name="lo.h" compile="0" resource="0" file="liblo/lo/lo.h"/>
@@ -43,6 +47,10 @@
     <GROUP id="{01CA06B1-152A-9810-B142-26F40C896DFA}" name="Source">
       <FILE id="lq0e7H" name="SoundSource.cpp" compile="1" resource="0" file="Source/SoundSource.cpp"/>
       <FILE id="vczEJM" name="SoundSource.h" compile="0" resource="0" file="Source/SoundSource.h"/>
+      <FILE id="gdHssZ" name="HIDDelegate.cpp" compile="1" resource="0" file="Source/HIDDelegate.cpp"/>
+      <FILE id="MntUtA" name="HIDDelegate.h" compile="0" resource="0" file="Source/HIDDelegate.h"/>
+      <FILE id="GnSEqZ" name="ZirkLeap.cpp" compile="1" resource="0" file="Source/ZirkLeap.cpp"/>
+      <FILE id="MJ4qMN" name="ZirkLeap.h" compile="0" resource="0" file="Source/ZirkLeap.h"/>
       <FILE id="q4Rqdv" name="Tools.cpp" compile="1" resource="0" file="Source/Tools.cpp"/>
       <FILE id="qfWAnU" name="Tools.h" compile="0" resource="0" file="Source/Tools.h"/>
       <FILE id="U9nJ6a" name="ZirkConstants.h" compile="0" resource="0" file="Source/ZirkConstants.h"/>
@@ -78,13 +86,16 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/Documents/sdks/steinberg/VST3 SDK"
                postbuildCommand="&#10;# This script takes the build product and copies it to the AU, VST, and RTAS folders, depending on &#10;# which plugin types you've built&#10;&#10;original=$CONFIGURATION_BUILD_DIR/$FULL_PRODUCT_NAME&#10;&#10;# this looks inside the binary to detect which platforms are needed.. &#10;copyAU=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'AudioUnit' | wc -l&#96;&#10;copyVST=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'VSTPlugin' | wc -l&#96;&#10;copyRTAS=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'CProcess' | wc -l&#96;&#10;copyAAX=&#96;nm -g &quot;$CONFIGURATION_BUILD_DIR/$EXECUTABLE_PATH&quot; | grep -i 'ACFStartup' | wc -l&#96;&#10;&#10;if [ $copyAU -gt 0 ]; then&#10;  echo &quot;Copying to AudioUnit folder...&quot;&#10;  AU=~/Library/Audio/Plug-Ins/Components/$PRODUCT_NAME.component&#10;  if [ -d &quot;$AU&quot; ]; then &#10;    rm -r &quot;$AU&quot;&#10;  fi&#10;&#10;  cp -r &quot;$original&quot; &quot;$AU&quot;&#10;  sed -i &quot;&quot; -e 's/TDMwPTul/BNDLPTul/g' &quot;$AU/Contents/PkgInfo&quot;&#10;  sed -i &quot;&quot; -e 's/TDMw/BNDL/g' &quot;$AU/Contents/$INFOPLIST_FILE&quot;&#10;fi&#10;&#10;if [ $copyVST -gt 0 ]; then&#10;  echo &quot;Copying to VST folder...&quot;&#10;  VST=~/Library/Audio/Plug-Ins/VST/$PRODUCT_NAME.vst&#10;  if [ -d &quot;$VST&quot; ]; then &#10;    rm -r &quot;$VST&quot;&#10;  fi&#10;&#10;  cp -r &quot;$original&quot; &quot;$VST&quot;&#10;  sed -i &quot;&quot; -e 's/TDMwPTul/BNDLPTul/g' &quot;$VST/Contents/PkgInfo&quot;&#10;  sed -i &quot;&quot; -e 's/TDMw/BNDL/g' &quot;$VST/Contents/$INFOPLIST_FILE&quot;&#10;fi&#10;&#10;if [ $copyRTAS -gt 0 ]; then&#10;  echo &quot;Copying to RTAS folder...&quot;&#10;  RTAS=/Library/Application\ Support/Digidesign/Plug-Ins/$PRODUCT_NAME.dpm&#10;  if [ -d &quot;$RTAS&quot; ]; then&#10;    rm -r &quot;$RTAS&quot;&#10;  fi&#10;&#10;  cp -r &quot;$original&quot; &quot;$RTAS&quot;&#10;fi&#10;&#10;if [ $copyAAX -gt 0 ]; then&#10;  echo &quot;Copying to AAX folder...&quot;&#10;&#10;  if [ -d &quot;/Applications/ProTools_3PDev/Plug-Ins&quot; ]; then&#10;    AAX1=&quot;/Applications/ProTools_3PDev/Plug-Ins/$PRODUCT_NAME.aaxplugin&quot;&#10;&#10;    if [ -d &quot;$AAX1&quot; ]; then&#10;      rm -r &quot;$AAX1&quot;&#10;    fi&#10;&#10;    cp -r &quot;$original&quot; &quot;$AAX1&quot;&#10;  fi&#10;&#10;  if [ -d &quot;/Library/Application Support/Avid/Audio/Plug-Ins&quot; ]; then&#10;    AAX2=&quot;/Library/Application Support/Avid/Audio/Plug-Ins/$PRODUCT_NAME.aaxplugin&quot;&#10;&#10;    if [ -d &quot;$AAX2&quot; ]; then&#10;      rm -r &quot;$AAX2&quot;&#10;    fi&#10;&#10;    cp -r &quot;$original&quot; &quot;$AAX2&quot;&#10;  fi&#10;fi&#10;"
-               aaxFolder="~/SDKs/AAX" vst3Folder="~/Documents/sdks/steinberg/VST3 SDK">
+               aaxFolder="~/SDKs/AAX" vst3Folder="~/Documents/sdks/steinberg/VST3 SDK"
+               externalLibraries="Leap">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" osxSDK="10.9 SDK" osxCompatibility="10.9 SDK" osxArchitecture="Native"
-                       isDebug="1" optimisation="1" targetName="ZirkOSC2"/>
+                       isDebug="1" optimisation="1" targetName="ZirkOSC2" headerPath="~/Documents/sdks/LeapSDK/include"
+                       libraryPath="~/Documents/sdks/LeapSDK/lib"/>
         <CONFIGURATION name="Release" osxSDK="10.9 SDK" osxCompatibility="10.9 SDK"
                        osxArchitecture="64BitUniversal" isDebug="0" optimisation="2"
-                       targetName="ZirkOSC2"/>
+                       targetName="ZirkOSC2" headerPath="~/Documents/sdks/LeapSDK/include"
+                       libraryPath="~/Documents/sdks/LeapSDK/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_video" path="JuceLibraryCode/modules"/>
