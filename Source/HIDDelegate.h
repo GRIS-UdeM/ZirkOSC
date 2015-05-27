@@ -36,7 +36,7 @@ public:
     static void Handle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
     static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef);
     void JoystickUsed(uint32_t usage, float scaledValue, double min, double max);
-    CFMutableDictionaryRef hu_CreateMatchingDictionary(uint32_t inUsagePage, uint32_t inUsage);
+    CFDictionaryRef hu_CreateMatchingDictionary(uint32_t inUsagePage, uint32_t inUsage);
     FPoint getSourcePoint(int i);
     void setButtonPressedTab(u_int32_t index, bool state);
     bool getButtonPressedTab(u_int32_t index);

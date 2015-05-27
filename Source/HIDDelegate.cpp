@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include "../JuceLibraryCode/JuceHeader.h"
 #include "HIDDelegate.h"
 #include "ZirkConstants.h"
 
@@ -134,7 +135,8 @@ void HIDDelegate::Handle_IOHIDDeviceInputValueCallback(void *          inContext
 }
 
 /**hu_CreateMatchingDictionary method creates a matching dictionnary that allow you to only look for one type of HID devices, in our case the joysticks. As this method is also used as a static method in the HID_Utilities there probably is a better way to use it but this is the way it was explained to me on the website I used to create my hid communications. */
-CFMutableDictionaryRef HIDDelegate::hu_CreateMatchingDictionary(uint32_t inUsagePage, uint32_t inUsage) {
+JUCE_COMPILER_WARNING("hu_CreateMatchingDictionary method creates a matching dictionnary that allow you to only look for one type of HID devices, in our case the joysticks. As this method is also used as a static method in the HID_Utilities there probably is a better way to use it but this is the way it was explained to me on the website I used to create my hid communications")
+CFDictionaryRef HIDDelegate::hu_CreateMatchingDictionary(uint32_t inUsagePage, uint32_t inUsage) {
     // create a dictionary to add usage page/usages to
     CFMutableDictionaryRef refHIDMatchDictionary = CFDictionaryCreateMutable(kCFAllocatorDefault,0,&kCFTypeDictionaryKeyCallBacks,&kCFTypeDictionaryValueCallBacks);
     if (refHIDMatchDictionary) {
@@ -191,11 +193,19 @@ OSStatus HIDDelegate::Initialize_HID(void *inContext) {
             CFMutableArrayRef matchingCFArrayRef = CFArrayCreateMutable(kCFAllocatorDefault,0, &kCFTypeArrayCallBacks);
             if(matchingCFArrayRef)
             {
-                CFDictionaryRef matchingCFDictRef = hu_CreateMatchingDictionary(kHIDPage_GenericDesktop,kHIDUsage_GD_Joystick); //we set the matching dictionnary only with joysticks
-                if(matchingCFDictRef)
+                CFDictionaryRef matchingCFDictJoystickRef = hu_CreateMatchingDictionary(kHIDPage_GenericDesktop,kHIDUsage_GD_Joystick); //we set the matching dictionnary only with joysticks
+                CFDictionaryRef matchingCFDictGamePadRef = hu_CreateMatchingDictionary(kHIDPage_GenericDesktop,kHIDUsage_GD_GamePad); //we set the matching dictionnary only with joysticks
+                CFArrayAppendValue( matchingCFArrayRef, matchingCFDictJoystickRef );
+                CFArrayAppendValue( matchingCFArrayRef, matchingCFDictGamePadRef );
+                if(matchingCFArrayRef)
                 {
+                    IOHIDManagerSetDeviceMatchingMultiple( gIOHIDManagerRef, matchingCFArrayRef );
+                    
+                    
                     // setup matching dictionary
-                    IOHIDManagerSetDeviceMatching(gIOHIDManagerRef, matchingCFDictRef);
+                    //IOHIDManagerSetDeviceMatching(gIOHIDManagerRef, matchingCFDictRef);
+                    
+                    
                 } else {
                     fprintf(stderr, "%s: hu_CreateDeviceMatchingDictionary failed.", __PRETTY_FUNCTION__);
                     break;
@@ -288,6 +298,7 @@ Oops:;
     We give JoystickUsed the usage to know which axis is being used, the scaledValue to know how much the joystick is bent. MaxValue is used to know the resolution of the axis. */
 void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValue, double maxValue)
 {
+    int z;
     for(int i =0; i< getNbButton(); i++)    //Sweep accross all the joystick button to check which is being pressed
     {
         if(this->getButtonPressedTab(i))
@@ -299,12 +310,12 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
             switch (usage) {
                 case 48:
                     
-                    
-                    vx = ((scaledValue-(maxValue/2))/maxValue/2)*700;
+                    vx = ((scaledValue-(maxValue/2))/maxValue/2)*ZirkOscjuceAudioProcessor::s_iDomeRadius*4;
                     //Normalizing the coordonate from every joystick as float between -1 and 1, multiplied by the size of the panel to have the new x coordinate of the new point.
                     //printf("X : %f", scaledValue);
                     selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
                     newPoint = mFilter->getSources()[i].getPositionXY();
+                    //if(vx>)
                     newPoint.setX(vx);
                     newPoint.setY(vy);  //setting the y coord of the point with the last known value
                     if(selectedConstraint == Independant)
@@ -337,7 +348,7 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                 
                     break;
                 case 49:
-                    vy = ((scaledValue-(maxValue/2))/maxValue/2)*700;
+                    vy = ((scaledValue-(maxValue/2))/maxValue/2)*ZirkOscjuceAudioProcessor::s_iDomeRadius*4;
                     //Normalizing the coordonate from every joystick as float between -1 and 1, multiplied by the size of the panel to have the new y coordinate of the new point.
                     //printf("Y : %f", scaledValue);
                     selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
