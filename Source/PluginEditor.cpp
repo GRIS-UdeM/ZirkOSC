@@ -300,7 +300,7 @@ _MovementConstraintComboBox("MovementConstraint")
     //---------- SETTING UP TABS ----------
     m_oSlidersTab = new SlidersTab();
     m_oTrajectoryTab = new TrajectoryTab();
-    _TabComponent.addTab("Sliders", Colours::lightgrey, m_oSlidersTab, true);
+    _TabComponent.addTab("Sliderssss", Colours::lightgrey, m_oSlidersTab, true);
     _TabComponent.addTab("Trajectories", Colours::lightgrey, m_oTrajectoryTab, true);
 //    _TabComponent.addTab("Properties", Colours::lightgrey, &m_oPropertyPanel, true);
     addAndMakeVisible(_TabComponent);

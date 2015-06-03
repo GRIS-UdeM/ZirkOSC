@@ -300,7 +300,7 @@ private:
     
 
     
-    
+    bool m_bUseXY;
     
     void processTrajectories();
     

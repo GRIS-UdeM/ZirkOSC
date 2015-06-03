@@ -78,6 +78,7 @@ _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0)
 {
  
+    m_bUseXY = false;
     //this toggles everything related to the ipad
     m_bUseIpad = true;
     
@@ -420,9 +421,20 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     }
     
     for(int i = 0; i<8;++i){
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return _AllSources[i].getAzimuth();
+        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {
+            if (m_bUseXY)
+                return _AllSources[i].getX();
+            else
+                return _AllSources[i].getAzimuth();
+        }
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return _AllSources[i].getAzimuthSpan();
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return _AllSources[i].getElevation();
+        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {
+            
+            if (m_bUseXY)
+                return _AllSources[i].getY();
+            else
+                return _AllSources[i].getElevation();
+        }
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return _AllSources[i].getElevationSpan();
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return _AllSources[i].getGain();
     }
@@ -570,9 +582,18 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         channel.append(String(i), 10);
         xml.setAttribute(channel, _AllSources[i].getChannel());
         azimuth.append(String(i), 10);
-        xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
+        if (m_bUseXY){
+            xml.setAttribute(azimuth, _AllSources[i].getX());//_AllSources[i].getAzimuth());
+        } else {
+            xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
+        }
         elevation.append(String(i), 10);
-        xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
+        if (m_bUseXY){
+            xml.setAttribute(elevation, _AllSources[i].getY());//_AllSources[i].getElevationRawValue());
+        } else {
+            xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
+        }
+            
         azimuthSpan.append(String(i), 10);
         xml.setAttribute(azimuthSpan, _AllSources[i].getAzimuthSpan());
         elevationSpan.append(String(i), 10);
@@ -639,8 +660,14 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 elevationSpan.append(String(i), 10);
                 gain.append(String(i), 10);
                 _AllSources[i].setChannel(xmlState->getIntAttribute(channel , 0));
-                _AllSources[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
-                _AllSources[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                if (m_bUseXY){
+                    Point<float> p((float) xmlState->getDoubleAttribute(azimuth,0), (float) xmlState->getDoubleAttribute(elevation,0));
+                    _AllSources[i].setPositionXY(p);
+                } else {
+                    _AllSources[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
+                    _AllSources[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                
+                }
                 _AllSources[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
                 _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
                 float fGain = (float) xmlState->getDoubleAttribute(gain,1 );

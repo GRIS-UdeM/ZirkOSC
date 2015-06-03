@@ -76,8 +76,15 @@ public:
 
         
 private:
+    
+    bool m_bUseXY = false;
+    
+    float m_fX;
+    
+    float m_fY;
+    
     //! If source Elevation is over 90° you have to reverse the azim
-    bool _AzimReverse =false;
+    bool _AzimReverse;
     //! Source channel id id send to Zirkonium
     int _Channel =0;
     //! Gain parameter stored in percent (see HRToPercent function).
