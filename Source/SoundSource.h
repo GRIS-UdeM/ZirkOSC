@@ -77,7 +77,7 @@ public:
         
 private:
     
-    bool m_bUseXY = false;
+    bool m_bUseXY;
     
     float m_fX;
     

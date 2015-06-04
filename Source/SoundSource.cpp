@@ -36,10 +36,11 @@ SoundSource::SoundSource(){
 SoundSource::SoundSource(float azimuth, float elevation) : SoundSource(){
   
     setAzimuth(azimuth);
+    setElevation(elevation);
+    
     float x = getX();
     float y = getY();
-    std::cout << "soundSource() x = " << x << ", y = " << y << "\n";
-    setElevation(elevation);
+    std::cout << "soundSource() x = " << x << ", y = " << y << ", azim = " << azimuth << ", elev = " << elevation << "\n";
 }
 
 SoundSource::~SoundSource(){
