@@ -1217,15 +1217,16 @@ void ZirkOscjuceAudioProcessorEditor::moveFullyFixed(Point<float> p){
 
 void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSource tab[]){
     int nbrSources = ourProcessor->getNbrSources();
-    int* order = getOrderSources(selected, tab, nbrSources);
+    vector<int> order = getOrderSources(selected, tab, nbrSources);
     int count = 0;
     for(int i= 1; i < nbrSources ; ++i){ //for(int i= 1; i != nbrSources ; ++i){
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources);
     }
 }
 //starting from the selected source, cycle through the other sources to find in which order they are
-int* ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
-    int * order = new int [nbrSources];
+vector<int> ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
+
+    vector<int> order(nbrSources);
     int firstItem = selected;
     order[0] = selected;    //selected source is at order[0]
     int count  = 1;

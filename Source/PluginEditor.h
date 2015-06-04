@@ -283,7 +283,7 @@ private:
     //! converts radian to Degree
     inline float radianToDegree (float);
     //! get the source order by the angle value
-    int * getOrderSources(int, SoundSource[], int nbrSources);
+    std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
     
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;
