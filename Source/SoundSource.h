@@ -43,6 +43,8 @@ public:
     float   getY();
     //! sets the XY position (converts it in azimuth / elevation)
     void    setPositionXY(Point <float>);
+    
+    void    initAzimuthAndElevation(float p_fAzim, float p_fElev);
     //! returns the gain [0,1]
     float   getGain();
     //! sets the gain 
@@ -61,7 +63,7 @@ public:
     void    setElevationSpan(float);
     //! returns the elevation [0,1]
     float   getElevation();
-    //! returns the elevation [-1,1] form memory.
+    //! returns the elevation [-1,1] from memory.
     float   getElevationRawValue();
     //! set the elevation 
     void    setElevation(float);
@@ -76,9 +78,7 @@ public:
 
         
 private:
-    
-    bool m_bUseXY;
-    
+     
     float m_fX;
     
     float m_fY;

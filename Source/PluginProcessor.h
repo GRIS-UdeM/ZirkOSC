@@ -31,7 +31,7 @@
 #include "SoundSource.h"
 #include "Trajectories.h"
 
-
+static bool g_bUseXY = true;
 
 //==============================================================================
 /**
@@ -297,10 +297,6 @@ public:
     void askForGuiRefresh(){_RefreshGui=true;};
     
 private:
-    
-
-    
-    bool m_bUseXY;
     
     void processTrajectories();
     

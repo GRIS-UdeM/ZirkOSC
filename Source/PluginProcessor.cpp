@@ -35,7 +35,6 @@
 #include <regex.h>
 #include <arpa/inet.h>  //for inet_pton
 
-
 // using stringstream constructors.
 #include <iostream>
 
@@ -52,7 +51,7 @@ int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **arg
 int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 
-int ZirkOscjuceAudioProcessor::s_iDomeRadius = 150;
+int ZirkOscjuceAudioProcessor::s_iDomeRadius = 172;//150;
 
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :_NbrSources(1),
@@ -77,13 +76,11 @@ _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0)
 {
- 
-    m_bUseXY = false;
     //this toggles everything related to the ipad
     m_bUseIpad = true;
     
     for(int i=0; i<8; ++i){
-        _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
+        _AllSources[i]=SoundSource(0.0+((float)i/8.0),0.0);
     }
     _OscZirkonium   = lo_address_new("127.0.0.1", "10001");
     _OscIpad        = lo_address_new("10.0.1.3", "10114");
@@ -422,16 +419,16 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     
     for(int i = 0; i<8;++i){
         if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {
-            if (m_bUseXY)
-                return _AllSources[i].getX();
+            if (g_bUseXY)
+                return (_AllSources[i].getX() + s_iDomeRadius) / (2.f*s_iDomeRadius); //we normalize this value to [0,1]
             else
                 return _AllSources[i].getAzimuth();
         }
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return _AllSources[i].getAzimuthSpan();
         else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {
             
-            if (m_bUseXY)
-                return _AllSources[i].getY();
+            if (g_bUseXY)
+                return (_AllSources[i].getY() + s_iDomeRadius) / (2.f*s_iDomeRadius); //we normalize this value to [0,1]
             else
                 return _AllSources[i].getElevation();
         }
@@ -547,8 +544,8 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     return String::empty;
 }
 
+static const int g_kiDataVersion = 3;
 
-static const int kDataVersion = 2;
 //==============================================================================
 void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
@@ -556,6 +553,10 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
+    JUCE_COMPILER_WARNING("need to remove this condition after we've successfully moved to using XY")
+    if (g_bUseXY){
+        xml.setAttribute ("presetDataVersion", g_kiDataVersion);
+    }
     xml.setAttribute ("uiWidth", _LastUiWidth);
     xml.setAttribute ("uiHeight", _LastUiHeight);
     xml.setAttribute("PortOSC", _OscPortZirkonium);
@@ -582,13 +583,13 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         channel.append(String(i), 10);
         xml.setAttribute(channel, _AllSources[i].getChannel());
         azimuth.append(String(i), 10);
-        if (m_bUseXY){
+        if (g_bUseXY){
             xml.setAttribute(azimuth, _AllSources[i].getX());//_AllSources[i].getAzimuth());
         } else {
             xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
         }
         elevation.append(String(i), 10);
-        if (m_bUseXY){
+        if (g_bUseXY){
             xml.setAttribute(elevation, _AllSources[i].getY());//_AllSources[i].getElevationRawValue());
         } else {
             xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
@@ -625,6 +626,9 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
             // ok, now pull out our parameters. format is getIntAttribute("AttributeName: defaultValue);
+
+            int version = static_cast<int>(xmlState->getIntAttribute("presetDataVersion", 1));
+            
             _LastUiWidth  = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
             _LastUiHeight = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
             _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 18032);
@@ -660,24 +664,25 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 elevationSpan.append(String(i), 10);
                 gain.append(String(i), 10);
                 _AllSources[i].setChannel(xmlState->getIntAttribute(channel , 0));
-                if (m_bUseXY){
-                    Point<float> p((float) xmlState->getDoubleAttribute(azimuth,0), (float) xmlState->getDoubleAttribute(elevation,0));
-                    _AllSources[i].setPositionXY(p);
-                } else {
+                if (version == 1 ){
+                    //in version 1, we were storing azimuth and elevation instead of x and y
+                    g_bUseXY = false;
                     _AllSources[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
                     _AllSources[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
-                
+                } else {
+                    g_bUseXY = true;
+                    Point<float> p((float) xmlState->getDoubleAttribute(azimuth,0), (float) xmlState->getDoubleAttribute(elevation,0));
+                    _AllSources[i].setPositionXY(p);
                 }
+                cout << "setState g_bUseXY = " << g_bUseXY << "\n";
                 _AllSources[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
                 _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
                 float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
                 _AllSources[i].setGain(fGain);
             }
             
-            if (kDataVersion >=2){
-                m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
-                m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
-            }
+            m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
+            m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
             
             changeZirkoniumOSCPort(_OscPortZirkonium);
             changeOSCReceiveIpad(_OscPortIpadIncoming.getIntValue());

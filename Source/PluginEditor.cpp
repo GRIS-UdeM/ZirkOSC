@@ -300,7 +300,7 @@ _MovementConstraintComboBox("MovementConstraint")
     //---------- SETTING UP TABS ----------
     m_oSlidersTab = new SlidersTab();
     m_oTrajectoryTab = new TrajectoryTab();
-    _TabComponent.addTab("Sliderssss", Colours::lightgrey, m_oSlidersTab, true);
+    _TabComponent.addTab("Sliders", Colours::lightgrey, m_oSlidersTab, true);
     _TabComponent.addTab("Trajectories", Colours::lightgrey, m_oTrajectoryTab, true);
 //    _TabComponent.addTab("Properties", Colours::lightgrey, &m_oPropertyPanel, true);
     addAndMakeVisible(_TabComponent);
@@ -315,11 +315,13 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pAzimuthSlider = m_oSlidersTab->getAzimuthSlider();
     m_pAzimuthLabel  = m_oSlidersTab->getAzimuthLabel();
     setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    
     m_pAzimuthSlider->addListener(this);
     
     m_pElevationSlider = m_oSlidersTab->getElevationSlider();
     m_pElevationLabel  = m_oSlidersTab->getElevationLabel();
     setSliderAndLabel("Elevation", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+
     m_pElevationSlider->addListener(this);
     
     m_pElevationSpanSlider = m_oSlidersTab->getElevationSpanSlider();
@@ -557,10 +559,18 @@ void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g){
 //Drawing Span Arc
 void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     int selectedSource = ourProcessor->getSelectedSource();
-    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max),
-    HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max),
-    HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max),
-    HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+    float azim = ourProcessor->getSources()[selectedSource].getAzimuth();
+    float elev = ourProcessor->getSources()[selectedSource].getElevation();
+    
+    if (isnan(azim) || isnan(elev)){
+        float azim = ourProcessor->getSources()[selectedSource].getAzimuth();
+        float elev = ourProcessor->getSources()[selectedSource].getElevation();
+    }
+    
+    float   HRAzim = PercentToHR(azim, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max),
+            HRElev = PercentToHR(elev, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max),
+            HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max),
+            HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
 
     Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
     Point<float> minElev = {HRAzim, HRElev-HRElevSpan/2};
@@ -576,7 +586,9 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     float minRadius = sqrtf(screenMinElev.getX()*screenMinElev.getX() + screenMinElev.getY()*screenMinElev.getY());
     //drawing the path for spanning
     Path myPath;
-    myPath.startNewSubPath(_ZirkOSC_Center_X+screenMinElev.getX(),_ZirkOSC_Center_Y+screenMinElev.getY());
+    float x = screenMinElev.getX();
+    float y = screenMinElev.getY();
+    myPath.startNewSubPath(_ZirkOSC_Center_X+x,_ZirkOSC_Center_Y+y);
 
     //half first arc center
     myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim), degreeToRadian(-HRAzim + HRAzimSpan/2 ));
@@ -609,6 +621,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
     for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
         HRAzim = PercentToHR(ourProcessor->getSources()[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
         HRElev = PercentToHR(ourProcessor->getSources()[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+        //cout << "paintSourcePoint: " << ourProcessor->getSources()[i].getAzimuth() << "\n";
         sourcePositionOnScreen = degreeToXy(Point<float> (HRAzim, HRElev));
         
         //draw source circle
@@ -733,7 +746,8 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 #if defined(DEBUG)
     clock_t proc = clock();
 #endif
-    updateSliders();
+    JUCE_COMPILER_WARNING("this update (and any other update) should only be done when there's actually something to change")
+    //updateSliders();
     
     switch(mTrState)
     {
@@ -791,6 +805,7 @@ void ZirkOscjuceAudioProcessorEditor::updateSliders(){
     
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->setValue(HRValue,dontSendNotification);
+    cout << "update sliders: " << ourProcessor->getSources()[selectedSource].getAzimuth() << "\n";
     
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_pElevationSlider->setValue(HRValue,dontSendNotification);
@@ -1004,7 +1019,12 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
             //figure out where the slider should move the point
             percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
             if (selectedConstraint == Independant){
+//                if (isnan(percentValue)){
+//                    cout << "percentValue is nan\n";
+//                    percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+//                }
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (selectedSource*5), percentValue);
+                cout << "azimuth slider, percent = " << percentValue << ", getAzimuth = " << ourProcessor->getSources()[selectedSource].getAzimuth() << "\n";
                 return;
             }
             //if we get here, we're not in independent mode
@@ -1015,8 +1035,13 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
             }
         } else {
             percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+//            if (isnan(percentValue)){
+//                cout << "percentValue is nan\n";
+//                percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+//            }
             if (selectedConstraint == Independant){
                 ourProcessor->setParameterNotifyingHost  (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + (selectedSource * 5), percentValue);
+                cout << "elevation slider, percent = " << percentValue << ", getElevation = " << ourProcessor->getSources()[selectedSource].getElevation() << "\n";
                 return;
             }
             //if we get here, we're not in independent mode
@@ -1147,6 +1172,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             
             //notify the host+processor of the source position
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + selectedSource*5, ourProcessor->getSources()[selectedSource].getAzimuth());
+            cout << "mouse drag: " << ourProcessor->getSources()[selectedSource].getAzimuth() << "\n";
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + selectedSource*5, ourProcessor->getSources()[selectedSource].getElevation());
             //send source position by osc
             ourProcessor->sendOSCValues();
@@ -1220,7 +1246,10 @@ void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSo
     vector<int> order = getOrderSources(selected, tab, nbrSources);
     int count = 0;
     for(int i= 1; i < nbrSources ; ++i){ //for(int i= 1; i != nbrSources ; ++i){
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources);
+        float curangle = tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources;
+        //cout << "source " << i << ", angle " << curangle << "\n";
+        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + (order[i]*5), curangle);
+        cout << "order sources by angle: " << ourProcessor->getSources()[i].getAzimuth() << "\n";
     }
 }
 //starting from the selected source, cycle through the other sources to find in which order they are
@@ -1306,6 +1335,7 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
         
         //set new azimuth through host
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + iCurSource * 5, curSourceAzim + deltaX);
+        cout << "move circular: " << ourProcessor->getSources()[selectedSource].getAzimuth() << "\n";
 
         //if radius is fixed, set all elevation to the same thing
         if (isRadiusFixed){
