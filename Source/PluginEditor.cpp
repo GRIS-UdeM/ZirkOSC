@@ -1102,7 +1102,6 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
     //if event is within the wall circle, select source that is clicked on (if any)
     if (event.x>5 && event.x <20+ZirkOscjuceAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscjuceAudioProcessor::s_iDomeRadius*2) {
         source=getSourceFromPosition(Point<float>(event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y));
-
     }
     
     //if a source is clicked on, flag _isSourceBeingDragged to true
@@ -1152,6 +1151,22 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         
         //get point of current event
         Point<float> pointRelativeCenter = Point<float>(event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y);
+        
+        //need to clamp the point to the circle
+        if (g_bUseXY){
+            float fCurR = sqrt(pointRelativeCenter.x*pointRelativeCenter.x + pointRelativeCenter.y*pointRelativeCenter.y);
+            if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
+                
+                float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
+
+                pointRelativeCenter.x *= fExtraRatio;
+                pointRelativeCenter.y *= fExtraRatio;
+            }
+            
+        }
+            
+        
+        
         
         //get current mouvement constraint
         int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
