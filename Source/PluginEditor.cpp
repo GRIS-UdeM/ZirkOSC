@@ -314,21 +314,13 @@ _MovementConstraintComboBox("MovementConstraint")
     
     m_pAzimuthSlider = m_oSlidersTab->getAzimuthSlider();
     m_pAzimuthLabel  = m_oSlidersTab->getAzimuthLabel();
-    if (g_bUseXY){
-        JUCE_COMPILER_WARNING("will need to set the max and min to something sensible")
-        setSliderAndLabel("X", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    } else {
-        setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    }
+    setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->addListener(this);
     
     m_pElevationSlider = m_oSlidersTab->getElevationSlider();
     m_pElevationLabel  = m_oSlidersTab->getElevationLabel();
-    if (g_bUseXY){
-        setSliderAndLabel("Y", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    } else {
-        setSliderAndLabel("Elevation", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    }
+    setSliderAndLabel("Elevation", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    
     m_pElevationSlider->addListener(this);
     
     m_pElevationSpanSlider = m_oSlidersTab->getElevationSpanSlider();
@@ -1021,7 +1013,11 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
             //figure out where the slider should move the point
             percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
             if (selectedConstraint == Independant){
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5), percentValue);
+                if (g_bUseXY){
+                    ourProcessor->updateSourceXYPosition(selectedSource, percentValue, ourProcessor->getSources()[selectedSource].getElevation());
+                } else {
+                    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5), percentValue);
+                }
                 cout << "azimuth slider, percent = " << percentValue << ", getAzimuth = " << ourProcessor->getSources()[selectedSource].getAzimuth() << "\n";
                 return;
             }
@@ -1034,8 +1030,13 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         } else {
             percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
             if (selectedConstraint == Independant){
-                ourProcessor->setParameterNotifyingHost  (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource * 5), percentValue);
+                if (g_bUseXY){
+                    ourProcessor->updateSourceXYPosition(selectedSource, ourProcessor->getSources()[selectedSource].getAzimuth(), percentValue);
+                } else {
+                    ourProcessor->setParameterNotifyingHost  (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource * 5), percentValue);
+                }
                 cout << "elevation slider, percent = " << percentValue << ", getElevation = " << ourProcessor->getSources()[selectedSource].getElevation() << "\n";
+                
                 return;
             }
             //if we get here, we're not in independent mode

@@ -568,6 +568,7 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 
 //when in g_bUseXY mode, use this function to tell the processor to update its x and y parameters according to the
 //passed azimuth and elevation, both [0,1]
+JUCE_COMPILER_WARNING("shouldn't this thing be in soundSource like everything else?");
 void ZirkOscjuceAudioProcessor::updateSourceXYPosition(const int &p_iSource, const float &p_fAzimuth, const float &p_fElevation){
     
     //curangle needs to be converted to X and Y
