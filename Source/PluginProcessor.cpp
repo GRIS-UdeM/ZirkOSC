@@ -418,17 +418,17 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     }
     
     for(int i = 0; i<8;++i){
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {
+        if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index)       {
             if (g_bUseXY)
-                return (_AllSources[i].getX() + s_iDomeRadius) / (2.f*s_iDomeRadius); //we normalize this value to [0,1]
+                return (_AllSources[i].getX01()/* + s_iDomeRadius) / (2.f*s_iDomeRadius*/); //we normalize this value to [0,1]
             else
                 return _AllSources[i].getAzimuth();
         }
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return _AllSources[i].getAzimuthSpan();
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {
+        else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index)       {
             
             if (g_bUseXY)
-                return (_AllSources[i].getY() + s_iDomeRadius) / (2.f*s_iDomeRadius); //we normalize this value to [0,1]
+                return (_AllSources[i].getY01()/* + s_iDomeRadius) / (2.f*s_iDomeRadius*/); //we normalize this value to [0,1]
             else
                 return _AllSources[i].getElevation();
         }
@@ -498,9 +498,21 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     }
     //cout << "setParameter: " << index << " with value: " << newValue << "\n";
     for(int i = 0; i<8; ++i){
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {_AllSources[i].setAzimuth(newValue); return;}
-        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   {_AllSources[i].setAzimuthSpan(newValue); return;}
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {_AllSources[i].setElevation(newValue); return;}
+        if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
+            if (g_bUseXY)
+                _AllSources[i].setX01(newValue);
+            else
+                _AllSources[i].setAzimuth(newValue);
+            return;
+        }
+        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index) {_AllSources[i].setAzimuthSpan(newValue); return;}
+        else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index) {
+            if (g_bUseXY)
+                _AllSources[i].setY01(newValue);
+            else
+                _AllSources[i].setElevation(newValue);
+            return;
+        }
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   {_AllSources[i].setElevationSpan(newValue); return;}
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       {_AllSources[i].setGain(newValue); return;}
     }
@@ -534,15 +546,45 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     
     
     for(int i = 0; i<8;++i){
-        string strSourceId = " Src: " + std::to_string(getSources()[i].getChannel());
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return ZirkOSC_Azim_name[i] + strSourceId;
+        string strSourceId = std::to_string(getSources()[i].getChannel()+1);
+        if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
+            if(g_bUseXY)
+                return ZirkOSC_X_name + strSourceId;
+            else
+                return ZirkOSC_Azim_name[i];
+        }
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i] + strSourceId;
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return ZirkOSC_Elev_name[i] + strSourceId;
+        else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index){
+            if(g_bUseXY)
+                return ZirkOSC_Y_name + strSourceId;
+            else
+                return ZirkOSC_Elev_name[i];
+        }
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i] + strSourceId;
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i] + strSourceId;
     }
     return String::empty;
 }
+
+//when in g_bUseXY mode, use this function to tell the processor to update its x and y parameters according to the
+//passed azimuth and elevation, both [0,1]
+void ZirkOscjuceAudioProcessor::updateSourceXYPosition(const int &p_iSource, const float &p_fAzimuth, const float &p_fElevation){
+    
+    //curangle needs to be converted to X and Y
+    float HRAzimuth   = PercentToHR(p_fAzimuth,   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRElevation = PercentToHR(p_fElevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    
+    float fX = -s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
+    fX = (fX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
+    float fY = -s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
+    fY = (fY + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
+    
+    cout << "updateSourceXYPosition x= " << fX << ", y= " << fY << ", azim= " << p_fAzimuth << ", elev= " << p_fElevation << "\n";
+
+    setParameterNotifyingHost (ZirkOSC_Azim_or_x_ParamId + (p_iSource*5), fX);
+    setParameterNotifyingHost (ZirkOSC_Elev_or_y_ParamId + (p_iSource*5), fY);
+}
+
 
 static const int g_kiDataVersion = 3;
 
@@ -590,6 +632,7 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         }
         elevation.append(String(i), 10);
         if (g_bUseXY){
+            JUCE_COMPILER_WARNING("is this supposed to return something in [-1,1]? because that was the range of getElevationRawValue()")
             xml.setAttribute(elevation, _AllSources[i].getY());//_AllSources[i].getElevationRawValue());
         } else {
             xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
@@ -828,13 +871,13 @@ int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int ar
     }
     
     if (processor->getSelectedMovementConstraintAsInteger() == Independant){
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ i*5);
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ i*5);
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ i*5);
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ i*5);
     }
     else{
         for (int j = 0; j<processor->getNbrSources() ;j++){
-            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ j*5);
-            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ j*5);
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ j*5);
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ j*5);
             
         }
     }
@@ -859,16 +902,16 @@ int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc
     }
     if (processor->getSelectedMovementConstraintAsInteger() != Independant){
         for (int j = 0; j<processor->getNbrSources() ;j++){
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ j*5);
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ j*5);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ j*5);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ j*5);
             
         }
         theEditor->setFixedAngle(false);
     }
     else{
         if (processor->getSelectedMovementConstraintAsInteger() == Independant){
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ i*5);
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ i*5);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ i*5);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ i*5);
             printf("OUT");
         }
     }
@@ -1086,10 +1129,17 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
     Point<float> pointRelativeCenter = Point<float>(processor->domeToScreen(Point<float>(azim_osc,elev_osc)));
     ZirkOscjuceAudioProcessorEditor* theEditor =(ZirkOscjuceAudioProcessorEditor*) (processor->getEditor());
     if(processor->getSelectedMovementConstraintAsInteger() == Independant){
-        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5,
-                                              HRToPercent(azim_osc, -M_PI, M_PI));
-        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5,
-                                              HRToPercent(elev_osc, 0.0, M_PI/2.0));
+        if (g_bUseXY){
+            //azim_osc and elev_osc need to be converted to X and Y
+            float fX = - ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(azim_osc) * cosf(elev_osc);
+            float fY = - ZirkOscjuceAudioProcessor::s_iDomeRadius * cosf(azim_osc) * cosf(elev_osc);
+            
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, fX);
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, fY);
+        } else {
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, HRToPercent(azim_osc, -M_PI, M_PI));
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, HRToPercent(elev_osc, 0.0, M_PI/2.0));
+        }
     }
     else{
         processor->setSelectedSource(i);

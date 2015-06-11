@@ -37,10 +37,24 @@ public:
     int     getChannel();
     //! sets the channel (id in the Zirkonium)
     void    setChannel(int);
-    //! returns the X position
+    //! returns the X position, range [-r,r]
     float   getX();
-    //! retunrs the Y position
+    //! retunrs the Y position, range [-r,r]
     float   getY();
+    
+    //set X (range [-r,r]) using parameter x in percent, ie,  [0,1]
+    void setX01(float x);
+    
+    void setY01(float y);
+    
+    float getX01();
+    
+    float getY01();
+    
+    static float XYtoAzim(const float &x, const float &y);
+
+    static float XYtoElev(const float &x, const float &y);
+    
     //! sets the XY position (converts it in azimuth / elevation)
     void    setPositionXY(Point <float>);
     
@@ -97,10 +111,6 @@ private:
     float _AzimuthSpan=0;
     //! Elevation Span parameter stored in percent (see HRToPercent function).
     float _ElevationSpan=0;
-    //! Convert degreeToRadian
-    inline float degreeToRadian (float);
-    //! Convert radianToDegree
-    inline float radianToDegree (float);
     
 };
 

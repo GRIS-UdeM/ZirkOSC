@@ -122,6 +122,8 @@ public:
     //! This must restore the filter's state from a block of data previously created using getStateInformation() IE RESTORE PRESET.
     void setStateInformation (const void* data, int sizeInBytes);
     
+    void updateSourceXYPosition(const int&, const float&, const float&);
+    
     //! returns the sources
     inline SoundSource* getSources(){ return _AllSources; }
     //! returns the number of sources on the screen.
@@ -168,8 +170,8 @@ public:
     
     enum ParameterIds
     {
-        ZirkOSC_Azim_ParamId = 0,
-        ZirkOSC_Elev_ParamId,
+        ZirkOSC_Azim_or_x_ParamId = 0,
+        ZirkOSC_Elev_or_y_ParamId,
         ZirkOSC_AzimSpan_ParamId,
         ZirkOSC_ElevSpan_ParamId,
         ZirkOSC_Gain_ParamId,

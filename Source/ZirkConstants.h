@@ -29,11 +29,13 @@
 const int ZirkOSC_Max_Sources = 8;
 
 const String ZirkOSC_Azim_name [ZirkOSC_Max_Sources] = {"1 Azimuth", "2 Azimuth","3 Azimuth","4 Azimuth","5 Azimuth","6 Azimuth","7 Azimuth","8 Azimuth"};
+const String ZirkOSC_X_name = "X for src ";
 const float  ZirkOSC_Azim_Min = -180.0f;
 const float  ZirkOSC_Azim_Max = 180.0f;
 const float  ZirkOSC_Azim_Def = 0.0f;
 
 const String ZirkOSC_Elev_name [ZirkOSC_Max_Sources] = {"1 Elevation", "2 Elevation","3 Elevation","4 Elevation","5 Elevation","6 Elevation","7 Elevation","8 Elevation"};
+const String ZirkOSC_Y_name = "Y for src ";
 const float  ZirkOSC_Elev_Min = 0.0f;
 const float  ZirkOSC_Elev_Max = 90.0f;
 const float  ZirkOSC_Elev_Def = 0.0f;
@@ -157,5 +159,12 @@ static int PercentToIntStartsAtZero(float percent, int max){
     return percent * max;
 }
 
+static inline float degreeToRadian (float degree){
+    return ((degree/360.0f)*2*3.1415);
+}
+
+static inline float radianToDegree(float radian){
+    return (radian/(2*3.1415)*360.0f);
+}
 
 #endif
