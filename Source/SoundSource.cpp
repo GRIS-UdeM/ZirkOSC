@@ -136,7 +136,7 @@ float   SoundSource::getAzimuth(){
         return _Azimuth;
     }
 }
-//this func is static
+//this func is static, XY are [-r,r] and azim is [0,1]
 float SoundSource::XYtoAzim(const float &p_fX, const float &p_fY){
     float azim;
     if (p_fX > 0){

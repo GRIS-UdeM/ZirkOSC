@@ -71,6 +71,7 @@ public:
     
     void moveCircular(Point<float>, bool isFixedRadius );
     
+    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
     //! Move sources with fixed angle between each source
     void moveFixedAngles(Point<float>);
