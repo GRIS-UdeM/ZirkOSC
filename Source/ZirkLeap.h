@@ -25,14 +25,19 @@ class ZirkLeap : public ReferenceCountedObject , public Leap::Listener
 {
 public:
     typedef ReferenceCountedObjectPtr<ZirkLeap> Ptr;
+    //! Interface to call the builder using the ReferenceCountedObject benefits
     static ZirkLeap::Ptr CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    //!Builder
     ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
-    
+    //! Called when a Leap Motion is connected to the computer
     virtual void onConnect(const Leap::Controller& controller);
+    //! Called when a Leap Motion is disconnected to the computer
     void onDisconnect(const Leap::Controller& controller);
+    //!Called each time a frame is captured by the Leap Motion
     void onFrame(const Leap::Controller& controller);
-    
+    //! Called when a Leap Motion service is unreachable (Crashed)
     void onServiceDisconnect(const Leap::Controller& controller);
+    //! Destroyer
     virtual ~ZirkLeap(){
     }
     
@@ -44,12 +49,15 @@ private:
     ScopedPointer<Leap::Controller> mController;
     
     int32_t mPointableId;
+    //* Boolean telling if the last frame had a valid position
     bool mLastPositionValid;
+    //* Vector giving the last frame's position
     Leap::Vector mLastPosition;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkLeap)
     
 };
+
 
 void updateLeapComponent(Component * leapComponent);
 

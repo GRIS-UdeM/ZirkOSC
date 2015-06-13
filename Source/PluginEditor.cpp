@@ -496,7 +496,7 @@ _MovementConstraintComboBox("MovementConstraint")
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
     //stopTimer();
-    if(gIOHIDManagerRef)
+    if(m_pTBEnableJoystick->getToggleState())
     {
         IOHIDManagerUnscheduleFromRunLoop(gIOHIDManagerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
         IOHIDManagerRegisterInputValueCallback(gIOHIDManagerRef, NULL,this);
@@ -995,6 +995,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
                     mleap = ZirkLeap::CreateLeapComponent(ourProcessor, this);
                     if(mleap)
                     {
+                        JUCE_COMPILER_WARNING("gIsLeapConnected was created because no other options of the Leap Motion permitted to know if it was already connected but it's not the good way")
                         gIsLeapConnected = 1;
                         mController->addListener(*mleap);
                     }

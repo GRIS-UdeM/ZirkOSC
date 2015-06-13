@@ -315,9 +315,10 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                     //printf("X : %f", scaledValue);
                     selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
                     newPoint = mFilter->getSources()[i].getPositionXY();
-                    //if(vx>)
+                    
                     newPoint.setX(vx);
                     newPoint.setY(vy);  //setting the y coord of the point with the last known value
+                    printf("x : %f    y : %f \n",vx,vy);
                     if(selectedConstraint == Independant)
                     {
                         
@@ -348,13 +349,14 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                 
                     break;
                 case 49:
-                    vy = ((scaledValue-(maxValue/2))/maxValue/2)*ZirkOscjuceAudioProcessor::s_iDomeRadius*4;
+                    vy = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscjuceAudioProcessor::s_iDomeRadius*2;
                     //Normalizing the coordonate from every joystick as float between -1 and 1, multiplied by the size of the panel to have the new y coordinate of the new point.
                     //printf("Y : %f", scaledValue);
                     selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
                     newPoint = mFilter->getSources()[i].getPositionXY();
                     newPoint.setX(vx);      //setting the x coordinate with the last known value.
                     newPoint.setY(vy);
+                    printf("x : %f    y : %f \n",vx,vy);
                     if(selectedConstraint == Independant)
                     {
                         
@@ -403,18 +405,6 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
     
     
     
-}
-/** function to get the source coordinate with it's number (Copy/Paste from FieldComponent) */
-FPoint HIDDelegate::getSourcePoint(int i)
-{
-    if(i!=-1)
-    {
-        const int fieldWidth = mEditor->getWidth();
-        FPoint p = mFilter->getSources()[i].getPositionXY();
-        float x = p.x * (fieldWidth - kSourceDiameter) + kSourceRadius;
-        float y = p.y * (fieldWidth - kSourceDiameter) + kSourceRadius;
-        return FPoint(x, fieldWidth - y);
-    }
 }
 
 /**Get and Set to use the button pressed array. The button  pressed array allows us to save the informations of which button is being pressed when the axis are used*/

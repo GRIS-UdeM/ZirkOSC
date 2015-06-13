@@ -117,9 +117,9 @@ class ZirkOscjuceAudioProcessor  : public AudioProcessor,public Timer
 {
 public:
     //==============================================================================
-    //! Constructeur
+    //! Builder
     ZirkOscjuceAudioProcessor();
-    //! Destructeur
+    //! Destroyer
     ~ZirkOscjuceAudioProcessor();
     
     //! Called every 50ms;
