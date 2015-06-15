@@ -3188,8 +3188,8 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=2.1.1.1",
-					"JUCE_APP_VERSION_HEX=0x2010101",
+					"JUCE_APP_VERSION=2.1.1.2",
+					"JUCE_APP_VERSION_HEX=0x2010102",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -3233,8 +3233,8 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=2.1.1.1",
-					"JUCE_APP_VERSION_HEX=0x2010101",
+					"JUCE_APP_VERSION=2.1.1.2",
+					"JUCE_APP_VERSION_HEX=0x2010102",
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;

@@ -44,7 +44,7 @@ SoundSource::SoundSource(float azimuth, float elevation) : SoundSource(){
     float y = getY();
     float azim = getAzimuth();
     float elev = getElevation();
-    std::cout << "soundSource(), XY =" << ZirkOscjuceAudioProcessor::s_bUseXY << ", r = " << ZirkOscjuceAudioProcessor::s_iDomeRadius << ", x = " << x << ", y = " << y << ", azim = " << azim << ", elev = " << elev << "\n";
+    //std::cout << "soundSource(), XY =" << ZirkOscjuceAudioProcessor::s_bUseXY << ", r = " << ZirkOscjuceAudioProcessor::s_iDomeRadius << ", x = " << x << ", y = " << y << ", azim = " << azim << ", elev = " << elev << "\n";
 }
 
 SoundSource::~SoundSource(){
