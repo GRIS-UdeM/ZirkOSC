@@ -64,8 +64,11 @@ public:
     
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
+    
     //! Move sources with a delta x and delta y (delta lock)
     void moveSourcesWithDelta(Point<float> DeltaMove);
+    
+    void moveSourcesWithDelta(Point<float> DeltaMove, const MouseEvent &event);
     
     void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
     //! Move sources around the center
