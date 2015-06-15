@@ -69,7 +69,6 @@ _OscAddressIpad("10.0.1.3"),
 _OscPortIpadIncoming("10114"),
 _isOscActive(true),
 _isSpanLinked(true),
-m_parameterBuffer(),
 _TrajectoryCount(0),
 _TrajectoriesDuration(0),
 //_TrajectoriesPhiAsin(0),
@@ -177,16 +176,14 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
 void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
+        _AllSourcesBuffer[iCurSource] = _AllSources[iCurSource];
     }
 }
 
 void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
+        _AllSources[iCurSource] = _AllSourcesBuffer[iCurSource];
     }
-    //_AllSources[0].setAzimReverse(true);
-
 }
 
 void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &newLocation){

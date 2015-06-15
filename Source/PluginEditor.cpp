@@ -1310,17 +1310,17 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
     //get azim and elevation for current source
     JUCE_COMPILER_WARNING("this stuff should be put in a function. in fact everything related to such conversions should be put somewhere consistent, instead of in processor and soundsource")
     int selectedSource = ourProcessor->getSelectedSource();
+    
+    //convert x,y[0,1] to azim,elev[0,1]
     float fSelectedX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5));
     float fSelectedY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5));
-    fSelectedX = fSelectedX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-    fSelectedY = fSelectedY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-    float fSelectedAzim = SoundSource::XYtoAzim(fSelectedX, fSelectedY);
-    float fSelectedElev = SoundSource::XYtoElev(fSelectedX, fSelectedY);
+    float fSelectedAzim, fSelectedElev;
+    SoundSource::XY01toAzimElev01(fSelectedX, fSelectedY, fSelectedAzim, fSelectedElev);
     
     
     //calculate deltas
-    float fDeltaAzim = SoundSource::XYtoAzim(pointRelativeCenter.x, pointRelativeCenter.y) - fSelectedAzim;
-    float fDeltaElev = SoundSource::XYtoElev(pointRelativeCenter.x, pointRelativeCenter.y) - fSelectedElev;
+    float fDeltaAzim = SoundSource::XYtoAzim01(pointRelativeCenter.x, pointRelativeCenter.y) - fSelectedAzim;
+    float fDeltaElev = SoundSource::XYtoElev01(pointRelativeCenter.x, pointRelativeCenter.y) - fSelectedElev;
 
     //set selectedSource to its position
     ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + selectedSource*5, HRToPercent(pointRelativeCenter.x, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
@@ -1337,8 +1337,8 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(Point<float> pointRelativeCen
         float fCurY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5));
         fCurX = fCurX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
         fCurY = fCurY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-        float fCurAzim = SoundSource::XYtoAzim(fCurX, fCurY);
-        float fCurElev = SoundSource::XYtoElev(fCurX, fCurY);
+        float fCurAzim = SoundSource::XYtoAzim01(fCurX, fCurY);
+        float fCurElev = SoundSource::XYtoElev01(fCurX, fCurY);
         
         float fNewAzim = fCurAzim+fDeltaAzim;
         

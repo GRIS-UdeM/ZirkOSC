@@ -66,8 +66,8 @@ void Trajectory::start()
         float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
         fY       = fY*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
         
-        _TrajectoryInitialAzimuth   = SoundSource::XYtoAzim(fX, fY);
-        _TrajectoryInitialElevation = SoundSource::XYtoElev(fX, fY);
+        _TrajectoryInitialAzimuth   = SoundSource::XYtoAzim01(fX, fY);
+        _TrajectoryInitialElevation = SoundSource::XYtoElev01(fX, fY);
     } else {
         _TrajectoryInitialAzimuth   = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
         _TrajectoryInitialElevation = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
@@ -438,8 +438,8 @@ protected:
                 float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
                 float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
                 
-                fAzimuth   = SoundSource::XYtoAzim(fX, fY);
-                fElevation = SoundSource::XYtoElev(fX, fY);
+                fAzimuth   = SoundSource::XYtoAzim01(fX, fY);
+                fElevation = SoundSource::XYtoElev01(fX, fY);
             } else {
                 fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
                 fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);

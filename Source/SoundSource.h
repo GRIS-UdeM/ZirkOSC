@@ -51,9 +51,11 @@ public:
     
     float getY01();
     
-    static float XYtoAzim(const float &x, const float &y);
+    static float XYtoAzim01(const float &x, const float &y);
 
-    static float XYtoElev(const float &x, const float &y);
+    static float XYtoElev01(const float &x, const float &y);
+    
+    static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
     
     //! sets the XY position (converts it in azimuth / elevation)
     void    setPositionXY(Point <float>);

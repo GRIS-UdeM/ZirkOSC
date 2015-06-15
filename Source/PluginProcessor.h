@@ -223,20 +223,7 @@ public:
     };
     
     
-    JUCE_COMPILER_WARNING("what is the point of this struct?")
-    struct allParameters{
-        SoundSource _AllSources [8];
-        float   fMovementConstraint; //40
-        bool    bisSpanLinked;
-        bool    bisOscActive;
-        float   fSelectedTrajectory;
-        float   fSelectedSource;
-        double  dTrajectoryCount;
-        double  dTrajectoriesDuration;
-        bool    bSyncWTempo;
-        bool    bWriteTrajectories;
-    };
-    
+ 
     
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
@@ -337,6 +324,9 @@ private:
     AudioProcessorEditor* _Editor;
     //! Sources array
     SoundSource _AllSources [8];
+    //Copy of all sources to be able to save and restore locations before and after a trajectory
+    SoundSource _AllSourcesBuffer [8];
+    
     //! Osc Sever thread (receiving)
     lo_server_thread _St;
     //! Zirkonium OSC address (sending)
@@ -359,8 +349,6 @@ private:
     bool _isSpanLinked;
     
     PluginHostType host;
-    
-    allParameters m_parameterBuffer;
 
     JUCE_COMPILER_WARNING("are these still useful?")
     //OLD TRAJECTORIES
