@@ -31,8 +31,6 @@
 #include "SoundSource.h"
 #include "Trajectories.h"
 
-static bool g_bUseXY = true;
-
 //==============================================================================
 /**
  The processor class of the plug in
@@ -40,6 +38,7 @@ static bool g_bUseXY = true;
 class ZirkOscjuceAudioProcessor  : public AudioProcessor,public Timer
 {
 public:
+    
     //==============================================================================
     //! Constructeur
     ZirkOscjuceAudioProcessor();
@@ -223,6 +222,8 @@ public:
         totalNumParams                      //50
     };
     
+    
+    JUCE_COMPILER_WARNING("what is the point of this struct?")
     struct allParameters{
         SoundSource _AllSources [8];
         float   fMovementConstraint; //40
@@ -285,10 +286,13 @@ public:
     //radius of the dome
     static int s_iDomeRadius;
     
+    //! wheter this instance of the plugin will use xy (true) or azim and elev (false) parameters for automations
+    static bool s_bUseXY;
+    
     bool m_bUseIpad;
     
     bool isTrajectoryDone();
-    
+
     
     //NEW TRAJECTORY CLASS METHODS
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
@@ -299,6 +303,10 @@ public:
     void askForGuiRefresh(){_RefreshGui=true;};
     
 private:
+    
+    
+    
+    void initSources();
     
     void processTrajectories();
     
@@ -354,7 +362,7 @@ private:
     
     allParameters m_parameterBuffer;
 
-
+    JUCE_COMPILER_WARNING("are these still useful?")
     //OLD TRAJECTORIES
     
     //! Number of trajectories to draw in trajectory section

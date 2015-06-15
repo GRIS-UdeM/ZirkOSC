@@ -59,7 +59,7 @@ void Trajectory::start()
     _SelectedSourceForTrajectory = ourProcessor->getSelectedSource();
     
     //store initial parameter value
-    if (g_bUseXY){
+    if (ZirkOscjuceAudioProcessor::s_bUseXY){
         //need to convert this to azim and elev
         float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
         fX       = fX*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
@@ -157,7 +157,7 @@ Trajectory::Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool s
 
 void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
     if (ourProcessor->getSelectedMovementConstraintAsInteger() == Independant){
-        if (g_bUseXY){
+        if (ZirkOscjuceAudioProcessor::s_bUseXY){
             ourProcessor->updateSourceXYPosition(_SelectedSourceForTrajectory, p_fNewAzimuth, p_fNewElevation);
         } else {
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), p_fNewAzimuth);
@@ -432,7 +432,7 @@ protected:
         while(mClock > 0.01) {
             float fAzimuth, fElevation;
             mClock -= 0.01;
-            if (g_bUseXY){
+            if (ZirkOscjuceAudioProcessor::s_bUseXY){
                 JUCE_COMPILER_WARNING("there's probably some more direct way of doing this. Here we're converting xy to azim+elev, then later in ::move() converting back to xy")
                 //need to convert this to azim and elev
                 float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
