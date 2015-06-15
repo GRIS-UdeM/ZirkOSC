@@ -170,7 +170,7 @@ float   SoundSource::getElevation(){
 float SoundSource::XYtoElev(const float &p_fX, const float &p_fY){
     double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
     if (dArg > 1) {
-        std::cout << "XYtoElev() adjusted dArg from " << dArg << " to 1.\n";
+        //std::cout << "XYtoElev() adjusted dArg from " << dArg << " to 1.\n";
         dArg =  1.;
     }
     
@@ -187,7 +187,7 @@ float   SoundSource::getElevationRawValue(){
     if (g_bUseXY){
         double dArg = sqrt( m_fX*m_fX + m_fY*m_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
         if (dArg > 1) {
-            std::cout << "getElevationRawValue() adjusted dArg from " << dArg << " to 1.\n";
+            //std::cout << "getElevationRawValue() adjusted dArg from " << dArg << " to 1.\n";
             dArg =  1.;
         }
         float ret = static_cast<float>( acos(dArg));

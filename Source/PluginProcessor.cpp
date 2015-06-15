@@ -579,8 +579,6 @@ void ZirkOscjuceAudioProcessor::updateSourceXYPosition(const int &p_iSource, con
     fX = (fX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
     float fY = -s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
     fY = (fY + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
-    
-    cout << "updateSourceXYPosition x= " << fX << ", y= " << fY << ", azim= " << p_fAzimuth << ", elev= " << p_fElevation << "\n";
 
     setParameterNotifyingHost (ZirkOSC_Azim_or_x_ParamId + (p_iSource*5), fX);
     setParameterNotifyingHost (ZirkOSC_Elev_or_y_ParamId + (p_iSource*5), fY);
@@ -718,7 +716,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                     Point<float> p((float) xmlState->getDoubleAttribute(azimuth,0), (float) xmlState->getDoubleAttribute(elevation,0));
                     _AllSources[i].setPositionXY(p);
                 }
-                cout << "setState g_bUseXY = " << g_bUseXY << "\n";
+                //cout << "setState g_bUseXY = " << g_bUseXY << "\n";
                 _AllSources[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
                 _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
                 float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
@@ -738,11 +736,9 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCMovementType(){ //should be void with no argument if movement is included in the processor!!!!!
-    //lo_send(_OscIpad, "/movementmode", "i", _SelectedMovementConstraint);
     if (m_bUseIpad){
         lo_send(_OscIpad, "/movementmode", "f", _SelectedMovementConstraint);
     }
-
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
@@ -754,6 +750,10 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
             float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
             int channel_osc = _AllSources[i].getChannel()-1;
             float gain_osc = _AllSources[i].getGain();
+            
+            //cout << "src " << i << " azim " << azim_osc << " elev " << elev_osc << "\n";
+            
+            
             lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
             
             if (m_bUseIpad){
