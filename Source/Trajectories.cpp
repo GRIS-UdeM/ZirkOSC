@@ -158,14 +158,17 @@ Trajectory::Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool s
 void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
     if (ourProcessor->getSelectedMovementConstraintAsInteger() == Independant){
         if (ZirkOscjuceAudioProcessor::s_bUseXY){
-            ourProcessor->updateSourceXYPosition(_SelectedSourceForTrajectory, p_fNewAzimuth, p_fNewElevation);
+            float fX, fY;
+            SoundSource::AzimElev01toXY01(p_fNewAzimuth, p_fNewElevation, fX, fY);
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), fX);
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), fY);
         } else {
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), p_fNewAzimuth);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), p_fNewElevation);
         }
     } else {
         SoundSource newLocationSource(p_fNewAzimuth, p_fNewElevation);
-        Point<float> newLocation = newLocationSource.getPositionXY();
+        Point<float> newLocation = newLocationSource.getXY();
         ourProcessor->moveTrajectoriesWithConstraints(newLocation);
     }
 }

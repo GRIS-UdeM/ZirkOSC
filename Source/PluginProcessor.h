@@ -121,8 +121,6 @@ public:
     //! This must restore the filter's state from a block of data previously created using getStateInformation() IE RESTORE PRESET.
     void setStateInformation (const void* data, int sizeInBytes);
     
-    void updateSourceXYPosition(const int&, const float&, const float&);
-    
     //! returns the sources
     inline SoundSource* getSources(){ return _AllSources; }
     //! returns the number of sources on the screen.
@@ -349,10 +347,7 @@ private:
     bool _isSpanLinked;
     
     PluginHostType host;
-
-    JUCE_COMPILER_WARNING("are these still useful?")
-    //OLD TRAJECTORIES
-    
+  
     //! Number of trajectories to draw in trajectory section
     double _TrajectoryCount;
     

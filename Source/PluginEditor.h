@@ -68,7 +68,7 @@ public:
     //! Move sources with a delta x and delta y (delta lock)
     void moveSourcesWithDelta(Point<float> DeltaMove);
     
-    void moveSourcesWithDelta(Point<float> DeltaMove, const MouseEvent &event);
+    //void moveSourcesWithDelta(Point<float> DeltaMove, const MouseEvent &event);
     
     void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
     //! Move sources around the center

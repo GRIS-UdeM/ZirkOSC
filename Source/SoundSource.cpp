@@ -75,7 +75,7 @@ bool    SoundSource::contains(Point <float> p){
     return (p.getX()< getX()+5 && p.getX()> getX()-5 && p.getY()< getY()+5 && p.getY()> getY()-5 );
 }
 
-Point <float> SoundSource::getPositionXY (){
+Point <float> SoundSource::getXY (){
     return *(new Point <float> (getX(), getY()));
 }
 
@@ -85,12 +85,33 @@ bool    SoundSource::isStillInTheDome(Point<float> move){
     return (fabs(dist)< ZirkOscjuceAudioProcessor::s_iDomeRadius);
 }
 
-//------------------------------------------------
+float   SoundSource::getAzimuthSpan(){
+    return _AzimuthSpan;
+}
 
+float   SoundSource::getElevationSpan(){
+    return _ElevationSpan;
+}
+
+void    SoundSource::setAzimuthSpan(float azimuth_span){
+    
+    this->_AzimuthSpan=azimuth_span;
+}
+
+void    SoundSource::setElevationSpan(float elevation_span){
+    
+    this->_ElevationSpan = elevation_span;
+}
+
+void    SoundSource::setAzimReverse(bool azimr){
+    _AzimReverse = azimr;
+}
+
+//------------------------------------------------
+//returned x is [-r,r]
 float SoundSource::getX(){
     
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
-        //std::cout << "get m_fX: " << m_fX << "\n";
         return m_fX;
     } else {
         float HRAzimuth = PercentToHR(_Azimuth, ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
@@ -100,10 +121,9 @@ float SoundSource::getX(){
     }
 }
 
+//returned y is [-r,r]
 float SoundSource::getY(){
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
-        //std::cout << "get m_fY: " << m_fY << "\n";
-        //convert
         return m_fY;
     } else {
         float HRAzimuth = PercentToHR(_Azimuth,ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
@@ -120,6 +140,27 @@ float SoundSource::getY01(){
     return HRToPercent(m_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
 }
 
+//------------------------------------------------
+//x and y are [-r,r]
+void    SoundSource::setXY(Point <float> p){
+    if (ZirkOscjuceAudioProcessor::s_bUseXY){
+        m_fX = p.x;
+        m_fY = p.y;
+    } else {
+        float dist = sqrt(p.getX()* p.getX() + p.getY()*p.getY());
+        if (fabs(dist)> ZirkOscjuceAudioProcessor::s_iDomeRadius){
+            _Elevation = 0.0f;
+        }   else{
+            _Elevation = HRToPercent(radianToDegree(acos(dist/ZirkOscjuceAudioProcessor::s_iDomeRadius)), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max) ;
+        }
+        float HRAzimuth = - radianToDegree(M_PI/2 + atan2(p.getY(),p.getX()));
+        if(HRAzimuth< -180){
+            HRAzimuth= 360 + HRAzimuth;
+        }
+        _Azimuth = HRToPercent(HRAzimuth, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    }
+}
+
 void SoundSource::setX01(float p_x){
     m_fX = PercentToHR(p_x, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
 }
@@ -128,6 +169,7 @@ void SoundSource::setY01(float p_y){
     m_fY = PercentToHR(p_y, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
 }
 
+//------------------------------------------------
 float   SoundSource::getAzimuth(){
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
         JUCE_COMPILER_WARNING("should probably do something similar for other things in here")
@@ -135,33 +177,6 @@ float   SoundSource::getAzimuth(){
     } else {
         return _Azimuth;
     }
-}
-
-//this func is static, XY are [-r,r] and azim is [0,1]
-float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
-    float azim;
-    if (p_fX > 0){
-        azim = atan2f(p_fX, p_fY);
-    } else {
-        azim = atan2f(-p_fX, p_fY);
-        azim = 2*M_PI-azim;
-    }
-    
-    azim *= 180/M_PI;
-    azim /= 360;
-    return azim;
-}
-
-//this func is static, XY are [0,1] and azim+elev are [0,1]
-void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &p_fAzim, float &p_fElev){
-    float fX = p_fX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-    float fY = p_fY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-    p_fAzim = XYtoAzim01(fX, fY);
-    p_fElev = XYtoElev01(fX, fY);
-}
-
-float   SoundSource::getAzimuthSpan(){
-        return _AzimuthSpan;
 }
 
 float   SoundSource::getElevation(){
@@ -176,22 +191,7 @@ float   SoundSource::getElevation(){
     }
 }
 
-float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
-    double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
-    if (dArg > 1) {
-        //std::cout << "XYtoElev() adjusted dArg from " << dArg << " to 1.\n";
-        dArg =  1.;
-    }
-    
-    float fElevation = static_cast<float>(acos(dArg)) ;
-    if (fElevation < 0.001){
-        return 0.f;
-    } else {
-        //output of acos is [0,pi/2], so we need to normalize that to [0,1]
-        return fElevation / M_PI_2;
-    }
-}
-
+JUCE_COMPILER_WARNING("is this useful?")
 float   SoundSource::getElevationRawValue(){
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
         double dArg = sqrt( m_fX*m_fX + m_fY*m_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
@@ -207,12 +207,8 @@ float   SoundSource::getElevationRawValue(){
     }
 }
 
-float   SoundSource::getElevationSpan(){
-        return _ElevationSpan;
-}
 
-
-
+//----------------------------
 void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
     if (p_fAzim>1 && !_AzimReverse)
         p_fAzim = p_fAzim - 1.0f;
@@ -226,7 +222,6 @@ void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
     m_fX = (- ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
     m_fY = (-ZirkOscjuceAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
-
 
 
 void    SoundSource::setAzimuth(float azimuth){
@@ -250,13 +245,6 @@ void    SoundSource::setAzimuth(float azimuth){
     } else {
         this->_Azimuth=azimuth;
     }
-}
-
-
-
-void    SoundSource::setAzimuthSpan(float azimuth_span){
-
-    this->_AzimuthSpan=azimuth_span;
 }
 
 void    SoundSource::setElevation(float elevation){
@@ -285,33 +273,63 @@ void    SoundSource::setElevation(float elevation){
     }
 }
 
-void    SoundSource::setElevationSpan(float elevation_span){
-
-    this->_ElevationSpan = elevation_span;
+//--------------------------
+//STATIC CONVERSION FUNCTIONS
+void SoundSource::AzimElev01toXY01(const float &p_fAzimuth01, const float &p_fElevation01, float &p_fX, float &p_fY){
+    
+    float HRAzimuth   = PercentToHR(p_fAzimuth01,   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRElevation = PercentToHR(p_fElevation01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    
+    p_fX = -ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
+    p_fX = (p_fX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
+    p_fY = -ZirkOscjuceAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
+    p_fY = (p_fY + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
 }
 
-void    SoundSource::setPositionXY(Point <float> p){
-    if (ZirkOscjuceAudioProcessor::s_bUseXY){
-        m_fX = p.x;
-        m_fY = p.y;
+
+
+//this func is static, XY are [0,1] and azim+elev are [0,1]
+void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &p_fAzim, float &p_fElev){
+    float fX = p_fX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
+    float fY = p_fY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
+    p_fAzim = XYtoAzim01(fX, fY);
+    p_fElev = XYtoElev01(fX, fY);
+}
+
+//XY are [-r,r] and azim is [0,1]
+JUCE_COMPILER_WARNING("could make one function for azim and elev instead of 2?")
+float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
+    float azim;
+    if (p_fX > 0){
+        azim = atan2f(p_fX, p_fY);
     } else {
-        float dist = sqrt(p.getX()* p.getX() + p.getY()*p.getY());
-        if (fabs(dist)> ZirkOscjuceAudioProcessor::s_iDomeRadius){
-            _Elevation = 0.0f;
-        }   else{
-            _Elevation = HRToPercent(radianToDegree(acos(dist/ZirkOscjuceAudioProcessor::s_iDomeRadius)), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max) ;
-        }
-        float HRAzimuth = - radianToDegree(M_PI/2 + atan2(p.getY(),p.getX()));
-        if(HRAzimuth< -180){
-            HRAzimuth= 360 + HRAzimuth;
-        }
-        _Azimuth = HRToPercent(HRAzimuth, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+        azim = atan2f(-p_fX, p_fY);
+        azim = 2*M_PI-azim;
+    }
+    
+    azim *= 180/M_PI;
+    azim /= 360;
+    return azim;
+}
+
+//XY are [-r,r] and elev is [0,1]
+float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
+    double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
+    if (dArg > 1) {
+        //std::cout << "XYtoElev() adjusted dArg from " << dArg << " to 1.\n";
+        dArg =  1.;
+    }
+    
+    float fElevation = static_cast<float>(acos(dArg)) ;
+    if (fElevation < 0.001){
+        return 0.f;
+    } else {
+        //output of acos is [0,pi/2], so we need to normalize that to [0,1]
+        return fElevation / M_PI_2;
     }
 }
 
-void    SoundSource::setAzimReverse(bool azimr){
-    _AzimReverse = azimr;
-}
+
 
 
 //-----------------------------------------------------------------------

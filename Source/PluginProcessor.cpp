@@ -201,7 +201,7 @@ void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &ne
         editor->moveFullyFixed(newLocation);
     }
     else if (m_iSelectedMovementConstraint == DeltaLocked){
-        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getPositionXY();
+        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getXY();
         editor->moveSourcesWithDelta(DeltaMove);
     }
     else if (m_iSelectedMovementConstraint == Circular){
@@ -570,25 +570,6 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     return String::empty;
 }
 
-//when in g_bUseXY mode, use this function to tell the processor to update its x and y parameters according to the
-//passed azimuth and elevation, both [0,1]
-JUCE_COMPILER_WARNING("shouldn't this thing be in soundSource like everything else?");
-void ZirkOscjuceAudioProcessor::updateSourceXYPosition(const int &p_iSource, const float &p_fAzimuth, const float &p_fElevation){
-    
-    //curangle needs to be converted to X and Y
-    float HRAzimuth   = PercentToHR(p_fAzimuth,   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float HRElevation = PercentToHR(p_fElevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    
-    float fX = -s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
-    fX = (fX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
-    float fY = -s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
-    fY = (fY + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscjuceAudioProcessor::s_iDomeRadius);
-
-    setParameterNotifyingHost (ZirkOSC_Azim_or_x_ParamId + (p_iSource*5), fX);
-    setParameterNotifyingHost (ZirkOSC_Elev_or_y_ParamId + (p_iSource*5), fY);
-}
-
-
 static const int g_kiDataVersion = 3;
 
 //==============================================================================
@@ -629,14 +610,13 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
         xml.setAttribute(channel, _AllSources[i].getChannel());
         azimuth.append(String(i), 10);
         if (s_bUseXY){
-            xml.setAttribute(azimuth, _AllSources[i].getX());//_AllSources[i].getAzimuth());
+            xml.setAttribute(azimuth, _AllSources[i].getX());
         } else {
             xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
         }
         elevation.append(String(i), 10);
         if (s_bUseXY){
-            JUCE_COMPILER_WARNING("is this supposed to return something in [-1,1]? because that was the range of getElevationRawValue()")
-            xml.setAttribute(elevation, _AllSources[i].getY());//_AllSources[i].getElevationRawValue());
+            xml.setAttribute(elevation, _AllSources[i].getY());
         } else {
             xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
         }
@@ -719,7 +699,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 } else {
                     s_bUseXY = true;
                     Point<float> p((float) xmlState->getDoubleAttribute(azimuth,0), (float) xmlState->getDoubleAttribute(elevation,0));
-                    _AllSources[i].setPositionXY(p);
+                    _AllSources[i].setXY(p);
                 }
                 cout << "setState g_bUseXY = " << s_bUseXY << "\n";
                 _AllSources[i].setChannel(xmlState->getIntAttribute(channel , 0));
@@ -1156,7 +1136,7 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
             
         }
         else if(processor->getSelectedMovementConstraintAsInteger()  == DeltaLocked){
-            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getPositionXY();
+            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getXY();
             theEditor->moveSourcesWithDelta(DeltaMove);
         }
         else if(processor->getSelectedMovementConstraintAsInteger()  == FixedAngles){

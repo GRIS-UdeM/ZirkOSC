@@ -32,7 +32,7 @@ public:
     SoundSource(float,float);
     ~SoundSource();
     //! returns the XY position in a Point <float>.
-    Point<float> getPositionXY();
+    Point<float> getXY();
     //! returns the channel (id in the Zirkonium)
     int     getChannel();
     //! sets the channel (id in the Zirkonium)
@@ -41,6 +41,9 @@ public:
     float   getX();
     //! retunrs the Y position, range [-r,r]
     float   getY();
+    
+    //set x and y, both are [-r,r]
+    void    setXY(Point <float>);
     
     //set X (range [-r,r]) using parameter x in percent, ie,  [0,1]
     void setX01(float x);
@@ -57,8 +60,9 @@ public:
     
     static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
     
-    //! sets the XY position (converts it in azimuth / elevation)
-    void    setPositionXY(Point <float>);
+    static void AzimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+
+    
     
     void    initAzimuthAndElevation(float p_fAzim, float p_fElev);
     //! returns the gain [0,1]
@@ -94,7 +98,8 @@ public:
 
         
 private:
-     
+    
+    JUCE_COMPILER_WARNING("those are currently [-r,r], should they instead be [0,1]?")
     float m_fX;
     
     float m_fY;
