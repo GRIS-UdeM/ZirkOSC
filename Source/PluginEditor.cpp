@@ -823,10 +823,14 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
 
     m_pTrajectoryTypeComboBox->setSelectedId(ourProcessor->getSelectedTrajectory());
     
-    
-    
-    m_pTrajectoryDirectionComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryDirection(), getNumSelectedTrajectoryDirections()));
-    m_pTrajectoryReturnComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryReturn(), getNumSelectedTrajectoryReturns()));
+    int iCurTrajDirection = getNumSelectedTrajectoryDirections();
+    if (iCurTrajDirection != -1){
+        m_pTrajectoryDirectionComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryDirection(), iCurTrajDirection));
+    }
+    int iCurTrajReturn = getNumSelectedTrajectoryReturns();
+    if (iCurTrajReturn != -1){
+        m_pTrajectoryReturnComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryReturn(), iCurTrajReturn));
+    }
     
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
@@ -1633,13 +1637,22 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
 int ZirkOscjuceAudioProcessorEditor::getNumSelectedTrajectoryDirections(){
     int iSelectedTraj = m_pTrajectoryTypeComboBox->getSelectedId();
     auto allDirections = Trajectory::getTrajectoryPossibleDirections(iSelectedTraj);
-    return allDirections->size();
+    if (allDirections != nullptr){
+        return allDirections->size();
+    } else {
+        return -1;
+    }
+    
 }
 
 int ZirkOscjuceAudioProcessorEditor::getNumSelectedTrajectoryReturns(){
     int iSelectedTraj = m_pTrajectoryTypeComboBox->getSelectedId();
     auto allReturns = Trajectory::getTrajectoryPossibleReturns(iSelectedTraj);
-    return allReturns->size();
+    if (allReturns != nullptr){
+        return allReturns->size();
+    } else {
+        return -1;
+    }
 }
 
 
