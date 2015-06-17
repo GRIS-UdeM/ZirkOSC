@@ -3021,7 +3021,7 @@
 		53E060E2F423652634CA95A8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0440;
+				LastUpgradeCheck = 0620;
 			};
 			buildConfigurationList = A521F2C1015CC84B37773B51 /* Build configuration list for PBXProject "ZirkOSC2" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -3165,7 +3165,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = ZirkOSC2;
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
 			};
@@ -3275,8 +3275,9 @@
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = ZirkOSC2;
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
 			};
