@@ -227,14 +227,14 @@ public:
     void sendOSCValues();
     
     //! Getter constrain type as integer, since parameters need to be stored as floats [0,1]
-    int getSelectedMovementConstraintAsInteger();
+    int getSelectedMovementConstraint();
     
     //! Getter for trajectory as integer, since parameters need to be stored as floats [0,1]
-    int getSelectedTrajectoryAsInteger();
+    int getSelectedTrajectory();
     
-    int getSelectedTrajectoryDirection();
+    float getSelectedTrajectoryDirection();
     
-    int getSelectedTrajectoryReturn();
+    float getSelectedTrajectoryReturn();
     
     //! Retunrs true if the Editor has to refresh the Gui.
     bool hasToRefreshGui(){return _RefreshGui;};
@@ -266,6 +266,7 @@ public:
     void setDomeRadius(int iNewRadius);
     
     void storeCurrentLocations();
+    
     void restoreCurrentLocations();
     
     //radius of the dome

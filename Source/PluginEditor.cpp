@@ -291,7 +291,7 @@ _MovementConstraintComboBox("MovementConstraint")
     _MovementConstraintComboBox.addItem("Equal Azimuth",   FixedAngles);
     _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyFixed);
     _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
-    int selected_id = ourProcessor->getSelectedMovementConstraintAsInteger();
+    int selected_id = ourProcessor->getSelectedMovementConstraint();
     _MovementConstraintComboBox.setSelectedId(selected_id);
     _MovementConstraintComboBox.addListener(this);
     addAndMakeVisible(&_MovementConstraintComboBox);
@@ -337,14 +337,16 @@ _MovementConstraintComboBox("MovementConstraint")
 
     //---------- TRAJECTORIES ----------
     m_pTrajectoryDirectionComboBox = m_oTrajectoryTab->getDirectionComboBox();
+    m_pTrajectoryDirectionComboBox->addListener(this);
     m_pTrajectoryReturnComboBox = m_oTrajectoryTab->getReturnComboBox();
-
+    m_pTrajectoryReturnComboBox->addListener(this);
+    
     m_pTrajectoryTypeComboBox = m_oTrajectoryTab->getTypeComboBox();
     for (int index = 1; index < Trajectory::NumberOfTrajectories(); ++index){
         m_pTrajectoryTypeComboBox->addItem(Trajectory::GetTrajectoryName(index), index);
     }
     
-    m_pTrajectoryTypeComboBox->setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
+    m_pTrajectoryTypeComboBox->setSelectedId(ourProcessor->getSelectedTrajectory());
     m_pTrajectoryTypeComboBox->addListener(this);
 
     //updateTrajectoryComboboxes();
@@ -416,7 +418,7 @@ ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
 }
 
 void ZirkOscjuceAudioProcessorEditor::updateTrajectoryComboboxes(){
-    int iSelectedTrajectory = ourProcessor->getSelectedTrajectoryAsInteger();
+    int iSelectedTrajectory = ourProcessor->getSelectedTrajectory();
     
     unique_ptr<vector<String>> allDirections = Trajectory::getTrajectoryPossibleDirections(iSelectedTrajectory);
     if (allDirections != nullptr){
@@ -425,7 +427,7 @@ void ZirkOscjuceAudioProcessorEditor::updateTrajectoryComboboxes(){
             m_pTrajectoryDirectionComboBox->addItem(*it, it - allDirections->begin()+1);
         }
         m_pTrajectoryDirectionComboBox->setVisible(true);
-        m_pTrajectoryDirectionComboBox->setSelectedId(ourProcessor->getSelectedTrajectoryDirection());
+        m_pTrajectoryDirectionComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryDirection(), getNumSelectedTrajectoryDirections()));
     } else {
         m_pTrajectoryDirectionComboBox->setVisible(false);
     }
@@ -437,7 +439,7 @@ void ZirkOscjuceAudioProcessorEditor::updateTrajectoryComboboxes(){
             m_pTrajectoryReturnComboBox->addItem(*it, it - allReturns->begin()+1);
         }
         m_pTrajectoryReturnComboBox->setVisible(true);
-        m_pTrajectoryReturnComboBox->setSelectedId(ourProcessor->getSelectedTrajectoryReturn());
+        m_pTrajectoryReturnComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryReturn(), getNumSelectedTrajectoryReturns()));
     } else {
         m_pTrajectoryReturnComboBox->setVisible(false);
     }
@@ -791,10 +793,10 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
 }
 
 void ZirkOscjuceAudioProcessorEditor::updateSliders(){
-    JUCE_COMPILER_WARNING("all those calls to getSources() should probably be changed to something like getParameter()");
     int selectedSource = ourProcessor->getSelectedSource();
     
     //based on selected source, update all sliders
+    JUCE_COMPILER_WARNING("all those calls to getSources() should probably be changed to something like getParameter()");
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
     
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
@@ -815,12 +817,16 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
-    _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraintAsInteger());
+    _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraint());
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
 
-    m_pTrajectoryTypeComboBox->setSelectedId(ourProcessor->getSelectedTrajectoryAsInteger());
-    JUCE_COMPILER_WARNING("need to also set direction and return comboboxes, using getParameter()?")
+    m_pTrajectoryTypeComboBox->setSelectedId(ourProcessor->getSelectedTrajectory());
+    
+    
+    
+    m_pTrajectoryDirectionComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryDirection(), getNumSelectedTrajectoryDirections()));
+    m_pTrajectoryReturnComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryReturn(), getNumSelectedTrajectoryReturns()));
     
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
@@ -875,7 +881,6 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             mTrProgressBar->setValue(0);
             mTrProgressBar->setVisible(true);
         }
-        
     }
 }
 
@@ -890,7 +895,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     }
     
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
-    int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
+    int selectedConstraint = ourProcessor->getSelectedMovementConstraint();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
     if (slider == m_pGainSlider) {
@@ -942,7 +947,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     }
     
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
-    int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();    //get selected movement constraint
+    int selectedConstraint = ourProcessor->getSelectedMovementConstraint();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
     if (slider == m_pGainSlider) {
@@ -1007,7 +1012,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     else if (slider == m_pAzimuthSlider || slider == m_pElevationSlider) {
 
         //get selected movement constraint
-        int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
+        int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
         
         if (slider == m_pAzimuthSlider ){
             //figure out where the slider should move the point
@@ -1116,7 +1121,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
 
         //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture). Logic needs this
         ourProcessor->setSelectedSource(source);
-        int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
+        int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
         if (selectedConstraint == Independant) {
             ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + source*5);
             ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + source*5);
@@ -1168,7 +1173,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         }
         
         //get current mouvement constraint
-        int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
+        int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
         if (selectedConstraint == Independant) {
 
             if (ZirkOscjuceAudioProcessor::s_bUseXY){
@@ -1212,7 +1217,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
     }
     
     if(_isSourceBeingDragged){
-        int selectedConstrain = ourProcessor->getSelectedMovementConstraintAsInteger();
+        int selectedConstrain = ourProcessor->getSelectedMovementConstraint();
         if(selectedConstrain == Independant){
             int selectedSource = ourProcessor->getSelectedSource();
             ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ selectedSource*5);
@@ -1499,7 +1504,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
             }
             
             //toggle fixed angle repositioning, if we need to
-            int selectedConstraint = ourProcessor->getSelectedMovementConstraintAsInteger();
+            int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
             if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
                 _isNeedToSetFixedAngles=true;
             }
@@ -1582,8 +1587,6 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     }
 }
 
-
-
 void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
 
     if (comboBoxThatHasChanged == &_MovementConstraintComboBox){
@@ -1615,7 +1618,28 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
             ourProcessor->setIsSyncWTempo(false);
         }
     }
+    
+    else if (comboBoxThatHasChanged == m_pTrajectoryDirectionComboBox){
+        float fSelectedDirection = IntToPercentStartsAtOne(comboBoxThatHasChanged->getSelectedId(), getNumSelectedTrajectoryDirections());
+        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectoryDirection_ParamId, fSelectedDirection);
+    }
+    
+    else if (comboBoxThatHasChanged == m_pTrajectoryReturnComboBox){
+        float fSelectedReturn = IntToPercentStartsAtOne(comboBoxThatHasChanged->getSelectedId(), getNumSelectedTrajectoryReturns());
+        ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_SelectedTrajectoryReturn_ParamId, fSelectedReturn);
+    }
+}
 
+int ZirkOscjuceAudioProcessorEditor::getNumSelectedTrajectoryDirections(){
+    int iSelectedTraj = m_pTrajectoryTypeComboBox->getSelectedId();
+    auto allDirections = Trajectory::getTrajectoryPossibleDirections(iSelectedTraj);
+    return allDirections->size();
+}
+
+int ZirkOscjuceAudioProcessorEditor::getNumSelectedTrajectoryReturns(){
+    int iSelectedTraj = m_pTrajectoryTypeComboBox->getSelectedId();
+    auto allReturns = Trajectory::getTrajectoryPossibleReturns(iSelectedTraj);
+    return allReturns->size();
 }
 
 

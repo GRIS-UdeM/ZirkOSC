@@ -110,6 +110,9 @@ private:
     
     bool m_bUseIpad;
 
+    int getNumSelectedTrajectoryDirections();
+    
+    int getNumSelectedTrajectoryReturns();
     
     //METHODS FOR DEALING WITH DIRECT WALLCIRCLE INTERACTIONS
     //! Called when a mouse is clicked, if mouse is clicked on source, make this source the selected source

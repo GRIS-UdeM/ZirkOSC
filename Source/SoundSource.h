@@ -45,6 +45,8 @@ public:
     //set x and y, both are [-r,r]
     void    setXY(Point <float>);
     
+    void setXY(float azim01, float elev01);
+    
     //set X (range [-r,r]) using parameter x in percent, ie,  [0,1]
     void setX01(float x);
     
@@ -98,8 +100,7 @@ public:
 
         
 private:
-    
-    JUCE_COMPILER_WARNING("those are currently [-r,r], should they instead be [0,1]?")
+
     float m_fX;
     
     float m_fY;
