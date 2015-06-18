@@ -63,7 +63,8 @@ public:
     static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
     
     static void AzimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
-
+    
+    static void clampXY(float &x, float &y);
     
     
     void    initAzimuthAndElevation(float p_fAzim, float p_fElev);

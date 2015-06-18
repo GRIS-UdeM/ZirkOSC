@@ -133,37 +133,42 @@ enum AllSyncOptions {
     SyncWTime
 };
 
-static float PercentToHR(float percent, float min, float max){
+template <typename T>
+inline T clamp(const T& n, const T& lower, const T& upper) {
+    return std::max(lower, std::min(n, upper));
+}
+
+inline float PercentToHR(float percent, float min, float max){
     return percent*(max-min)+min;
 }
 
-static float HRToPercent(float HRValue, float min, float max){
+inline float HRToPercent(float HRValue, float min, float max){
     return (HRValue-min)/(max-min);
 }
 
-static int PercentToIntStartsAtOne(float percent, int max){
+inline int PercentToIntStartsAtOne(float percent, int max){
     return percent * (max-1) + 1;
 }
 
 //max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
-static float IntToPercentStartsAtOne(int integer, int max){
+inline float IntToPercentStartsAtOne(int integer, int max){
     return static_cast<float>((integer-1)) / (max - 1);
 }
 
 //max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
-static float IntToPercentStartsAtZero(int integer, int max){
+inline float IntToPercentStartsAtZero(int integer, int max){
     return static_cast<float>(integer) / max;
 }
 
-static int PercentToIntStartsAtZero(float percent, int max){
+inline int PercentToIntStartsAtZero(float percent, int max){
     return percent * max;
 }
 
-static inline float degreeToRadian (float degree){
+inline float degreeToRadian (float degree){
     return ((degree/360.0f)*2*3.1415);
 }
 
-static inline float radianToDegree(float radian){
+inline float radianToDegree(float radian){
     return (radian/(2*3.1415)*360.0f);
 }
 

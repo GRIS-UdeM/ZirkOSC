@@ -1446,14 +1446,17 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(Point<float> DeltaMov
     }
     
     //simply need to move all sources to their current position + deltamove
-    
     for(int i=0; i<ourProcessor->getNbrSources(); ++i){
         
         Point<float> currentPosition = ourProcessor->getSources()[i].getXY();
         Point<float> newPosition = currentPosition + DeltaMove;
+
+        JUCE_COMPILER_WARNING("if we clamp, sources that fall outside the circle don,t bouce back; but if we don't clamp, location parameters fall outside their correct range...")
+        //SoundSource::clampXY(newPosition.x, newPosition.y);
         
         float fX01 = (newPosition.x + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);
         float fY01 = (newPosition.y + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);
+
 
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i * 5, fX01);
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i * 5, fY01);

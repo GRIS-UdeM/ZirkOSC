@@ -306,3 +306,9 @@ float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
         return fElevation / M_PI_2;
     }
 }
+
+//clamp x and y to [-r. r]
+void SoundSource::clampXY(float &p_fx, float &p_fy){
+    p_fx = clamp(p_fx, -static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
+    p_fy = clamp(p_fy, -static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
+}
