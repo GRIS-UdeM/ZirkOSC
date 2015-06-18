@@ -32,17 +32,42 @@ public:
     SoundSource(float,float);
     ~SoundSource();
     //! returns the XY position in a Point <float>.
-    Point<float> getPositionXY();
+    Point<float> getXY();
     //! returns the channel (id in the Zirkonium)
     int     getChannel();
     //! sets the channel (id in the Zirkonium)
     void    setChannel(int);
-    //! returns the X position
+    //! returns the X position, range [-r,r]
     float   getX();
-    //! retunrs the Y position
+    //! retunrs the Y position, range [-r,r]
     float   getY();
-    //! sets the XY position (converts it in azimuth / elevation)
-    void    setPositionXY(Point <float>);
+    
+    //set x and y, both are [-r,r]
+    void    setXY(Point <float>);
+    
+    void setXY(float azim01, float elev01);
+    
+    //set X (range [-r,r]) using parameter x in percent, ie,  [0,1]
+    void setX01(float x);
+    
+    void setY01(float y);
+    
+    float getX01();
+    
+    float getY01();
+    
+    static float XYtoAzim01(const float &x, const float &y);
+
+    static float XYtoElev01(const float &x, const float &y);
+    
+    static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
+    
+    static void AzimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+    
+    static void clampXY(float &x, float &y);
+    
+    
+    void    initAzimuthAndElevation(float p_fAzim, float p_fElev);
     //! returns the gain [0,1]
     float   getGain();
     //! sets the gain 
@@ -61,7 +86,7 @@ public:
     void    setElevationSpan(float);
     //! returns the elevation [0,1]
     float   getElevation();
-    //! returns the elevation [-1,1] form memory.
+    //! returns the elevation [-1,1] from memory.
     float   getElevationRawValue();
     //! set the elevation 
     void    setElevation(float);
@@ -76,8 +101,13 @@ public:
 
         
 private:
+
+    float m_fX;
+    
+    float m_fY;
+    
     //! If source Elevation is over 90° you have to reverse the azim
-    bool _AzimReverse =false;
+    bool _AzimReverse;
     //! Source channel id id send to Zirkonium
     int _Channel =0;
     //! Gain parameter stored in percent (see HRToPercent function).
@@ -90,10 +120,6 @@ private:
     float _AzimuthSpan=0;
     //! Elevation Span parameter stored in percent (see HRToPercent function).
     float _ElevationSpan=0;
-    //! Convert degreeToRadian
-    inline float degreeToRadian (float);
-    //! Convert radianToDegree
-    inline float radianToDegree (float);
     
 };
 

@@ -26,9 +26,9 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
 #include "Leap.h"
 
 /** ZirkLeap constructor taking two arguments and initializing its others components by default */
-
+JUCE_COMPILER_WARNING("this has access to both the processor and the editor, why?")
 ZirkLeap::ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor):
-mFilter(filter),
+ourProcessor(filter),
 mEditor(editor),
 mController(NULL),
 mPointableId(-1),
@@ -68,7 +68,7 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
         Leap::Frame frame = controller.frame();
         if (mPointableId >= 0)
         {
-            mFilter->setSelectedSource(mEditor->getCBSelectedSource()-1);
+            ourProcessor->setSelectedSource(mEditor->getCBSelectedSource()-1);
             Leap::Pointable p = frame.pointable(mPointableId);
             if (!p.isValid() || !p.isExtended())
             {
@@ -96,19 +96,19 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                             
                         }
                         
-                        int src = mFilter->getSelectedSource();
-                        Point<float> sp = mFilter->getSources()[src].getPositionXY();
+                        int src = ourProcessor->getSelectedSource();
+                        Point<float> sp = ourProcessor->getSources()[src].getXY();
                         sp.x += delta.x * scale;
                         sp.y -= delta.y * scale;
-                        int selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
+                        int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
                         if(selectedConstraint == Independant)
                         {
                             
-                            mFilter->getSources()[src].setPositionXY(sp);
-                            mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + src*5, mFilter->getSources()[src].getAzimuth());
-                            mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + src*5, mFilter->getSources()[src].getElevation());
+                            ourProcessor->getSources()[src].setXY(sp);
+                            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + src*5, ourProcessor->getSources()[src].getAzimuth());
+                            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + src*5, ourProcessor->getSources()[src].getElevation());
                             //send source position by osc
-                            mFilter->sendOSCValues();
+                            ourProcessor->sendOSCValues();
                             
                         }
                         else if (selectedConstraint == FixedAngles){
@@ -121,7 +121,7 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                             mEditor->moveFullyFixed(sp);
                         }
                         else if (selectedConstraint == DeltaLocked){
-                            Point<float> DeltaMove = sp - mFilter->getSources()[src].getPositionXY();
+                            Point<float> DeltaMove = sp - ourProcessor->getSources()[src].getXY();
                             mEditor->moveSourcesWithDelta(DeltaMove);
                         }
                         else if (selectedConstraint == Circular){

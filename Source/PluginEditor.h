@@ -68,13 +68,19 @@ public:
     
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
+    
     //! Move sources with a delta x and delta y (delta lock)
     void moveSourcesWithDelta(Point<float> DeltaMove);
+    
+    //void moveSourcesWithDelta(Point<float> DeltaMove, const MouseEvent &event);
+    
+    void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
     //! Move sources around the center
     void moveCircular(Point<float> );
     
     void moveCircular(Point<float>, bool isFixedRadius );
     
+    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
     //! Move sources with fixed angle between each source
     void moveFixedAngles(Point<float>);
@@ -118,6 +124,9 @@ private:
     
     bool m_bUseIpad;
 
+    int getNumSelectedTrajectoryDirections();
+    
+    int getNumSelectedTrajectoryReturns();
     
     //METHODS FOR DEALING WITH DIRECT WALLCIRCLE INTERACTIONS
     //! Called when a mouse is clicked, if mouse is clicked on source, make this source the selected source
@@ -317,12 +326,14 @@ private:
     //! projects screen coords to dome coords (circle to sphere)
     Point <float> xyToDegree (Point <float>);
 
-    //! converts degree to radian
-    inline float degreeToRadian (float);
-    //! converts radian to Degree
-    inline float radianToDegree (float);
+//    //! converts degree to radian
+//    inline float degreeToRadian (float);
+//    //! converts radian to Degree
+//    inline float radianToDegree (float);
     //! get the source order by the angle value
-    int * getOrderSources(int, SoundSource[], int nbrSources);
+    std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
+    
+    
     
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;

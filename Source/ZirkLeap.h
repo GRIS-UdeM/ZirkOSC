@@ -43,7 +43,7 @@ public:
     
     
 private:
-    ZirkOscjuceAudioProcessor *mFilter;
+    ZirkOscjuceAudioProcessor *ourProcessor;
     ZirkOscjuceAudioProcessorEditor *mEditor;
     
     ScopedPointer<Leap::Controller> mController;

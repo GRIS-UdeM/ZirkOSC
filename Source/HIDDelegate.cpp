@@ -23,7 +23,6 @@
 
 //==============================================================================
 static const float kSourceRadius = 10;
-static const float kSourceDiameter = kSourceRadius * 2;
 
 
 /** HIDDelegate constructor taking two arguments and initializaing its others components by default */
@@ -298,7 +297,6 @@ Oops:;
     We give JoystickUsed the usage to know which axis is being used, the scaledValue to know how much the joystick is bent. MaxValue is used to know the resolution of the axis. */
 void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValue, double maxValue)
 {
-    int z;
     for(int i =0; i< getNbButton(); i++)    //Sweep accross all the joystick button to check which is being pressed
     {
         if(this->getButtonPressedTab(i))
@@ -313,8 +311,8 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                     vx = ((scaledValue-(maxValue/2))/maxValue/2)*ZirkOscjuceAudioProcessor::s_iDomeRadius*4;
                     //Normalizing the coordonate from every joystick as float between -1 and 1, multiplied by the size of the panel to have the new x coordinate of the new point.
                     //printf("X : %f", scaledValue);
-                    selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
-                    newPoint = mFilter->getSources()[i].getPositionXY();
+                    selectedConstraint = mFilter->getSelectedMovementConstraint();
+                    newPoint = mFilter->getSources()[i].getXY();
                     
                     newPoint.setX(vx);
                     newPoint.setY(vy);  //setting the y coord of the point with the last known value
@@ -322,9 +320,9 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                     if(selectedConstraint == Independant)
                     {
                         
-                        mFilter->getSources()[i].setPositionXY(newPoint);
-                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5, mFilter->getSources()[i].getAzimuth());
-                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5, mFilter->getSources()[i].getElevation());
+                        mFilter->getSources()[i].setXY(newPoint);
+                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, mFilter->getSources()[i].getAzimuth());
+                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, mFilter->getSources()[i].getElevation());
                         //send source position by osc
                         mFilter->sendOSCValues();
                         
@@ -339,7 +337,7 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                         mEditor->moveFullyFixed(newPoint);
                     }
                     else if (selectedConstraint == DeltaLocked){
-                        Point<float> DeltaMove = newPoint - mFilter->getSources()[i].getPositionXY();
+                        Point<float> DeltaMove = newPoint - mFilter->getSources()[i].getXY();
                         mEditor->moveSourcesWithDelta(DeltaMove);
                     }
                     else if (selectedConstraint == Circular){
@@ -352,17 +350,17 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                     vy = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscjuceAudioProcessor::s_iDomeRadius*2;
                     //Normalizing the coordonate from every joystick as float between -1 and 1, multiplied by the size of the panel to have the new y coordinate of the new point.
                     //printf("Y : %f", scaledValue);
-                    selectedConstraint = mFilter->getSelectedMovementConstraintAsInteger();
-                    newPoint = mFilter->getSources()[i].getPositionXY();
+                    selectedConstraint = mFilter->getSelectedMovementConstraint();
+                    newPoint = mFilter->getSources()[i].getXY();
                     newPoint.setX(vx);      //setting the x coordinate with the last known value.
                     newPoint.setY(vy);
                     printf("x : %f    y : %f \n",vx,vy);
                     if(selectedConstraint == Independant)
                     {
                         
-                        mFilter->getSources()[i].setPositionXY(newPoint);
-                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5, mFilter->getSources()[i].getAzimuth());
-                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5, mFilter->getSources()[i].getElevation());
+                        mFilter->getSources()[i].setXY(newPoint);
+                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, mFilter->getSources()[i].getAzimuth());
+                        mFilter->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, mFilter->getSources()[i].getElevation());
                         //send source position by osc
                         mFilter->sendOSCValues();
                         
@@ -377,7 +375,7 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                         mEditor->moveFullyFixed(newPoint);
                     }
                     else if (selectedConstraint == DeltaLocked){
-                        Point<float> DeltaMove = newPoint - mFilter->getSources()[i].getPositionXY();
+                        Point<float> DeltaMove = newPoint - mFilter->getSources()[i].getXY();
                         mEditor->moveSourcesWithDelta(DeltaMove);
                     }
                     else if (selectedConstraint == Circular){

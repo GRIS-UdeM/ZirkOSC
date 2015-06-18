@@ -31,84 +31,82 @@
 #include "SoundSource.h"
 #include "Trajectories.h"
 
+//<<<<<<< HEAD
 typedef Point<float> FPoint;
 
 
 //import from octogris
 
-int IndexedAngleCompare(const void *a, const void *b);
-
-static const float kRadiusMax = 2;
-static const float kThetaMax = M_PI * 2;
-static const float kThetaLockRadius = 0.05;
-static const float kThetaLockRampRadius = 0.025;
-static const float kSourceMinDistance = 2.5 * 0.5;
-static const float kSourceMaxDistance = 20 * 0.5;
-
-
-
-static inline float normalize(float min, float max, float value)
-{
-    return (value - min) / (max - min);
-}
-
-static inline float denormalize(float min, float max, float value)
-{
-    return min + value * (max - min);
-}
-
-
-
-
-
-enum
-{
-    kFreeVolumeMode = 0,
-    kPanVolumeMode = 1,
-    kPanSpanMode = 2,
-    kNumberOfModes = 3
-};
-enum {
-    kSourceX = 0,
-    kSourceY,
-    kSourceD,
-    kSourceUnused,
-    kParamsPerSource
-};
-// x, y, attenuation, mute
-enum {
-    kSpeakerX = 0,
-    kSpeakerY,
-    kSpeakerA,
-    kSpeakerM,
-    kSpeakerUnused,
-    kParamsPerSpeakers };
-
-#define kConstantOffset (JucePlugin_MaxNumInputChannels * kParamsPerSource + JucePlugin_MaxNumOutputChannels * kParamsPerSpeakers)
-
-enum
-{
-    kLinkMovement =			0 + kConstantOffset,
-    kSmooth =				1 + kConstantOffset,
-    kVolumeNear =			2 + kConstantOffset,
-    kVolumeMid =			3 + kConstantOffset,
-    kVolumeFar =			4 + kConstantOffset,
-    kFilterNear =			5 + kConstantOffset,
-    kFilterMid =			6 + kConstantOffset,
-    kFilterFar =			7 + kConstantOffset,
-    kMaxSpanVolume =		8 + kConstantOffset,
-    kConstantParameters =	9
-};
-#define kNumberOfParameters (kConstantParameters + kConstantOffset)
-
-typedef struct
-{
-    int i;
-    float a;
-} IndexedAngle;
+//int IndexedAngleCompare(const void *a, const void *b);
+//
+//static const float kRadiusMax = 2;
+//static const float kThetaMax = M_PI * 2;
+//static const float kThetaLockRadius = 0.05;
+//static const float kThetaLockRampRadius = 0.025;
+//static const float kSourceMinDistance = 2.5 * 0.5;
+//static const float kSourceMaxDistance = 20 * 0.5;
+//
+//
+//static inline float normalize(float min, float max, float value)
+//{
+//    return (value - min) / (max - min);
+//}
+//
+//static inline float denormalize(float min, float max, float value)
+//{
+//    return min + value * (max - min);
+//}
+//
+//enum
+//{
+//    kFreeVolumeMode = 0,
+//    kPanVolumeMode = 1,
+//    kPanSpanMode = 2,
+//    kNumberOfModes = 3
+//};
+//enum {
+//    kSourceX = 0,
+//    kSourceY,
+//    kSourceD,
+//    kSourceUnused,
+//    kParamsPerSource
+//};
+//// x, y, attenuation, mute
+//enum {
+//    kSpeakerX = 0,
+//    kSpeakerY,
+//    kSpeakerA,
+//    kSpeakerM,
+//    kSpeakerUnused,
+//    kParamsPerSpeakers };
+//
+//#define kConstantOffset (JucePlugin_MaxNumInputChannels * kParamsPerSource + JucePlugin_MaxNumOutputChannels * kParamsPerSpeakers)
+//
+//enum
+//{
+//    kLinkMovement =			0 + kConstantOffset,
+//    kSmooth =				1 + kConstantOffset,
+//    kVolumeNear =			2 + kConstantOffset,
+//    kVolumeMid =			3 + kConstantOffset,
+//    kVolumeFar =			4 + kConstantOffset,
+//    kFilterNear =			5 + kConstantOffset,
+//    kFilterMid =			6 + kConstantOffset,
+//    kFilterFar =			7 + kConstantOffset,
+//    kMaxSpanVolume =		8 + kConstantOffset,
+//    kConstantParameters =	9
+//};
+//#define kNumberOfParameters (kConstantParameters + kConstantOffset)
+//
+//typedef struct
+//{
+//    int i;
+//    float a;
+//} IndexedAngle;
 
 
 
+//=======
+//>>>>>>> param
 //==============================================================================
 /**
  The processor class of the plug in
@@ -116,6 +114,7 @@ typedef struct
 class ZirkOscjuceAudioProcessor  : public AudioProcessor,public Timer
 {
 public:
+    
     //==============================================================================
     //! Builder
     ZirkOscjuceAudioProcessor();
@@ -244,8 +243,8 @@ public:
     
     enum ParameterIds
     {
-        ZirkOSC_Azim_ParamId = 0,
-        ZirkOSC_Elev_ParamId,
+        ZirkOSC_Azim_or_x_ParamId = 0,
+        ZirkOSC_Elev_or_y_ParamId,
         ZirkOSC_AzimSpan_ParamId,
         ZirkOSC_ElevSpan_ParamId,
         ZirkOSC_Gain_ParamId,
@@ -297,32 +296,21 @@ public:
         totalNumParams                      //50
     };
     
-    struct allParameters{
-        SoundSource _AllSources [8];
-        float   fMovementConstraint; //40
-        bool    bisSpanLinked;
-        bool    bisOscActive;
-        float   fSelectedTrajectory;
-        float   fSelectedSource;
-        double  dTrajectoryCount;
-        double  dTrajectoriesDuration;
-        bool    bSyncWTempo;
-        bool    bWriteTrajectories;
-    };
     
+ 
     
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     
     //! Getter constrain type as integer, since parameters need to be stored as floats [0,1]
-    int getSelectedMovementConstraintAsInteger();
+    int getSelectedMovementConstraint();
     
     //! Getter for trajectory as integer, since parameters need to be stored as floats [0,1]
-    int getSelectedTrajectoryAsInteger();
+    int getSelectedTrajectory();
     
-    int getSelectedTrajectoryDirection();
+    float getSelectedTrajectoryDirection();
     
-    int getSelectedTrajectoryReturn();
+    float getSelectedTrajectoryReturn();
     
     //! Retunrs true if the Editor has to refresh the Gui.
     bool hasToRefreshGui(){return _RefreshGui;};
@@ -354,15 +342,19 @@ public:
     void setDomeRadius(int iNewRadius);
     
     void storeCurrentLocations();
+    
     void restoreCurrentLocations();
     
     //radius of the dome
     static int s_iDomeRadius;
     
+    //! wheter this instance of the plugin will use xy (true) or azim and elev (false) parameters for automations
+    static bool s_bUseXY;
+    
     bool m_bUseIpad;
     
     bool isTrajectoryDone();
-    
+
     
     //NEW TRAJECTORY CLASS METHODS
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
@@ -377,9 +369,9 @@ public:
     
 private:
     
-
     
     
+    void initSources();
     
     void processTrajectories();
     
@@ -410,6 +402,9 @@ private:
     AudioProcessorEditor* _Editor;
     //! Sources array
     SoundSource _AllSources [8];
+    //Copy of all sources to be able to save and restore locations before and after a trajectory
+    SoundSource _AllSourcesBuffer [8];
+    
     //! Osc Sever thread (receiving)
     lo_server_thread _St;
     //! Zirkonium OSC address (sending)
@@ -432,21 +427,25 @@ private:
     bool _isSpanLinked;
     
     PluginHostType host;
+//<<<<<<< HEAD
     
-    allParameters m_parameterBuffer;
-    
-    //Import from octogris
-    
-    int mMovementMode;
-    Array<float> mParameters;
-    int mProcessMode;
-    bool mShowGridLines;
-    int mOscLeapSource = 1;
+//    allParameters m_parameterBuffer;
+//    
+//    //Import from octogris
+//    
+//    int mMovementMode;
+//    Array<float> mParameters;
+//    int mProcessMode;
+//    bool mShowGridLines;
+//    int mOscLeapSource = 1;
     bool _isJoystickEnabled;
 
 
     //OLD TRAJECTORIES
     
+//=======
+//  
+//>>>>>>> param
     //! Number of trajectories to draw in trajectory section
     double _TrajectoryCount;
     

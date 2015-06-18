@@ -39,7 +39,6 @@ Handling all the sound processing and directing.
 #include <regex.h>
 #include <arpa/inet.h>  //for inet_pton
 
-
 // using stringstream constructors.
 #include <iostream>
 
@@ -56,7 +55,9 @@ int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **arg
 int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 
-int ZirkOscjuceAudioProcessor::s_iDomeRadius = 150;
+int ZirkOscjuceAudioProcessor::s_iDomeRadius = 172;//150;
+
+bool ZirkOscjuceAudioProcessor::s_bUseXY = true;
 
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :_NbrSources(1),
@@ -72,7 +73,6 @@ _OscAddressIpad("10.0.1.3"),
 _OscPortIpadIncoming("10114"),
 _isOscActive(true),
 _isSpanLinked(true),
-m_parameterBuffer(),
 _TrajectoryCount(0),
 _TrajectoriesDuration(0),
 //_TrajectoriesPhiAsin(0),
@@ -81,13 +81,11 @@ _isSyncWTempo(false),
 _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0)
 {
- 
     //this toggles everything related to the ipad
     m_bUseIpad = true;
     
-    for(int i=0; i<8; ++i){
-        _AllSources[i]=SoundSource(0.0+((float)i/10.0),0.0);
-    }
+    initSources();
+
     _OscZirkonium   = lo_address_new("127.0.0.1", "10001");
     _OscIpad        = lo_address_new("10.0.1.3", "10114");
     _St             = lo_server_thread_new("10116", error);
@@ -110,6 +108,12 @@ _SelectedSourceForTrajectory(0)
     _LastUiHeight = ZirkOSC_Window_Default_Height;
     
     startTimer (50);
+}
+
+void ZirkOscjuceAudioProcessor::initSources(){
+    for(int i=0; i<8; ++i){
+        _AllSources[i]=SoundSource(0.0+((float)i/8.0),0.0);
+    }
 }
 
 
@@ -176,16 +180,14 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
 void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        m_parameterBuffer._AllSources[iCurSource] = _AllSources[iCurSource];
+        _AllSourcesBuffer[iCurSource] = _AllSources[iCurSource];
     }
 }
 
 void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        _AllSources[iCurSource] = m_parameterBuffer._AllSources[iCurSource];
+        _AllSources[iCurSource] = _AllSourcesBuffer[iCurSource];
     }
-    //_AllSources[0].setAzimReverse(true);
-
 }
 
 void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &newLocation){
@@ -203,7 +205,7 @@ void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &ne
         editor->moveFullyFixed(newLocation);
     }
     else if (m_iSelectedMovementConstraint == DeltaLocked){
-        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getPositionXY();
+        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getXY();
         editor->moveSourcesWithDelta(DeltaMove);
     }
     else if (m_iSelectedMovementConstraint == Circular){
@@ -411,11 +413,13 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
             return _TrajectoryCount;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             return _TrajectoriesDuration;
+            JUCE_COMPILER_WARNING("why is this a parameter?")
         case ZirkOSC_SyncWTempo_ParamId:
             if (_isSyncWTempo)
                 return 1.0f;
             else
                 return 0.0f;
+            JUCE_COMPILER_WARNING("why is this a parameter?")
         case ZirkOSC_WriteTrajectories_ParamId:
             if (_isWriteTrajectory)
                 return 1.0f;
@@ -424,9 +428,20 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
     }
     
     for(int i = 0; i<8;++i){
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return _AllSources[i].getAzimuth();
+        if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index)       {
+            if (s_bUseXY)
+                return (_AllSources[i].getX01()/* + s_iDomeRadius) / (2.f*s_iDomeRadius*/); //we normalize this value to [0,1]
+            else
+                return _AllSources[i].getAzimuth();
+        }
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return _AllSources[i].getAzimuthSpan();
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return _AllSources[i].getElevation();
+        else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index)       {
+            
+            if (s_bUseXY)
+                return (_AllSources[i].getY01()/* + s_iDomeRadius) / (2.f*s_iDomeRadius*/); //we normalize this value to [0,1]
+            else
+                return _AllSources[i].getElevation();
+        }
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return _AllSources[i].getElevationSpan();
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return _AllSources[i].getGain();
     }
@@ -493,9 +508,21 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     }
     //cout << "setParameter: " << index << " with value: " << newValue << "\n";
     for(int i = 0; i<8; ++i){
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       {_AllSources[i].setAzimuth(newValue); return;}
-        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   {_AllSources[i].setAzimuthSpan(newValue); return;}
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       {_AllSources[i].setElevation(newValue); return;}
+        if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
+            if (s_bUseXY)
+                _AllSources[i].setX01(newValue);
+            else
+                _AllSources[i].setAzimuth(newValue);
+            return;
+        }
+        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index) {_AllSources[i].setAzimuthSpan(newValue); return;}
+        else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index) {
+            if (s_bUseXY)
+                _AllSources[i].setY01(newValue);
+            else
+                _AllSources[i].setElevation(newValue);
+            return;
+        }
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   {_AllSources[i].setElevationSpan(newValue); return;}
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       {_AllSources[i].setGain(newValue); return;}
     }
@@ -529,18 +556,28 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     
     
     for(int i = 0; i<8;++i){
-        string strSourceId = " Src: " + std::to_string(getSources()[i].getChannel());
-        if      (ZirkOSC_Azim_ParamId + (i*5) == index)       return ZirkOSC_Azim_name[i] + strSourceId;
-        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i] + strSourceId;
-        else if (ZirkOSC_Elev_ParamId + (i*5) == index)       return ZirkOSC_Elev_name[i] + strSourceId;
-        else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i] + strSourceId;
-        else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i] + strSourceId;
+        string strSourceId = std::to_string(getSources()[i].getChannel()+1);
+        if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
+            if(s_bUseXY)
+                return strSourceId + ZirkOSC_X_name;
+            else
+                return ZirkOSC_Azim_name[i];
+        }
+        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i];
+        else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index){
+            if(s_bUseXY)
+                return strSourceId + ZirkOSC_Y_name;
+            else
+                return ZirkOSC_Elev_name[i];
+        }
+        else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i];
+        else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i];
     }
     return String::empty;
 }
 
+static const int g_kiDataVersion = 3;
 
-static const int kDataVersion = 2;
 //==============================================================================
 void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
@@ -548,6 +585,7 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
+    xml.setAttribute ("presetDataVersion", g_kiDataVersion);
     xml.setAttribute ("uiWidth", _LastUiWidth);
     xml.setAttribute ("uiHeight", _LastUiHeight);
     xml.setAttribute("PortOSC", _OscPortZirkonium);
@@ -563,33 +601,33 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("durationTrajectory", _TrajectoriesDuration);
     xml.setAttribute("isSyncWTempo", _isSyncWTempo);
     xml.setAttribute("isWriteTrajectory", _isWriteTrajectory);
-    
-    for(int i =0;i<8;++i){
-        String channel = "Channel";
-        String azimuth = "Azimuth";
-        String elevation = "Elevation";
-        String azimuthSpan = "AzimuthSpan";
-        String elevationSpan = "ElevationSpan";
-        String gain = "Gain";
-        channel.append(String(i), 10);
-        xml.setAttribute(channel, _AllSources[i].getChannel());
-        azimuth.append(String(i), 10);
-        xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
-        elevation.append(String(i), 10);
-        xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
-        azimuthSpan.append(String(i), 10);
-        xml.setAttribute(azimuthSpan, _AllSources[i].getAzimuthSpan());
-        elevationSpan.append(String(i), 10);
-        xml.setAttribute(elevationSpan, _AllSources[i].getElevationSpan());
-        gain.append(String(i), 10);
-        xml.setAttribute(gain, _AllSources[i].getGain());
-        
-    }
-
-    //version 2
     xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
     xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
     
+    for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
+        String channel = "Channel" + to_string(iCurSource);
+        String azimuthSpan = "AzimuthSpan" + to_string(iCurSource);
+        String elevationSpan = "ElevationSpan" + to_string(iCurSource);
+        String gain = "Gain" + to_string(iCurSource);
+        
+        xml.setAttribute(channel, _AllSources[iCurSource].getChannel());
+        
+        if (s_bUseXY){
+            String strX = "X" + to_string(iCurSource);
+            String strY = "Y" + to_string(iCurSource);
+            xml.setAttribute(strX, _AllSources[iCurSource].getX());
+            xml.setAttribute(strY, _AllSources[iCurSource].getY());
+        } else {
+            String azimuth = "Azimuth" + to_string(iCurSource);
+            String elevation = "Elevation" + to_string(iCurSource);
+            xml.setAttribute(azimuth, _AllSources[iCurSource].getAzimuth());
+            xml.setAttribute(elevation, _AllSources[iCurSource].getElevationRawValue());
+        }
+        xml.setAttribute(azimuthSpan, _AllSources[iCurSource].getAzimuthSpan());
+        xml.setAttribute(elevationSpan, _AllSources[iCurSource].getElevationSpan());
+        xml.setAttribute(gain, _AllSources[iCurSource].getGain());
+        
+    }
     copyXmlToBinary (xml, destData);
 }
 
@@ -608,6 +646,9 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
             // ok, now pull out our parameters. format is getIntAttribute("AttributeName: defaultValue);
+            //for version 1, we did not have this version integer stored, so we revert to the default value of 1
+            int version = static_cast<int>(xmlState->getIntAttribute("presetDataVersion", 1));
+            
             _LastUiWidth  = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
             _LastUiHeight = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
             _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 18032);
@@ -627,35 +668,38 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _TrajectoriesDuration = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
             _isSyncWTempo = xmlState->getBoolAttribute("isSyncWTempo", false);
             _isWriteTrajectory = xmlState->getBoolAttribute("isWriteTrajectory", false);
+            m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
+            m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
             
-            
-            for (int i=0;i<8;++i){
-                String channel = "Channel";
-                String azimuth = "Azimuth";
-                String elevation = "Elevation";
-                String azimuthSpan = "AzimuthSpan";
-                String elevationSpan = "ElevationSpan";
-                String gain = "Gain";
-                channel.append(String(i), 10);
-                azimuth.append(String(i), 10);
-                elevation.append(String(i), 10);
-                azimuthSpan.append(String(i), 10);
-                elevationSpan.append(String(i), 10);
-                gain.append(String(i), 10);
-                _AllSources[i].setChannel(xmlState->getIntAttribute(channel , 0));
-                _AllSources[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
-                _AllSources[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
-                _AllSources[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
-                _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
+            for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
+                String channel = "Channel" + to_string(iCurSource);
+                String azimuthSpan = "AzimuthSpan" + to_string(iCurSource);
+                String elevationSpan = "ElevationSpan" + to_string(iCurSource);
+                String gain = "Gain" + to_string(iCurSource);
+                
+                if (version == 1 ){
+                    //in version 1, we were storing azimuth and elevation instead of x and y
+                    s_bUseXY = false;
+                    //in DP, by the time we hit those here, the sources have already been initialized with g_bUseXY = true;
+                    initSources();
+                    String azimuth = "Azimuth" + to_string(iCurSource);
+                    String elevation = "Elevation" + to_string(iCurSource);
+                    _AllSources[iCurSource].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
+                    _AllSources[iCurSource].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                } else {
+                    s_bUseXY = true;
+                    String strX = "X" + to_string(iCurSource);
+                    String strY = "Y" + to_string(iCurSource);
+                    Point<float> p((float) xmlState->getDoubleAttribute(strX,0), (float) xmlState->getDoubleAttribute(strY,0));
+                    _AllSources[iCurSource].setXY(p);
+                }
+                _AllSources[iCurSource].setChannel(xmlState->getIntAttribute(channel , 0));
+                _AllSources[iCurSource].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
+                _AllSources[iCurSource].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
                 float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
-                _AllSources[i].setGain(fGain);
+                _AllSources[iCurSource].setGain(fGain);
             }
-            
-            if (kDataVersion >=2){
-                m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
-                m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
-            }
-            
+            JUCE_COMPILER_WARNING("probably a better place for this or a better way to do this?")
             changeZirkoniumOSCPort(_OscPortZirkonium);
             changeOSCReceiveIpad(_OscPortIpadIncoming.getIntValue());
             changeOSCSendIPad(_OscPortIpadOutgoing.getIntValue(), _OscAddressIpad);
@@ -666,11 +710,9 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCMovementType(){ //should be void with no argument if movement is included in the processor!!!!!
-    //lo_send(_OscIpad, "/movementmode", "i", _SelectedMovementConstraint);
     if (m_bUseIpad){
         lo_send(_OscIpad, "/movementmode", "f", _SelectedMovementConstraint);
     }
-
 }
 
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
@@ -682,6 +724,10 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
             float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
             int channel_osc = _AllSources[i].getChannel()-1;
             float gain_osc = _AllSources[i].getGain();
+            
+            //cout << "src " << i << " azim " << azim_osc << " elev " << elev_osc << "\n";
+            
+            
             lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
             
             if (m_bUseIpad){
@@ -799,14 +845,14 @@ int receiveBeginTouch(const char *path, const char *types, lo_arg **argv, int ar
         return 0;
     }
     
-    if (processor->getSelectedMovementConstraintAsInteger() == Independant){
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ i*5);
-        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ i*5);
+    if (processor->getSelectedMovementConstraint() == Independant){
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ i*5);
+        processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ i*5);
     }
     else{
         for (int j = 0; j<processor->getNbrSources() ;j++){
-            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ j*5);
-            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ j*5);
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ j*5);
+            processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ j*5);
             
         }
     }
@@ -829,18 +875,18 @@ int receiveEndTouch(const char *path, const char *types, lo_arg **argv, int argc
     if (i==processor->getNbrSources()){
         return 0;
     }
-    if (processor->getSelectedMovementConstraintAsInteger() != Independant){
+    if (processor->getSelectedMovementConstraint() != Independant){
         for (int j = 0; j<processor->getNbrSources() ;j++){
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ j*5);
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ j*5);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ j*5);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ j*5);
             
         }
         theEditor->setFixedAngle(false);
     }
     else{
-        if (processor->getSelectedMovementConstraintAsInteger() == Independant){
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId+ i*5);
-            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId+ i*5);
+        if (processor->getSelectedMovementConstraint() == Independant){
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ i*5);
+            processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId+ i*5);
             printf("OUT");
         }
     }
@@ -861,7 +907,7 @@ int receiveAzimuthSpanUpdate(const char *path, const char *types, lo_arg **argv,
     if (i==processor->getNbrSources()){
         return 0;
     }
-    if (processor->getSelectedMovementConstraintAsInteger() != Independant){
+    if (processor->getSelectedMovementConstraint() != Independant){
         
         for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + j*5,
@@ -870,7 +916,7 @@ int receiveAzimuthSpanUpdate(const char *path, const char *types, lo_arg **argv,
         }
     }
     else{
-        if (processor->getSelectedMovementConstraintAsInteger() == Independant){
+        if (processor->getSelectedMovementConstraint() == Independant){
             processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + i*5,
                                                   HRToPercent(value, ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max));
             printf("I am right there : %d, %f", channel_osc,value);
@@ -879,25 +925,22 @@ int receiveAzimuthSpanUpdate(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedMovementConstraintAsInteger() {
+int ZirkOscjuceAudioProcessor::getSelectedMovementConstraint() {
     return m_iSelectedMovementConstraint;
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedTrajectoryAsInteger() {
+int ZirkOscjuceAudioProcessor::getSelectedTrajectory() {
     int value = PercentToIntStartsAtOne(_SelectedTrajectory, TotalNumberTrajectories);
     return value;
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedTrajectoryDirection() {
-    int value = PercentToIntStartsAtOne(m_fSelectedTrajectoryDirection, TotalNumberTrajectories);
-    return value;
+float ZirkOscjuceAudioProcessor::getSelectedTrajectoryDirection() {
+    return m_fSelectedTrajectoryDirection;
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedTrajectoryReturn() {
-    int value = PercentToIntStartsAtOne(m_fSelectedTrajectoryReturn, TotalNumberTrajectories);
-    return value;
+float ZirkOscjuceAudioProcessor::getSelectedTrajectoryReturn() {
+    return m_fSelectedTrajectoryReturn;
 }
-
 
 int receiveAzimuthSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data){
     ZirkOscjuceAudioProcessor *processor = (ZirkOscjuceAudioProcessor*) user_data;
@@ -911,15 +954,13 @@ int receiveAzimuthSpanBegin(const char *path, const char *types, lo_arg **argv, 
     if (i==processor->getNbrSources()){
         return 0;
     }
-    if (processor->getSelectedMovementConstraintAsInteger() != Independant){
+    if (processor->getSelectedMovementConstraint() != Independant){
         
         for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + j*5);
-            
         }
-    }
-    else{
-        if (processor->getSelectedMovementConstraintAsInteger() == Independant){
+    }  else{
+        if (processor->getSelectedMovementConstraint() == Independant){
             processor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + i*5);
         }
     }
@@ -938,7 +979,7 @@ int receiveAzimuthSpanEnd(const char *path, const char *types, lo_arg **argv, in
     if (i==processor->getNbrSources()){
         return 0;
     }
-    if (processor->getSelectedMovementConstraintAsInteger() != Independant){
+    if (processor->getSelectedMovementConstraint() != Independant){
         
         for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + j*5);
@@ -946,7 +987,7 @@ int receiveAzimuthSpanEnd(const char *path, const char *types, lo_arg **argv, in
         }
     }
     else{
-        if (processor->getSelectedMovementConstraintAsInteger() == Independant){
+        if (processor->getSelectedMovementConstraint() == Independant){
             processor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_AzimSpan_ParamId + i*5);
         }
     }
@@ -966,7 +1007,7 @@ int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **arg
     if (i==processor->getNbrSources()){
         return 0;
     }
-    if (processor->getSelectedMovementConstraintAsInteger() != Independant){
+    if (processor->getSelectedMovementConstraint() != Independant){
         
         for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + j*5,
@@ -975,7 +1016,7 @@ int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **arg
         }
     }
     else{
-        if (processor->getSelectedMovementConstraintAsInteger() == Independant){
+        if (processor->getSelectedMovementConstraint() == Independant){
             processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + i*5,
                                                   HRToPercent(value, ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max));
         }
@@ -996,14 +1037,14 @@ int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv
     if (i==processor->getNbrSources()){
         return 0;
     }
-    if (processor->getSelectedMovementConstraintAsInteger() != Independant){
+    if (processor->getSelectedMovementConstraint() != Independant){
         
         for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->beginParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + j*5);
         }
     }
     else{
-        if (processor->getSelectedMovementConstraintAsInteger() == Independant){
+        if (processor->getSelectedMovementConstraint() == Independant){
             processor->beginParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + i*5);
         }
     }
@@ -1024,14 +1065,14 @@ int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, 
     if (i==processor->getNbrSources()){
         return 0;
     }
-    if (processor->getSelectedMovementConstraintAsInteger() != Independant){
+    if (processor->getSelectedMovementConstraint() != Independant){
         
         for (int j = 0; j<processor->getNbrSources() ;j++){
             processor->endParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + j*5);
         }
     }
     else{
-        if (processor->getSelectedMovementConstraintAsInteger() == Independant){
+        if (processor->getSelectedMovementConstraint() == Independant){
             processor->endParameterChangeGesture (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + i*5);
         }
     }
@@ -1057,30 +1098,37 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
     float elev_osc = argv[2]->f;
     Point<float> pointRelativeCenter = Point<float>(processor->domeToScreen(Point<float>(azim_osc,elev_osc)));
     ZirkOscjuceAudioProcessorEditor* theEditor =(ZirkOscjuceAudioProcessorEditor*) (processor->getEditor());
-    if(processor->getSelectedMovementConstraintAsInteger() == Independant){
-        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_ParamId + i*5,
-                                              HRToPercent(azim_osc, -M_PI, M_PI));
-        processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_ParamId + i*5,
-                                              HRToPercent(elev_osc, 0.0, M_PI/2.0));
+    if(processor->getSelectedMovementConstraint() == Independant){
+        if (ZirkOscjuceAudioProcessor::s_bUseXY){
+            //azim_osc and elev_osc need to be converted to X and Y
+            float fX = - ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(azim_osc) * cosf(elev_osc);
+            float fY = - ZirkOscjuceAudioProcessor::s_iDomeRadius * cosf(azim_osc) * cosf(elev_osc);
+            
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, fX);
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, fY);
+        } else {
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, HRToPercent(azim_osc, -M_PI, M_PI));
+            processor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, HRToPercent(elev_osc, 0.0, M_PI/2.0));
+        }
     }
     else{
         processor->setSelectedSource(i);
 
-        if(processor->getSelectedMovementConstraintAsInteger() == Circular){
+        if(processor->getSelectedMovementConstraint() == Circular){
             theEditor->moveCircular(pointRelativeCenter);
             
         }
-        else if(processor->getSelectedMovementConstraintAsInteger()  == DeltaLocked){
-            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getPositionXY();
+        else if(processor->getSelectedMovementConstraint()  == DeltaLocked){
+            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getXY();
             theEditor->moveSourcesWithDelta(DeltaMove);
         }
-        else if(processor->getSelectedMovementConstraintAsInteger()  == FixedAngles){
+        else if(processor->getSelectedMovementConstraint()  == FixedAngles){
             theEditor->moveFixedAngles(pointRelativeCenter);
         }
-        else if(processor->getSelectedMovementConstraintAsInteger() == FixedRadius){
+        else if(processor->getSelectedMovementConstraint() == FixedRadius){
             theEditor->moveCircularWithFixedRadius(pointRelativeCenter);
         }
-        else if(processor->getSelectedMovementConstraintAsInteger()  == FullyFixed){
+        else if(processor->getSelectedMovementConstraint()  == FullyFixed){
             theEditor->moveFullyFixed(pointRelativeCenter); 
         }
         
