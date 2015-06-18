@@ -13,16 +13,15 @@
 #include "HIDDelegate.h"
 #include "ZirkConstants.h"
 
-/*#if WIN32
+#if WIN32
  Component * CreateHIDComponent(OctogrisAudioProcessor *filter, OctogrisAudioProcessorEditor *editor)
  {
- // not implemented yet on windows
+  not implemented yet on windows
  return NULL;
  }
- #else*/
+ #else
 
 //==============================================================================
-static const float kSourceRadius = 10;
 
 
 /** HIDDelegate constructor taking two arguments and initializaing its others components by default */
@@ -307,7 +306,7 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
             //Switch to detect what part of the device is being used
             switch (usage) {
                 case 48:
-                    
+                    JUCE_COMPILER_WARNING("fix this bullshit using editor::mousedrag")
                     vx = ((scaledValue-(maxValue/2))/maxValue/2)*ZirkOscjuceAudioProcessor::s_iDomeRadius*4;
                     //Normalizing the coordonate from every joystick as float between -1 and 1, multiplied by the size of the panel to have the new x coordinate of the new point.
                     //printf("X : %f", scaledValue);
@@ -420,3 +419,5 @@ HIDDelegate::Ptr HIDDelegate::CreateHIDDelegate(ZirkOscjuceAudioProcessor *filte
 {
     return new HIDDelegate(filter, editor);
 }
+
+#endif

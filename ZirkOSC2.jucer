@@ -119,12 +119,11 @@
                aaxFolder="~/SDKs/AAX" vst3Folder="~/Documents/sdks/steinberg/VST3 SDK"
                externalLibraries="Leap">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" osxSDK="10.9 SDK" osxCompatibility="10.9 SDK" osxArchitecture="Native"
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="Native"
                        isDebug="1" optimisation="1" targetName="ZirkOSC2" headerPath="~/Documents/sdks/LeapSDK/include"
                        libraryPath="~/Documents/sdks/LeapSDK/lib"/>
-        <CONFIGURATION name="Release" osxSDK="10.9 SDK" osxCompatibility="10.9 SDK"
-                       osxArchitecture="64BitUniversal" isDebug="0" optimisation="2"
-                       targetName="ZirkOSC2" headerPath="~/Documents/sdks/LeapSDK/include"
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="64BitUniversal"
+                       isDebug="0" optimisation="2" targetName="ZirkOSC2" headerPath="~/Documents/sdks/LeapSDK/include"
                        libraryPath="~/Documents/sdks/LeapSDK/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
