@@ -234,6 +234,9 @@ private:
     Label _ZkmOscPortLabel;
     //! Label of the number of sources
     Label _NbrSourceLabel;
+    
+    Label m_VersionLabel;
+    
     //! Label of the outgoing port to the iPad
     Label _IpadOutgoingOscPortLabel;
     //! Label of the incoming port

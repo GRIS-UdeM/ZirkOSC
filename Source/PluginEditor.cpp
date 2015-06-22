@@ -280,6 +280,7 @@ _TabComponent(TabbedButtonBar::TabsAtTop),
 _FirstSourceIdLabel("channelNbr"),
 _ZkmOscPortLabel("OscPort"),
 _NbrSourceLabel("NbrSources"),
+m_VersionLabel("version"),
 _IpadOutgoingOscPortLabel("OSCPortOutgoingIPad"),
 _IpadIncomingOscPortLabel("OSCIpadInco"),
 _IpadIpAddressLabel("ipadadressLabel"),
@@ -295,12 +296,14 @@ _MovementConstraintComboBox("MovementConstraint")
     ourProcessor = getProcessor();
     
     //---------- RIGHT SIDE LABELS ----------
-    //_NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
-    JUCE_COMPILER_WARNING("don't use this label to write the version, make a new one")
-    _NbrSourceLabel.setText(STRING(JUCE_APP_VERSION),  dontSendNotification);
+    _NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
+    string version = STRING(JUCE_APP_VERSION);
+    m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
+    
+    addAndMakeVisible(&m_VersionLabel);
     
     _FirstSourceIdLabel.setText("1st source ID",  dontSendNotification);
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
@@ -568,7 +571,8 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
         iCurWidth = ZirkOSC_Window_Default_Width;
     }
     
-    //------------ LABELS ON RIGHT SIDE ------------
+    //------------ LABELS ON RIGHT SIDE +version label------------
+    m_VersionLabel.setBounds(5,5,80,25);
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
