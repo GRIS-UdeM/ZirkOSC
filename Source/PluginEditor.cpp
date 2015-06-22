@@ -1319,7 +1319,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         //repaint();
     }
     //m_pGainSlider->grabKeyboardFocus();
-    _NbrSourceLabel.grabKeyboardFocus();
+    _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
 int ZirkOscjuceAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
@@ -1390,7 +1390,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
     }
     ourProcessor->sendOSCValues();
     //m_pGainSlider->grabKeyboardFocus();
-    _NbrSourceLabel.grabKeyboardFocus();
+    _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
@@ -1416,7 +1416,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         _isSourceBeingDragged=false;
     }
     //m_pGainSlider->grabKeyboardFocus();
-    _NbrSourceLabel.grabKeyboardFocus();
+    _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(Point<float> p){
@@ -1791,7 +1791,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     ourProcessor->sendOSCMovementType();
     if (!_isReturnKeyPressedCalledFromFocusLost){
         //m_pGainSlider->grabKeyboardFocus();
-        _NbrSourceLabel.grabKeyboardFocus();
+        _MovementConstraintComboBox.grabKeyboardFocus();
     }
 }
 
