@@ -263,6 +263,9 @@ public:
     
 };
 
+#define STRING2(x) #x
+#define STRING(x) STRING2(x)
+#pragma message "LIBMEMCACHED_VERSION_HEX = " STRING(JUCE_APP_VERSION)
 
 /*!
 *  \param ownerFilter : the processor processor
@@ -292,7 +295,9 @@ _MovementConstraintComboBox("MovementConstraint")
     ourProcessor = getProcessor();
     
     //---------- RIGHT SIDE LABELS ----------
-    _NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
+    //_NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
+    JUCE_COMPILER_WARNING("don't use this label to write the version, make a new one")
+    _NbrSourceLabel.setText(STRING(JUCE_APP_VERSION),  dontSendNotification);
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
@@ -443,7 +448,6 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pTBEnableJoystick->setButtonText("Enable Joystick");
     m_pTBEnableJoystick->addListener(this);
     m_pTBEnableJoystick->setToggleState(false,dontSendNotification);
-    mButtonBeingPressed = -1;
     
     
     //LEAP MOTION TOGGLE BUTTON
@@ -996,109 +1000,69 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             mTrProgressBar->setVisible(true);
         }
     }
-    else if(button == m_pTBEnableLeap)
-    {
-        bool state = m_pTBEnableLeap->getToggleState();
-        if (state)
-        {
-            if (!gIsLeapConnected)
-            {
+    else if(button == m_pTBEnableLeap) {
+        if (m_pTBEnableLeap->getToggleState()) {
+            if (!gIsLeapConnected) {
                 m_pLBLeapState->setText("Leap not connected", dontSendNotification);
                 mController = new Leap::Controller();
-                if(!mController)
-                {
+                if(!mController) {
                     printf("Could not create leap controler");
-                }
-                else
-                {
+                } else {
                     mleap = ZirkLeap::CreateLeapComponent(ourProcessor, this);
-                    if(mleap)
-                    {
+                    if(mleap) {
                         JUCE_COMPILER_WARNING("gIsLeapConnected was created because no other options of the Leap Motion permitted to know if it was already connected but it's not the good way")
                         gIsLeapConnected = 1;
                         mController->addListener(*mleap);
-                    }
-                    else
-                    {
+                    } else {
                         m_pLBLeapState->setText("Leap not connected", dontSendNotification);
                     }
                 }
-                
-            }
-            else
-            {
+            } else {
                 m_pLBLeapState->setText("Leap option used by another ZirkOSC", dontSendNotification);
                 m_pTBEnableLeap->setToggleState(false, dontSendNotification); 
             }
-        }
-        else
-        {
-            if(gIsLeapConnected)
-            {
-                mController->enableGesture(Leap::Gesture::TYPE_INVALID);
-                mController->removeListener(*mleap);
-                mController = NULL;
-                gIsLeapConnected = 0;
-                m_pLBLeapState->setText("", dontSendNotification);
-            }
+        } else if(gIsLeapConnected) {
+            mController->enableGesture(Leap::Gesture::TYPE_INVALID);
+            mController->removeListener(*mleap);
+            mController = NULL;
+            gIsLeapConnected = 0;
+            m_pLBLeapState->setText("", dontSendNotification);
         }
     }
-    else if(button == m_pTBEnableJoystick)
-    {
-        bool state = m_pTBEnableJoystick->getToggleState();
-        mButtonBeingPressed = -1;
-        ourProcessor->setIsJoystickEnabled(state);
-        if (state)
-        {
-            
-            if (!gIOHIDManagerRef)
-            {
+    else if(button == m_pTBEnableJoystick) {
+        bool bIsJoystickEnabled = m_pTBEnableJoystick->getToggleState();
+        ourProcessor->setIsJoystickEnabled(bIsJoystickEnabled);
+        if (bIsJoystickEnabled) {
+            if (!gIOHIDManagerRef) {
                 m_pLBJoystickState->setText("Joystick not connected", dontSendNotification);
                 gIOHIDManagerRef = IOHIDManagerCreate(CFAllocatorGetDefault(),kIOHIDOptionsTypeNone);
-                if(!gIOHIDManagerRef)
-                {
+                if(!gIOHIDManagerRef) {
                     printf("Could not create IOHIDManager");
-                }
-                else
-                {
+                } else {
                     mHIDDel = HIDDelegate::CreateHIDDelegate(ourProcessor, this);
                     mHIDDel->Initialize_HID(this);
-                    if(mHIDDel->getDeviceSetRef())
-                    {
+                    if(mHIDDel->getDeviceSetRef()) {
                         m_pLBJoystickState->setText("Joystick connected", dontSendNotification);
-                    }
-                    else
-                    {
+                    } else {
                         m_pLBJoystickState->setText("Joystick not connected", dontSendNotification);
                         m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
                         gIOHIDManagerRef = NULL;
                     }
-                    
                 }
-                
-            }
-            else
-            {
+            } else {
                 ourProcessor->setIsJoystickEnabled(false);
                 m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
                 m_pLBJoystickState->setText("Joystick connected to another ZirkOSC", dontSendNotification);
             }
-        }
-        else
-        {
-            if(gIOHIDManagerRef)
-            {
-                IOHIDManagerUnscheduleFromRunLoop(gIOHIDManagerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-                IOHIDManagerRegisterInputValueCallback(gIOHIDManagerRef, NULL,this);
-                IOHIDManagerClose(gIOHIDManagerRef, kIOHIDOptionsTypeNone);
-                gIOHIDManagerRef = NULL;
-                gDeviceCFArrayRef = NULL;
-                gElementCFArrayRef = NULL;
-                mHIDDel = NULL;
-                m_pLBJoystickState->setText("", dontSendNotification);
-                
-            }
-            
+        } else if(gIOHIDManagerRef) {
+            IOHIDManagerUnscheduleFromRunLoop(gIOHIDManagerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+            IOHIDManagerRegisterInputValueCallback(gIOHIDManagerRef, NULL,this);
+            IOHIDManagerClose(gIOHIDManagerRef, kIOHIDOptionsTypeNone);
+            gIOHIDManagerRef = NULL;
+            gDeviceCFArrayRef = NULL;
+            gElementCFArrayRef = NULL;
+            mHIDDel = NULL;
+            m_pLBJoystickState->setText("", dontSendNotification);
         }
     }
 }

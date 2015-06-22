@@ -8,7 +8,7 @@
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="ZirkOSC2AU" pluginAUViewClass="ZirkOSCJUCEAU_V1"
               pluginRTASCategory="" aaxIdentifier="com.udem.ZirkOSC2" pluginAAXCategory="AAX_ePlugInCategory_Dynamics"
-              jucerVersion="3.1.1" buildVST3="1" buildRTAS="0" buildAAX="0"
+              jucerVersion="3.1.0" buildVST3="1" buildRTAS="0" buildAAX="0"
               pluginManufacturerEmail="support@yourcompany.com" includeBinaryInAppConfig="1">
   <MAINGROUP id="NlVJUT" name="ZirkOSC2">
     <GROUP id="{AF8672D5-0456-195A-C664-CD955466754A}" name="HIDManager">

@@ -55,12 +55,12 @@ public:
     IOHIDDeviceRef getDeviceRef(){return deviceRef;}
     //! Return the address of the set of devices
     CFSetRef getDeviceSetRef(){return deviceSetRef;}
-    //! Destroyer
+    //! Destructor
     virtual ~HIDDelegate() {};
 
 private:
     
-    ZirkOscjuceAudioProcessor *mFilter;
+    ZirkOscjuceAudioProcessor *mProcessor;
     ZirkOscjuceAudioProcessorEditor *mEditor;
     //! Number of counted buttons
     int nbButton;
@@ -72,6 +72,8 @@ private:
     CFSetRef deviceSetRef;
     //! Current device address
     IOHIDDeviceRef deviceRef;
+    
+    void move(int button);
    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HIDDelegate)
 };

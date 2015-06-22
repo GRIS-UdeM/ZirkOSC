@@ -42,6 +42,7 @@ Handling all the sound processing and directing.
 // using stringstream constructors.
 #include <iostream>
 
+
 using namespace std;
 //==============================================================================
 void error(int num, const char *m, const char *path);
@@ -55,7 +56,7 @@ int receiveElevationSpanUpdate(const char *path, const char *types, lo_arg **arg
 int receiveElevationSpanBegin(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 int receiveElevationSpanEnd(const char *path, const char *types, lo_arg **argv, int argc, void *data, void *user_data);
 
-int ZirkOscjuceAudioProcessor::s_iDomeRadius = 172;//150;
+int ZirkOscjuceAudioProcessor::s_iDomeRadius = 172;
 
 bool ZirkOscjuceAudioProcessor::s_bUseXY = true;
 
@@ -556,17 +557,17 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     
     
     for(int i = 0; i<8;++i){
-        string strSourceId = std::to_string(getSources()[i].getChannel()+1);
+        //string strSourceId = std::to_string(getSources()[i].getChannel()+1);
         if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
             if(s_bUseXY)
-                return strSourceId + ZirkOSC_X_name;
+                return to_string(i) + ZirkOSC_X_name;
             else
                 return ZirkOSC_Azim_name[i];
         }
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i];
         else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index){
             if(s_bUseXY)
-                return strSourceId + ZirkOSC_Y_name;
+                return to_string(i) + ZirkOSC_Y_name;
             else
                 return ZirkOSC_Elev_name[i];
         }
@@ -576,16 +577,90 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     return String::empty;
 }
 
-static const int g_kiDataVersion = 3;
+static const int s_kiDataVersion = 3;
 
 //==============================================================================
 void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+//    // You should use this method to store your parameters in the memory block.
+//    // You could do that either as raw data, or use the XML or ValueTree classes
+//    // as intermediaries to make it easy to save and load complex data.
+//    XmlElement xml ("ZIRKOSCJUCESETTINGS");
+//    xml.setAttribute ("presetDataVersion", g_kiDataVersion);
+//    xml.setAttribute ("uiWidth", _LastUiWidth);
+//    xml.setAttribute ("uiHeight", _LastUiHeight);
+//    xml.setAttribute("PortOSC", _OscPortZirkonium);
+//    xml.setAttribute("IncPort", _OscPortIpadIncoming);
+//    xml.setAttribute("OutPort", _OscPortIpadOutgoing);
+//    xml.setAttribute("AddIpad", _OscAddressIpad);
+//    xml.setAttribute("NombreSources", _NbrSources);
+//    xml.setAttribute("MovementConstraint", _SelectedMovementConstraint);
+//    xml.setAttribute("isSpanLinked", _isSpanLinked);
+//    xml.setAttribute("isOscActive", _isOscActive);
+//    xml.setAttribute("selectedTrajectory", _SelectedTrajectory);
+//    xml.setAttribute("nbrTrajectory", _TrajectoryCount);
+//    xml.setAttribute("durationTrajectory", _TrajectoriesDuration);
+//    xml.setAttribute("isSyncWTempo", _isSyncWTempo);
+//    xml.setAttribute("isWriteTrajectory", _isWriteTrajectory);
+//    xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
+//    xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
+//    
+//    for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
+////        String channel = "Channel" + to_string(iCurSource);
+////        String azimuthSpan = "AzimuthSpan" + to_string(iCurSource);
+////        String elevationSpan = "ElevationSpan" + to_string(iCurSource);
+////        String gain = "Gain" + to_string(iCurSource);
+////        
+////        xml.setAttribute(channel, _AllSources[iCurSource].getChannel());
+////        
+////        if (s_bUseXY){
+////            String strX = "X" + to_string(iCurSource);
+////            String strY = "Y" + to_string(iCurSource);
+////            xml.setAttribute(strX, _AllSources[iCurSource].getX());
+////            xml.setAttribute(strY, _AllSources[iCurSource].getY());
+////        } else {
+////            String azimuth = "Azimuth" + to_string(iCurSource);
+////            String elevation = "Elevation" + to_string(iCurSource);
+////            xml.setAttribute(azimuth, _AllSources[iCurSource].getAzimuth());
+////            xml.setAttribute(elevation, _AllSources[iCurSource].getElevationRawValue());
+////        }
+////        xml.setAttribute(azimuthSpan, _AllSources[iCurSource].getAzimuthSpan());
+////        xml.setAttribute(elevationSpan, _AllSources[iCurSource].getElevationSpan());
+////        xml.setAttribute(gain, _AllSources[iCurSource].getGain());
+//        
+//        String channel = "Channel";
+//        String azimuth = "Azimuth";
+//        String elevation = "Elevation";
+//        String azimuthSpan = "AzimuthSpan";
+//        String elevationSpan = "ElevationSpan";
+//        String gain = "Gain";
+//        
+//        channel.append(String(iCurSource), 10);
+//        azimuth.append(String(iCurSource), 10);
+//        elevation.append(String(iCurSource), 10);
+//        azimuthSpan.append(String(iCurSource), 10);
+//        elevationSpan.append(String(iCurSource), 10);
+//        gain.append(String(iCurSource), 10);
+//        
+//        xml.setAttribute(channel, _AllSources[iCurSource].getChannel());
+//        xml.setAttribute(azimuthSpan, _AllSources[iCurSource].getAzimuthSpan());
+//        xml.setAttribute(elevationSpan, _AllSources[iCurSource].getElevationSpan());
+//        xml.setAttribute(gain, _AllSources[iCurSource].getGain());
+//        
+//        
+//        if (s_bUseXY){
+//            String strX = "X" + to_string(iCurSource);
+//            String strY = "Y" + to_string(iCurSource);
+//            xml.setAttribute(strX, _AllSources[iCurSource].getX());
+//            xml.setAttribute(strY, _AllSources[iCurSource].getY());
+//        } else {
+//            xml.setAttribute(azimuth, _AllSources[iCurSource].getAzimuth());
+//            xml.setAttribute(elevation, _AllSources[iCurSource].getElevationRawValue());
+//        }
+//    }
+//    copyXmlToBinary (xml, destData);
+    
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
-    xml.setAttribute ("presetDataVersion", g_kiDataVersion);
     xml.setAttribute ("uiWidth", _LastUiWidth);
     xml.setAttribute ("uiHeight", _LastUiHeight);
     xml.setAttribute("PortOSC", _OscPortZirkonium);
@@ -601,33 +676,45 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("durationTrajectory", _TrajectoriesDuration);
     xml.setAttribute("isSyncWTempo", _isSyncWTempo);
     xml.setAttribute("isWriteTrajectory", _isWriteTrajectory);
-    xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
-    xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
     
-    for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
-        String channel = "Channel" + to_string(iCurSource);
-        String azimuthSpan = "AzimuthSpan" + to_string(iCurSource);
-        String elevationSpan = "ElevationSpan" + to_string(iCurSource);
-        String gain = "Gain" + to_string(iCurSource);
-        
-        xml.setAttribute(channel, _AllSources[iCurSource].getChannel());
+    for(int i =0;i<8;++i){
+        String channel = "Channel";
+        String azimuth = "Azimuth";
+        String elevation = "Elevation";
+        String azimuthSpan = "AzimuthSpan";
+        String elevationSpan = "ElevationSpan";
+        String gain = "Gain";
+        channel.append(String(i), 10);
+        xml.setAttribute(channel, _AllSources[i].getChannel());
+        //azimuth.append(String(i), 10);
+        //xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
+        //elevation.append(String(i), 10);
+        //xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
+        azimuthSpan.append(String(i), 10);
+        xml.setAttribute(azimuthSpan, _AllSources[i].getAzimuthSpan());
+        elevationSpan.append(String(i), 10);
+        xml.setAttribute(elevationSpan, _AllSources[i].getElevationSpan());
+        gain.append(String(i), 10);
+        xml.setAttribute(gain, _AllSources[i].getGain());
         
         if (s_bUseXY){
-            String strX = "X" + to_string(iCurSource);
-            String strY = "Y" + to_string(iCurSource);
-            xml.setAttribute(strX, _AllSources[iCurSource].getX());
-            xml.setAttribute(strY, _AllSources[iCurSource].getY());
+            String strX = "X" + to_string(i);
+            String strY = "Y" + to_string(i);
+            //cout << "saving src " << i << " x " << _AllSources[i].getX() << " y " << _AllSources[i].getY() << "\n";
+            xml.setAttribute(strX, _AllSources[i].getX());
+            xml.setAttribute(strY, _AllSources[i].getY());
         } else {
-            String azimuth = "Azimuth" + to_string(iCurSource);
-            String elevation = "Elevation" + to_string(iCurSource);
-            xml.setAttribute(azimuth, _AllSources[iCurSource].getAzimuth());
-            xml.setAttribute(elevation, _AllSources[iCurSource].getElevationRawValue());
+            xml.setAttribute(azimuth, _AllSources[i].getAzimuth());
+            xml.setAttribute(elevation, _AllSources[i].getElevationRawValue());
         }
-        xml.setAttribute(azimuthSpan, _AllSources[iCurSource].getAzimuthSpan());
-        xml.setAttribute(elevationSpan, _AllSources[iCurSource].getElevationSpan());
-        xml.setAttribute(gain, _AllSources[iCurSource].getGain());
-        
     }
+    
+    //version 2
+    xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
+    xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
+    //version 3
+    xml.setAttribute ("presetDataVersion", s_kiDataVersion);
+    
     copyXmlToBinary (xml, destData);
 }
 
@@ -645,10 +732,108 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         // make sure that it's actually our type of XML object..
         if (xmlState->hasTagName ("ZIRKOSCJUCESETTINGS"))
         {
-            // ok, now pull out our parameters. format is getIntAttribute("AttributeName: defaultValue);
-            //for version 1, we did not have this version integer stored, so we revert to the default value of 1
-            int version = static_cast<int>(xmlState->getIntAttribute("presetDataVersion", 1));
+//            // ok, now pull out our parameters. format is getIntAttribute("AttributeName: defaultValue);
+//            //for version 1, we did not have this version integer stored, so we revert to the default value of 1
+//            int version = static_cast<int>(xmlState->getIntAttribute("presetDataVersion", 1));
+//            
+//            _LastUiWidth  = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
+//            _LastUiHeight = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
+//            _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 18032);
+//            _OscPortIpadIncoming = xmlState->getStringAttribute("IncPort", "10114");
+//            _OscPortIpadOutgoing = xmlState->getStringAttribute("OutPort", "10112");
+//            _OscAddressIpad = xmlState -> getStringAttribute("AddIpad", "10.0.1.3");
+//            _NbrSources = xmlState->getIntAttribute("NombreSources", 1);
+//            _SelectedMovementConstraint = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
+//            
+//            //m_iSelectedMovementConstraint = _SelectedMovementConstraint * (TotalNumberConstraints-1) + 1;
+//            m_iSelectedMovementConstraint = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
+//            
+//            _isOscActive = xmlState->getBoolAttribute("isOscActive", true);
+//            _isSpanLinked = xmlState->getBoolAttribute("isSpanLinked", false);
+//            _SelectedTrajectory = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
+//            _TrajectoryCount = xmlState->getIntAttribute("nbrTrajectory", 0);
+//            _TrajectoriesDuration = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
+//            _isSyncWTempo = xmlState->getBoolAttribute("isSyncWTempo", false);
+//            _isWriteTrajectory = xmlState->getBoolAttribute("isWriteTrajectory", false);
+//            m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
+//            m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
+//            
+//            for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
+////                String channel = "Channel" + to_string(iCurSource);
+////                String azimuthSpan = "AzimuthSpan" + to_string(iCurSource);
+////                String elevationSpan = "ElevationSpan" + to_string(iCurSource);
+////                String gain = "Gain" + to_string(iCurSource);
+////                
+////                if (version == 1 ){
+////                    //in version 1, we were storing azimuth and elevation instead of x and y
+////                    s_bUseXY = false;
+////                    //in DP, by the time we hit those here, the sources have already been initialized with g_bUseXY = true;
+////                    initSources();
+////                    String azimuth = "Azimuth" + to_string(iCurSource);
+////                    String elevation = "Elevation" + to_string(iCurSource);
+////                    float fAzim = (float) xmlState->getDoubleAttribute(azimuth,0);
+////                    float fElev = (float) xmlState->getDoubleAttribute(elevation,0);
+////                    _AllSources[iCurSource].setAzimuth(fAzim);
+////                    _AllSources[iCurSource].setElevation(fElev);
+////                } else {
+////                    s_bUseXY = true;
+////                    String strX = "X" + to_string(iCurSource);
+////                    String strY = "Y" + to_string(iCurSource);
+////                    Point<float> p((float) xmlState->getDoubleAttribute(strX,0), (float) xmlState->getDoubleAttribute(strY,0));
+////                    _AllSources[iCurSource].setXY(p);
+////                }
+////                _AllSources[iCurSource].setChannel(xmlState->getIntAttribute(channel , 0));
+////                _AllSources[iCurSource].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
+////                _AllSources[iCurSource].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
+////                float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
+////                _AllSources[iCurSource].setGain(fGain);
+//                
+//                
+//                String channel = "Channel";
+//                String azimuth = "Azimuth";
+//                String elevation = "Elevation";
+//                String azimuthSpan = "AzimuthSpan";
+//                String elevationSpan = "ElevationSpan";
+//                String gain = "Gain";
+//                channel.append(String(iCurSource), 10);
+//                azimuth.append(String(iCurSource), 10);
+//                elevation.append(String(iCurSource), 10);
+//                azimuthSpan.append(String(iCurSource), 10);
+//                elevationSpan.append(String(iCurSource), 10);
+//                gain.append(String(iCurSource), 10);
+//                _AllSources[iCurSource].setChannel(xmlState->getIntAttribute(channel , 0));
+//                _AllSources[iCurSource].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
+//                _AllSources[iCurSource].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
+//                _AllSources[iCurSource].setGain((float) xmlState->getDoubleAttribute(gain,1));
+//                
+//                
+//                
+//                if (version == 1 ){
+//                    //in version 1, we were storing azimuth and elevation instead of x and y
+//                    s_bUseXY = false;
+//                    //in DP, by the time we hit those here, the sources have already been initialized with s_bUseXY = true;, so init again to set it to false
+//                    initSources();
+//                    _AllSources[iCurSource].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
+//                    _AllSources[iCurSource].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+//                    
+//                } else {
+//                    s_bUseXY = true;
+//                    String strX = "X" + to_string(iCurSource);
+//                    String strY = "Y" + to_string(iCurSource);
+//                    Point<float> p((float) xmlState->getDoubleAttribute(strX,0), (float) xmlState->getDoubleAttribute(strY,0));
+//                    _AllSources[iCurSource].setXY(p);
+//                }
+//                
+//            }
+//            JUCE_COMPILER_WARNING("probably a better place for this or a better way to do this?")
+//            changeZirkoniumOSCPort(_OscPortZirkonium);
+//            changeOSCReceiveIpad(_OscPortIpadIncoming.getIntValue());
+//            changeOSCSendIPad(_OscPortIpadOutgoing.getIntValue(), _OscAddressIpad);
+//            sendOSCValues();
+//            _RefreshGui=true;
             
+            // ok, now pull out our parameters. format is getIntAttribute("AttributeName: defaultValue);
+            int version = static_cast<int>(xmlState->getIntAttribute("presetDataVersion", 1));
             _LastUiWidth  = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
             _LastUiHeight = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
             _OscPortZirkonium = xmlState->getIntAttribute("PortOSC", 18032);
@@ -668,38 +853,52 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _TrajectoriesDuration = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
             _isSyncWTempo = xmlState->getBoolAttribute("isSyncWTempo", false);
             _isWriteTrajectory = xmlState->getBoolAttribute("isWriteTrajectory", false);
-            m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
-            m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
             
-            for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
-                String channel = "Channel" + to_string(iCurSource);
-                String azimuthSpan = "AzimuthSpan" + to_string(iCurSource);
-                String elevationSpan = "ElevationSpan" + to_string(iCurSource);
-                String gain = "Gain" + to_string(iCurSource);
+            
+            for (int i=0;i<8;++i){
+                String channel = "Channel";
+                String azimuth = "Azimuth";
+                String elevation = "Elevation";
+                String azimuthSpan = "AzimuthSpan";
+                String elevationSpan = "ElevationSpan";
+                String gain = "Gain";
+                channel.append(String(i), 10);
+                azimuth.append(String(i), 10);
+                elevation.append(String(i), 10);
+                azimuthSpan.append(String(i), 10);
+                elevationSpan.append(String(i), 10);
+                gain.append(String(i), 10);
                 
                 if (version == 1 ){
                     //in version 1, we were storing azimuth and elevation instead of x and y
                     s_bUseXY = false;
-                    //in DP, by the time we hit those here, the sources have already been initialized with g_bUseXY = true;
-                    initSources();
-                    String azimuth = "Azimuth" + to_string(iCurSource);
-                    String elevation = "Elevation" + to_string(iCurSource);
-                    _AllSources[iCurSource].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
-                    _AllSources[iCurSource].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                    //in DP, by the time we hit those here, the sources have already been initialized with s_bUseXY = true;, so init again to set it to false
+                    //initSources();
+                    _AllSources[i].setAzimuth((float) xmlState->getDoubleAttribute(azimuth,0));
+                    _AllSources[i].setElevation((float) xmlState->getDoubleAttribute(elevation,0));
+                    
                 } else {
                     s_bUseXY = true;
-                    String strX = "X" + to_string(iCurSource);
-                    String strY = "Y" + to_string(iCurSource);
+                    String strX = "X" + to_string(i);
+                    String strY = "Y" + to_string(i);
                     Point<float> p((float) xmlState->getDoubleAttribute(strX,0), (float) xmlState->getDoubleAttribute(strY,0));
-                    _AllSources[iCurSource].setXY(p);
+                    //cout << "retreiving src " << i << " x " << p.x << " y " << p.y << "\n";
+                    _AllSources[i].setXY(p);
                 }
-                _AllSources[iCurSource].setChannel(xmlState->getIntAttribute(channel , 0));
-                _AllSources[iCurSource].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
-                _AllSources[iCurSource].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
+                //cout << "setState s_bUseXY " << s_bUseXY << "\n";
+                
+                _AllSources[i].setChannel(xmlState->getIntAttribute(channel , 0));
+                _AllSources[i].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
+                _AllSources[i].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
                 float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
-                _AllSources[iCurSource].setGain(fGain);
+                _AllSources[i].setGain(fGain);
             }
-            JUCE_COMPILER_WARNING("probably a better place for this or a better way to do this?")
+            
+            if (s_kiDataVersion >=2){
+                m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
+                m_fSelectedTrajectoryReturn = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
+            }
+            
             changeZirkoniumOSCPort(_OscPortZirkonium);
             changeOSCReceiveIpad(_OscPortIpadIncoming.getIntValue());
             changeOSCSendIPad(_OscPortIpadOutgoing.getIntValue(), _OscAddressIpad);

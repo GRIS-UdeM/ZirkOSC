@@ -289,7 +289,6 @@ private:
     
     bool mFieldNeedRepaint;
     //joystick
-    int mButtonBeingPressed;
     ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
 
 
