@@ -188,8 +188,6 @@ private:
     
     TextButton* m_pWriteTrajectoryButton;
     
-    //static bool _AlreadySetTrajectorySource;
-    
     Label* m_pTrajectoryCountLabel;
     
     Label* m_pTrajectoryDurationLabel;

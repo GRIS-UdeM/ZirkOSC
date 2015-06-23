@@ -70,6 +70,7 @@ bool    SoundSource::contains(Point <float> p){
 }
 
 Point <float> SoundSource::getXY (){
+    JUCE_COMPILER_WARNING("this pointer is never deleted, use smart pointer or make sure it is deleted")
     return *(new Point <float> (getX(), getY()));
 }
 

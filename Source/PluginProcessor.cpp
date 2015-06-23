@@ -530,6 +530,53 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     cerr << "\n" << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter" << "\n";
 }
 
+//const String ZirkOscjuceAudioProcessor::getParameterName (int index)
+//{
+//    switch (index){
+//        case ZirkOSC_MovementConstraint_ParamId:
+//            return ZirkOSC_Movement_Constraint_name;
+//        case ZirkOSC_isOscActive_ParamId:
+//            return ZirkOSC_isOscActive_name;
+//        case ZirkOSC_isSpanLinked_ParamId:
+//            return ZirkOSC_isSpanLinked_name;
+//        case ZirkOSC_SelectedTrajectory_ParamId:
+//            return ZirkOSC_SelectedTrajectory_name;
+//        case ZirkOSC_SelectedTrajectoryDirection_ParamId:
+//            return ZirkOSC_SelectedTrajectoryDirection_name;
+//        case ZirkOSC_SelectedTrajectoryReturn_ParamId:
+//            return ZirkOSC_SelectedTrajectoryReturn_name;
+//        case ZirkOSC_TrajectoryCount_ParamId:
+//            return ZirkOSC_NbrTrajectories_name;
+//        case ZirkOSC_TrajectoriesDuration_ParamId:
+//            return ZirkOSC_DurationTrajectories_name;
+//        case ZirkOSC_SyncWTempo_ParamId:
+//            return ZirkOSC_isSyncWTempo_name;
+//        case ZirkOSC_WriteTrajectories_ParamId:
+//            return ZirkOSC_isWriteTrajectory_name;
+//    }
+//    
+//    
+//    for(int i = 0; i<8;++i){
+//        //string strSourceId = std::to_string(getSources()[i].getChannel()+1);
+//        if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
+//            if(s_bUseXY)
+//                return to_string(i) + ZirkOSC_X_name;
+//            else
+//                return ZirkOSC_Azim_name[i];
+//        }
+//        else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i];
+//        else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index){
+//            if(s_bUseXY)
+//                return to_string(i) + ZirkOSC_Y_name;
+//            else
+//                return ZirkOSC_Elev_name[i];
+//        }
+//        else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i];
+//        else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i];
+//    }
+//    return String::empty;
+//}
+
 const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 {
     switch (index){
@@ -556,20 +603,20 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
     }
     
     
-    for(int i = 0; i<8;++i){
+    for(int i = 0; i<8; ++i){
         //string strSourceId = std::to_string(getSources()[i].getChannel()+1);
         if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
-            if(s_bUseXY)
-                return to_string(i) + ZirkOSC_X_name;
-            else
-                return ZirkOSC_Azim_name[i];
+//            if(s_bUseXY)
+//                return to_string(i) + ZirkOSC_X_name;
+//            else
+                return ZirkOSC_Azim_or_x_name[i];
         }
         else if (ZirkOSC_AzimSpan_ParamId + (i*5) == index)   return ZirkOSC_AzimSpan_name[i];
         else if (ZirkOSC_Elev_or_y_ParamId + (i*5) == index){
-            if(s_bUseXY)
-                return to_string(i) + ZirkOSC_Y_name;
-            else
-                return ZirkOSC_Elev_name[i];
+//            if(s_bUseXY)
+//                return to_string(i) + ZirkOSC_Y_name;
+//            else
+                return ZirkOSC_Elev_or_y_name[i];
         }
         else if (ZirkOSC_ElevSpan_ParamId + (i*5) == index)   return ZirkOSC_ElevSpan_name[i];
         else if (ZirkOSC_Gain_ParamId + (i*5) == index)       return ZirkOSC_Gain_name[i];

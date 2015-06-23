@@ -60,8 +60,6 @@
 
 using namespace std;
 
-//bool ZirkOscjuceAudioProcessorEditor::_AlreadySetTrajectorySource = false;
-
 class MiniProgressBar : public Component
 {
 public:
@@ -129,11 +127,11 @@ public:
         m_pGainSlider           = addToList (new Slider(ZirkOSC_Gain_name[0]));
         m_pGainLabel            = addToList (new Label( ZirkOSC_Gain_name[0]));
 
-        m_pAzimuthSlider        = addToList (new Slider(ZirkOSC_Azim_name[0]));
-        m_pAzimuthLabel         = addToList (new Label( ZirkOSC_Azim_name[0]));
+        m_pAzimuthSlider        = addToList (new Slider(ZirkOSC_Azim_or_x_name[0]));
+        m_pAzimuthLabel         = addToList (new Label( ZirkOSC_Azim_or_x_name[0]));
         
-        m_pElevationSlider      = addToList (new Slider(ZirkOSC_Elev_name[0]));
-        m_pElevationLabel       = addToList (new Label( ZirkOSC_Elev_name[0]));
+        m_pElevationSlider      = addToList (new Slider(ZirkOSC_Elev_or_y_name[0]));
+        m_pElevationLabel       = addToList (new Label( ZirkOSC_Elev_or_y_name[0]));
         
         m_pAzimuthSpanSlider    = addToList (new Slider(ZirkOSC_AzimSpan_name[0]));
         m_pAzimuthSpanLabel     = addToList (new Label( ZirkOSC_AzimSpan_name[0]));
@@ -265,7 +263,7 @@ public:
 
 #define STRING2(x) #x
 #define STRING(x) STRING2(x)
-#pragma message "LIBMEMCACHED_VERSION_HEX = " STRING(JUCE_APP_VERSION)
+
 
 /*!
 *  \param ownerFilter : the processor processor

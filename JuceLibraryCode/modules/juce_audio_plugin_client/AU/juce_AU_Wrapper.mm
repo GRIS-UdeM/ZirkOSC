@@ -478,6 +478,10 @@ public:
                 outParameterInfo.flags |= kAudioUnitParameterFlag_IsGlobalMeta;
 
             AUBase::FillInParameterName (outParameterInfo, name.toCFString(), true);
+            
+//            CFStringRef cfName (name.toCFString());
+//            AUBase::FillInParameterName (outParameterInfo, cfName, true);
+//            CFRelease (cfName);
 
             outParameterInfo.minValue = 0.0f;
             outParameterInfo.maxValue = 1.0f;

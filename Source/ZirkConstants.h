@@ -191,14 +191,18 @@
 
 const int ZirkOSC_Max_Sources = 8;
 
-const String ZirkOSC_Azim_name [ZirkOSC_Max_Sources] = {"1 Azimuth", "2 Azimuth","3 Azimuth","4 Azimuth","5 Azimuth","6 Azimuth","7 Azimuth","8 Azimuth"};
-const String ZirkOSC_X_name = " X";
+//const String ZirkOSC_Azim_name [ZirkOSC_Max_Sources] = {"1 Azimuth", "2 Azimuth","3 Azimuth","4 Azimuth","5 Azimuth","6 Azimuth","7 Azimuth","8 Azimuth"};
+const String ZirkOSC_Azim_or_x_name [ZirkOSC_Max_Sources] = {"1 X", "2 X","3 X","4 X","5 X","6 X","7 X","8 X"};
+
+//const String ZirkOSC_X_name    [ZirkOSC_Max_Sources] = {"1 X", "2 X","3 X","4 X","5 X","6 X","7 X","8 X"};
+//const String ZirkOSC_X_name = " X";
 const float  ZirkOSC_Azim_Min = -180.0f;
 const float  ZirkOSC_Azim_Max = 180.0f;
 const float  ZirkOSC_Azim_Def = 0.0f;
 
 const String ZirkOSC_Elev_name [ZirkOSC_Max_Sources] = {"1 Elevation", "2 Elevation","3 Elevation","4 Elevation","5 Elevation","6 Elevation","7 Elevation","8 Elevation"};
-const String ZirkOSC_Y_name = " Y";
+const String ZirkOSC_Elev_or_y_name [ZirkOSC_Max_Sources] = {"1 Y", "2 Y","3 Y","4 Y","5 Y","6 Y","7 Y","8 Y"};
+//const String ZirkOSC_Y_name = " Y";
 const float  ZirkOSC_Elev_Min = 0.0f;
 const float  ZirkOSC_Elev_Max = 90.0f;
 const float  ZirkOSC_Elev_Def = 0.0f;
