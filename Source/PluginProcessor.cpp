@@ -91,6 +91,7 @@ _SelectedSourceForTrajectory(0)
     _OscIpad        = lo_address_new("10.0.1.3", "10114");
     _St             = lo_server_thread_new("10116", error);
     if(_St){
+        JUCE_COMPILER_WARNING("what is this stuff? is this for the zirkonium or for the ipad?")
         lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
         lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
         lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
@@ -191,26 +192,34 @@ void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
     }
 }
 
-void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(Point<float> &newLocation){
+void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(float &p_fX, float &p_fY){
 
     JUCE_COMPILER_WARNING("this is terrible. processor calls editor calls processor")
     ZirkOscjuceAudioProcessorEditor* editor = (ZirkOscjuceAudioProcessorEditor*) getEditor();
     //if we get here, we're not in independent mode
     if (m_iSelectedMovementConstraint == FixedAngles){
-        editor->moveFixedAngles(newLocation);
+        editor->moveFixedAngles(p_fX, p_fY);
     }
     else if (m_iSelectedMovementConstraint == FixedRadius){
-        editor->moveCircularWithFixedRadius(newLocation);
+        editor->moveCircularWithFixedRadius(p_fX, p_fY);
     }
     else if (m_iSelectedMovementConstraint == FullyFixed){
-        editor->moveFullyFixed(newLocation);
+        editor->moveFullyFixed(p_fX, p_fY);
     }
     else if (m_iSelectedMovementConstraint == DeltaLocked){
-        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getXY();
-        editor->moveSourcesWithDelta(DeltaMove);
+//        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getXY();
+//        editor->moveSourcesWithDelta(DeltaMove);
+        
+        JUCE_COMPILER_WARNING("name this properly")
+        float x,y;
+        getSources()[_SelectedSourceForTrajectory].getXY(x,y);
+        float deltax = p_fX -x;
+        float deltay = p_fY -y;
+        editor->moveSourcesWithDelta(deltax, deltay);
+        
     }
     else if (m_iSelectedMovementConstraint == Circular){
-        editor->moveCircular(newLocation);
+        editor->moveCircular(p_fX, p_fY);
     }
 }
 
@@ -1361,21 +1370,29 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
         processor->setSelectedSource(i);
 
         if(processor->getSelectedMovementConstraint() == Circular){
-            theEditor->moveCircular(pointRelativeCenter);
+            theEditor->moveCircular(pointRelativeCenter.x, pointRelativeCenter.y);
             
         }
         else if(processor->getSelectedMovementConstraint()  == DeltaLocked){
-            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getXY();
-            theEditor->moveSourcesWithDelta(DeltaMove);
+//            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getXY();
+//            theEditor->moveSourcesWithDelta(DeltaMove);
+
+            JUCE_COMPILER_WARNING("name this properly")
+            float x,y;
+            processor->getSources()[processor->getSelectedSource()].getXY(x,y);
+            float deltax = pointRelativeCenter.x -x;
+            float deltay = pointRelativeCenter.y -y;
+            theEditor->moveSourcesWithDelta(deltax, deltay);
+        
         }
         else if(processor->getSelectedMovementConstraint()  == FixedAngles){
-            theEditor->moveFixedAngles(pointRelativeCenter);
+            theEditor->moveFixedAngles(pointRelativeCenter.x, pointRelativeCenter.y);
         }
         else if(processor->getSelectedMovementConstraint() == FixedRadius){
-            theEditor->moveCircularWithFixedRadius(pointRelativeCenter);
+            theEditor->moveCircularWithFixedRadius(pointRelativeCenter.x, pointRelativeCenter.y);
         }
         else if(processor->getSelectedMovementConstraint()  == FullyFixed){
-            theEditor->moveFullyFixed(pointRelativeCenter); 
+            theEditor->moveFullyFixed(pointRelativeCenter.x, pointRelativeCenter.y);
         }
         
     }

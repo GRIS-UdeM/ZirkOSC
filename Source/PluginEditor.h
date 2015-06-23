@@ -66,28 +66,24 @@ public:
     //! called when window is resized
     void resized() override;
     
-    void move (int, float, float);    
-    
-    //! Move the sources circular with a radius fixed
-    void moveCircularWithFixedRadius (Point<float>);
-    
-    //! Move sources with a delta x and delta y (delta lock)
-    void moveSourcesWithDelta(Point<float> DeltaMove);
-    
-    //void moveSourcesWithDelta(Point<float> DeltaMove, const MouseEvent &event);
+    void move (int, float, float);
+   
+    void moveSourcesWithDelta(const float &p_fX, const float &p_fY);
     
     void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
-    //! Move sources around the center
-    void moveCircular(Point<float> );
     
-    void moveCircular(Point<float>, bool isFixedRadius );
+    void moveCircular(const float &p_fX, const float &p_fY );
+    
+    void moveCircularWithFixedRadius (const float &p_fX, const float &p_fY);
+    
+    void moveCircular(const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
     
     void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
     //! Move sources with fixed angle between each source
-    void moveFixedAngles(Point<float>);
+    void moveFixedAngles(const float &p_fX, const float &p_fY);
     //! Move sources with fixed angles and fixed radius
-    void moveFullyFixed(Point<float>);
+    void moveFullyFixed(const float &p_fX, const float &p_fY);
     //! Setter FixedAngle
     void setFixedAngle(bool fixedAngle);
     //! Getter FixedAngle
@@ -324,10 +320,10 @@ private:
     //! Paint the Zenith circle, circle on the selected source
     void paintZenithCircle (Graphics& g);
     
+    JUCE_COMPILER_WARNING("we should never need this with xy params")
     //! projects dome coords to screen coords (sphere to circle)
     Point <float> degreeToXy (Point <float>);
-    //! projects screen coords to dome coords (circle to sphere)
-    Point <float> xyToDegree (Point <float>);
+
 
 //    //! converts degree to radian
 //    inline float degreeToRadian (float);

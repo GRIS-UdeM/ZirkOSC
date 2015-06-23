@@ -31,9 +31,8 @@ public:
     SoundSource();
     SoundSource(float,float);
     ~SoundSource();
-    //! returns the XY position in a Point <float>.
-    Point<float> getXY();
-    std::unique_ptr<Point<float>> getXY(int i);
+    
+    void getXY(float &fX, float &fY);
     //! returns the channel (id in the Zirkonium)
     int     getChannel();
     //! sets the channel (id in the Zirkonium)

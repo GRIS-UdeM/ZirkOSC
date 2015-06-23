@@ -72,8 +72,6 @@ private:
     CFSetRef deviceSetRef;
     //! Current device address
     IOHIDDeviceRef deviceRef;
-    
-    void move(int button);
    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HIDDelegate)
 };

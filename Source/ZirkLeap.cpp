@@ -85,6 +85,8 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                 {
                     if (mLastPositionValid)
                     {
+                        
+                        JUCE_COMPILER_WARNING("this bullshit should use the editor::move function")
                         //Leap Motion mouvement are calculated from the last position in order to have something dynamic and ergonomic
                         Leap::Vector delta = pos- mLastPosition;
                         
@@ -97,14 +99,15 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                         }
                         
                         int src = ourProcessor->getSelectedSource();
-                        Point<float> sp = ourProcessor->getSources()[src].getXY();
-                        sp.x += delta.x * scale;
-                        sp.y -= delta.y * scale;
+                        float fX, fY;
+                        ourProcessor->getSources()[src].getXY(fX, fY);
+                        fX += delta.x * scale;
+                        fY -= delta.y * scale;
                         int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
                         if(selectedConstraint == Independant)
                         {
                             
-                            ourProcessor->getSources()[src].setXY(sp);
+                            ourProcessor->getSources()[src].setXY(fX, fY);
                             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + src*5, ourProcessor->getSources()[src].getAzimuth());
                             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + src*5, ourProcessor->getSources()[src].getElevation());
                             //send source position by osc
@@ -112,20 +115,28 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                             
                         }
                         else if (selectedConstraint == FixedAngles){
-                            mEditor->moveFixedAngles(sp);
+                            mEditor->moveFixedAngles(fX, fY);
                         }
                         else if (selectedConstraint == FixedRadius){
-                            mEditor->moveCircularWithFixedRadius(sp);
+                            mEditor->moveCircularWithFixedRadius(fX, fY);
                         }
                         else if (selectedConstraint == FullyFixed){
-                            mEditor->moveFullyFixed(sp);
+                            mEditor->moveFullyFixed(fX, fY);
                         }
                         else if (selectedConstraint == DeltaLocked){
-                            Point<float> DeltaMove = sp - ourProcessor->getSources()[src].getXY();
-                            mEditor->moveSourcesWithDelta(DeltaMove);
+//                            Point<float> DeltaMove = sp - ourProcessor->getSources()[src].getXY();
+//                            mEditor->moveSourcesWithDelta(DeltaMove);
+                            
+                            JUCE_COMPILER_WARNING("name this properly")
+                            float x,y;
+                            ourProcessor->getSources()[src].getXY(x,y);
+                            float deltax = fX -x;
+                            float deltay = fY -y;
+                            mEditor->moveSourcesWithDelta(deltax, deltay);
+                            
                         }
                         else if (selectedConstraint == Circular){
-                            mEditor->moveCircular(sp);
+                            mEditor->moveCircular(fX, fY);
                         }
                         
                         

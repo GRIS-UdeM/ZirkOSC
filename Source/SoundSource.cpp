@@ -69,14 +69,11 @@ bool    SoundSource::contains(Point <float> p){
     return (p.getX()< getX()+5 && p.getX()> getX()-5 && p.getY()< getY()+5 && p.getY()> getY()-5 );
 }
 
-Point<float> SoundSource::getXY(){
-    JUCE_COMPILER_WARNING("this pointer is never deleted, use smart pointer or make sure it is deleted")
-    return *(new Point <float> (getX(), getY()));
+void SoundSource::getXY(float &fX, float &fY){
+    fX = getX();
+    fY = getY();
 }
 
-std::unique_ptr<Point<float>> SoundSource::getXY (int i){
-    return std::unique_ptr<Point<float>>(new Point <float> (getX(), getY()));
-}
 
 bool    SoundSource::isStillInTheDome(Point<float> move){
     Point<float> p = Point<float>(this->getX() + move.getX(), this->getY() + move.getY());

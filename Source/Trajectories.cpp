@@ -167,9 +167,13 @@ void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation)
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), p_fNewElevation);
         }
     } else {
+        JUCE_COMPILER_WARNING("again, need azimtoxy conversion")
         SoundSource newLocationSource(p_fNewAzimuth, p_fNewElevation);
-        Point<float> newLocation = newLocationSource.getXY();
-        ourProcessor->moveTrajectoriesWithConstraints(newLocation);
+        float x,y;
+        newLocationSource.getXY(x,y);
+        
+        
+        ourProcessor->moveTrajectoriesWithConstraints(x,y);
     }
 }
 

@@ -31,83 +31,6 @@
 #include "SoundSource.h"
 #include "Trajectories.h"
 
-//<<<<<<< HEAD
-typedef Point<float> FPoint;
-
-
-//import from octogris
-
-//int IndexedAngleCompare(const void *a, const void *b);
-//
-//static const float kRadiusMax = 2;
-//static const float kThetaMax = M_PI * 2;
-//static const float kThetaLockRadius = 0.05;
-//static const float kThetaLockRampRadius = 0.025;
-//static const float kSourceMinDistance = 2.5 * 0.5;
-//static const float kSourceMaxDistance = 20 * 0.5;
-//
-//
-//static inline float normalize(float min, float max, float value)
-//{
-//    return (value - min) / (max - min);
-//}
-//
-//static inline float denormalize(float min, float max, float value)
-//{
-//    return min + value * (max - min);
-//}
-//
-//enum
-//{
-//    kFreeVolumeMode = 0,
-//    kPanVolumeMode = 1,
-//    kPanSpanMode = 2,
-//    kNumberOfModes = 3
-//};
-//enum {
-//    kSourceX = 0,
-//    kSourceY,
-//    kSourceD,
-//    kSourceUnused,
-//    kParamsPerSource
-//};
-//// x, y, attenuation, mute
-//enum {
-//    kSpeakerX = 0,
-//    kSpeakerY,
-//    kSpeakerA,
-//    kSpeakerM,
-//    kSpeakerUnused,
-//    kParamsPerSpeakers };
-//
-//#define kConstantOffset (JucePlugin_MaxNumInputChannels * kParamsPerSource + JucePlugin_MaxNumOutputChannels * kParamsPerSpeakers)
-//
-//enum
-//{
-//    kLinkMovement =			0 + kConstantOffset,
-//    kSmooth =				1 + kConstantOffset,
-//    kVolumeNear =			2 + kConstantOffset,
-//    kVolumeMid =			3 + kConstantOffset,
-//    kVolumeFar =			4 + kConstantOffset,
-//    kFilterNear =			5 + kConstantOffset,
-//    kFilterMid =			6 + kConstantOffset,
-//    kFilterFar =			7 + kConstantOffset,
-//    kMaxSpanVolume =		8 + kConstantOffset,
-//    kConstantParameters =	9
-//};
-//#define kNumberOfParameters (kConstantParameters + kConstantOffset)
-//
-//typedef struct
-//{
-//    int i;
-//    float a;
-//} IndexedAngle;
-
-
-
-//=======
-//>>>>>>> param
-//==============================================================================
 /**
  The processor class of the plug in
  */
@@ -360,7 +283,7 @@ public:
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
   	Trajectory::Ptr getTrajectory() { return mTrajectory; }
 
-    void moveTrajectoriesWithConstraints(Point<float> &newLocation);
+    void moveTrajectoriesWithConstraints(float &p_fX, float &p_fY);
     
     void askForGuiRefresh(){_RefreshGui=true;};
     
