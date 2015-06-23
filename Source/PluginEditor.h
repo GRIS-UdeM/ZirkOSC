@@ -66,6 +66,8 @@ public:
     //! called when window is resized
     void resized() override;
     
+    void move (int, float, float);    
+    
     //! Move the sources circular with a radius fixed
     void moveCircularWithFixedRadius (Point<float>);
     
@@ -114,6 +116,7 @@ public:
 private:
     
     ZirkOscjuceAudioProcessor* ourProcessor;
+    
     
     void updateSliders();
     

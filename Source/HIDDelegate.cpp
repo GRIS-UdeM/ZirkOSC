@@ -253,12 +253,14 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
                 case 48:
                     //vx = ((scaledValue-(maxValue/2))/maxValue/2)*ZirkOscjuceAudioProcessor::s_iDomeRadius*4;
                     vx = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscjuceAudioProcessor::s_iDomeRadius*2;
-                    move(iCurButton);
+                    //move(iCurButton);
+                    mEditor->move(iCurButton, vx, vy);
                     break;
                     
                 case 49:
                     vy = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscjuceAudioProcessor::s_iDomeRadius*2;
-                    move(iCurButton);
+                    //move(iCurButton);
+                    mEditor->move(iCurButton, vx, vy);
                     break;
                     
                 default:
@@ -269,47 +271,42 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
     }
 }
 
-JUCE_COMPILER_WARNING("this should be in an editor method")
-void HIDDelegate::move(int p_iSource){
-    if (p_iSource > mProcessor->getNbrSources()){
-        return;
-    }
-    
-    int selectedConstraint = mProcessor->getSelectedMovementConstraint();
-    Point<float> newPoint(vx,vy);
-    
-    printf("x : %f    y : %f \n",vx,vy);
-    
-    if(selectedConstraint == Independant) {
-        if (ZirkOscjuceAudioProcessor::s_bUseXY){
-            mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, HRToPercent(newPoint.x,
-                                                                                                                                          -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
-            mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, HRToPercent(newPoint.y,
-                                                                                                                                          -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
-        } else {
-        mProcessor->getSources()[p_iSource].setXY(newPoint);
-        mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, mProcessor->getSources()[p_iSource].getAzimuth());
-        mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, mProcessor->getSources()[p_iSource].getElevation());
-        }
-    }
-    else if (selectedConstraint == FixedAngles){
-        mEditor->moveFixedAngles(newPoint);
-    }
-    else if (selectedConstraint == FixedRadius){
-        mEditor->moveCircularWithFixedRadius(newPoint);
-    }
-    else if (selectedConstraint == FullyFixed){
-        mEditor->moveFullyFixed(newPoint);
-    }
-    else if (selectedConstraint == DeltaLocked){
-        Point<float> DeltaMove = newPoint - mProcessor->getSources()[p_iSource].getXY();
-        mEditor->moveSourcesWithDelta(DeltaMove);
-    }
-    else if (selectedConstraint == Circular){
-        mEditor->moveCircular(newPoint);
-    }
-    mProcessor->sendOSCValues();
-}
+//JUCE_COMPILER_WARNING("this should be in an editor method")
+//void HIDDelegate::move(int p_iSource){
+//    if (p_iSource > mProcessor->getNbrSources()){
+//        return;
+//    }
+//    
+//    int selectedConstraint = mProcessor->getSelectedMovementConstraint();
+//    Point<float> newPoint(vx,vy);
+//    
+//    printf("x : %f    y : %f \n",vx,vy);
+//    
+//    if(selectedConstraint == Independant) {
+//        if (ZirkOscjuceAudioProcessor::s_bUseXY){
+//            mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, HRToPercent(newPoint.x,
+//                                                                                                                                          -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
+//            mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, HRToPercent(newPoint.y,
+//                                                                                                                                          -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
+//        } else {
+//        mProcessor->getSources()[p_iSource].setXY(newPoint);
+//        mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, mProcessor->getSources()[p_iSource].getAzimuth());
+//        mProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, mProcessor->getSources()[p_iSource].getElevation());
+//        }
+//    } else if (selectedConstraint == FixedAngles){
+//        mEditor->moveFixedAngles(newPoint);
+//    } else if (selectedConstraint == FixedRadius){
+//        mEditor->moveCircularWithFixedRadius(newPoint);
+//    } else if (selectedConstraint == FullyFixed){
+//        mEditor->moveFullyFixed(newPoint);
+//    } else if (selectedConstraint == DeltaLocked){
+//        Point<float> DeltaMove = newPoint - mProcessor->getSources()[p_iSource].getXY();
+//        mEditor->moveSourcesWithDelta(DeltaMove);
+//    } else if (selectedConstraint == Circular){
+//        mEditor->moveCircular(newPoint);
+//    }
+//    mProcessor->sendOSCValues();
+//}
 
 /**Get and Set to use the button pressed array. The button  pressed array allows us to save the informations of which button is being pressed when the axis are used*/
 void HIDDelegate::setButtonPressedTab(u_int32_t usage, bool state)
