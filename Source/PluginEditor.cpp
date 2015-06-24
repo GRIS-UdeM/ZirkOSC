@@ -496,7 +496,7 @@ _MovementConstraintComboBox("MovementConstraint")
 
     this->setFocusContainer(true);
     
-    int timerDelay = 1000 / 20; // 20 fps
+    int timerDelay = 100;//1000 / 20;
     
     //startTimer (100);
     startTimer (timerDelay);
