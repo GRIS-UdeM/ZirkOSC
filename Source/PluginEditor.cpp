@@ -295,8 +295,15 @@ _MovementConstraintComboBox("MovementConstraint")
     
     //---------- RIGHT SIDE LABELS ----------
     _NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
-    string version = STRING(JUCE_APP_VERSION);
+    
+    String version = STRING(JUCE_APP_VERSION);
+#ifdef JUCE_DEBUG
+    version += " ";
+    version += STRING(__TIME__);
+#endif
     m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
+    
+    
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
@@ -496,10 +503,13 @@ _MovementConstraintComboBox("MovementConstraint")
 
     this->setFocusContainer(true);
     
-    int timerDelay = 100;//1000 / 20;
     
-    //startTimer (100);
-    startTimer (timerDelay);
+    startEditorTimer(ZirkOSC_reg_timerDelay);
+    
+}
+
+void ZirkOscjuceAudioProcessorEditor::startEditorTimer(int intervalInMilliseconds){
+    Timer::startTimer (intervalInMilliseconds);
 }
 
 ZirkOscjuceAudioProcessorEditor::~ZirkOscjuceAudioProcessorEditor() {
@@ -570,7 +580,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     }
     
     //------------ LABELS ON RIGHT SIDE +version label------------
-    m_VersionLabel.setBounds(5,5,80,25);
+    m_VersionLabel.setBounds(5,5,180,25);
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
@@ -826,12 +836,9 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     
 #if defined(DEBUG)
     clock_t begin = clock();
-#endif
-    
-
-#if defined(DEBUG)
     clock_t proc = clock();
 #endif
+    
     JUCE_COMPILER_WARNING("this update (and any other update) should only be done when there's actually something to change")
     updateSliders();
     
@@ -844,12 +851,14 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
             {
                 mTrProgressBar->setValue(t->progress());
             }
-            else
+            else if (mTrState != kTrReady)
             {
                 m_pWriteTrajectoryButton->setButtonText("Ready");
                 mTrProgressBar->setVisible(false);
                 m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
+                
                 mTrState = kTrReady;
+                startEditorTimer(ZirkOSC_reg_timerDelay);
             }
         }
             break;
@@ -950,7 +959,10 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             m_pWriteTrajectoryButton->setButtonText("Ready");
             mTrProgressBar->setVisible(false);
             m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
+
             mTrState = kTrReady;
+            startEditorTimer(ZirkOSC_reg_timerDelay);
+            
             t->stop();
             refreshGui();
         }
@@ -970,7 +982,9 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             
             ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
+            
             mTrState = kTrWriting;
+            startEditorTimer(ZirkOSC_traj_timerDelay);
             
             mTrProgressBar->setValue(0);
             mTrProgressBar->setVisible(true);

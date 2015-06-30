@@ -350,25 +350,12 @@ private:
     bool _isSpanLinked;
     
     PluginHostType host;
-//<<<<<<< HEAD
-    
-//    allParameters m_parameterBuffer;
-//    
-//    //Import from octogris
-//    
-//    int mMovementMode;
-//    Array<float> mParameters;
-//    int mProcessMode;
-//    bool mShowGridLines;
-//    int mOscLeapSource = 1;
+
     bool _isJoystickEnabled;
 
 
     //OLD TRAJECTORIES
     
-//=======
-//  
-//>>>>>>> param
     //! Number of trajectories to draw in trajectory section
     double _TrajectoryCount;
     

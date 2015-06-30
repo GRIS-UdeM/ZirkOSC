@@ -107,6 +107,8 @@ public:
     void uncheckJoystickButton();
     int getNbSources();
     int getCBSelectedSource();
+    
+    void startEditorTimer(int ms);
 
 
 private:

@@ -112,6 +112,8 @@ _SelectedSourceForTrajectory(0)
     startTimer (50);
 }
 
+
+
 void ZirkOscjuceAudioProcessor::initSources(){
     for(int i=0; i<8; ++i){
         _AllSources[i]=SoundSource(0.0+((float)i/8.0),0.0);

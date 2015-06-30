@@ -207,16 +207,6 @@ const float  ZirkOSC_Elev_Min = 0.0f;
 const float  ZirkOSC_Elev_Max = 90.0f;
 const float  ZirkOSC_Elev_Def = 0.0f;
 
-//const String ZirkOSC_AzimDelta_name = "Azim delta";
-//const float  ZirkOSC_AzimDelta_Min = 0.0f;
-//const float  ZirkOSC_AzimDelta_Max = ZirkOSC_Azim_Max * 2.0;
-//const float  ZirkOSC_AzimDelta_Def = 0.0f;
-
-//const String ZirkOSC_ElevDelta_name = "Elevation Delta";
-//const float  ZirkOSC_ElevDelta_Min = 0.0f;
-//const float  ZirkOSC_ElevDelta_Max = 90;
-//const float  ZirkOSC_ElevDelta_Def = 0.0f;
-
 const String ZirkOSC_AzimSpan_name[ZirkOSC_Max_Sources] = {"1 Azimuth Span", "2 Azimuth Span","3 Azimuth Span","4 Azimuth Span","5 Azimuth Span","6 Azimuth Span","7 Azimuth Span","8 Azimuth Span"};
 const float  ZirkOSC_AzimSpan_Min = 0.0f;
 const float  ZirkOSC_AzimSpan_Max = ZirkOSC_Azim_Max * 2.0;
@@ -246,7 +236,10 @@ const String ZirkOSC_isWriteTrajectory_name = "WriteTrajectory";
 
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 
-//const int ZirkOSC_TrajectoryGroupHeight = 190;
+const int ZirkOSC_reg_timerDelay = 50;// 50 = 1000 / 20; or 20fps
+
+const int ZirkOSC_traj_timerDelay = 100;
+
 const int ZirkOSC_SlidersGroupHeight = 220;
 
 const int ZirkOSC_ConstraintComboBoxHeight = 25;
