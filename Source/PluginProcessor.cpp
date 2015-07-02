@@ -83,7 +83,7 @@ _isWriteTrajectory(false),
 _SelectedSourceForTrajectory(0)
 {
     //this toggles everything related to the ipad
-    m_bUseIpad = true;
+    m_bUseIpad = false;
     
     initSources();
 
@@ -699,7 +699,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
     }
 }
 
-void ZirkOscjuceAudioProcessor::sendOSCMovementType(){ 
+void ZirkOscjuceAudioProcessor::sendOSCMovementType(){
     if (m_bUseIpad){
         lo_send(_OscIpad, "/movementmode", "f", _SelectedMovementConstraint);
     }
@@ -714,9 +714,6 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
             float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
             int channel_osc = _AllSources[i].getChannel()-1;
             float gain_osc = _AllSources[i].getGain();
-            
-            //cout << "src " << i << " azim " << azim_osc << " elev " << elev_osc << "\n";
-            
             
             lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
             
