@@ -735,21 +735,58 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
 
 }
 
+//void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
+//    Point<float> sourcePositionOnScreen;
+//    float HRAzim, HRElev;
+//    int iXOffset = 0, iYOffset = 0;
+//    for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
+//        
+//        JUCE_COMPILER_WARNING("remove all azim elev in here")
+//        HRAzim = PercentToHR(ourProcessor->getSources()[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+//        HRElev = PercentToHR(ourProcessor->getSources()[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+//        sourcePositionOnScreen = degreeToXy(Point<float> (HRAzim, HRElev));
+//        
+//        if (i == 0 ) cout << sourcePositionOnScreen.getX() << ", " << sourcePositionOnScreen.getY() << "\n";
+//        
+//        //draw source circle
+//        g.drawEllipse(_ZirkOSC_Center_X + sourcePositionOnScreen.getX()-4, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()-4, 8, 8,2);
+//        
+//        if (sourcePositionOnScreen.getX() > ZirkOscjuceAudioProcessor::s_iDomeRadius - 25 ){
+//            iXOffset = -20;
+//            iYOffset = 10;
+//        } else {
+//            iXOffset = 4;
+//            iYOffset = -2;
+//        }
+//        
+//        //draw source labels
+//        if(!_isSourceBeingDragged){
+//             g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + sourcePositionOnScreen.getX()+iXOffset, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()+iYOffset, 25, 10, Justification::centred, false);
+//        }
+//    }
+//}
+
 void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
-    Point<float> sourcePositionOnScreen;
-    float HRAzim, HRElev;
+    float fX, fY;
     int iXOffset = 0, iYOffset = 0;
+    
     for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
-        JUCE_COMPILER_WARNING("remove all azim elev in here")
-        HRAzim = PercentToHR(ourProcessor->getSources()[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-        HRElev = PercentToHR(ourProcessor->getSources()[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        //cout << "paintSourcePoint: " << ourProcessor->getSources()[i].getAzimuth() << "\n";
-        sourcePositionOnScreen = degreeToXy(Point<float> (HRAzim, HRElev));
+        
+        ourProcessor->getSources()[i].getXY(fX, fY);
+        
+        JUCE_COMPILER_WARNING("not clear to me why we need to clamp again, while in the previous version of this function we didn't. Also not clear that this new function is more performant")
+        float fCurR = hypotf(fX, fY);
+        if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
+            float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
+            
+            fX *= fExtraRatio;
+            fY *= fExtraRatio;
+        }
         
         //draw source circle
-        g.drawEllipse(_ZirkOSC_Center_X + sourcePositionOnScreen.getX()-4, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()-4, 8, 8,2);
+        g.drawEllipse(_ZirkOSC_Center_X + fX-4, _ZirkOSC_Center_Y + fY-4, 8, 8,2);
         
-        if (sourcePositionOnScreen.getX() > ZirkOscjuceAudioProcessor::s_iDomeRadius - 25 ){
+        if (fX > ZirkOscjuceAudioProcessor::s_iDomeRadius - 25 ){
             iXOffset = -20;
             iYOffset = 10;
         } else {
@@ -759,7 +796,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         
         //draw source labels
         if(!_isSourceBeingDragged){
-             g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + sourcePositionOnScreen.getX()+iXOffset, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()+iYOffset, 25, 10, Justification::centred, false);
+            g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + fX+iXOffset, _ZirkOSC_Center_Y + fY+iYOffset, 25, 10, Justification::centred, false);
         }
     }
 }
@@ -1635,7 +1672,6 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(const float &p_fX, co
         float newX = currentX + p_fX;
         float newY = currentY + p_fY;
 
-
         JUCE_COMPILER_WARNING("if we clamp, sources that fall outside the circle don,t bouce back; but if we don't clamp, location parameters fall outside their correct range...")
         //SoundSource::clampXY(newPosition.x, newPosition.y);
         
@@ -1662,7 +1698,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDeltaAzimElev(Point<float> 
             ourProcessor->getSources()[i].getXY(currentx, currenty);
             float deltax = currentx+DeltaMove.x;
             float deltay = currentx+DeltaMove.y;
-            ourProcessor->getSources()[i].setXY(deltax, deltay);
+            ourProcessor->getSources()[i].setXYUsingAzimElev(deltax, deltay);
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, ourProcessor->getSources()[i].getAzimuth());
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, ourProcessor->getSources()[i].getElevationRawValue());
             //azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);

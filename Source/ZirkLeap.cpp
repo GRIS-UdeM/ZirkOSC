@@ -107,7 +107,7 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                         if(selectedConstraint == Independant)
                         {
                             
-                            ourProcessor->getSources()[src].setXY(fX, fY);
+                            ourProcessor->getSources()[src].setXYUsingAzimElev(fX, fY);
                             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + src*5, ourProcessor->getSources()[src].getAzimuth());
                             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + src*5, ourProcessor->getSources()[src].getElevation());
                             //send source position by osc

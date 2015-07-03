@@ -678,8 +678,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
                 s_bUseXY = true;
                 String strX = "X" + to_string(iCurSrc);
                 String strY = "Y" + to_string(iCurSrc);
-                //Point<float> p((float) xmlState->getDoubleAttribute(strX,0), (float) xmlState->getDoubleAttribute(strY,0));
-                _AllSources[iCurSrc].setXY(xmlState->getDoubleAttribute(strX,0), xmlState->getDoubleAttribute(strY,0));
+                Point<float> p((float) xmlState->getDoubleAttribute(strX,0), (float) xmlState->getDoubleAttribute(strY,0));
+                _AllSources[iCurSrc].setXY(p);
             }
             
             _AllSources[iCurSrc].setChannel(xmlState->getIntAttribute(channel , 0));
