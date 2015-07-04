@@ -860,7 +860,6 @@ void ZirkOscjuceAudioProcessorEditor::paintCoordLabels (Graphics& g){
 /*!
 * \param p : Point <float> (Azimuth,Elevation) in degree, xy in range [-r, r]
 */
-JUCE_COMPILER_WARNING("if this is not deleted, it should be moved to soundsource")
 Point <float> ZirkOscjuceAudioProcessorEditor::degreeToXy (Point <float> p){
     float x,y;
     x = -ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(p.getX())) * cosf(degreeToRadian(p.getY()));
@@ -935,7 +934,6 @@ void ZirkOscjuceAudioProcessorEditor::updateSliders(){
     int selectedSource = ourProcessor->getSelectedSource();
     
     //based on selected source, update all sliders
-    JUCE_COMPILER_WARNING("all those calls to getSources() should probably be changed to something like getParameter()");
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
     
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
@@ -1246,9 +1244,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
             //if we get here, we're not in independent mode
             else {
                 //calculate new location point using current location and new value of the slider
-                JUCE_COMPILER_WARNING("why do we need to create a new source here??? we need to know the x and y that go with percent and getElev. make soundsource::azimTOxy or something")
-                SoundSource newLocationSource(percentValue, curLocationSource.getElevation());
-                newLocationSource.getXY(fX, fY);
+                SoundSource::azimElev01toXY(percentValue, curLocationSource.getElevation(), fX, fY);
             }
         } else {
             percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);

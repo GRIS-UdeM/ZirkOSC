@@ -175,6 +175,7 @@ void SoundSource::setY01(float p_y){
 }
 
 //------------------------------------------------
+//azimuth range [0,1]
 float   SoundSource::getAzimuth(){
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
         return XYtoAzim01(m_fX, m_fY);
@@ -183,6 +184,7 @@ float   SoundSource::getAzimuth(){
     }
 }
 
+//elevation range [0,1]
 float   SoundSource::getElevation(){
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
         return XYtoElev01(m_fX, m_fY);
