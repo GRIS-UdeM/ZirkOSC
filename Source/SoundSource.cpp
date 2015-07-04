@@ -69,6 +69,7 @@ bool    SoundSource::contains(Point <float> p){
     return (p.getX()< getX()+5 && p.getX()> getX()-5 && p.getY()< getY()+5 && p.getY()> getY()-5 );
 }
 
+//range for both fX and fY is [-r,r] 
 void SoundSource::getXY(float &fX, float &fY){
     fX = getX();
     fY = getY();

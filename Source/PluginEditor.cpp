@@ -683,56 +683,109 @@ void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g){
 
 
 //Drawing Span Arc
+//void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
+//    
+//    int selectedSource = ourProcessor->getSelectedSource();
+//    float azim = ourProcessor->getSources()[selectedSource].getAzimuth();
+//    float elev = ourProcessor->getSources()[selectedSource].getElevation();
+//    
+//    float HRAzim = PercentToHR(azim, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+//    float HRElev = PercentToHR(elev, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+//    float HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+//    float HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+//
+//    Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
+//    Point<float> minElev = {HRAzim, HRElev-HRElevSpan/2};
+//
+//    if(minElev.getY() < ZirkOSC_ElevSpan_Min){
+//        maxElev.setY(maxElev.getY()+ ZirkOSC_ElevSpan_Min-minElev.getY());
+//        minElev.setY(ZirkOSC_ElevSpan_Min);
+//    }
+//
+//    Point<float> screenMaxElev = degreeToXy(maxElev);
+//    Point<float> screenMinElev = degreeToXy(minElev);
+//    float maxRadius = sqrtf(screenMaxElev.getX()*screenMaxElev.getX() + screenMaxElev.getY()*screenMaxElev.getY());
+//    float minRadius = sqrtf(screenMinElev.getX()*screenMinElev.getX() + screenMinElev.getY()*screenMinElev.getY());
+//    //drawing the path for spanning
+//    Path myPath;
+//    float x = screenMinElev.getX();
+//    float y = screenMinElev.getY();
+//    myPath.startNewSubPath(_ZirkOSC_Center_X+x,_ZirkOSC_Center_Y+y);
+//
+//    //half first arc center
+//    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim), degreeToRadian(-HRAzim + HRAzimSpan/2 ));
+//
+//    if (maxElev.getY()> ZirkOSC_ElevSpan_Max) { // if we are over the top of the dome we draw the adjacent angle
+//        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, M_PI+degreeToRadian(-HRAzim + HRAzimSpan/2), M_PI+degreeToRadian(-HRAzim - HRAzimSpan/2 ));
+//    } else {
+//        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, degreeToRadian(-HRAzim+HRAzimSpan/2), degreeToRadian(-HRAzim-HRAzimSpan/2 ));
+//    }
+//    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim ));
+//    myPath.closeSubPath();
+//    
+//    g.setColour(Colours::lightgrey);
+//    g.fillPath(myPath);
+//
+//    g.setColour(Colours::black);
+//    PathStrokeType strokeType = PathStrokeType(1.0);
+//    g.strokePath(myPath, strokeType);
+//}
 void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
-    int selectedSource = ourProcessor->getSelectedSource();
-    float azim = ourProcessor->getSources()[selectedSource].getAzimuth();
-    float elev = ourProcessor->getSources()[selectedSource].getElevation();
     
-    float   HRAzim = PercentToHR(azim, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max),
-            HRElev = PercentToHR(elev, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max),
-            HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max),
-            HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+    int selectedSource = ourProcessor->getSelectedSource();
+    
+    float HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+    float HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
 
+    //return if there is no span arc to paint
+    if (HRElevSpan == 0.f && HRAzimSpan == 0.f){
+        return;
+    }
+    
+    //get current azim+elev in angles
+    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth()  , ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    
+    //calculate max and min elevation in degrees
     Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
     Point<float> minElev = {HRAzim, HRElev-HRElevSpan/2};
-
+    
     if(minElev.getY() < ZirkOSC_ElevSpan_Min){
         maxElev.setY(maxElev.getY()+ ZirkOSC_ElevSpan_Min-minElev.getY());
         minElev.setY(ZirkOSC_ElevSpan_Min);
     }
-
+    
+    //convert max min elev to xy
     Point<float> screenMaxElev = degreeToXy(maxElev);
     Point<float> screenMinElev = degreeToXy(minElev);
+    
+    //form minmax elev, calculate minmax radius
     float maxRadius = sqrtf(screenMaxElev.getX()*screenMaxElev.getX() + screenMaxElev.getY()*screenMaxElev.getY());
     float minRadius = sqrtf(screenMinElev.getX()*screenMinElev.getX() + screenMinElev.getY()*screenMinElev.getY());
+    
     //drawing the path for spanning
     Path myPath;
     float x = screenMinElev.getX();
     float y = screenMinElev.getY();
     myPath.startNewSubPath(_ZirkOSC_Center_X+x,_ZirkOSC_Center_Y+y);
-
+    
     //half first arc center
     myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim), degreeToRadian(-HRAzim + HRAzimSpan/2 ));
-
+    
     if (maxElev.getY()> ZirkOSC_ElevSpan_Max) { // if we are over the top of the dome we draw the adjacent angle
-
-        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, M_PI+degreeToRadian(-HRAzim + HRAzimSpan/2), M_PI+degreeToRadian(-HRAzim - HRAzimSpan/2 ));
+        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, M_PI+degreeToRadian(-HRAzim + HRAzimSpan/2), M_PI+degreeToRadian(-HRAzim - HRAzimSpan/2));
+    } else {
+        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, degreeToRadian(-HRAzim+HRAzimSpan/2), degreeToRadian(-HRAzim-HRAzimSpan/2));
     }
-    else{
-        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, degreeToRadian(-HRAzim+HRAzimSpan/2), degreeToRadian(-HRAzim-HRAzimSpan/2 ));
-    }
-    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim ));
+    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim));
     myPath.closeSubPath();
+    
     g.setColour(Colours::lightgrey);
     g.fillPath(myPath);
-    g.setColour(Colours::black);
     
-    //PathStrokeType strokeType = PathStrokeType( 1.0, juce::PathStrokeType::JointStyle::curved);
-    PathStrokeType strokeType = PathStrokeType( 1.0);
+    g.setColour(Colours::black);
+    PathStrokeType strokeType = PathStrokeType(1.0);
     g.strokePath(myPath, strokeType);
-
-    //g.strokePath(myPath, PathStrokeType::JointStyle::curved);
-
 }
 
 //void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
@@ -769,6 +822,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
 void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
     float fX, fY;
     int iXOffset = 0, iYOffset = 0;
+    g.setColour(Colours::black);
     
     for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
         
@@ -816,20 +870,16 @@ void ZirkOscjuceAudioProcessorEditor::paintCenterDot (Graphics& g){
 void ZirkOscjuceAudioProcessorEditor::paintAzimuthLine (Graphics& g){
     int selectedSource = ourProcessor->getSelectedSource();
     g.setColour(Colours::red);
-    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    JUCE_COMPILER_WARNING("remove all azim and elev in here")
-    Point <float> screen = degreeToXy(Point<float>(HRAzim,HRElev));
-    g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + screen.getX(), _ZirkOSC_Center_Y + screen.getY() );
+    float fX, fY;
+    ourProcessor->getSources()[selectedSource].getXY(fX, fY);
+    g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + fX, _ZirkOSC_Center_Y + fY );
 }
 
 void ZirkOscjuceAudioProcessorEditor::paintZenithCircle (Graphics& g){
     int selectedSource = ourProcessor->getSelectedSource();
-    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    JUCE_COMPILER_WARNING("remove all azim and elev in here")
-    Point <float> screen = degreeToXy(Point<float>(HRAzim,HRElev));
-    float radiusZenith = sqrtf(screen.getX()*screen.getX() + screen.getY()*screen.getY());
+    float fX, fY;
+    ourProcessor->getSources()[selectedSource].getXY(fX, fY);
+    float radiusZenith = sqrtf(fX*fX + fY*fY);
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
 }
 
@@ -855,9 +905,9 @@ void ZirkOscjuceAudioProcessorEditor::paintCoordLabels (Graphics& g){
 /*Conversion function*/
 
 /*!
-* \param p : Point <float> (Azimuth,Elevation) in degree
+* \param p : Point <float> (Azimuth,Elevation) in degree, xy in range [-r, r]
 */
-JUCE_COMPILER_WARNING("are these duplicates with soundsource?")
+JUCE_COMPILER_WARNING("if this is not deleted, it should be moved to soundsource")
 Point <float> ZirkOscjuceAudioProcessorEditor::degreeToXy (Point <float> p){
     float x,y;
     x = -ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(p.getX())) * cosf(degreeToRadian(p.getY()));
