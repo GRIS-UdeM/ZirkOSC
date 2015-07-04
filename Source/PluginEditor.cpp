@@ -1420,16 +1420,15 @@ void ZirkOscjuceAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY
     } else if (selectedConstraint == FullyFixed){
         moveFullyFixed(p_fX, p_fY);
     } else if (selectedConstraint == DeltaLocked){
-//        Point<float> DeltaMove = newPoint - ourProcessor->getSources()[p_iSource].getXY();
-        JUCE_COMPILER_WARNING("name this properly")
-        float x,y;
-        ourProcessor->getSources()[p_iSource].getXY(x,y);
-        float deltax = p_fX -x;
-        float deltay = p_fY -y;
+        float oldX, oldY;
+        ourProcessor->getSources()[p_iSource].getXY(oldX,oldY);
+        float deltax = p_fX - oldX;
+        float deltay = p_fY - oldY;
         moveSourcesWithDelta(deltax, deltay);
     } else if (selectedConstraint == Circular){
         moveCircular(p_fX, p_fY);
     }
+    
     ourProcessor->sendOSCValues();
 }
 
