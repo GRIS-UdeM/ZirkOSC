@@ -91,7 +91,7 @@ _SelectedSourceForTrajectory(0)
     _OscIpad        = lo_address_new("10.0.1.3", "10114");
     _St             = lo_server_thread_new("10116", error);
     if(_St){
-        JUCE_COMPILER_WARNING("what is this stuff? is this for the zirkonium or for the ipad?")
+        JUCE_COMPILER_WARNING("HEXA: what is this stuff? is this for the zirkonium or for the ipad?")
         lo_server_thread_add_method(_St, "/pan/az", "ifffff", receivePositionUpdate, this);
         lo_server_thread_add_method(_St, "/begintouch", "i", receiveBeginTouch, this);
         lo_server_thread_add_method(_St, "/endtouch", "i", receiveEndTouch, this);
@@ -209,14 +209,11 @@ void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(float &p_fX, flo
         editor->moveFullyFixed(p_fX, p_fY);
     }
     else if (m_iSelectedMovementConstraint == DeltaLocked){
-//        Point<float> DeltaMove = newLocation - getSources()[_SelectedSourceForTrajectory].getXY();
-//        editor->moveSourcesWithDelta(DeltaMove);
-        
-        JUCE_COMPILER_WARNING("name this properly")
-        float x,y;
-        getSources()[_SelectedSourceForTrajectory].getXY(x,y);
-        float deltax = p_fX -x;
-        float deltay = p_fY -y;
+
+        float oldX, oldY;
+        getSources()[_SelectedSourceForTrajectory].getXY(oldX,oldY);
+        float deltax = p_fX -oldX;
+        float deltay = p_fY -oldY;
         editor->moveSourcesWithDelta(deltax, deltay);
         
     }
@@ -425,13 +422,11 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
             return _TrajectoryCount;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             return _TrajectoriesDuration;
-            JUCE_COMPILER_WARNING("why is this a parameter?")
         case ZirkOSC_SyncWTempo_ParamId:
             if (_isSyncWTempo)
                 return 1.0f;
             else
                 return 0.0f;
-            JUCE_COMPILER_WARNING("why is this a parameter?")
         case ZirkOSC_WriteTrajectories_ParamId:
             if (_isWriteTrajectory)
                 return 1.0f;
@@ -1106,14 +1101,11 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
             
         }
         else if(processor->getSelectedMovementConstraint()  == DeltaLocked){
-//            Point<float> DeltaMove = pointRelativeCenter - processor->getSources()[processor->getSelectedSource()].getXY();
-//            theEditor->moveSourcesWithDelta(DeltaMove);
 
-            JUCE_COMPILER_WARNING("name this properly")
-            float x,y;
-            processor->getSources()[processor->getSelectedSource()].getXY(x,y);
-            float deltax = pointRelativeCenter.x -x;
-            float deltay = pointRelativeCenter.y -y;
+            float oldX, oldY;
+            processor->getSources()[processor->getSelectedSource()].getXY(oldX,oldY);
+            float deltax = pointRelativeCenter.x -oldX;
+            float deltay = pointRelativeCenter.y -oldY;
             theEditor->moveSourcesWithDelta(deltax, deltay);
         
         }

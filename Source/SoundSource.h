@@ -62,8 +62,12 @@ public:
     
     static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
     
-    static void AzimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+    static void azimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+
+    static void azimElev01toXY(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
     
+    static void azimElevToXy (const float &p_fAzimuth, const float &p_fElevation, float &p_fX, float &p_fY);
+
     static void clampXY(float &x, float &y);
     
     

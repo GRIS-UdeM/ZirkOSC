@@ -683,53 +683,6 @@ void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g){
 
 
 //Drawing Span Arc
-//void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
-//    
-//    int selectedSource = ourProcessor->getSelectedSource();
-//    float azim = ourProcessor->getSources()[selectedSource].getAzimuth();
-//    float elev = ourProcessor->getSources()[selectedSource].getElevation();
-//    
-//    float HRAzim = PercentToHR(azim, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-//    float HRElev = PercentToHR(elev, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-//    float HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
-//    float HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
-//
-//    Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
-//    Point<float> minElev = {HRAzim, HRElev-HRElevSpan/2};
-//
-//    if(minElev.getY() < ZirkOSC_ElevSpan_Min){
-//        maxElev.setY(maxElev.getY()+ ZirkOSC_ElevSpan_Min-minElev.getY());
-//        minElev.setY(ZirkOSC_ElevSpan_Min);
-//    }
-//
-//    Point<float> screenMaxElev = degreeToXy(maxElev);
-//    Point<float> screenMinElev = degreeToXy(minElev);
-//    float maxRadius = sqrtf(screenMaxElev.getX()*screenMaxElev.getX() + screenMaxElev.getY()*screenMaxElev.getY());
-//    float minRadius = sqrtf(screenMinElev.getX()*screenMinElev.getX() + screenMinElev.getY()*screenMinElev.getY());
-//    //drawing the path for spanning
-//    Path myPath;
-//    float x = screenMinElev.getX();
-//    float y = screenMinElev.getY();
-//    myPath.startNewSubPath(_ZirkOSC_Center_X+x,_ZirkOSC_Center_Y+y);
-//
-//    //half first arc center
-//    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim), degreeToRadian(-HRAzim + HRAzimSpan/2 ));
-//
-//    if (maxElev.getY()> ZirkOSC_ElevSpan_Max) { // if we are over the top of the dome we draw the adjacent angle
-//        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, M_PI+degreeToRadian(-HRAzim + HRAzimSpan/2), M_PI+degreeToRadian(-HRAzim - HRAzimSpan/2 ));
-//    } else {
-//        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, degreeToRadian(-HRAzim+HRAzimSpan/2), degreeToRadian(-HRAzim-HRAzimSpan/2 ));
-//    }
-//    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim ));
-//    myPath.closeSubPath();
-//    
-//    g.setColour(Colours::lightgrey);
-//    g.fillPath(myPath);
-//
-//    g.setColour(Colours::black);
-//    PathStrokeType strokeType = PathStrokeType(1.0);
-//    g.strokePath(myPath, strokeType);
-//}
 void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     
     int selectedSource = ourProcessor->getSelectedSource();
@@ -1282,7 +1235,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
             if (selectedConstraint == Independant){
                 if (ZirkOscjuceAudioProcessor::s_bUseXY){
                     float fX, fY;
-                    SoundSource::AzimElev01toXY01(percentValue, ourProcessor->getSources()[selectedSource].getElevation(), fX, fY);
+                    SoundSource::azimElev01toXY01(percentValue, ourProcessor->getSources()[selectedSource].getElevation(), fX, fY);
                     ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5), fX);
                     ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5), fY);
                 } else {
@@ -1302,7 +1255,7 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
             if (selectedConstraint == Independant){
                 if (ZirkOscjuceAudioProcessor::s_bUseXY){
                     float fX, fY;
-                    SoundSource::AzimElev01toXY01(ourProcessor->getSources()[selectedSource].getAzimuth(), percentValue, fX, fY);
+                    SoundSource::azimElev01toXY01(ourProcessor->getSources()[selectedSource].getAzimuth(), percentValue, fX, fY);
                     ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5), fX);
                     ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5), fY);
                 } else {
@@ -1532,7 +1485,7 @@ void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSo
         float curangle = tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources;
         if (ZirkOscjuceAudioProcessor::s_bUseXY){
             float fX, fY;
-            SoundSource::AzimElev01toXY01(curangle, tab[order[i]].getElevation(), fX, fY);
+            SoundSource::azimElev01toXY01(curangle, tab[order[i]].getElevation(), fX, fY);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (order[i]*5), fX);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (order[i]*5), fY);
         } else {
@@ -1631,7 +1584,7 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(const float &p_fX, const floa
         //if radius is fixed, set all elevation to the same thing
         if (p_bIsRadiusFixed){
             float fX, fY;
-            SoundSource::AzimElev01toXY01(fNewAzim, fSelectedElev, fX, fY);
+            SoundSource::azimElev01toXY01(fNewAzim, fSelectedElev, fX, fY);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
         }
@@ -1640,12 +1593,12 @@ void ZirkOscjuceAudioProcessorEditor::moveCircular(const float &p_fX, const floa
             //if azimuth is NOT reversed, ie, NOT on the other side of the dome's middle point
             if(!ourProcessor->getSources()[iCurSource].isAzimReverse()){
                 float fX, fY;
-                SoundSource::AzimElev01toXY01(fNewAzim, fCurElev + fDeltaElev, fX, fY);
+                SoundSource::azimElev01toXY01(fNewAzim, fCurElev + fDeltaElev, fX, fY);
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
             } else {
                 float fX, fY;
-                SoundSource::AzimElev01toXY01(fNewAzim, fCurElev - fDeltaElev, fX, fY);
+                SoundSource::azimElev01toXY01(fNewAzim, fCurElev - fDeltaElev, fX, fY);
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
             }
@@ -1721,7 +1674,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(const float &p_fX, co
         float newX = currentX + p_fX;
         float newY = currentY + p_fY;
 
-        JUCE_COMPILER_WARNING("if we clamp, sources that fall outside the circle don,t bouce back; but if we don't clamp, location parameters fall outside their correct range...")
+        JUCE_COMPILER_WARNING("HEXA: if we clamp, sources that fall outside the circle don,t bouce back; but if we don't clamp, location parameters fall outside their correct range...")
         //SoundSource::clampXY(newPosition.x, newPosition.y);
         
         float fX01 = (newX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);

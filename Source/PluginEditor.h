@@ -322,15 +322,9 @@ private:
     //! Paint the Zenith circle, circle on the selected source
     void paintZenithCircle (Graphics& g);
     
-    JUCE_COMPILER_WARNING("we should never need this with xy params")
     //! projects dome coords to screen coords (sphere to circle)
     Point <float> degreeToXy (Point <float>);
 
-
-//    //! converts degree to radian
-//    inline float degreeToRadian (float);
-//    //! converts radian to Degree
-//    inline float radianToDegree (float);
     //! get the source order by the angle value
     std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
     

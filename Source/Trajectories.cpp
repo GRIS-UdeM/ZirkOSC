@@ -159,7 +159,7 @@ void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation)
     if (ourProcessor->getSelectedMovementConstraint() == Independant){
         if (ZirkOscjuceAudioProcessor::s_bUseXY){
             float fX, fY;
-            SoundSource::AzimElev01toXY01(p_fNewAzimuth, p_fNewElevation, fX, fY);
+            SoundSource::azimElev01toXY01(p_fNewAzimuth, p_fNewElevation, fX, fY);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), fX);
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), fY);
         } else {
@@ -167,12 +167,8 @@ void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation)
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), p_fNewElevation);
         }
     } else {
-        JUCE_COMPILER_WARNING("again, need azimtoxy conversion")
-        SoundSource newLocationSource(p_fNewAzimuth, p_fNewElevation);
         float x,y;
-        newLocationSource.getXY(x,y);
-        
-        
+        SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, x, y);
         ourProcessor->moveTrajectoriesWithConstraints(x,y);
     }
 }
