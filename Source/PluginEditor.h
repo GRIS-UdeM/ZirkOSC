@@ -67,23 +67,7 @@ public:
     void resized() override;
     
     void move (int, float, float);
-   
-    void moveSourcesWithDelta(const float &p_fX, const float &p_fY);
     
-    void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
-    
-    void moveCircular(const float &p_fX, const float &p_fY );
-    
-    void moveCircularWithFixedRadius (const float &p_fX, const float &p_fY);
-    
-    void moveCircular(const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
-    
-    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
-    
-    //! Move sources with fixed angle between each source
-    void moveFixedAngles(const float &p_fX, const float &p_fY);
-    //! Move sources with fixed angles and fixed radius
-    void moveFullyFixed(const float &p_fX, const float &p_fY);
     //! Setter FixedAngle
     void setFixedAngle(bool fixedAngle);
     //! Getter FixedAngle
@@ -101,10 +85,9 @@ public:
     //Import from octogris for Leap and Joystick
     
     Label * getmStateLeap() {return m_pLBLeapState;}
-    //int getOscLeapSource() { return getProcessor()->getOscLeapSource(); }
-    void fieldChanged() { mFieldNeedRepaint = true; }
     HIDDelegate * getHIDDel() {return mHIDDel;};
     void uncheckJoystickButton();
+    JUCE_COMPILER_WARNING("these 2 methods were created because of static issues in hid_delegate and such")
     int getNbSources();
     int getCBSelectedSource();
     
@@ -115,8 +98,23 @@ private:
     
     ZirkOscjuceAudioProcessor* ourProcessor;
     
-    
     void updateSliders();
+    
+    void moveFixedAngles(const float &p_fX, const float &p_fY);
+
+    void moveCircularWithFixedRadius (const float &p_fX, const float &p_fY);
+
+    void moveFullyFixed(const float &p_fX, const float &p_fY);
+    
+    void moveSourcesWithDelta(const float &p_fX, const float &p_fY);
+    
+    void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
+    
+    void moveCircular(const float &p_fX, const float &p_fY );
+    
+    void moveCircular(const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
+    
+    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
@@ -159,7 +157,7 @@ private:
     //! Function to set the position of one label and associated text editor.   
     void setLabelAndTextEditorPosition(int x, int y, int width, int height, Label* p_label, TextEditor* p_textEditor);
     //! Return the position of the source at the position p if no source returns -1
-    int getSourceFromPosition(Point<float> p );
+    int getSourceFromPosition(Point<float> p);
 
     //! Resizable corner to allow plugin window to be resized
     ScopedPointer<ResizableCornerComponent> _Resizer;
@@ -283,17 +281,10 @@ private:
     //! Toggle Button to de/activate joystick usage
     ToggleButton* m_pTBEnableJoystick;
     
-    
-    
     Label* m_pLBJoystickState;
     
-    
-    
-    bool mFieldNeedRepaint;
     //joystick
     ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
-
-
 
     //! Auto generated function, to get the processor
     ZirkOscjuceAudioProcessor* getProcessor() const
@@ -329,7 +320,6 @@ private:
     std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
     
     
-    
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;
     
@@ -340,8 +330,8 @@ private:
     InterfaceTab* m_oInterfaceTab;
     
     ScopedPointer<Leap::Controller> mController;
+    
     ReferenceCountedObjectPtr<ZirkLeap>  mleap;
-
     
     enum
     {

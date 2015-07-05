@@ -781,7 +781,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         
         ourProcessor->getSources()[i].getXY(fX, fY);
         
-        JUCE_COMPILER_WARNING("not clear to me why we need to clamp again, while in the previous version of this function we didn't. Also not clear that this new function is more performant")
+        JUCE_COMPILER_WARNING("HEXA not clear to me why we need to clamp again, while in the previous version of this function we didn't. Also not clear that this new function is more performant")
         float fCurR = hypotf(fX, fY);
         if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
             float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
@@ -1595,9 +1595,6 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(const float &p_fX, co
     
     //simply need to move all sources to their current position + deltamove
     for(int i=0; i<ourProcessor->getNbrSources(); ++i){
- 
-//        Point<float> currentPosition = ourProcessor->getSources()[i].getXY();
-//        Point<float> newPosition = currentPosition + DeltaMove;
         
         float currentX, currentY;
         ourProcessor->getSources()[i].getXY(currentX, currentY);

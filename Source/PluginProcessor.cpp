@@ -194,34 +194,6 @@ void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
     }
 }
 
-void ZirkOscjuceAudioProcessor::moveTrajectoriesWithConstraints(float &p_fX, float &p_fY){
-
-    JUCE_COMPILER_WARNING("this is terrible. processor calls editor calls processor")
-    ZirkOscjuceAudioProcessorEditor* editor = (ZirkOscjuceAudioProcessorEditor*) getEditor();
-    //if we get here, we're not in independent mode
-    if (m_iSelectedMovementConstraint == FixedAngles){
-        editor->moveFixedAngles(p_fX, p_fY);
-    }
-    else if (m_iSelectedMovementConstraint == FixedRadius){
-        editor->moveCircularWithFixedRadius(p_fX, p_fY);
-    }
-    else if (m_iSelectedMovementConstraint == FullyFixed){
-        editor->moveFullyFixed(p_fX, p_fY);
-    }
-    else if (m_iSelectedMovementConstraint == DeltaLocked){
-
-        float oldX, oldY;
-        getSources()[_SelectedSourceForTrajectory].getXY(oldX,oldY);
-        float deltax = p_fX -oldX;
-        float deltay = p_fY -oldY;
-        editor->moveSourcesWithDelta(deltax, deltay);
-        
-    }
-    else if (m_iSelectedMovementConstraint == Circular){
-        editor->moveCircular(p_fX, p_fY);
-    }
-}
-
 const String ZirkOscjuceAudioProcessor::getParameterText (int index)
 {
     return String (getParameter (index), 2);
@@ -1094,30 +1066,34 @@ int receivePositionUpdate(const char *path, const char *types, lo_arg **argv, in
         }
     }
     else{
-        processor->setSelectedSource(i);
-
-        if(processor->getSelectedMovementConstraint() == Circular){
-            theEditor->moveCircular(pointRelativeCenter.x, pointRelativeCenter.y);
-            
-        }
-        else if(processor->getSelectedMovementConstraint()  == DeltaLocked){
-
-            float oldX, oldY;
-            processor->getSources()[processor->getSelectedSource()].getXY(oldX,oldY);
-            float deltax = pointRelativeCenter.x -oldX;
-            float deltay = pointRelativeCenter.y -oldY;
-            theEditor->moveSourcesWithDelta(deltax, deltay);
+        JUCE_COMPILER_WARNING("HEXA: no idea if these changes are valid, since i don't know what this function does")
         
-        }
-        else if(processor->getSelectedMovementConstraint()  == FixedAngles){
-            theEditor->moveFixedAngles(pointRelativeCenter.x, pointRelativeCenter.y);
-        }
-        else if(processor->getSelectedMovementConstraint() == FixedRadius){
-            theEditor->moveCircularWithFixedRadius(pointRelativeCenter.x, pointRelativeCenter.y);
-        }
-        else if(processor->getSelectedMovementConstraint()  == FullyFixed){
-            theEditor->moveFullyFixed(pointRelativeCenter.x, pointRelativeCenter.y);
-        }
+        processor->setSelectedSource(i);
+        
+        theEditor->move(i, pointRelativeCenter.x, pointRelativeCenter.y);
+
+//        if(processor->getSelectedMovementConstraint() == Circular){
+//            theEditor->moveCircular(pointRelativeCenter.x, pointRelativeCenter.y);
+//            
+//        }
+//        else if(processor->getSelectedMovementConstraint()  == DeltaLocked){
+//
+//            float oldX, oldY;
+//            processor->getSources()[processor->getSelectedSource()].getXY(oldX,oldY);
+//            float deltax = pointRelativeCenter.x -oldX;
+//            float deltay = pointRelativeCenter.y -oldY;
+//            theEditor->moveSourcesWithDelta(deltax, deltay);
+//        
+//        }
+//        else if(processor->getSelectedMovementConstraint()  == FixedAngles){
+//            theEditor->moveFixedAngles(pointRelativeCenter.x, pointRelativeCenter.y);
+//        }
+//        else if(processor->getSelectedMovementConstraint() == FixedRadius){
+//            theEditor->moveCircularWithFixedRadius(pointRelativeCenter.x, pointRelativeCenter.y);
+//        }
+//        else if(processor->getSelectedMovementConstraint()  == FullyFixed){
+//            theEditor->moveFullyFixed(pointRelativeCenter.x, pointRelativeCenter.y);
+//        }
         
     }
     const MessageManagerLock mmLock;

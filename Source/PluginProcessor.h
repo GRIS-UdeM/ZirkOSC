@@ -282,8 +282,6 @@ public:
     //NEW TRAJECTORY CLASS METHODS
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
   	Trajectory::Ptr getTrajectory() { return mTrajectory; }
-
-    void moveTrajectoriesWithConstraints(float &p_fX, float &p_fY);
     
     void askForGuiRefresh(){_RefreshGui=true;};
     

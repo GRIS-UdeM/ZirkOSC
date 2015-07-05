@@ -26,7 +26,6 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
 #include "Leap.h"
 
 /** ZirkLeap constructor taking two arguments and initializing its others components by default */
-JUCE_COMPILER_WARNING("this has access to both the processor and the editor, why?")
 ZirkLeap::ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor):
 ourProcessor(filter),
 mEditor(editor),
@@ -105,8 +104,6 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                         
                         mEditor->move(src, fX, fY);
                         
-                        
-                        mEditor->fieldChanged();
                     }
                     else
                     {
