@@ -98,19 +98,19 @@ private:
     
     void updateSliders();
     
-    void moveFixedAngles(const float &p_fX, const float &p_fY);
+    void moveFixedAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
 
-    void moveCircularWithFixedRadius (const float &p_fX, const float &p_fY);
+    void moveCircularWithFixedRadius (const int &p_iSource, const float &p_fX, const float &p_fY);
 
-    void moveFullyFixed(const float &p_fX, const float &p_fY);
+    void moveFullyFixed(const int &p_iSource, const float &p_fX, const float &p_fY);
     
-    void moveSourcesWithDelta(const float &p_fX, const float &p_fY);
+    void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     
     void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
     
-    void moveCircular(const float &p_fX, const float &p_fY );
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY );
     
-    void moveCircular(const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
     
     void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
