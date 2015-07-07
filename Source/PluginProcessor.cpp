@@ -485,8 +485,8 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
                 _isWriteTrajectory = false;
             return;
     }
-    //cout << "setParameter: " << index << " with value: " << newValue << "\n";
-    for(int i = 0; i<8; ++i){
+    cout << "setParameter: " << index << " with value: " << newValue << "\n";
+    for(int i = 0; i < 8; ++i){
         if      (ZirkOSC_Azim_or_x_ParamId + (i*5) == index) {
             if (s_bUseXY)
                 _AllSources[i].setX01(newValue);
