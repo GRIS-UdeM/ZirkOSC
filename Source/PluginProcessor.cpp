@@ -182,6 +182,69 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
 }
 
+void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed){
+    if (!ZirkOscjuceAudioProcessor::s_bUseXY){
+        Point<float> pointRelativeCenter(p_fX, p_fY);
+        JUCE_COMPILER_WARNING("this needs to be uncommented and work");
+        //moveCircularAzimElev(pointRelativeCenter, p_bIsRadiusFixed);
+        return;
+    }
+    
+    //convert x,y[0,1] to azim,elev[0,1]
+    float fSelectedX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
+    float fSelectedY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
+    float fSelectedAzim, fSelectedElev;
+    SoundSource::XY01toAzimElev01(fSelectedX, fSelectedY, fSelectedAzim, fSelectedElev);
+    
+    //set selectedSource to its position
+    setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, HRToPercent(p_fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
+    setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, HRToPercent(p_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
+    
+    //calculate deltas
+    float fDeltaAzim = SoundSource::XYtoAzim01(p_fX, p_fY) - fSelectedAzim;
+    float fDeltaElev = SoundSource::XYtoElev01(p_fX, p_fY) - fSelectedElev;
+    
+    //for all other sources
+    for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
+        
+        if (iCurSource == p_iSource){
+            continue;
+        }
+        
+        float fCurX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5));
+        float fCurY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5));
+        fCurX = fCurX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
+        fCurY = fCurY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
+        float fCurAzim = SoundSource::XYtoAzim01(fCurX, fCurY);
+        float fCurElev = SoundSource::XYtoElev01(fCurX, fCurY);
+        
+        float fNewAzim = fCurAzim+fDeltaAzim;
+        
+        //if radius is fixed, set all elevation to the same thing
+        if (p_bIsRadiusFixed){
+            float fX, fY;
+            SoundSource::azimElev01toXY01(fNewAzim, fSelectedElev, fX, fY);
+            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
+            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
+        }
+        //if radius is not fixed, set all elevation to be current elevation +/- deltaY
+        else {
+            //if azimuth is NOT reversed, ie, NOT on the other side of the dome's middle point
+            if(!getSources()[iCurSource].isAzimReverse()){
+                float fX, fY;
+                SoundSource::azimElev01toXY01(fNewAzim, fCurElev + fDeltaElev, fX, fY);
+                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
+                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
+            } else {
+                float fX, fY;
+                SoundSource::azimElev01toXY01(fNewAzim, fCurElev - fDeltaElev, fX, fY);
+                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
+                setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
+            }
+        }
+    }
+}
+
 void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSourcesBuffer[iCurSource] = _AllSources[iCurSource];

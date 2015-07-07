@@ -100,17 +100,13 @@ private:
     
     void moveFixedAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
 
-    //void moveCircularWithFixedRadius (const int &p_iSource, const float &p_fX, const float &p_fY);
-
     void moveFullyFixed(const int &p_iSource, const float &p_fX, const float &p_fY);
     
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     
     void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
     
-    //void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY );
-    
-    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
+    //void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
     
     void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
