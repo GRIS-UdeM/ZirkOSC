@@ -60,6 +60,8 @@
 
 using namespace std;
 
+bool s_bSourceUnique = true;
+
 class MiniProgressBar : public Component
 {
 public:
@@ -1346,22 +1348,30 @@ void ZirkOscjuceAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, ourProcessor->getSources()[p_iSource].getAzimuth());
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, ourProcessor->getSources()[p_iSource].getElevation());
         }
-    } else if (selectedConstraint == FixedAngles){
-        moveFixedAngles(p_fX, p_fY);
-    } else if (selectedConstraint == FixedRadius){
-        moveCircularWithFixedRadius(p_fX, p_fY);
-    } else if (selectedConstraint == FullyFixed){
-        moveFullyFixed(p_fX, p_fY);
-    } else if (selectedConstraint == DeltaLocked){
-        float oldX, oldY;
-        ourProcessor->getSources()[p_iSource].getXY(oldX,oldY);
-        float deltax = p_fX - oldX;
-        float deltay = p_fY - oldY;
-        moveSourcesWithDelta(deltax, deltay);
-    } else if (selectedConstraint == Circular){
-        moveCircular(p_fX, p_fY);
+        
     }
     
+    //not-independent
+    else {
+        
+        if (selectedConstraint == FixedAngles){
+            moveFixedAngles(p_fX, p_fY);
+        } else if (selectedConstraint == FixedRadius){
+            moveCircularWithFixedRadius(p_fX, p_fY);
+        } else if (selectedConstraint == FullyFixed){
+            moveFullyFixed(p_fX, p_fY);
+        } else if (selectedConstraint == DeltaLocked){
+            float oldX, oldY;
+            ourProcessor->getSources()[p_iSource].getXY(oldX,oldY);
+            float deltax = p_fX - oldX;
+            float deltay = p_fY - oldY;
+            moveSourcesWithDelta(deltax, deltay);
+        } else if (selectedConstraint == Circular){
+            moveCircular(p_fX, p_fY);
+        }
+    }
+    
+    JUCE_COMPILER_WARNING("HEXA: this should be the only time we're calling sendOSCValues, no? or maybe even we don't need to since the processor is doing it?")
     ourProcessor->sendOSCValues();
 }
 
@@ -1601,7 +1611,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(const float &p_fX, co
         float newX = currentX + p_fX;
         float newY = currentY + p_fY;
 
-        JUCE_COMPILER_WARNING("HEXA: if we clamp, sources that fall outside the circle don,t bouce back; but if we don't clamp, location parameters fall outside their correct range...")
+        JUCE_COMPILER_WARNING("HEXA: if we clamp, sources that fall outside the circle don,t bounce back; but if we don't clamp, location parameters fall outside their correct range...")
         //SoundSource::clampXY(newPosition.x, newPosition.y);
         
         float fX01 = (newX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);
@@ -1611,7 +1621,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(const float &p_fX, co
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i * 5, fX01);
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i * 5, fY01);
         
-        ourProcessor->sendOSCValues();
+        //ourProcessor->sendOSCValues();
     }
 }
 
@@ -1631,7 +1641,7 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDeltaAzimElev(Point<float> 
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, ourProcessor->getSources()[i].getAzimuth());
                 ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, ourProcessor->getSources()[i].getElevationRawValue());
             //azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
-            ourProcessor->sendOSCValues();
+            //ourProcessor->sendOSCValues();
         }
     }
     //repaint();
@@ -1709,7 +1719,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
             ourProcessor->getSources()[iCurSource].setChannel(newChannel++);
         }
-       ourProcessor->sendOSCValues();
+       //ourProcessor->sendOSCValues();
     }
     
     else if(&_ZkmOscPortTextEditor == &textEditor ){

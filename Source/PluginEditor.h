@@ -77,8 +77,6 @@ public:
     //! Getter draggableSource
     bool isDraggableSource();
     
-    int getDomeRadius();
-    
     //! Function to set the combination of Slider and Label.
     static void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);
     

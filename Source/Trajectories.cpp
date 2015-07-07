@@ -421,32 +421,69 @@ public:
 	: Trajectory(filter, duration, beats, times, source), mClock(0), mSpeed(speed) {}
 	
 protected:
-	void spProcess(float duration, float seconds)
-	{
+//	void spProcess(float duration, float seconds)
+//	{
+//        mClock += seconds;
+//        while(mClock > 0.01) {
+//            float fAzimuth, fElevation;
+//            mClock -= 0.01;
+//            if (ZirkOscjuceAudioProcessor::s_bUseXY){
+//
+//                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
+//                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
+//                
+//                SoundSource::XY01toAzimElev01(fX, fY, fAzimuth, fElevation);
+//                
+//            } else {
+//                fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
+//                fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
+//            }
+//            float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+//            float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+//            fAzimuth += (r1 - 0.5) * mSpeed;
+//            fElevation += (r2 - 0.5) * mSpeed;
+//            move(fAzimuth, fElevation);
+//        }
+//	}
+
+    void spProcess(float duration, float seconds)
+    {
         mClock += seconds;
         while(mClock > 0.01) {
-            float fAzimuth, fElevation;
+
             mClock -= 0.01;
+            
+            float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+            float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+            
             if (ZirkOscjuceAudioProcessor::s_bUseXY){
-                JUCE_COMPILER_WARNING("there's probably some more direct way of doing this. Here we're converting xy to azim+elev, then later in ::move() converting back to xy")
-                //need to convert this to azim and elev
+                
                 float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
                 float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
                 
-                SoundSource::XY01toAzimElev01(fX, fY, fAzimuth, fElevation);
+                fX += (r1 - 0.5) * mSpeed;
+                fY += (r2 - 0.5) * mSpeed;
+                
+                fX = PercentToHR(fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+                fY = PercentToHR(fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+                
+                fX = clamp(fX, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
+                fY = clamp(fY, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
+                
+                static_cast<ZirkOscjuceAudioProcessorEditor*>(ourProcessor->getEditor())->move(_SelectedSourceForTrajectory, fX, fY);
                 
             } else {
-                fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
-                fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
+                float fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
+                float fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
+                
+
+                fAzimuth += (r1 - 0.5) * mSpeed;
+                fElevation += (r2 - 0.5) * mSpeed;
+                move(fAzimuth, fElevation);
             }
-            float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
-            float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
-            fAzimuth += (r1 - 0.5) * mSpeed;
-            fElevation += (r2 - 0.5) * mSpeed;
-            move(fAzimuth, fElevation);
+
         }
-	}
-	
+    }
 private:
 	MTRand_int32 mRNG;
 	float mClock;
