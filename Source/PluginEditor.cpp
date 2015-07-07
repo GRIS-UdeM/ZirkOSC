@@ -406,7 +406,7 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pTrajectoryReturnComboBox->addListener(this);
     
     m_pTrajectoryTypeComboBox = m_oTrajectoryTab->getTypeComboBox();
-    for (int index = 1; index < Trajectory::NumberOfTrajectories(); ++index){
+    for (int index = 1; index <= Trajectory::NumberOfTrajectories(); ++index){
         m_pTrajectoryTypeComboBox->addItem(Trajectory::GetTrajectoryName(index), index);
     }
     

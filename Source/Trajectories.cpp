@@ -157,30 +157,13 @@ Trajectory::Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool s
 	m_TotalTrajectoriesDuration = mDurationSingleTrajectory * _TrajectoryCount;
 }
 
-//void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
-//    if (ourProcessor->getSelectedMovementConstraint() == Independant){
-//        if (ZirkOscjuceAudioProcessor::s_bUseXY){
-//            float fX, fY;
-//            SoundSource::azimElev01toXY01(p_fNewAzimuth, p_fNewElevation, fX, fY);
-//            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), fX);
-//            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), fY);
-//        } else {
-//            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), p_fNewAzimuth);
-//            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), p_fNewElevation);
-//        }
-//    } else {
-//        float x,y;
-//        SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, x, y);
-//        ourProcessor->moveTrajectoriesWithConstraints(x,y);
-//    }
-//}
-
 void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
     
     float fX, fY;
     SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, fX, fY);
     static_cast<ZirkOscjuceAudioProcessorEditor*>(ourProcessor->getEditor())->move(_SelectedSourceForTrajectory, fX, fY);
 }
+
 
 // ==============================================================================
 class CircleTrajectory : public Trajectory
@@ -450,8 +433,8 @@ protected:
                 float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
                 float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
                 
-                fAzimuth   = SoundSource::XYtoAzim01(fX, fY);
-                fElevation = SoundSource::XYtoElev01(fX, fY);
+                SoundSource::XY01toAzimElev01(fX, fY, fAzimuth, fElevation);
+                
             } else {
                 fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
                 fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
@@ -761,7 +744,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor
 		case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, in, bReturn, cross);
         case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
             
-//        case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
+//      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
 //		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
 //		case 21: return new SymYTargetTrajectory(filter, duration, beats, times, source);
 //		case 22: return new ClosestSpeakerTargetTrajectory(filter, duration, beats, times, source);
