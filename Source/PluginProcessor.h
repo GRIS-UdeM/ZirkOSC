@@ -299,6 +299,7 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
     //! Whether the editor has to refresh the GUI
+    JUCE_COMPILER_WARNING("this flag should really be used and the gui should NOT refresh if this flag is false")
     bool _RefreshGui = false;
     //! Current number of sources on the screnn
     int _NbrSources;
@@ -366,12 +367,17 @@ private:
     
     int _SelectedSourceForTrajectory;
     
-    //NEW TRAJECTORY
     Trajectory::Ptr mTrajectory;
     
     int64 mLastTimeInSamples;
     
+    //the id of the source that was last changed
+    int m_iSourceLocationChanged;
     
+    JUCE_COMPILER_WARNING("should all location variables be integers?")
+    float m_fSourceLocationChangedX;
+    
+    float m_fSourceLocationChangedY;
 
 };
 

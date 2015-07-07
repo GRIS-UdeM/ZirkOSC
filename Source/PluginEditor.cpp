@@ -60,8 +60,6 @@
 
 using namespace std;
 
-bool s_bSourceUnique = true;
-
 class MiniProgressBar : public Component
 {
 public:
@@ -272,25 +270,25 @@ public:
 */
 
 ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter)
-:   AudioProcessorEditor (ownerFilter),
-_LinkSpanButton("Link span"),
-_OscActiveButton("OSC active"),
-_TabComponent(TabbedButtonBar::TabsAtTop),
+:   AudioProcessorEditor (ownerFilter)
+,_LinkSpanButton("Link span")
+,_OscActiveButton("OSC active")
+,_TabComponent(TabbedButtonBar::TabsAtTop)
 //strings in parameters are all used as juce::component names
-_FirstSourceIdLabel("channelNbr"),
-_ZkmOscPortLabel("OscPort"),
-_NbrSourceLabel("NbrSources"),
-m_VersionLabel("version"),
-_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad"),
-_IpadIncomingOscPortLabel("OSCIpadInco"),
-_IpadIpAddressLabel("ipadadressLabel"),
-_FirstSourceIdTextEditor("channelNbr"),
-_ZkmOscPortTextEditor("OscPort"),
-_NbrSourceTextEditor("NbrSource"),
-_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE"),
-_IpadIncomingOscPortTextEditor("OSCIpadIncoTE"),
-_IpadIpAddressTextEditor("ipaddress"),
-_MovementConstraintComboBox("MovementConstraint")
+,_FirstSourceIdLabel("channelNbr")
+,_ZkmOscPortLabel("OscPort")
+,_NbrSourceLabel("NbrSources")
+,m_VersionLabel("version")
+,_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad")
+,_IpadIncomingOscPortLabel("OSCIpadInco")
+,_IpadIpAddressLabel("ipadadressLabel")
+,_FirstSourceIdTextEditor("channelNbr")
+,_ZkmOscPortTextEditor("OscPort")
+,_NbrSourceTextEditor("NbrSource")
+,_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE")
+,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
+,_IpadIpAddressTextEditor("ipaddress")
+,_MovementConstraintComboBox("MovementConstraint")
 {
 
     ourProcessor = getProcessor();
@@ -1398,7 +1396,6 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         }
         _isSourceBeingDragged=false;
     }
-    //m_pGainSlider->grabKeyboardFocus();
     _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
@@ -1415,7 +1412,6 @@ void ZirkOscjuceAudioProcessorEditor::moveFullyFixed(const int &p_iSource, const
         orderSourcesByAngle(ourProcessor->getSelectedSource(),ourProcessor->getSources());
         _isNeedToSetFixedAngles=false;
     }
-//    moveCircularWithFixedRadius(p_iSource, p_fX, p_fY);
     ourProcessor->moveCircular(p_iSource, p_fX, p_fY, true);
 }
 
