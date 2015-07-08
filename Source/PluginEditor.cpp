@@ -1278,9 +1278,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
                 ourProcessor->getSources()[i].setAzimReverse(false);
             }
         }
-        //repaint();
     }
-    //m_pGainSlider->grabKeyboardFocus();
     _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
