@@ -279,15 +279,15 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
 ,_ZkmOscPortLabel("OscPort")
 ,_NbrSourceLabel("NbrSources")
 ,m_VersionLabel("version")
-,_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad")
-,_IpadIncomingOscPortLabel("OSCIpadInco")
-,_IpadIpAddressLabel("ipadadressLabel")
+//,_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad")
+//,_IpadIncomingOscPortLabel("OSCIpadInco")
+//,_IpadIpAddressLabel("ipadadressLabel")
 ,_FirstSourceIdTextEditor("channelNbr")
 ,_ZkmOscPortTextEditor("OscPort")
 ,_NbrSourceTextEditor("NbrSource")
-,_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE")
-,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
-,_IpadIpAddressTextEditor("ipaddress")
+//,_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE")
+//,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
+//,_IpadIpAddressTextEditor("ipaddress")
 ,_MovementConstraintComboBox("MovementConstraint")
 {
 
@@ -320,22 +320,22 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     addAndMakeVisible(&_ZkmOscPortLabel);
     addAndMakeVisible(&_ZkmOscPortTextEditor);
     
-    _IpadIncomingOscPortLabel.setText("Inc. port",  dontSendNotification);
-    _IpadIncomingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadIncoming()));
-    addAndMakeVisible(&_IpadIncomingOscPortLabel);
-    addAndMakeVisible(&_IpadIncomingOscPortTextEditor);
+//    _IpadIncomingOscPortLabel.setText("Inc. port",  dontSendNotification);
+//    _IpadIncomingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadIncoming()));
+//    addAndMakeVisible(&_IpadIncomingOscPortLabel);
+//    addAndMakeVisible(&_IpadIncomingOscPortTextEditor);
+//    
+//    _IpadOutgoingOscPortLabel.setText("Out. port",  dontSendNotification);
+//    _IpadOutgoingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadOutgoing()));
+//    addAndMakeVisible(&_IpadOutgoingOscPortLabel);
+//    addAndMakeVisible(&_IpadOutgoingOscPortTextEditor);
+//    
+//    _IpadIpAddressLabel.setText("iPad IP add.",  dontSendNotification);
+//    _IpadIpAddressTextEditor.setText(String(ourProcessor->getOscAddressIpad()));
+//    addAndMakeVisible(&_IpadIpAddressLabel);
+//    addAndMakeVisible(&_IpadIpAddressTextEditor);
     
-    _IpadOutgoingOscPortLabel.setText("Out. port",  dontSendNotification);
-    _IpadOutgoingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadOutgoing()));
-    addAndMakeVisible(&_IpadOutgoingOscPortLabel);
-    addAndMakeVisible(&_IpadOutgoingOscPortTextEditor);
-    
-    _IpadIpAddressLabel.setText("iPad IP add.",  dontSendNotification);
-    _IpadIpAddressTextEditor.setText(String(ourProcessor->getOscAddressIpad()));
-    addAndMakeVisible(&_IpadIpAddressLabel);
-    addAndMakeVisible(&_IpadIpAddressTextEditor);
-    
-    m_bUseIpad = ourProcessor-> m_bUseIpad;
+//    m_bUseIpad = ourProcessor-> m_bUseIpad;
     
     //---------- TOGGLE BUTTONS ----------
     addAndMakeVisible(&_LinkSpanButton);
@@ -495,11 +495,11 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     _FirstSourceIdTextEditor.addListener(this);
     _ZkmOscPortTextEditor.addListener(this);
     _NbrSourceTextEditor.addListener(this);
-    if (m_bUseIpad){
-        _IpadOutgoingOscPortTextEditor.addListener(this);
-        _IpadIncomingOscPortTextEditor.addListener(this);
-        _IpadIpAddressTextEditor.addListener(this);
-    }
+//    if (m_bUseIpad){
+//        _IpadOutgoingOscPortTextEditor.addListener(this);
+//        _IpadIncomingOscPortTextEditor.addListener(this);
+//        _IpadIpAddressTextEditor.addListener(this);
+//    }
 
     this->setFocusContainer(true);
     
@@ -584,9 +584,9 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
+//    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
+//    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
+//    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
     // OSC button
     _OscActiveButton.setBounds(iCurWidth-80, 300, 80, 25);
@@ -973,9 +973,9 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     
-    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
-    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
-    _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
+//    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
+//    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
+//    _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
@@ -1734,33 +1734,31 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     }
     
-    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
-        int newIpadOutgoingPort = intValue;
-        String curIpAddress = ourProcessor->getOscAddressIpad();
-        
-        ourProcessor->changeOSCSendIPad(newIpadOutgoingPort, curIpAddress);
-        
-        _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
-    }
-    
-    else if (&_IpadIpAddressTextEditor == &textEditor) {
-        String newIpAddress = text;
-        int curOscOutgoingPort = ourProcessor->getOscPortIpadOutgoing().getIntValue();
-        
-        ourProcessor->changeOSCSendIPad(curOscOutgoingPort, newIpAddress);
-        
-        _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
-    }
-    
-    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {
-        int newIpadIncomingPort = intValue;
-        ourProcessor->changeOSCReceiveIpad(newIpadIncomingPort);
-        _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
-        
-    }
-    ourProcessor->sendOSCConfig();
+//    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
+//        int newIpadOutgoingPort = intValue;
+//        String curIpAddress = ourProcessor->getOscAddressIpad();
+//        
+//        ourProcessor->changeOSCSendIPad(newIpadOutgoingPort, curIpAddress);
+//        
+//        _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
+//    }
+//    
+//    else if (&_IpadIpAddressTextEditor == &textEditor) {
+//        String newIpAddress = text;
+//        int curOscOutgoingPort = ourProcessor->getOscPortIpadOutgoing().getIntValue();
+//        
+//        ourProcessor->changeOSCSendIPad(curOscOutgoingPort, newIpAddress);
+//        
+//        _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
+//    }
+//    
+//    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {
+//        int newIpadIncomingPort = intValue;
+//        ourProcessor->changeOSCReceiveIpad(newIpadIncomingPort);
+//        _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
+//        
+//    }
     ourProcessor->sendOSCValues();
-    ourProcessor->sendOSCMovementType();
     if (!_isReturnKeyPressedCalledFromFocusLost){
         //m_pGainSlider->grabKeyboardFocus();
         _MovementConstraintComboBox.grabKeyboardFocus();
@@ -1780,7 +1778,6 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
         if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
             _isNeedToSetFixedAngles=true;
         }
-        ourProcessor->sendOSCMovementType();
     }
     
     else if (comboBoxThatHasChanged == m_pTrajectoryTypeComboBox){

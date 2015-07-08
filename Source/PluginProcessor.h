@@ -159,12 +159,6 @@ public:
     void setSelectedSource(int selected){ if ( selected >-1 && selected < 8) _SelectedSource= selected;};
     //! Returns the Osc Port for the Zirkonium sending
     int getOscPortZirkonium(){return _OscPortZirkonium;}
-    //! Retunrs the Osc port where the iPad messages are received
-    String getOscPortIpadIncoming(){ return _OscPortIpadIncoming;}
-    //! Returns the Osc iPad port where we send messages
-    String getOscPortIpadOutgoing(){ return _OscPortIpadOutgoing;}
-    //! Returns the iPad's IP address.
-    String getOscAddressIpad() {return _OscAddressIpad; }
     
     enum ParameterIds
     {
@@ -243,14 +237,7 @@ public:
     void setRefreshGui(bool gui) { _RefreshGui = gui;};
     //! Change the sending OSC port of the zirkonium
     void changeZirkoniumOSCPort(int newPort);
-    //! Send the configuration to the iPad (assignment Position -> id, nbr source)
-    void sendOSCConfig();
-    //! Send the movement type, selected constrain.
-    void sendOSCMovementType();
-    //! Change the sending OSC port of the iPad
-    void changeOSCSendIPad(int newPort, String newAddress);
-    //! Change the receiving OSC port (server).
-    void changeOSCReceiveIpad(int port);
+
     //! Returns the Editor.
     AudioProcessorEditor* getEditor() {return _Editor;};
     //! Set the width that the UI was last set to
@@ -272,10 +259,7 @@ public:
     //! wheter this instance of the plugin will use xy (true) or azim and elev (false) parameters for automations
     static bool s_bUseXY;
     
-    bool m_bUseIpad;
-    
     bool isTrajectoryDone();
-
     
     //NEW TRAJECTORY CLASS METHODS
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
@@ -287,8 +271,6 @@ public:
     void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
     
 private:
-    
-    
     
     void initSources();
     
@@ -325,18 +307,9 @@ private:
     //Copy of all sources to be able to save and restore locations before and after a trajectory
     SoundSource _AllSourcesBuffer [8];
     
-    //! Osc Sever thread (receiving)
-    lo_server_thread _St;
     //! Zirkonium OSC address (sending)
     lo_address _OscZirkonium;
-    //! Ipad OSC address (sending)
-    lo_address _OscIpad;
-    //! Outgoing port to the iPad 
-    String _OscPortIpadOutgoing;
-    //! iPad address
-    String _OscAddressIpad;
-    //! Zirkonium incoming port
-    String _OscPortIpadIncoming;
+
     //! last saved ui width
     int _LastUiWidth;
     //! last saved ui height

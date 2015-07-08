@@ -115,7 +115,7 @@ private:
     //! Called when a button is clicked
     void buttonClicked (Button* button);
     
-    bool m_bUseIpad;
+//    bool m_bUseIpad;
 
     int getNumSelectedTrajectoryDirections();
     
@@ -228,14 +228,12 @@ private:
     
     Label m_VersionLabel;
     
-    //! Label of the outgoing port to the iPad
-    Label _IpadOutgoingOscPortLabel;
-    //! Label of the incoming port
-    Label _IpadIncomingOscPortLabel;
-    //! Label of the iPad address
-    Label _IpadIpAddressLabel;
-    
-
+//    //! Label of the outgoing port to the iPad
+//    Label _IpadOutgoingOscPortLabel;
+//    //! Label of the incoming port
+//    Label _IpadIncomingOscPortLabel;
+//    //! Label of the iPad address
+//    Label _IpadIpAddressLabel;
 
 
     //! TextEditor for the channel number of the selected source
@@ -244,12 +242,12 @@ private:
     TextEditor _ZkmOscPortTextEditor;
     //! TextEditor for the Number of sources
     TextEditor _NbrSourceTextEditor;
-    //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
-    TextEditor _IpadOutgoingOscPortTextEditor;
-    //! TextEditor for the iPad incoming port  (from the ipad to the plugin)
-    TextEditor _IpadIncomingOscPortTextEditor;
-    //! TextEditor for the iPad ip address
-    TextEditor _IpadIpAddressTextEditor;
+//    //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
+//    TextEditor _IpadOutgoingOscPortTextEditor;
+//    //! TextEditor for the iPad incoming port  (from the ipad to the plugin)
+//    TextEditor _IpadIncomingOscPortTextEditor;
+//    //! TextEditor for the iPad ip address
+//    TextEditor _IpadIpAddressTextEditor;
     
 
 
