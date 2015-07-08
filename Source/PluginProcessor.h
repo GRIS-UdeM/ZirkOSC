@@ -345,17 +345,14 @@ private:
     int64 mLastTimeInSamples;
     
     //the id of the source that was last changed
-    int m_iSourceLocationChanged;
+    int m_iSourceLocationChanged;   
     
-    //true if we have locked a position
-    bool m_bSourceLocationChangedXLocked;
+    float m_fSourceNewX;
+    float m_fSourceNewY;
     
-    bool m_bSourceLocationChangedBothLocked;
-    
-    JUCE_COMPILER_WARNING("should all location variables be integers?")
-    float m_fSourceLocationChangedX;
-    
-    float m_fSourceLocationChangedY;
+    float m_fSourceOldX;
+    float m_fSourceOldY;
+
 
 };
 

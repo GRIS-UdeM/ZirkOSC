@@ -67,10 +67,6 @@ _NbrSources(1)
 ,_isWriteTrajectory(false)
 ,_SelectedSourceForTrajectory(0)
 ,m_iSourceLocationChanged(-1)
-,m_bSourceLocationChangedXLocked(false)
-,m_bSourceLocationChangedBothLocked(false)
-,m_fSourceLocationChangedX(-1.f)
-,m_fSourceLocationChangedY(-1.f)
 {
     
     initSources();
@@ -100,14 +96,10 @@ void error(int num, const char *m, const char *path){
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
     const MessageManagerLock mmLock;
-    if (s_bSourceUnique && m_bSourceLocationChangedBothLocked){
+    if (s_bSourceUnique && m_iSourceLocationChanged != -1){
         JUCE_COMPILER_WARNING("radius flag needs to be set to something sensible")
-        moveCircular(m_iSourceLocationChanged, m_fSourceLocationChangedX, m_fSourceLocationChangedY, true);
-        m_fSourceLocationChangedX = -1;
-        m_fSourceLocationChangedY = -1;
-        
-        m_bSourceLocationChangedXLocked = false;
-        m_bSourceLocationChangedBothLocked = false;
+        moveCircular(m_iSourceLocationChanged, m_fSourceNewX, m_fSourceNewY, true);
+        m_iSourceLocationChanged = -1.f;
     }
     sendOSCValues();
 }
@@ -225,8 +217,13 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     }
     
     //convert x,y[0,1] to azim,elev[0,1]
-    float fSelectedOldX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
-    float fSelectedOldY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
+    
+    JUCE_COMPILER_WARNING("THIS WILL NOT WORK IN NON-UNIQUE CASES")
+//    float fSelectedOldX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
+//    float fSelectedOldY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
+    float fSelectedOldX = m_fSourceOldX;
+    float fSelectedOldY = m_fSourceOldY;
+    
     float fSelectedOldAzim, fSelectedOldElev;
     SoundSource::XY01toAzimElev01(fSelectedOldX, fSelectedOldY, fSelectedOldAzim, fSelectedOldElev);
     
@@ -237,9 +234,15 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     
     cout << p_iSource << " newX " << p_fSelectedNewX << " NewY " << p_fSelectedNewY << " NewAzim " << fSelectedNewAzim << " NewElev " << fSelectedNewElev << "\n";
     
+    JUCE_COMPILER_WARNING("NOW HERE: SOME IMPRECISIONS MAKE THOSE DELTAS == 0 WHEN THEY SHOULD NOT BE")
     float fSelectedDeltaAzim = fSelectedNewAzim - fSelectedOldAzim;
     float fSelectedDeltaElev = fSelectedNewElev - fSelectedOldElev;
     
+    if (fSelectedDeltaAzim < 0.00001 && fSelectedDeltaElev < .00001){
+        cout << "fSelectedDeltaAzim " << fSelectedDeltaAzim << " fSelectedDeltaElev " << fSelectedDeltaElev << "\n";
+        int i = 0;
+        ++i;
+    }
     
     //for all other sources
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
@@ -255,7 +258,7 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
         float fCurAzim = SoundSource::XYtoAzim01(fCurX, fCurY);
         float fCurElev = SoundSource::XYtoElev01(fCurX, fCurY);
         
-        float fNewAzim = fCurAzim - fSelectedDeltaAzim;
+        float fNewAzim = fCurAzim + fSelectedDeltaAzim;
         
         //if radius is fixed, set all elevation to the same thing
         if (p_bIsRadiusFixed){
@@ -592,35 +595,26 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
         if  (ZirkOSC_Azim_or_x_ParamId + (iCurSource*5) == index) {
             if (s_bUseXY) {
+                m_fSourceOldX = _AllSources[iCurSource].getX01();
                 _AllSources[iCurSource].setX01(newValue);
             } else {
                 _AllSources[iCurSource].setAzimuth(newValue);
             }
 
-            JUCE_COMPILER_WARNING("not sure that this locking business is necessary")
-            //if we haven't locked an X value
-            if (!m_bSourceLocationChangedXLocked){
-                //lock it
-                m_bSourceLocationChangedXLocked = true;
-                m_iSourceLocationChanged = iCurSource;
-                //cout << "iCurSource x " << iCurSource << "\n";
-                m_fSourceLocationChangedX = newValue;
-            }
+            m_iSourceLocationChanged = iCurSource;
+            m_fSourceNewX = newValue;
             return;
         }
         else if (ZirkOSC_Elev_or_y_ParamId + (iCurSource*5) == index) {
             if (s_bUseXY){
+                m_fSourceOldY = _AllSources[iCurSource].getY01();
                 _AllSources[iCurSource].setY01(newValue);
             } else {
                 _AllSources[iCurSource].setElevation(newValue);
             }
-            //if we locked an X value but not yet a Y value
-            if (m_bSourceLocationChangedXLocked && !m_bSourceLocationChangedBothLocked){
-                m_bSourceLocationChangedBothLocked = true;
-                m_iSourceLocationChanged = iCurSource;
-                //cout << "iCurSource y " << iCurSource << "\n";
-                m_fSourceLocationChangedY = newValue;
-            }
+
+            m_iSourceLocationChanged = iCurSource;
+            m_fSourceNewY = newValue;
             return;
         }
         else if (ZirkOSC_AzimSpan_ParamId + (iCurSource*5) == index) {_AllSources[iCurSource].setAzimuthSpan(newValue); return;}
