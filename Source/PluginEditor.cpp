@@ -734,37 +734,6 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     g.strokePath(myPath, strokeType);
 }
 
-//void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
-//    Point<float> sourcePositionOnScreen;
-//    float HRAzim, HRElev;
-//    int iXOffset = 0, iYOffset = 0;
-//    for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
-//        
-//        JUCE_COMPILER_WARNING("remove all azim elev in here")
-//        HRAzim = PercentToHR(ourProcessor->getSources()[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-//        HRElev = PercentToHR(ourProcessor->getSources()[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-//        sourcePositionOnScreen = degreeToXy(Point<float> (HRAzim, HRElev));
-//        
-//        if (i == 0 ) cout << sourcePositionOnScreen.getX() << ", " << sourcePositionOnScreen.getY() << "\n";
-//        
-//        //draw source circle
-//        g.drawEllipse(_ZirkOSC_Center_X + sourcePositionOnScreen.getX()-4, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()-4, 8, 8,2);
-//        
-//        if (sourcePositionOnScreen.getX() > ZirkOscjuceAudioProcessor::s_iDomeRadius - 25 ){
-//            iXOffset = -20;
-//            iYOffset = 10;
-//        } else {
-//            iXOffset = 4;
-//            iYOffset = -2;
-//        }
-//        
-//        //draw source labels
-//        if(!_isSourceBeingDragged){
-//             g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + sourcePositionOnScreen.getX()+iXOffset, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()+iYOffset, 25, 10, Justification::centred, false);
-//        }
-//    }
-//}
-
 void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
     float fX, fY;
     int iXOffset = 0, iYOffset = 0;
@@ -1711,27 +1680,12 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     }
     
 //    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
-//        int newIpadOutgoingPort = intValue;
-//        String curIpAddress = ourProcessor->getOscAddressIpad();
-//        
-//        ourProcessor->changeOSCSendIPad(newIpadOutgoingPort, curIpAddress);
-//        
-//        _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
 //    }
 //    
 //    else if (&_IpadIpAddressTextEditor == &textEditor) {
-//        String newIpAddress = text;
-//        int curOscOutgoingPort = ourProcessor->getOscPortIpadOutgoing().getIntValue();
-//        
-//        ourProcessor->changeOSCSendIPad(curOscOutgoingPort, newIpAddress);
-//        
-//        _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
 //    }
 //    
 //    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {
-//        int newIpadIncomingPort = intValue;
-//        ourProcessor->changeOSCReceiveIpad(newIpadIncomingPort);
-//        _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
 //        
 //    }
     if (!_isReturnKeyPressedCalledFromFocusLost){

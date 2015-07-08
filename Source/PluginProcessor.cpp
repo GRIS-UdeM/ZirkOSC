@@ -230,9 +230,12 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     float fSelectedOldAzim, fSelectedOldElev;
     SoundSource::XY01toAzimElev01(fSelectedOldX, fSelectedOldY, fSelectedOldAzim, fSelectedOldElev);
     
+    cout << p_iSource << " oldX " << fSelectedOldX << " oldY " << fSelectedOldY << " oldAzim " << fSelectedOldAzim << " oldElev " << fSelectedOldElev << "\n";
    
     float fSelectedNewAzim, fSelectedNewElev;
     SoundSource::XY01toAzimElev01(p_fSelectedNewX, p_fSelectedNewY, fSelectedNewAzim, fSelectedNewElev);
+    
+    cout << p_iSource << " newX " << p_fSelectedNewX << " NewY " << p_fSelectedNewY << " NewAzim " << fSelectedNewAzim << " NewElev " << fSelectedNewElev << "\n";
     
     float fSelectedDeltaAzim = fSelectedNewAzim - fSelectedOldAzim;
     float fSelectedDeltaElev = fSelectedNewElev - fSelectedOldElev;
@@ -594,12 +597,13 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
                 _AllSources[iCurSource].setAzimuth(newValue);
             }
 
+            JUCE_COMPILER_WARNING("not sure that this locking business is necessary")
             //if we haven't locked an X value
             if (!m_bSourceLocationChangedXLocked){
                 //lock it
                 m_bSourceLocationChangedXLocked = true;
                 m_iSourceLocationChanged = iCurSource;
-                cout << "iCurSource x " << iCurSource << "\n";
+                //cout << "iCurSource x " << iCurSource << "\n";
                 m_fSourceLocationChangedX = newValue;
             }
             return;
@@ -614,7 +618,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
             if (m_bSourceLocationChangedXLocked && !m_bSourceLocationChangedBothLocked){
                 m_bSourceLocationChangedBothLocked = true;
                 m_iSourceLocationChanged = iCurSource;
-                cout << "iCurSource y " << iCurSource << "\n";
+                //cout << "iCurSource y " << iCurSource << "\n";
                 m_fSourceLocationChangedY = newValue;
             }
             return;
