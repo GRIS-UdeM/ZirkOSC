@@ -43,9 +43,7 @@ void HIDDelegate::Handle_DeviceMatchingCallback(void *inContext, IOReturn inResu
     
     printf("(context: %p, result: 0x%08X, sender: %p, device: %p)",
            inContext, inResult, inSender, (void *) inIOHIDDeviceRef);
-#ifdef DEBUG
-    HIDDumpDeviceInfo(inIOHIDDeviceRef);
-#endif // def DEBUG
+
     uint32_t vendorID = IOHIDDevice_GetVendorID(inIOHIDDeviceRef);
     uint32_t productID = IOHIDDevice_GetProductID(inIOHIDDeviceRef);
     if ((vendorID != 0x12BA) || (productID != 0x0030)) {

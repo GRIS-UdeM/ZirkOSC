@@ -25,10 +25,6 @@
 Handling all the sound processing and directing.
  */
 
-#ifndef DEBUG
-#define DEBUG
-#endif
-#undef DEBUG
 
 //lo_send(mOsc, "/pan/az", "i", ch);
 
@@ -526,9 +522,6 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
 // UI-related, or anything at all that may block in any way!
 void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
 {
-#if defined(DEBUG)
-    cout << "setParameter() with index: " << index << " and newValue: " << newValue << "\n";
-#endif
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
             _SelectedMovementConstraint = newValue;
@@ -578,7 +571,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
                 _isWriteTrajectory = false;
             return;
     }
-    //cout << "setParameter: " << index << " with value: " << newValue << "\n";
+
     JUCE_COMPILER_WARNING("more efficient to not have loop?")
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
         if  (ZirkOSC_Azim_or_x_ParamId + (iCurSource*5) == index) {
@@ -606,7 +599,7 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
         else if (ZirkOSC_ElevSpan_ParamId + (iCurSource*5) == index) {_AllSources[iCurSource].setElevationSpan(newValue); return;}
         else if (ZirkOSC_Gain_ParamId + (iCurSource*5) == index)     {_AllSources[iCurSource].setGain(newValue); return;}
     }
-    cerr << "\n" << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter" << "\n";
+    cerr << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter\n";
 }
 
 
@@ -754,7 +747,6 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
         m_fSelectedTrajectoryReturn    = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
         changeZirkoniumOSCPort(_OscPortZirkonium);
-        sendOSCValues();
         _RefreshGui=true;
     }
 }

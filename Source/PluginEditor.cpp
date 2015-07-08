@@ -31,13 +31,6 @@
 
 
 
-
-
-#ifndef DEBUG
-#define DEBUG
-#endif
-#undef DEBUG
-
 #ifndef TIMING_TESTS
 #define TIMING_TESTS
 #endif
@@ -781,7 +774,6 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         
         ourProcessor->getSources()[i].getXY(fX, fY);
         
-        JUCE_COMPILER_WARNING("HEXA not clear to me why we need to clamp again, while in the previous version of this function we didn't. Also not clear that this new function is more performant")
         float fCurR = hypotf(fX, fY);
         if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
             float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
@@ -873,7 +865,7 @@ Point <float> ZirkOscjuceAudioProcessorEditor::degreeToXy (Point <float> p){
  */
 void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     
-#if defined(DEBUG)
+#if defined(TIMING_TESTS)
     clock_t begin = clock();
     clock_t proc = clock();
 #endif
@@ -903,15 +895,15 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
             break;
     }
 
-#if defined(DEBUG)
-    clock_t sliders = clock();
+#if defined(TIMING_TESTS)
+    clock_t sliders = clock(); 
 #endif
     if (ourProcessor->hasToRefreshGui()){
         refreshGui();
         ourProcessor->setRefreshGui(false);
     }
     
-#if defined(DEBUG)
+#if defined(TIMING_TESTS)
     clock_t gui = clock();
 #endif
     
@@ -938,7 +930,6 @@ void ZirkOscjuceAudioProcessorEditor::updateSliders(){
     
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->setValue(HRValue,dontSendNotification);
-    //cout << "update sliders: " << ourProcessor->getSources()[selectedSource].getAzimuth() << "\n";
     
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_pElevationSlider->setValue(HRValue,dontSendNotification);
@@ -1369,9 +1360,6 @@ void ZirkOscjuceAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY
             ourProcessor->moveCircular(p_iSource, p_fX, p_fY, false);
         }
     }
-    
-    JUCE_COMPILER_WARNING("HEXA: this should be the only time we're calling sendOSCValues, no? or maybe even we don't need to since the processor is doing it?")
-    ourProcessor->sendOSCValues();
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
@@ -1599,18 +1587,12 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(const int &p_iSource,
         ourProcessor->getSources()[i].getXY(currentX, currentY);
         float newX = currentX + p_fX;
         float newY = currentY + p_fY;
-
-        JUCE_COMPILER_WARNING("HEXA: if we clamp, sources that fall outside the circle don,t bounce back; but if we don't clamp, location parameters fall outside their correct range...")
-        //SoundSource::clampXY(newPosition.x, newPosition.y);
         
         float fX01 = (newX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);
         float fY01 = (newY + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);
 
-
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i * 5, fX01);
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i * 5, fY01);
-        
-        //ourProcessor->sendOSCValues();
     }
 }
 
@@ -1627,13 +1609,10 @@ void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDeltaAzimElev(Point<float> 
             float deltax = currentx+DeltaMove.x;
             float deltay = currentx+DeltaMove.y;
             ourProcessor->getSources()[i].setXYUsingAzimElev(deltax, deltay);
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, ourProcessor->getSources()[i].getAzimuth());
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, ourProcessor->getSources()[i].getElevationRawValue());
-            //azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
-            //ourProcessor->sendOSCValues();
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, ourProcessor->getSources()[i].getAzimuth());
+            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, ourProcessor->getSources()[i].getElevationRawValue());
         }
     }
-    //repaint();
 }
 
 void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &textEditor){
@@ -1708,7 +1687,6 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
             ourProcessor->getSources()[iCurSource].setChannel(newChannel++);
         }
-       //ourProcessor->sendOSCValues();
     }
     
     else if(&_ZkmOscPortTextEditor == &textEditor ){
@@ -1758,9 +1736,7 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
 //        _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
 //        
 //    }
-    ourProcessor->sendOSCValues();
     if (!_isReturnKeyPressedCalledFromFocusLost){
-        //m_pGainSlider->grabKeyboardFocus();
         _MovementConstraintComboBox.grabKeyboardFocus();
     }
 }

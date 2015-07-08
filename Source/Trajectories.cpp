@@ -467,6 +467,7 @@ protected:
                 fX = PercentToHR(fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
                 fY = PercentToHR(fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
                 
+                JUCE_COMPILER_WARNING("there has to be a way to have the random values be in the correct range without clamping...")
                 fX = clamp(fX, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
                 fY = clamp(fY, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
                 

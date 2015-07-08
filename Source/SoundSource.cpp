@@ -189,7 +189,6 @@ float   SoundSource::getElevation(){
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
         return XYtoElev01(m_fX, m_fY);
     } else {
-        //std::cout << "getElevation: " << _Elevation << "\n";
         if (_Elevation<0.0f){
             return 0.0f;
         }
@@ -201,11 +200,9 @@ float   SoundSource::getElevationRawValue(){
     if (ZirkOscjuceAudioProcessor::s_bUseXY){
         double dArg = sqrt( m_fX*m_fX + m_fY*m_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
         if (dArg > 1) {
-            //std::cout << "getElevationRawValue() adjusted dArg from " << dArg << " to 1.\n";
             dArg =  1.;
         }
         float ret = static_cast<float>( acos(dArg));
-        //std::cout << "get elev raw: " << ret << "\n";
         return ret;
     } else {
         return _Elevation;
@@ -314,7 +311,6 @@ float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
 float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
     double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
     if (dArg > 1) {
-        //std::cout << "XYtoElev() adjusted dArg from " << dArg << " to 1.\n";
         dArg =  1.;
     }
     
@@ -322,7 +318,6 @@ float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
     if (fElevation < 0.001){
         return 0.f;
     } else {
-        //output of acos is [0,pi/2], so we need to normalize that to [0,1]
         return fElevation / M_PI_2;
     }
 }
