@@ -100,37 +100,26 @@ void ZirkOscjuceAudioProcessor::timerCallback(){
 void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsRadiusFixed){
     if (!ZirkOscjuceAudioProcessor::s_bUseXY){
         Point<float> pointRelativeCenter(p_fSelectedNewX, p_fSelectedNewY);
-        //JUCE_COMPILER_WARNING("this needs to be uncommented and work");
+        JUCE_COMPILER_WARNING("this needs to be uncommented and work");
         //moveCircularAzimElev(pointRelativeCenter, p_bIsRadiusFixed);
         return;
     }
     float fSelectedOldAzim, fSelectedOldElev, fSelectedNewAzim, fSelectedNewElev;
-
     
 //----- calculate old coordinates for selected source.
     //first time this is run, m_fSourceOldX was set by setParameter
-                                            //JUCE_COMPILER_WARNING("THIS WILL NOT WORK IN NON-UNIQUE CASES")
+    JUCE_COMPILER_WARNING("THIS WILL NOT WORK IN NON-UNIQUE CASES")
     float fSelectedOldX = m_fSourceOldX;    //    float fSelectedOldX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
     float fSelectedOldY = m_fSourceOldY;    //    float fSelectedOldY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
     //convert x,y[0,1] to azim,elev[0,1]
     SoundSource::XY01toAzimElev01(fSelectedOldX, fSelectedOldY, fSelectedOldAzim, fSelectedOldElev);
-    cout << p_iSource << " oldX " << fSelectedOldX << " oldY " << fSelectedOldY << " oldAzim " << fSelectedOldAzim << " oldElev " << fSelectedOldElev << "\n";
-   
     
 //----- calculate new coordinates for selected source.
     SoundSource::XY01toAzimElev01(p_fSelectedNewX, p_fSelectedNewY, fSelectedNewAzim, fSelectedNewElev);
-    cout << p_iSource << " newX " << p_fSelectedNewX << " NewY " << p_fSelectedNewY << " NewAzim " << fSelectedNewAzim << " NewElev " << fSelectedNewElev << "\n";
-    
     
 //----- calculate deltas for selected source.
     float fSelectedDeltaAzim = fSelectedNewAzim - fSelectedOldAzim;
     float fSelectedDeltaElev = fSelectedNewElev - fSelectedOldElev;
-    
-    if (fSelectedDeltaAzim < 0.00001 && fSelectedDeltaElev < .00001){
-        cout << "DeltaAzim " << fSelectedDeltaAzim << " DeltaElev " << fSelectedDeltaElev << "\n";
-        int i = 0;
-        ++i;
-    }
     
 //----- move non-selected sources using the deltas
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
@@ -138,16 +127,8 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
         if (iCurSource == p_iSource){
             continue;
         }
-
-                float fCurX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5));
-                float fCurY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5));
-                fCurX = fCurX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-                fCurY = fCurY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-                float fCurAzim = SoundSource::XYtoAzim01(fCurX, fCurY);
-                float fCurElev = SoundSource::XYtoElev01(fCurX, fCurY);
-        
-//        float fCurAzim, fCurElev;
-//        SoundSource::XY01toAzimElev01(getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5)), getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5)), fSelectedOldAzim, fSelectedOldElev);
+        float fCurAzim, fCurElev;
+        SoundSource::XY01toAzimElev01(getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5)), getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5)), fCurAzim, fCurElev);
     
         float fNewAzim = fCurAzim + fSelectedDeltaAzim;
         
@@ -157,8 +138,6 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
             SoundSource::azimElev01toXY01(fNewAzim, fSelectedOldElev, fX, fY);
             _AllSources[iCurSource].setX01(fX);
             _AllSources[iCurSource].setY01(fY);
-            
-            cout << iCurSource << " x " << fX << " y " << fY << "\n";
             
         }
         //if radius is not fixed, set all elevation to be current elevation +/- deltaY
@@ -178,6 +157,7 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
             }
         }
     }
+    JUCE_COMPILER_WARNING("what we need is to have an array of those for all sources")
     m_fSourceOldX = p_fSelectedNewX;
     m_fSourceOldY = p_fSelectedNewY;
 }
