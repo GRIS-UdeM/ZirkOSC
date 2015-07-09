@@ -215,9 +215,6 @@ public:
         totalNumParams                      //50
     };
     
-    
- 
-    
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     
@@ -346,9 +343,6 @@ private:
     
     //the id of the source that was last changed
     int m_iSourceLocationChanged;   
-    
-    float m_fSourceNewX;
-    float m_fSourceNewY;
     
     float m_fSourceOldX;
     float m_fSourceOldY;

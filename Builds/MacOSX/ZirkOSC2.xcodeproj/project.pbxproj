@@ -81,6 +81,7 @@
 		B70BD3F9B33D371AAA742C68 /* juce_core.mm in Sources */ = {isa = PBXBuildFile; fileRef = F3E6470E52D8A389E51A7FCB /* juce_core.mm */; };
 		B77AF8DABB0297E5EAF6968E /* AUCarbonViewDispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3ED2F91DD04CB2F6C4B910E3 /* AUCarbonViewDispatch.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		BDE6D724726298F7CD2173FC /* juce_gui_basics.mm in Sources */ = {isa = PBXBuildFile; fileRef = 81B8270E6715D78AC9522E9D /* juce_gui_basics.mm */; };
+		BFC359191B4EDF17001B48B3 /* libLeap.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = BFC359181B4EDF17001B48B3 /* libLeap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		C3D5BB6073E24C398EAD394B /* MusicDeviceBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1DA9B2DC5E516CBF6C394CF /* MusicDeviceBase.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		C878F7B508FFEA1C64DBB9D0 /* HID_Name_Lookup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D44793380CA0028E5BF6D8A /* HID_Name_Lookup.cpp */; };
 		D257671D75ACC836D55A173F /* AUMIDIEffectBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 09AAA7C35BF7D59817FB0BB3 /* AUMIDIEffectBase.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
@@ -98,6 +99,19 @@
 		F7B755A0A93AEBD7614AE4D5 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 883DF696460D914404CCC4AA /* Carbon.framework */; };
 		FEA100570230750E15390CCF /* pattern_match.c in Sources */ = {isa = PBXBuildFile; fileRef = BA85D240BA985D37722CE57C /* pattern_match.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BFC359171B4EDEF8001B48B3 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				BFC359191B4EDF17001B48B3 /* libLeap.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		001A76FB0FD2292DC1C327D7 /* juce_win32_Files.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_win32_Files.cpp; path = ../../JuceLibraryCode/modules/juce_core/native/juce_win32_Files.cpp; sourceTree = SOURCE_ROOT; };
@@ -861,6 +875,7 @@
 		BEEB039F2A554BD3757CBF56 /* juce_OpenGLPixelFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_OpenGLPixelFormat.h; path = ../../JuceLibraryCode/modules/juce_opengl/opengl/juce_OpenGLPixelFormat.h; sourceTree = SOURCE_ROOT; };
 		BF59092652D3F38D300DF38E /* juce_mac_CoreAudio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_mac_CoreAudio.cpp; path = ../../JuceLibraryCode/modules/juce_audio_devices/native/juce_mac_CoreAudio.cpp; sourceTree = SOURCE_ROOT; };
 		BF73D6A5A698A62F900C986F /* juce_PropertyPanel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_PropertyPanel.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/properties/juce_PropertyPanel.cpp; sourceTree = SOURCE_ROOT; };
+		BFC359181B4EDF17001B48B3 /* libLeap.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libLeap.dylib; sourceTree = "<group>"; };
 		C044C06A655E8BD9C5D36ADC /* juce_VST3_Wrapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_VST3_Wrapper.cpp; path = ../../JuceLibraryCode/modules/juce_audio_plugin_client/VST3/juce_VST3_Wrapper.cpp; sourceTree = SOURCE_ROOT; };
 		C0AE6C7187B27EBDE89A8EF1 /* juce_IIRFilterAudioSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_IIRFilterAudioSource.cpp; path = ../../JuceLibraryCode/modules/juce_audio_basics/sources/juce_IIRFilterAudioSource.cpp; sourceTree = SOURCE_ROOT; };
 		C0B857718F6645BF86F218C1 /* juce_module_info */ = {isa = PBXFileReference; lastKnownFileType = text; name = juce_module_info; path = ../../JuceLibraryCode/modules/juce_audio_basics/juce_module_info; sourceTree = SOURCE_ROOT; };
@@ -2885,6 +2900,7 @@
 		E1B83B44B1B770D8A9791CF3 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				BFC359181B4EDF17001B48B3 /* libLeap.dylib */,
 				DA8A28B737DDFAC1313A74EC /* ZirkOSC2 */,
 				CF17D5EB7EF3F2828D087C14 /* Juce Modules */,
 				AC5859AF3102E03F76ECE0B1 /* Juce Library Code */,
@@ -3066,6 +3082,7 @@
 				96DF6391A7BB58699CC5BE63 /* Sources */,
 				44EBF758515C7CAB2926117B /* Frameworks */,
 				5E70BBE3B5A870A974756754 /* Post-build script */,
+				BFC359171B4EDEF8001B48B3 /* CopyFiles */,
 			);
 			buildRules = (
 			);
