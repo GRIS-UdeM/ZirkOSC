@@ -344,8 +344,8 @@ private:
     //the id of the source that was last changed
     int m_iSourceLocationChanged;   
     
-    float m_fSourceOldX;
-    float m_fSourceOldY;
+    float m_fSourceOldX[8];
+    float m_fSourceOldY[8];
 
 
 };

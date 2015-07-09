@@ -67,8 +67,6 @@ _NbrSources(1)
 ,_isWriteTrajectory(false)
 ,_SelectedSourceForTrajectory(0)
 ,m_iSourceLocationChanged(-1)
-,m_fSourceOldX(-1.f)
-,m_fSourceOldY(-1.f)
 {
     initSources();
 
@@ -84,12 +82,15 @@ _NbrSources(1)
 void ZirkOscjuceAudioProcessor::initSources(){
     for(int i = 0; i < 8; ++i){
         _AllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
+        JUCE_COMPILER_WARNING("probably we will need to do this or something similar when we change the number of sources... or not, not sure")
+        m_fSourceOldX[i] = -1.f;
+        m_fSourceOldY[i] = -1.f;
     }
 }
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
     const MessageManagerLock mmLock;
-    if (s_bSourceUnique && m_iSourceLocationChanged != -1 && m_fSourceOldX != -1 && m_fSourceOldY != -1) {
+    if (s_bSourceUnique && m_iSourceLocationChanged != -1 && m_fSourceOldX[m_iSourceLocationChanged] != -1 && m_fSourceOldY[m_iSourceLocationChanged] != -1) {
         JUCE_COMPILER_WARNING("radius flag needs to be set to something sensible")
         moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX01(), _AllSources[m_iSourceLocationChanged].getY01(), true);
         m_iSourceLocationChanged = -1.f;
@@ -106,22 +107,22 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     }
     float fSelectedOldAzim, fSelectedOldElev, fSelectedNewAzim, fSelectedNewElev;
     
-//----- calculate old coordinates for selected source.
+    //calculate old coordinates for selected source.
     //first time this is run, m_fSourceOldX was set by setParameter
     JUCE_COMPILER_WARNING("THIS WILL NOT WORK IN NON-UNIQUE CASES")
-    float fSelectedOldX = m_fSourceOldX;    //    float fSelectedOldX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
-    float fSelectedOldY = m_fSourceOldY;    //    float fSelectedOldY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
+    float fSelectedOldX = m_fSourceOldX[p_iSource];    //    float fSelectedOldX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
+    float fSelectedOldY = m_fSourceOldY[p_iSource];    //    float fSelectedOldY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
     //convert x,y[0,1] to azim,elev[0,1]
     SoundSource::XY01toAzimElev01(fSelectedOldX, fSelectedOldY, fSelectedOldAzim, fSelectedOldElev);
     
-//----- calculate new coordinates for selected source.
+    //calculate new coordinates for selected source.
     SoundSource::XY01toAzimElev01(p_fSelectedNewX, p_fSelectedNewY, fSelectedNewAzim, fSelectedNewElev);
     
-//----- calculate deltas for selected source.
+    //calculate deltas for selected source.
     float fSelectedDeltaAzim = fSelectedNewAzim - fSelectedOldAzim;
     float fSelectedDeltaElev = fSelectedNewElev - fSelectedOldElev;
     
-//----- move non-selected sources using the deltas
+    //move non-selected sources using the deltas
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
         
         if (iCurSource == p_iSource){
@@ -158,8 +159,8 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
         }
     }
     JUCE_COMPILER_WARNING("what we need is to have an array of those for all sources")
-    m_fSourceOldX = p_fSelectedNewX;
-    m_fSourceOldY = p_fSelectedNewY;
+    m_fSourceOldX[p_iSource] = p_fSelectedNewX;
+    m_fSourceOldY[p_iSource] = p_fSelectedNewY;
 }
 
 ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
@@ -200,7 +201,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     }
     
 }
-
 
 void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
@@ -512,9 +512,9 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
             }
 
             m_iSourceLocationChanged = iCurSource;
-            if (m_fSourceOldX == -1.f){
+            if (m_fSourceOldX[iCurSource] == -1.f){
                 //if this was not initialized, we get our first value here
-                m_fSourceOldX = newValue;
+                m_fSourceOldX[iCurSource] = newValue;
             }
             return;
         }
@@ -526,8 +526,8 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue)
             }
 
             m_iSourceLocationChanged = iCurSource;
-            if (m_fSourceOldY == -1.f){
-                m_fSourceOldY = newValue;
+            if (m_fSourceOldY[iCurSource] == -1.f){
+                m_fSourceOldY[iCurSource] = newValue;
             }
             return;
         }
