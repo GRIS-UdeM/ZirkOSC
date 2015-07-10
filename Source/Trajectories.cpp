@@ -157,7 +157,8 @@ void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation)
     
     float fX, fY;
     SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, fX, fY);
-    static_cast<ZirkOscjuceAudioProcessorEditor*>(ourProcessor->getEditor())->move(_SelectedSourceForTrajectory, fX, fY);
+    //static_cast<ZirkOscjuceAudioProcessorEditor*>(ourProcessor->getEditor())->move(_SelectedSourceForTrajectory, fX, fY);
+    ourProcessor->move(_SelectedSourceForTrajectory, fX, fY);
 }
 
 
@@ -466,8 +467,7 @@ protected:
                 fX = clamp(fX, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
                 fY = clamp(fY, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
                 
-                static_cast<ZirkOscjuceAudioProcessorEditor*>(ourProcessor->getEditor())->move(_SelectedSourceForTrajectory, fX, fY);
-                
+            move(fX, fY);
 
 
         }
