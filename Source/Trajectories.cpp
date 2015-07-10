@@ -62,7 +62,7 @@ void Trajectory::start()
     _SelectedSourceForTrajectory = ourProcessor->getSelectedSource();
     
     //store initial parameter value
-    if (ZirkOscjuceAudioProcessor::s_bUseXY){
+
         //need to convert this to azim and elev
         float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
         fX       = fX*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
@@ -71,10 +71,6 @@ void Trajectory::start()
         
         _TrajectoryInitialAzimuth   = SoundSource::XYtoAzim01(fX, fY);
         _TrajectoryInitialElevation = SoundSource::XYtoElev01(fX, fY);
-    } else {
-        _TrajectoryInitialAzimuth   = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
-        _TrajectoryInitialElevation = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
-    }
     ourProcessor->storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
@@ -455,8 +451,7 @@ protected:
             
             float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
             float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
-            
-            if (ZirkOscjuceAudioProcessor::s_bUseXY){
+
                 
                 float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
                 float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
@@ -473,15 +468,7 @@ protected:
                 
                 static_cast<ZirkOscjuceAudioProcessorEditor*>(ourProcessor->getEditor())->move(_SelectedSourceForTrajectory, fX, fY);
                 
-            } else {
-                float fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
-                float fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
-                
 
-                fAzimuth += (r1 - 0.5) * mSpeed;
-                fElevation += (r2 - 0.5) * mSpeed;
-                move(fAzimuth, fElevation);
-            }
 
         }
     }

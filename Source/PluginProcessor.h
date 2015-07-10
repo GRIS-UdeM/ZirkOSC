@@ -251,10 +251,7 @@ public:
     
     //radius of the dome
     static int s_iDomeRadius;
-    
-    //! wheter this instance of the plugin will use xy (true) or azim and elev (false) parameters for automations
-    static bool s_bUseXY;
-    
+      
     bool isTrajectoryDone();
     
     //NEW TRAJECTORY CLASS METHODS
@@ -291,10 +288,6 @@ private:
     
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     
-    void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
-    
-    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
-
     void orderSourcesByAngle(int begin, SoundSource tab [] );
     
     //==============================================================================
@@ -370,6 +363,8 @@ private:
     float m_fSourceOldY[8];
 
     bool m_bNeedToSetFixedAngles;
+    
+    bool m_bFollowSelectedSource;
 
 };
 

@@ -1273,7 +1273,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         float fY = event.y-_ZirkOSC_Center_Y;
         
         //need to clamp the point to the circle
-        if (ZirkOscjuceAudioProcessor::s_bUseXY){
+
             float fCurR = hypotf(fX, fY);
             if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
                 float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
@@ -1281,7 +1281,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
                 fX *= fExtraRatio;
                 fY *= fExtraRatio;
             }
-        }
+        
         move(ourProcessor->getSelectedSource(), fX, fY);
     }
     _MovementConstraintComboBox.grabKeyboardFocus();
