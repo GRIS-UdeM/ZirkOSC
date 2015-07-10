@@ -47,7 +47,7 @@ public:
     //! Called every 50ms;
     void timerCallback();
     
-    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
+    void move(int p_iSource, float p_fX, float p_fY);
     
     //==============================================================================
     //! Called before playback starts, to let the filter prepare itself. 
@@ -264,7 +264,16 @@ public:
     void askForGuiRefresh(){_RefreshGui=true;};
     
     bool getIsJoystickEnabled() const { return _isJoystickEnabled; }
+    
     void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
+    
+    void setFixedAngle(bool fixedAngle);
+
+    bool isFixedAngle();
+    
+    //! get the source order by the angle value
+    std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
+
     
 private:
     
@@ -273,7 +282,21 @@ private:
     void processTrajectories();
     
     void stopTrajectory();
-        
+    
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
+
+    void moveFixedAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
+    
+    void moveFullyFixed(const int &p_iSource, const float &p_fX, const float &p_fY);
+    
+    void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
+    
+    void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
+    
+    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
+
+    void orderSourcesByAngle(int begin, SoundSource tab [] );
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
     //! Whether the editor has to refresh the GUI
@@ -346,6 +369,7 @@ private:
     float m_fSourceOldX[8];
     float m_fSourceOldY[8];
 
+    bool m_bNeedToSetFixedAngles;
 
 };
 

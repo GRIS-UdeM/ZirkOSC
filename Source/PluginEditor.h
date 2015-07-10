@@ -68,10 +68,6 @@ public:
     
     void move (int, float, float);
     
-    //! Setter FixedAngle
-    void setFixedAngle(bool fixedAngle);
-    //! Getter FixedAngle
-    bool isFixedAngle();
     //! Setter draggableSource
     void setDraggableSource(bool drag);
     //! Getter draggableSource
@@ -98,15 +94,6 @@ private:
     
     void updateSliders();
     
-    void moveFixedAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
-
-    void moveFullyFixed(const int &p_iSource, const float &p_fX, const float &p_fY);
-    
-    void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
-    
-    void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
-    
-    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
@@ -252,9 +239,7 @@ private:
     
     //! If there is a source beeing drag
     bool _isSourceBeingDragged = false;
-    //! Whether the angles between the sources need to all be set equal
-    bool _isNeedToSetFixedAngles=false;
-    
+   
     
     
     //Import from Octogris
@@ -280,9 +265,7 @@ private:
         return static_cast <ZirkOscjuceAudioProcessor*> (getAudioProcessor());
     }
     
-    //! Order the sources by angle
-    void orderSourcesByAngle(int begin, SoundSource tab [] );
-    
+   
     /*Painting functions*/
     //! Paint the Azimuth line
     void paintAzimuthLine (Graphics& g);
@@ -304,10 +287,6 @@ private:
     //! projects dome coords to screen coords (sphere to circle)
     Point <float> degreeToXy (Point <float>);
 
-    //! get the source order by the angle value
-    std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
-    
-    
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;
     
