@@ -106,16 +106,12 @@ private:
     
     void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
     
-    //void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
-    
     void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     //! Called when a button is clicked
     void buttonClicked (Button* button);
-    
-//    bool m_bUseIpad;
 
     int getNumSelectedTrajectoryDirections();
     

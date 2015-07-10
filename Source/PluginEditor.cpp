@@ -1268,22 +1268,21 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             return;
         }
         
-        int selectedSource = ourProcessor->getSelectedSource();
-        
         //get point of current event
-        Point<float> pointRelativeCenter = Point<float>(event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y);
+        float fX = event.x-_ZirkOSC_Center_X;
+        float fY = event.y-_ZirkOSC_Center_Y;
         
         //need to clamp the point to the circle
         if (ZirkOscjuceAudioProcessor::s_bUseXY){
-            float fCurR = hypotf(pointRelativeCenter.x, pointRelativeCenter.y);
+            float fCurR = hypotf(fX, fY);
             if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
                 float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
                 
-                pointRelativeCenter.x *= fExtraRatio;
-                pointRelativeCenter.y *= fExtraRatio;
+                fX *= fExtraRatio;
+                fY *= fExtraRatio;
             }
         }
-        move(selectedSource, pointRelativeCenter.x, pointRelativeCenter.y);
+        move(ourProcessor->getSelectedSource(), fX, fY);
     }
     _MovementConstraintComboBox.grabKeyboardFocus();
 }
@@ -1304,7 +1303,6 @@ void ZirkOscjuceAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, ourProcessor->getSources()[p_iSource].getAzimuth());
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, ourProcessor->getSources()[p_iSource].getElevation());
         }
-        
     }
     
     //not-independent

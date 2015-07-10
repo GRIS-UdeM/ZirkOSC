@@ -45,8 +45,6 @@ int ZirkOscjuceAudioProcessor::s_iDomeRadius = 172;
 
 bool ZirkOscjuceAudioProcessor::s_bUseXY = true;
 
-bool s_bSourceUnique = true;
-
 ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
 :
 _NbrSources(1)
@@ -90,7 +88,7 @@ void ZirkOscjuceAudioProcessor::initSources(){
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
     const MessageManagerLock mmLock;
-    if (s_bSourceUnique && m_iSourceLocationChanged != -1 && m_fSourceOldX[m_iSourceLocationChanged] != -1 && m_fSourceOldY[m_iSourceLocationChanged] != -1) {
+    if (m_iSelectedMovementConstraint != Independant && m_iSourceLocationChanged != -1 && m_fSourceOldX[m_iSourceLocationChanged] != -1 && m_fSourceOldY[m_iSourceLocationChanged] != -1) {
         JUCE_COMPILER_WARNING("radius flag needs to be set to something sensible")
         moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX01(), _AllSources[m_iSourceLocationChanged].getY01(), true);
         m_iSourceLocationChanged = -1.f;
@@ -676,7 +674,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             _AllSources[iCurSrc].setChannel(xmlState->getIntAttribute(channel , 0));
             _AllSources[iCurSrc].setAzimuthSpan((float) xmlState->getDoubleAttribute(azimuthSpan,0));
             _AllSources[iCurSrc].setElevationSpan((float) xmlState->getDoubleAttribute(elevationSpan,0));
-            float fGain = (float) xmlState->getDoubleAttribute(gain,1 );
+            float fGain = (float) xmlState->getDoubleAttribute(gain, 1);
             _AllSources[iCurSrc].setGain(fGain);
         }
         

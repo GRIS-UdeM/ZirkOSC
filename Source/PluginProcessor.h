@@ -49,7 +49,6 @@ public:
     
     void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
     
-    
     //==============================================================================
     //! Called before playback starts, to let the filter prepare itself. 
     void prepareToPlay (double sampleRate, int samplesPerBlock);
