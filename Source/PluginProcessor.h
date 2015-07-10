@@ -365,6 +365,8 @@ private:
     bool m_bNeedToSetFixedAngles;
     
     bool m_bFollowSelectedSource;
+    
+    bool m_bIsRadiusFixed;
 
 };
 
