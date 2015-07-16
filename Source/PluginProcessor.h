@@ -265,6 +265,10 @@ public:
     void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
     
     void setFixedAngle(bool fixedAngle);
+    
+    void setFollowSelectedSource (bool p_bFollowSelectedSource){
+        m_bFollowSelectedSource = p_bFollowSelectedSource;
+    }
 
     bool isFixedAngle();
     

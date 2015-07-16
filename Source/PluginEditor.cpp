@@ -1232,7 +1232,6 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
 
     
     if(_isSourceBeingDragged){
-
         //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture). Logic needs this
         ourProcessor->setSelectedSource(source);
         int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
@@ -1288,7 +1287,9 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
 }
 
 void ZirkOscjuceAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY){
+    ourProcessor->setFollowSelectedSource(false);
     ourProcessor->move(p_iSource, p_fX, p_fY);
+    ourProcessor->setFollowSelectedSource(true);
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
@@ -1495,15 +1496,6 @@ int ZirkOscjuceAudioProcessorEditor::getNumSelectedTrajectoryReturns(){
     } else {
         return -1;
     }
-}
-
-
-void ZirkOscjuceAudioProcessorEditor::setDraggableSource(bool drag){
-    _isSourceBeingDragged = drag;
-}
-
-bool ZirkOscjuceAudioProcessorEditor::isDraggableSource(){
-    return _isSourceBeingDragged;
 }
 
 int ZirkOscjuceAudioProcessorEditor::getNbSources()
