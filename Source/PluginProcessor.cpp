@@ -160,6 +160,7 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     float fSelectedDeltaAzim = fSelectedNewAzim - fSelectedOldAzim;
     float fSelectedDeltaElev = fSelectedNewElev - fSelectedOldElev;
     
+    cout << "p_iSource " << p_iSource << "\n";
     cout << "fSelectedDeltaAzim " << fSelectedDeltaAzim << "\n";
     cout << "fSelectedDeltaElev " << fSelectedDeltaElev << "\n";
     
@@ -167,6 +168,9 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
         
         if (iCurSource == p_iSource){
+            //save new values as old values for next time
+            m_fSourceOldX[p_iSource] = HRToPercent(p_fSelectedNewX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+            m_fSourceOldY[p_iSource] = HRToPercent(p_fSelectedNewY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
             continue;
         }
         float fCurAzim, fCurElev;
@@ -174,9 +178,9 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     
         float fNewAzim = fCurAzim + fSelectedDeltaAzim;
         
+        float fX, fY;
         //if radius is fixed, set all elevation to the same thing
         if (p_bIsRadiusFixed){
-            float fX, fY;
             SoundSource::azimElev01toXY01(fNewAzim, fSelectedOldElev, fX, fY);
             _AllSources[iCurSource].setX01(fX);
             _AllSources[iCurSource].setY01(fY);
@@ -186,22 +190,20 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
         else {
             //if azimuth is NOT reversed, ie, NOT on the other side of the dome's middle point
             if(!getSources()[iCurSource].isAzimReverse()){
-                float fX, fY;
                 SoundSource::azimElev01toXY01(fNewAzim, fCurElev + fSelectedDeltaElev, fX, fY);
                 _AllSources[iCurSource].setX01(fX);
                 _AllSources[iCurSource].setY01(fY);
                 
             } else {
-                float fX, fY;
                 SoundSource::azimElev01toXY01(fNewAzim, fCurElev - fSelectedDeltaElev, fX, fY);
                 _AllSources[iCurSource].setX01(fX);
                 _AllSources[iCurSource].setY01(fY);
             }
         }
+        //save new values as old values for next time
+        m_fSourceOldX[iCurSource] = fX;
+        m_fSourceOldY[iCurSource] = fY;
     }
-    JUCE_COMPILER_WARNING("what we need is to have an array of those for all sources")
-    m_fSourceOldX[p_iSource] = HRToPercent(p_fSelectedNewX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
-    m_fSourceOldY[p_iSource] = HRToPercent(p_fSelectedNewY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
 }
 
 JUCE_COMPILER_WARNING("this was an unfinished attempt at simplifying moveCircular(), but we sill need to convert to azim elev when radius is fixed, so not clear that this will improve performance")
