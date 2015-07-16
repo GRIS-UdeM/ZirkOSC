@@ -160,12 +160,12 @@ inline int PercentToIntStartsAtZero(float percent, int max){
     return percent * max;
 }
 
-inline float degreeToRadian (float degree){
-    return ((degree/360.0f)*2*3.1415);
+inline double degreeToRadian (float degree){
+    return ((degree/360.0)* 2 * M_PI);
 }
 
-inline float radianToDegree(float radian){
-    return (radian/(2*3.1415)*360.0f);
+inline double radianToDegree(float radian){
+    return (radian/(2 * M_PI) * 360.0);
 }
 
 #endif

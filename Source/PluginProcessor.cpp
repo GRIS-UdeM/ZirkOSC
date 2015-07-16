@@ -222,13 +222,13 @@ void ZirkOscjuceAudioProcessor::orderSourcesByAngle (int selected, SoundSource t
     int nbrSources = getNbrSources();
     vector<int> order = getOrderSources(selected, tab, nbrSources);
     int count = 0;
-    for(int i= 1; i < nbrSources ; ++i){ //for(int i= 1; i != nbrSources ; ++i){
+    for(int i= 1; i < nbrSources ; ++i){
+        
         float curangle = tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources;
-
-            float fX, fY;
-            SoundSource::azimElev01toXY01(curangle, tab[order[i]].getElevation(), fX, fY);
-            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
-            setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
+        float fX, fY;
+        SoundSource::azimElev01toXY01(curangle, tab[order[i]].getElevation(), fX, fY);
+        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
+        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
 
     }
     m_bFollowSelectedSource = true;
