@@ -120,11 +120,11 @@ public:
         m_pGainSlider           = addToList (new Slider(ZirkOSC_Gain_name[0]));
         m_pGainLabel            = addToList (new Label( ZirkOSC_Gain_name[0]));
 
-        m_pAzimuthSlider        = addToList (new Slider(ZirkOSC_Azim_or_x_name[0]));
-        m_pAzimuthLabel         = addToList (new Label( ZirkOSC_Azim_or_x_name[0]));
+        m_pAzimuthSlider        = addToList (new Slider(ZirkOSC_X_name[0]));
+        m_pAzimuthLabel         = addToList (new Label( ZirkOSC_X_name[0]));
         
-        m_pElevationSlider      = addToList (new Slider(ZirkOSC_Elev_or_y_name[0]));
-        m_pElevationLabel       = addToList (new Label( ZirkOSC_Elev_or_y_name[0]));
+        m_pElevationSlider      = addToList (new Slider(ZirkOSC_Y_name[0]));
+        m_pElevationLabel       = addToList (new Label( ZirkOSC_Y_name[0]));
         
         m_pAzimuthSpanSlider    = addToList (new Slider(ZirkOSC_AzimSpan_name[0]));
         m_pAzimuthSpanLabel     = addToList (new Label( ZirkOSC_AzimSpan_name[0]));
@@ -1074,19 +1074,19 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     }
     else if (slider == m_pAzimuthSlider) {
         if (selectedConstraint == Independant){
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5));
+            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
         } else {
             for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
+                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + i*5);
             }
         }
     }
     else if (slider == m_pElevationSlider) {
         if (selectedConstraint == Independant){
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5));
+            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
         } else {
             for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
+                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + i*5);
             }
         }
     }
@@ -1126,19 +1126,19 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     }
     else if (slider == m_pAzimuthSlider) {
         if (selectedConstraint == Independant){
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5));
+            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
         } else {
             for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
+                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + i*5);
             }
         }
     }
     else if (slider == m_pElevationSlider) {
         if (selectedConstraint == Independant){
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5));
+            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
         } else {
             for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
+                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + i*5);
             }
         }
     }
@@ -1237,13 +1237,13 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
         ourProcessor->setSelectedSource(source);
         int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
         if (selectedConstraint == Independant) {
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + source*5);
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + source*5);
+            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + source*5);
+            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + source*5);
         }
         else {
             for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
+                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + i*5);
+                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + i*5);
                 ourProcessor->getSources()[i].setAzimReverse(false);
             }
         }
@@ -1301,14 +1301,14 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         int selectedConstrain = ourProcessor->getSelectedMovementConstraint();
         if(selectedConstrain == Independant){
             int selectedSource = ourProcessor->getSelectedSource();
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ selectedSource*5);
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + selectedSource*5);
+            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId+ selectedSource*5);
+            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + selectedSource*5);
             
         }
         else {
             for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
+                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + i*5);
+                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + i*5);
             }
         }
         _isSourceBeingDragged=false;

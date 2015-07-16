@@ -161,8 +161,8 @@ public:
     
     enum ParameterIds
     {
-        ZirkOSC_Azim_or_x_ParamId = 0,
-        ZirkOSC_Elev_or_y_ParamId,
+        ZirkOSC_X_ParamId = 0,
+        ZirkOSC_Y_ParamId,
         ZirkOSC_AzimSpan_ParamId,
         ZirkOSC_ElevSpan_ParamId,
         ZirkOSC_Gain_ParamId,
