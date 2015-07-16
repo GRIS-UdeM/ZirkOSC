@@ -146,10 +146,10 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     //calculate old coordinates for selected source.
     //first time this is run, m_fSourceOldX was set by setParameter
     JUCE_COMPILER_WARNING("THIS WILL NOT WORK IN NON-UNIQUE CASES")
-    float fSelectedOldX = m_fSourceOldX[p_iSource];    //    float fSelectedOldX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
-    float fSelectedOldY = m_fSourceOldY[p_iSource];    //    float fSelectedOldY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
+    float fSelectedOldX01 = m_fSourceOldX[p_iSource];    //    float fSelectedOldX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (p_iSource*5));
+    float fSelectedOldY01 = m_fSourceOldY[p_iSource];    //    float fSelectedOldY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (p_iSource*5));
     //convert x,y[0,1] to azim,elev[0,1]
-    SoundSource::XY01toAzimElev01(fSelectedOldX, fSelectedOldY, fSelectedOldAzim, fSelectedOldElev);
+    SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim, fSelectedOldElev);
     
     //calculate new azim elev coordinates for selected source.
     //SoundSource::XY01toAzimElev01(p_fSelectedNewX, p_fSelectedNewY, fSelectedNewAzim, fSelectedNewElev);
