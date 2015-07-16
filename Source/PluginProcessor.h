@@ -359,8 +359,8 @@ private:
     //the id of the source that was last changed
     int m_iSourceLocationChanged;   
     
-    float m_fSourceOldX[8];
-    float m_fSourceOldY[8];
+    float m_fSourceOldX01[8];
+    float m_fSourceOldY01[8];
 
     bool m_bNeedToSetFixedAngles;
     
