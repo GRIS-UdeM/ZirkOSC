@@ -284,7 +284,7 @@ private:
     
     void stopTrajectory();
     
-    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsElevFixed);
 
     void moveFixedAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
     

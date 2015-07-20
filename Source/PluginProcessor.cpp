@@ -93,7 +93,7 @@ void ZirkOscjuceAudioProcessor::timerCallback(){
         if (m_iSelectedMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
-            moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsRadiusFixed);
+            //moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsRadiusFixed);
         }
         m_iSourceLocationChanged = -1.f;
     }
@@ -144,103 +144,195 @@ void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
 
 void ZirkOscjuceAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
     
-    //selected source was already moved in move()
-    
+    //calculate delta for selected source, which was already moved in ::move()
     float fSelectedOldX01 = m_fSourceOldX01[p_iSource];
     float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
     
     float fSelectedDeltaX01 = HRToPercent(p_fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius) - fSelectedOldX01;
     float fSelectedDeltaY01 = HRToPercent(p_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius) - fSelectedOldY01;
     
-    //simply need to move all sources to their current position + deltamove
-    for(int i=0; i<getNbrSources(); ++i){
+    //move unselected sources to their current position + deltamove
+    for(int iCurSrc=0; iCurSrc<getNbrSources(); ++iCurSrc){
         
-        if (i == p_iSource){
+        if (iCurSrc == p_iSource){
+            //save old values for selected source
             m_fSourceOldX01[p_iSource] = HRToPercent(p_fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
             m_fSourceOldY01[p_iSource] = HRToPercent(p_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
             continue;
         }
         
-        float currentX01 = getSources()[i].getX01();
-        float currentY01 = getSources()[i].getY01();
+        float newX01 = getSources()[iCurSrc].getX01() + fSelectedDeltaX01;
+        float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
         
-        float newX01 = currentX01 + fSelectedDeltaX01;
-        float newY01 = currentY01 + fSelectedDeltaY01;
+        cout << "delta src " << iCurSrc << "(" << newX01 << ", " << newY01 << "\n";
         
-        _AllSources[i].setX01(newX01);
-        _AllSources[i].setY01(newY01);
-        m_fSourceOldX01[i] = newX01;
-        m_fSourceOldY01[i] = newY01;
+        _AllSources[iCurSrc].setX01(newX01);
+        _AllSources[iCurSrc].setY01(newY01);
+        m_fSourceOldX01[iCurSrc] = newX01;
+        m_fSourceOldY01[iCurSrc] = newY01;
     }
 }
 
-void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsRadiusFixed){
+void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsElevFixed){
     
-    float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01;
+    //calculate old azimelev01 coordinates for selected source, first time this is run, m_fSourceOldX01 was set by setParameter
+    float fSelectedOldAzim01, fSelectedOldElev01;
+    SoundSource::XY01toAzimElev01(m_fSourceOldX01[p_iSource], m_fSourceOldY01[p_iSource], fSelectedOldAzim01, fSelectedOldElev01);
     
-    //calculate old coordinates for selected source.
-    //first time this is run, m_fSourceOldX01 was set by setParameter
-    float fSelectedOldX01 = m_fSourceOldX01[p_iSource];
-    float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
-    //convert x,y[0,1] to azim,elev[0,1]
-    SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
-    
-    //calculate new azim elev coordinates for selected source.
-    fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
-    fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
-    
-    //calculate deltas for selected source.
-    float fSelectedDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
-    float fSelectedDeltaElev01 = fSelectedNewElev01 - fSelectedOldElev01;
+    //calculate delta azimelev01 for selected source.
+    float fSelectedDeltaAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY) - fSelectedOldAzim01;
+    float fSelectedDeltaElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY) - fSelectedOldElev01;
     
     //move non-selected sources using the deltas
-    for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
+    for (int iCurSrc = 0; iCurSrc < getNbrSources(); ++iCurSrc) {
         
-        if (iCurSource == p_iSource){
+        if (iCurSrc == p_iSource){
             //save new values as old values for next time
             m_fSourceOldX01[p_iSource] = HRToPercent(p_fSelectedNewX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
             m_fSourceOldY01[p_iSource] = HRToPercent(p_fSelectedNewY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
             continue;
         }
-        float fCurAzim01, fCurElev01;
-        SoundSource::XY01toAzimElev01(getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)), getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)), fCurAzim01, fCurElev01);
-    
-        float fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01;
         
-        float fX01, fY01;
-        //if radius is fixed, set all elevation to the same thing
-        if (p_bIsRadiusFixed){
-            SoundSource::azimElev01toXY01(fNewAzim01, fSelectedOldElev01, fX01, fY01);
-            _AllSources[iCurSource].setX01(fX01);
-            _AllSources[iCurSource].setY01(fY01);
+        //get current azimelev01
+        float fOldAzim01, fOldElev01;
+        SoundSource::XY01toAzimElev01(getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSrc*5)), getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSrc*5)), fOldAzim01, fOldElev01);
+    
+        //calculate new azim01
+        float fNewAzim01 = fOldAzim01 + fSelectedDeltaAzim01;
+        
+        float fNewX01, fNewY01;
+        if (p_bIsElevFixed){
+            //if elevation is fixed, set all elevation to the same thing
+            SoundSource::azimElev01toXY01(fNewAzim01, fSelectedOldElev01, fNewX01, fNewY01);
+            _AllSources[iCurSrc].setX01(fNewX01);
+            _AllSources[iCurSrc].setY01(fNewY01);
         }
-        //if radius is not fixed, set all elevation to be current elevation +/- deltaY
+        
+        //if elev is not fixed, set all elevation to be current elevation +/- delta
         else {
-            //if azimuth is reversed, ie, on the other side of the dome's middle point
+            
             float fNewElev01;
-            if(getSources()[iCurSource].isAzimReverse()){
-                fNewElev01 = fCurElev01 - fSelectedDeltaElev01;
+            if(getSources()[iCurSrc].isAzimReverse()){
+                //if azimuth is reversed, ie, on the other side of the dome's middle point, we subtract the delta
+                fNewElev01 = fOldElev01 - fSelectedDeltaElev01;
             } else {
-                fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
+                fNewElev01 = fOldElev01 + fSelectedDeltaElev01;
             }
 
-//            if (fNewElev01 > 1){
-//                fNewElev01 *= 1/fNewElev01;
-//            } else if (fNewElev01 < 0){
-//                fNewElev01 -= fNewElev01;
-//            }
+            float fExtraX01 = 0, fExtraY01 = 0;
+            if (fNewElev01 < 0){
+                
+                //we have to calculate the deltaX and deltaY as if the source was moved from the other side of the circle
+                
+                float fAlternateOldElevation = -fOldElev01;
+                float fAlternateNewElevation = -fNewElev01;
+                float fAlternateDeltaElevation = fAlternateNewElevation - fAlternateOldElevation;
+                
+                //calculate old alternate azim degree
+                float fAlternateOldAzimDegree = PercentToHR(fOldAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+                if (fAlternateOldAzimDegree < 0){
+                    fAlternateOldAzimDegree += 180;
+                } else {
+                    fAlternateOldAzimDegree -= 180;
+                }
+                
+                //calculate new alternate azim degree
+                float fAlternateNewAzimDegree = PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+                if (fAlternateNewAzimDegree < 0){
+                    fAlternateNewAzimDegree += 180;
+                } else {
+                    fAlternateNewAzimDegree -= 180;
+                }
+                
+                float fAlternateDeltaAzimDegree = fAlternateNewAzimDegree - fAlternateOldAzimDegree;
+                
+                SoundSource::azimElev01toXY01(HRToPercent(fAlternateDeltaAzimDegree, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), fAlternateDeltaElevation, fExtraX01, fExtraY01);
+            }
 
-            SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fX01, fY01);
-
+            cout << "circular src " << iCurSrc << " azim " << fNewAzim01 << " elev " << fNewElev01;
             
-            _AllSources[iCurSource].setX01(fX01);
-            _AllSources[iCurSource].setY01(fY01);
+            SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
+            
+            fNewX01 += fExtraX01;
+            fNewY01 += fExtraY01;
+
+            cout << " (" << fNewX01 << ", " << fNewY01 << ")\n";
+
+            _AllSources[iCurSrc].setX01(fNewX01);
+            _AllSources[iCurSrc].setY01(fNewY01);
         }
         //save new values as old values for next time
-        m_fSourceOldX01[iCurSource] = fX01;
-        m_fSourceOldY01[iCurSource] = fY01;
+        m_fSourceOldX01[iCurSrc] = fNewX01;
+        m_fSourceOldY01[iCurSrc] = fNewY01;
     }
 }
+
+//void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsElevFixed){
+//    
+//    float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01;
+//    
+//    //calculate old coordinates for selected source.
+//    float fSelectedOldX01 = m_fSourceOldX01[p_iSource];     //first time this is run, m_fSourceOldX01 was set by setParameter
+//    float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
+//    //convert x,y[0,1] to azim,elev[0,1]
+//    SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
+//    
+//    //calculate new azim elev coordinates for selected source.
+//    fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
+//    fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
+//    
+//    //calculate deltas for selected source.
+//    float fSelectedDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
+//    float fSelectedDeltaElev01 = fSelectedNewElev01 - fSelectedOldElev01;
+//    
+//    //move non-selected sources using the deltas
+//    for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
+//        
+//        if (iCurSource == p_iSource){
+//            //save new values as old values for next time
+//            m_fSourceOldX01[p_iSource] = HRToPercent(p_fSelectedNewX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+//            m_fSourceOldY01[p_iSource] = HRToPercent(p_fSelectedNewY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+//            continue;
+//        }
+//        float fCurAzim01, fCurElev01;
+//        SoundSource::XY01toAzimElev01(getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)), getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)), fCurAzim01, fCurElev01);
+//        
+//        float fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01;
+//        
+//        float fX01, fY01;
+//        //if radius is fixed, set all elevation to the same thing
+//        if (p_bIsElevFixed){
+//            SoundSource::azimElev01toXY01(fNewAzim01, fSelectedOldElev01, fX01, fY01);
+//            _AllSources[iCurSource].setX01(fX01);
+//            _AllSources[iCurSource].setY01(fY01);
+//        }
+//        //if radius is not fixed, set all elevation to be current elevation +/- deltaY
+//        else {
+//            //if azimuth is reversed, ie, on the other side of the dome's middle point
+//            float fNewElev01;
+//            if(getSources()[iCurSource].isAzimReverse()){
+//                fNewElev01 = fCurElev01 - fSelectedDeltaElev01;
+//            } else {
+//                fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
+//            }
+//            
+//            //            if (fNewElev01 > 1){
+//            //                fNewElev01 *= 1/fNewElev01;
+//            //            } else if (fNewElev01 < 0){
+//            //                fNewElev01 -= fNewElev01;
+//            //            }
+//            
+//            SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fX01, fY01);
+//            
+//            
+//            _AllSources[iCurSource].setX01(fX01);
+//            _AllSources[iCurSource].setY01(fY01);
+//        }
+//        //save new values as old values for next time
+//        m_fSourceOldX01[iCurSource] = fX01;
+//        m_fSourceOldY01[iCurSource] = fY01;
+//    }
+//}
 
 void ZirkOscjuceAudioProcessor::moveFixedAngles(const int &p_iSource, const float &p_fX, const float &p_fY){
     if (m_bNeedToSetFixedAngles){
