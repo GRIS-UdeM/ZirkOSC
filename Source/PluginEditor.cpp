@@ -342,9 +342,9 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     //---------- CONSTRAINT COMBO BOX ----------
     _MovementConstraintComboBox.addItem("Independant",   Independant);
     _MovementConstraintComboBox.addItem("Circular",      Circular);
-    _MovementConstraintComboBox.addItem("Equal Elevation",  FixedRadius);
-    _MovementConstraintComboBox.addItem("Equal Azimuth",   FixedAngles);
-    _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyFixed);
+    _MovementConstraintComboBox.addItem("Equal Elevation",  EqualElev);
+    _MovementConstraintComboBox.addItem("Equal Azimuth",   EqualAngles);
+    _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyEqual);
     _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
     int selected_id = ourProcessor->getSelectedMovementConstraint();
     _MovementConstraintComboBox.setSelectedId(selected_id);
@@ -1356,9 +1356,9 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
             
             //toggle fixed angle repositioning, if we need to
             int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
-            if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
-                //m_bNeedToSetFixedAngles=true;
-                ourProcessor->setFixedAngle(true);
+            if(selectedConstraint == EqualAngles || selectedConstraint == FullyEqual){
+                //m_bNeedTosetEqualAngless=true;
+                ourProcessor->setEqualAngles(true);
             }
         }
         //otherwise just ignore new value
@@ -1441,8 +1441,8 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
         
         ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
 
-        if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
-            ourProcessor->setFixedAngle(true);
+        if(selectedConstraint == EqualAngles || selectedConstraint == FullyEqual){
+            ourProcessor->setEqualAngles(true);
         }
     }
     

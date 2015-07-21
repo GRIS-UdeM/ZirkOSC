@@ -264,7 +264,7 @@ public:
     
     void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
     
-    void setFixedAngle(bool fixedAngle);
+    void setEqualAngles(bool fixedAngle);
     
     void setFollowSelectedSource (bool p_bFollowSelectedSource){
         m_bFollowSelectedSource = p_bFollowSelectedSource;
@@ -278,10 +278,6 @@ public:
     
 private:
     
-    float m_fNewR = s_iDomeRadius;
-    
-    bool m_bIsElevationOverflow = false;
-    
     void initSources();
     
     void processTrajectories();
@@ -290,9 +286,9 @@ private:
     
     void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsElevFixed);
 
-    void moveFixedAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
+    void moveEqualAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
     
-    void moveFullyFixed(const int &p_iSource, const float &p_fX, const float &p_fY);
+    void moveFullyEqual(const int &p_iSource, const float &p_fX, const float &p_fY);
     
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     
@@ -370,11 +366,15 @@ private:
     float m_fSourceOldX01[8];
     float m_fSourceOldY01[8];
 
-    bool m_bNeedToSetFixedAngles;
+    bool m_bNeedTosetEqualAngless;
     
     bool m_bFollowSelectedSource;
     
-    bool m_bIsRadiusFixed;
+    bool m_bIsEqualElev;
+    
+    float m_fROverflow[8];
+    
+    bool m_bIsElevationOverflow[8];
 
 };
 
