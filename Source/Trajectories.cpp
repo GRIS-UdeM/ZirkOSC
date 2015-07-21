@@ -70,7 +70,7 @@ void Trajectory::start()
         fY       = fY*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
         
         _TrajectoryInitialAzimuth   = SoundSource::XYtoAzim01(fX, fY);
-        _TrajectoryInitialElevation = SoundSource::XYtoElev01(fX, fY);
+        _TrajectoryInitialElevation = SoundSource::XYtoElev01(fX, fY, -1);
     ourProcessor->storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos

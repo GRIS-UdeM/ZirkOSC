@@ -1312,7 +1312,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
                 ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + i*5);
             }
         }
-        _isSourceBeingDragged=false;
+        _isSourceBeingDragged = false;
     }
     _MovementConstraintComboBox.grabKeyboardFocus();
 }

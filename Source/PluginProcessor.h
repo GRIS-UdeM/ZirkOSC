@@ -278,6 +278,8 @@ public:
     
 private:
     
+    float m_fNewR = s_iDomeRadius;
+    
     void initSources();
     
     void processTrajectories();
