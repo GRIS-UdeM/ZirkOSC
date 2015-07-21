@@ -81,7 +81,6 @@ _NbrSources(1)
 void ZirkOscjuceAudioProcessor::initSources(){
     for(int i = 0; i < 8; ++i){
         _AllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
-        JUCE_COMPILER_WARNING("probably we will need to do this or something similar when we change the number of sources... or not, not sure")
         m_fSourceOldX01[i]          = -1.f;
         m_fSourceOldY01[i]          = -1.f;
         m_fROverflow[i]             = s_iDomeRadius;
@@ -95,7 +94,7 @@ void ZirkOscjuceAudioProcessor::timerCallback(){
         if (m_iSelectedMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
-            //moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
+            moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
         }
         m_iSourceLocationChanged = -1.f;
     }
@@ -694,19 +693,22 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
     JUCE_COMPILER_WARNING("probably need to pause Processor::timercallback when x and y are set one after the other, externally")
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
         if  (ZirkOSC_X_ParamId + (iCurSource*5) == index) {
-            _AllSources[iCurSource].setX01(newValue);
-            m_iSourceLocationChanged = iCurSource;
-            if (m_fSourceOldX01[iCurSource] == -1.f){
-                //if this was not initialized, we get our first value here
-                m_fSourceOldX01[iCurSource] = newValue;
+            if (newValue != _AllSources[iCurSource].getX01()){
+                _AllSources[iCurSource].setX01(newValue);
+                m_iSourceLocationChanged = iCurSource;
+                if (m_fSourceOldX01[iCurSource] == -1.f){
+                    m_fSourceOldX01[iCurSource] = newValue; //if this was not initialized, we get our first value here
+                }
             }
             return;
         }
         else if (ZirkOSC_Y_ParamId + (iCurSource*5) == index) {
-            _AllSources[iCurSource].setY01(newValue);
-            m_iSourceLocationChanged = iCurSource;
-            if (m_fSourceOldY01[iCurSource] == -1.f){
-                m_fSourceOldY01[iCurSource] = newValue;
+            if (newValue != _AllSources[iCurSource].getY01()){
+                _AllSources[iCurSource].setY01(newValue);
+                m_iSourceLocationChanged = iCurSource;
+                if (m_fSourceOldY01[iCurSource] == -1.f){
+                    m_fSourceOldY01[iCurSource] = newValue;
+                }
             }
             return;
         }

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="puQm6u" name="ZirkOSC2" projectType="audioplug" version="2.2.3"
-              bundleIdentifier="com.UdeM.ZirkOSC2" buildVST="1" buildAU="1"
-              pluginName="ZirkOSC2" pluginDesc="ZirkOSC2" pluginManufacturer="UdeM"
+<JUCERPROJECT id="puQm6u" name="ZirkOSC3" projectType="audioplug" version="3.0.0"
+              bundleIdentifier="com.UdeM.ZirkOSC3" buildVST="1" buildAU="1"
+              pluginName="ZirkOSC3" pluginDesc="ZirkOSC3" pluginManufacturer="UdeM"
               pluginManufacturerCode="UdeM" pluginCode="Plug" pluginChannelConfigs="{8,2},{1,1}, {1,2}, {1,3}, {1,4}, {1,5}, {1,6}, {1,7}, {1,8}, {2,1}, {2,2}, {2,3}, {2,4}, {2,5}, {2,6}, {2,7}, {2,8}, {3,1}, {3,2}, {3,3}, {3,4},{3,5}, {3,6}, {3,7},{3,8}, {4,1}, {4,2}, {4,3}, {4,4}, {4,5}, {4,6}, {4,7}, {4,8}, {8,8},{6,6},{6,2},{8,2}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
-              pluginAUExportPrefix="ZirkOSC2AU" pluginAUViewClass="ZirkOSCJUCEAU_V1"
-              pluginRTASCategory="" aaxIdentifier="com.udem.ZirkOSC2" pluginAAXCategory="AAX_ePlugInCategory_Dynamics"
+              pluginAUExportPrefix="ZirkOSC3AU" pluginAUViewClass="ZirkOSCJUCEAU_V1"
+              pluginRTASCategory="" aaxIdentifier="com.udem.ZirkOSC3" pluginAAXCategory="AAX_ePlugInCategory_Dynamics"
               jucerVersion="3.1.0" buildVST3="1" buildRTAS="0" buildAAX="0"
               pluginManufacturerEmail="support@yourcompany.com" includeBinaryInAppConfig="1">
-  <MAINGROUP id="NlVJUT" name="ZirkOSC2">
+  <MAINGROUP id="NlVJUT" name="ZirkOSC3">
     <GROUP id="{AF8672D5-0456-195A-C664-CD955466754A}" name="HIDManager">
       <FILE id="LqLH52" name="HID_Config_Utilities.cpp" compile="1" resource="0"
             file="HIDManager/HID_Config_Utilities.cpp"/>
@@ -120,10 +120,10 @@
                externalLibraries="Leap">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="Native"
-                       isDebug="1" optimisation="1" targetName="ZirkOSC2" headerPath="~/Documents/sdks/LeapSDK/include"
+                       isDebug="1" optimisation="1" targetName="ZirkOSC3" headerPath="~/Documents/sdks/LeapSDK/include"
                        libraryPath="~/Documents/sdks/LeapSDK/lib"/>
         <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="10.9 SDK" osxArchitecture="64BitUniversal"
-                       isDebug="0" optimisation="3" targetName="ZirkOSC2" headerPath="~/Documents/sdks/LeapSDK/include"
+                       isDebug="0" optimisation="3" targetName="ZirkOSC3" headerPath="~/Documents/sdks/LeapSDK/include"
                        libraryPath="~/Documents/sdks/LeapSDK/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>

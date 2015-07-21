@@ -38,9 +38,9 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "ZirkOSC2";
-    const char* const  versionString  = "2.2.3";
-    const int          versionNumber  = 0x20203;
+    const char* const  projectName    = "ZirkOSC3";
+    const char* const  versionString  = "3.0.0";
+    const int          versionNumber  = 0x30000;
 }
 #endif
 

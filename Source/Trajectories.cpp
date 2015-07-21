@@ -77,15 +77,15 @@ void Trajectory::start()
     //    _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
     //    _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
     
-    if (ourProcessor->getSelectedMovementConstraint() == Independant){
+//    if (ourProcessor->getSelectedMovementConstraint() == Independant){
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
-    } else {
-        for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (i*5));
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (i*5));
-        }
-    }
+//    } else {
+//        for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
+//            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (i*5));
+//            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (i*5));
+//        }
+//    }
 }
 
 bool Trajectory::process(float seconds, float beats)
@@ -119,15 +119,15 @@ void Trajectory::stop()
 	if (!mStarted || mStopped) return;
 	mStopped = true;
 
-    if (ourProcessor->getSelectedMovementConstraint() == Independant){
+//    if (ourProcessor->getSelectedMovementConstraint() == Independant){
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (_SelectedSourceForTrajectory*5));
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (_SelectedSourceForTrajectory*5));
-    } else {
-        for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (i*5));
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (i*5));
-        }
-    }
+//    } else {
+//        for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
+//            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (i*5));
+//            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (i*5));
+//        }
+//    }
     
     //reset everything
     ourProcessor->restoreCurrentLocations();
