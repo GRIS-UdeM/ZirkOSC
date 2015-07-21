@@ -28,17 +28,17 @@
 
 
 SoundSource::SoundSource(){
-    _AzimReverse    = false;
+    m_bIsAzimReversed    = false;
 }
 
 SoundSource::SoundSource(float azimuth, float elevation) : SoundSource(){
-  
-        initAzimuthAndElevation(azimuth,elevation);
-
+    
+    initAzimuthAndElevation(azimuth,elevation);
+    
 }
 
 SoundSource::~SoundSource(){
-
+    
 }
 
 float   SoundSource::getGain(){
@@ -58,14 +58,18 @@ void    SoundSource::setChannel(int channel){
 }
 
 bool    SoundSource::isAzimReverse(){
-    return _AzimReverse;
+    return m_bIsAzimReversed;
+}
+
+void    SoundSource::setAzimReverse(bool azimr){
+    m_bIsAzimReversed = azimr;
 }
 
 bool    SoundSource::contains(Point <float> p){
     return (p.getX()< getX()+5 && p.getX()> getX()-5 && p.getY()< getY()+5 && p.getY()> getY()-5 );
 }
 
-//range for both fX and fY is [-r,r] 
+//range for both fX and fY is [-r,r]
 void SoundSource::getXY(float &fX, float &fY){
     fX = getX();
     fY = getY();
@@ -96,24 +100,22 @@ void    SoundSource::setElevationSpan(float elevation_span){
     this->_ElevationSpan = elevation_span;
 }
 
-void    SoundSource::setAzimReverse(bool azimr){
-    _AzimReverse = azimr;
-}
+
 
 //------------------------------------------------
 //returned x is [-r,r]
 float SoundSource::getX(){
     
-
-        return m_fX;
-
+    
+    return m_fX;
+    
 }
 
 //returned y is [-r,r]
 float SoundSource::getY(){
-
-        return m_fY;
-
+    
+    return m_fY;
+    
 }
 
 float SoundSource::getX01(){
@@ -127,10 +129,10 @@ float SoundSource::getY01(){
 //------------------------------------------------
 //x and y are [-r,r]
 void    SoundSource::setXY(Point <float> p){
-
-        m_fX = p.x;
-        m_fY = p.y;
-
+    
+    m_fX = p.x;
+    m_fY = p.y;
+    
 }
 
 void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
@@ -152,29 +154,29 @@ void SoundSource::setY01(float p_y){
 //------------------------------------------------
 //azimuth range [0,1]
 float   SoundSource::getAzimuth(){
-
-        return XYtoAzim01(m_fX, m_fY);
+    
+    return XYtoAzim01(m_fX, m_fY);
 }
 
 //elevation range [0,1]
 float   SoundSource::getElevation(){
-        return XYtoElev01(m_fX, m_fY);
+    return XYtoElev01(m_fX, m_fY);
 }
 
 float   SoundSource::getElevationRawValue(){
-
-        double dArg = sqrt( m_fX*m_fX + m_fY*m_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
-        if (dArg > 1) {
-            dArg =  1.;
-        }
-        float ret = static_cast<float>( acos(dArg));
-        return ret;
+    
+    double dArg = sqrt( m_fX*m_fX + m_fY*m_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
+    if (dArg > 1) {
+        dArg =  1.;
+    }
+    float ret = static_cast<float>( acos(dArg));
+    return ret;
 }
 
 
 //----------------------------
 void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
-    if (p_fAzim>1 && !_AzimReverse)
+    if (p_fAzim>1 && !m_bIsAzimReversed)
         p_fAzim = p_fAzim - 1.0f;
     else if (p_fAzim<0.0f){
         p_fAzim += 1;
@@ -183,31 +185,31 @@ void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
 }
 
 
-void  SoundSource::setAzimuth(float azimuth){
+void  SoundSource::setAzimuth(float azimuth01){
     
-    if (azimuth>1 && !_AzimReverse)
-        azimuth = azimuth - 1.0f;
-    else if (azimuth<0.0f){
-        azimuth += 1;
+    if (azimuth01>1 && !m_bIsAzimReversed)
+        azimuth01 = azimuth01 - 1.0f;
+    else if (azimuth01<0.0f){
+        azimuth01 += 1;
     }
     
-    setXYUsingAzimElev(azimuth, getElevation());
+    setXYUsingAzimElev(azimuth01, getElevation());
 }
 
-void SoundSource::setElevation(float elevation){
+void SoundSource::setElevation(float elevation01){
     //check if we need to reverse the azimuth
-    if (elevation>1 && !_AzimReverse){
-        elevation = (1-(elevation-1));
+    if (elevation01>1 && !m_bIsAzimReversed){
+        elevation01 = (1-(elevation01-1));
         setAzimuth(_Azimuth - 0.5f);
-        _AzimReverse=true;
+        m_bIsAzimReversed=true;
     }
-    else if (elevation>1 && _AzimReverse){
-        elevation = (1-(elevation-1));
+    else if (elevation01>1 && m_bIsAzimReversed){
+        elevation01 = (1-(elevation01-1));
         setAzimuth(_Azimuth - 0.5f);
-        _AzimReverse=false;
+        m_bIsAzimReversed=false;
     }
     
-    setXYUsingAzimElev(getAzimuth(), elevation);
+    setXYUsingAzimElev(getAzimuth(), elevation01);
 }
 
 //--------------------------
@@ -274,7 +276,7 @@ float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
 
 float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
     double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
-
+    
     if (dArg > 1) {
         dArg =  1.;
     }

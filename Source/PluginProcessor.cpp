@@ -242,9 +242,17 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
                 fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
             }
             
-//            if (fNewElev01 > 1){
-//                fNewElev01 *= 1/fNewElev01;
-//            } else
+            if (fNewElev01 > 1){
+                if (!getSources()[iCurSource].isAzimReverse()){
+                    getSources()[iCurSource].setAzimReverse(true);
+                } else {
+                    getSources()[iCurSource].setAzimReverse(false);
+                }
+                fNewElev01 = 1 + (1-fNewElev01);
+                float fAzimDegrees = PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+                fAzimDegrees += (fAzimDegrees < 0 ? 180 : -180);
+                fNewAzim01 = HRToPercent(fAzimDegrees, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+            }
             
             if (fNewElev01 < 0){
                 m_fNewR = s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
