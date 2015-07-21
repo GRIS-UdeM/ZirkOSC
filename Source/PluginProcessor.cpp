@@ -217,17 +217,9 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
             fCurElev01 = -asin(m_fNewR); //need to convert output of sinm which is is radians, to degree then hr to percent
             fCurElev01 = radianToDegree(fCurElev01);
             fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-            //fCurElev01 = -asin((m_fNewR - s_iDomeRadius)/s_iDomeRadius);
         } else {
-            double  dR = sqrt(fX*fX + fY*fY) / s_iDomeRadius;
-            fCurElev01 = static_cast<float>(acos(dR)) ;
-            if (fCurElev01 < 0.001){
-                fCurElev01= 0.f;
-            } else {
-                fCurElev01 = fCurElev01 / M_PI_2;
-            }
+            fCurElev01 = SoundSource::XYtoElev01(fX, fY);
         }
-        cout << "fCurElev01 " << fCurElev01 << newLine;
         
         //---------------------- ENDOF GET CURRENT VALUES ---------------------
         
