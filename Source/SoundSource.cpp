@@ -158,7 +158,7 @@ float   SoundSource::getAzimuth(){
 
 //elevation range [0,1]
 float   SoundSource::getElevation(){
-        return XYtoElev01(m_fX, m_fY, -1);
+        return XYtoElev01(m_fX, m_fY);
 }
 
 float   SoundSource::getElevationRawValue(){
@@ -243,11 +243,11 @@ void SoundSource::azimElev01toXY(const float &p_fAzimuth01, const float &p_fElev
 }
 
 //XY are [0,1] and azim+elev are [0,1]
-void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &p_fAzim, float &p_fElev, float m_fNewR){
+void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &p_fAzim, float &p_fElev){
     float fX = p_fX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
     float fY = p_fY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
     p_fAzim = XYtoAzim01(fX, fY);
-    p_fElev = XYtoElev01(fX, fY, m_fNewR);
+    p_fElev = XYtoElev01(fX, fY);
 }
 
 // azim elev in degrees and xy in range [-r, r]
@@ -272,34 +272,8 @@ float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
     return azim;
 }
 
-//XY are [-r,r] and elev is [0,1]
-//float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY, float m_fNewR){
-//    double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
-//    float fExtraElev = 0;
-//    if (m_fNewR != -1 && dArg > 1) {
-//        dArg =  1.;
-//    } else if (dArg > 1){
-//        std::cout << "dArg " << dArg << newLine;
-//        fExtraElev = -(1-dArg);
-//        fExtraElev = static_cast<float>(acos(fExtraElev)) ;
-//        dArg =  1.;
-//    }
-//    
-//    float fElevation = static_cast<float>(acos(dArg)) ;
-//    if (fElevation < 0.001){
-//        return 0.f;
-//    } else {
-//        return (fElevation+fExtraElev) / M_PI_2;
-//    }
-//}
-
-float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY, float m_fNewR){
-    double dArg;
-    if (m_fNewR != -1){
-        dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / m_fNewR;
-    } else {
-        dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
-    }
+float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
+    double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscjuceAudioProcessor::s_iDomeRadius;
 
     if (dArg > 1) {
         dArg =  1.;

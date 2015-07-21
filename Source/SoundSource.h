@@ -58,9 +58,9 @@ public:
     
     static float XYtoAzim01(const float &x, const float &y);
 
-    static float XYtoElev01(const float &x, const float &y, float);
+    static float XYtoElev01(const float &x, const float &y);
     
-    static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev, float);
+    static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
     
     static void azimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
     

@@ -164,8 +164,6 @@ void ZirkOscjuceAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const
         float newX01 = getSources()[iCurSrc].getX01() + fSelectedDeltaX01;
         float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
         
-        cout << "delta src " << iCurSrc << "(" << newX01 << ", " << newY01 << "\n";
-        
         _AllSources[iCurSrc].setX01(newX01);
         _AllSources[iCurSrc].setY01(newY01);
         m_fSourceOldX01[iCurSrc] = newX01;
@@ -181,11 +179,11 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     float fSelectedOldX01 = m_fSourceOldX01[p_iSource];     //first time this is run, m_fSourceOldX01 was set by setParameter
     float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
     //convert x,y[0,1] to azim,elev[0,1]
-    SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01, -1);
+    SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
     
     //calculate new azim elev coordinates for selected source.
     fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
-    fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY, -1);
+    fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
     
     //calculate deltas for selected source.
     float fSelectedDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
@@ -210,6 +208,7 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
         float fX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
         float fY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
         float fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
+        
         JUCE_COMPILER_WARNING("try a lambda function here")
         float fCurElev01;
         if (m_bIsElevationOverflow){
