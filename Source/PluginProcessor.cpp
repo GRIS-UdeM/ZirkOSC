@@ -107,8 +107,8 @@ void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     
     //move selected source
     m_bFollowSelectedSource = false;
-    float fX01 = HRToPercent(p_fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
-    float fY01 = HRToPercent(p_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+    float fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
+    float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
 
     setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
@@ -148,16 +148,16 @@ void ZirkOscjuceAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const
     float fSelectedOldX01 = m_fSourceOldX01[p_iSource];
     float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
     
-    float fSelectedDeltaX01 = HRToPercent(p_fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius) - fSelectedOldX01;
-    float fSelectedDeltaY01 = HRToPercent(p_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius) - fSelectedOldY01;
+    float fSelectedDeltaX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldX01;
+    float fSelectedDeltaY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldY01;
     
     //move unselected sources to their current position + deltamove
     for(int iCurSrc=0; iCurSrc<getNbrSources(); ++iCurSrc){
         
         if (iCurSrc == p_iSource){
             //save old values for selected source
-            m_fSourceOldX01[p_iSource] = HRToPercent(p_fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
-            m_fSourceOldY01[p_iSource] = HRToPercent(p_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+            m_fSourceOldX01[p_iSource] = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
+            m_fSourceOldY01[p_iSource] = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
             continue;
         }
         
@@ -196,12 +196,41 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
         
         if (iCurSource == p_iSource){
             //save new values as old values for next time
-            m_fSourceOldX01[p_iSource] = HRToPercent(p_fSelectedNewX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
-            m_fSourceOldY01[p_iSource] = HRToPercent(p_fSelectedNewY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+            m_fSourceOldX01[p_iSource] = HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius);
+            m_fSourceOldY01[p_iSource] = HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius);
             continue;
         }
-        float fCurAzim01, fCurElev01;
-        SoundSource::XY01toAzimElev01(getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)), getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)), fCurAzim01, fCurElev01, m_fNewR);
+        
+        
+        //---------------------- GET CURRENT VALUES ---------------------
+        //float fCurAzim01, fCurElev01;
+        //SoundSource::XY01toAzimElev01(getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)), getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)), fCurAzim01, fCurElev01, m_fNewR);
+        
+            
+        float fX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
+        float fY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
+        float fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
+        JUCE_COMPILER_WARNING("try a lambda function here")
+        float fCurElev01;
+        if (m_bIsElevationOverflow){
+            m_fNewR = m_fNewR - s_iDomeRadius;
+            m_fNewR /= s_iDomeRadius;
+            fCurElev01 = -asin(m_fNewR); //need to convert output of sinm which is is radians, to degree then hr to percent
+            fCurElev01 = radianToDegree(fCurElev01);
+            fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+            //fCurElev01 = -asin((m_fNewR - s_iDomeRadius)/s_iDomeRadius);
+        } else {
+            double  dR = sqrt(fX*fX + fY*fY) / s_iDomeRadius;
+            fCurElev01 = static_cast<float>(acos(dR)) ;
+            if (fCurElev01 < 0.001){
+                fCurElev01= 0.f;
+            } else {
+                fCurElev01 = fCurElev01 / M_PI_2;
+            }
+        }
+        cout << "fCurElev01 " << fCurElev01 << newLine;
+        
+        //---------------------- ENDOF GET CURRENT VALUES ---------------------
         
         float fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01;
         
@@ -227,13 +256,14 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
 //            } else
             
             if (fNewElev01 < 0){
-                m_fNewR = ZirkOscjuceAudioProcessor::s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-                m_fNewR = ZirkOscjuceAudioProcessor::s_iDomeRadius - m_fNewR;
+                m_fNewR = s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+                m_fNewR = s_iDomeRadius - m_fNewR;
                 SoundSource::azimElev01toXY01(fNewAzim01, 0, fX01, fY01, m_fNewR);
+                m_bIsElevationOverflow = true;
 
             } else {
                 SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fX01, fY01);
-
+                m_bIsElevationOverflow = false;
             }
             
             _AllSources[iCurSource].setX01(fX01);

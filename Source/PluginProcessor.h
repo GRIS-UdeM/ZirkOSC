@@ -280,6 +280,8 @@ private:
     
     float m_fNewR = s_iDomeRadius;
     
+    bool m_bIsElevationOverflow = false;
+    
     void initSources();
     
     void processTrajectories();
