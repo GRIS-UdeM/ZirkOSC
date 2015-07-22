@@ -689,8 +689,8 @@ void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
     }
     
     //get current azim+elev in angles
-    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth()  , ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01()  , ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     
     //calculate max and min elevation in degrees
     Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
@@ -897,10 +897,10 @@ void ZirkOscjuceAudioProcessorEditor::updateSliders(){
     //based on selected source, update all sliders
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
     
-    float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->setValue(HRValue,dontSendNotification);
     
-    HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_pElevationSlider->setValue(HRValue,dontSendNotification);
     
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
@@ -1073,9 +1073,11 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
     }
     else if (slider == m_pAzimuthSlider) {
+        ourProcessor->setIsRecordingAutomation(true);
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
     }
     else if (slider == m_pElevationSlider) {
+        ourProcessor->setIsRecordingAutomation(true);
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
     }
     else if (slider == m_pElevationSpanSlider) {
@@ -1114,9 +1116,11 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     }
     else if (slider == m_pAzimuthSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
+        ourProcessor->setIsRecordingAutomation(false);
     }
     else if (slider == m_pElevationSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
+        ourProcessor->setIsRecordingAutomation(false);
     }
     else if (slider == m_pElevationSpanSlider) {
         if(isSpanLinked){
@@ -1157,12 +1161,12 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     else if (slider == m_pAzimuthSlider ){
         //figure out where the slider should move the point
         percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-        SoundSource::azimElev01toXY(percentValue, ourProcessor->getSources()[selectedSource].getElevation(), fX, fY);
+        SoundSource::azimElev01toXY(percentValue, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
         move(selectedSource, fX, fY);
     }
     else if (slider == m_pElevationSlider){
         percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth(), percentValue, fX, fY);
+        SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
         move(selectedSource, fX, fY);
     }
     else if (slider == m_pElevationSpanSlider) {
@@ -1209,6 +1213,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
     
     if(_isSourceBeingDragged){
         //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture).
+        ourProcessor->setIsRecordingAutomation(true);
         ourProcessor->setSelectedSource(source);
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + source*5);
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + source*5);
@@ -1267,6 +1272,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         int selectedSource = ourProcessor->getSelectedSource();
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId+ selectedSource*5);
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + selectedSource*5);
+        ourProcessor->setIsRecordingAutomation(false);
         _isSourceBeingDragged = false;
     }
     _MovementConstraintComboBox.grabKeyboardFocus();
@@ -1311,10 +1317,12 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
             
             //toggle fixed angle repositioning, if we need to
             int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
-            if(selectedConstraint == EqualAngles || selectedConstraint == FullyEqual){
-                //m_bNeedTosetEqualAngless=true;
-                ourProcessor->setEqualAngles(true);
+            if(selectedConstraint == EqualAngles){
+                ourProcessor->setEqualAzimForAllSrc();
+            } else if (selectedConstraint == FullyEqual){
+                ourProcessor->setEqualAzimElevForAllSrc();
             }
+
         }
         //otherwise just ignore new value
         else{
@@ -1396,8 +1404,10 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
         
         ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
 
-        if(selectedConstraint == EqualAngles || selectedConstraint == FullyEqual){
-            ourProcessor->setEqualAngles(true);
+        if(selectedConstraint == EqualAngles){
+            ourProcessor->setEqualAzimForAllSrc();
+        } else if (selectedConstraint == FullyEqual){
+            ourProcessor->setEqualAzimElevForAllSrc();
         }
     }
     

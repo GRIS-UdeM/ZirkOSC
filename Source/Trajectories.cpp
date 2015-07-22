@@ -77,6 +77,7 @@ void Trajectory::start()
     //    _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
     //    _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
     
+    ourProcessor->setIsRecordingAutomation(true);
     ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
     ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
 
@@ -115,6 +116,7 @@ void Trajectory::stop()
 
     ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (_SelectedSourceForTrajectory*5));
     ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (_SelectedSourceForTrajectory*5));
+    ourProcessor->setIsRecordingAutomation(false);
     
     //reset everything
     ourProcessor->restoreCurrentLocations();

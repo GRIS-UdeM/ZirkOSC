@@ -153,13 +153,13 @@ void SoundSource::setY01(float p_y){
 
 //------------------------------------------------
 //azimuth range [0,1]
-float   SoundSource::getAzimuth(){
+float   SoundSource::getAzimuth01(){
     
     return XYtoAzim01(m_fX, m_fY);
 }
 
 //elevation range [0,1]
-float   SoundSource::getElevation(){
+float   SoundSource::getElevation01(){
     return XYtoElev01(m_fX, m_fY);
 }
 
@@ -193,7 +193,7 @@ void  SoundSource::setAzimuth(float azimuth01){
         azimuth01 += 1;
     }
     
-    setXYUsingAzimElev(azimuth01, getElevation());
+    setXYUsingAzimElev(azimuth01, getElevation01());
 }
 
 void SoundSource::setElevation(float elevation01){
@@ -209,7 +209,7 @@ void SoundSource::setElevation(float elevation01){
         m_bIsAzimReversed=false;
     }
     
-    setXYUsingAzimElev(getAzimuth(), elevation01);
+    setXYUsingAzimElev(getAzimuth01(), elevation01);
 }
 
 //--------------------------

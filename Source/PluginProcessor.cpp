@@ -63,9 +63,9 @@ _NbrSources(1)
 ,_isWriteTrajectory(false)
 ,_SelectedSourceForTrajectory(0)
 ,m_iSourceLocationChanged(-1)
-,m_bNeedTosetEqualAngless(false)
-,m_bPreventFollowSelectedSource(true)
+,m_bCurrentlyPlaying(false)
 ,m_bIsEqualElev(false)
+,m_bIsRecordingAutomation(false)
 {
     initSources();
 
@@ -90,7 +90,7 @@ void ZirkOscjuceAudioProcessor::initSources(){
 }
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
-    if (!m_bPreventFollowSelectedSource && m_iSourceLocationChanged != -1) {
+    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iSelectedMovementConstraint != Independant&& m_iSourceLocationChanged != -1) {
         if (m_iSelectedMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
@@ -118,7 +118,7 @@ void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     if(m_iSelectedMovementConstraint == Independant){
         m_fSourceOldX01[p_iSource] = fX01;
         m_fSourceOldY01[p_iSource] = fY01;
-    } else {
+    } else if (getNbrSources()>1){
         if (m_iSelectedMovementConstraint == EqualAngles){
             m_bIsEqualElev = false;
             moveEqualAngles(p_iSource, p_fX, p_fY);
@@ -277,36 +277,38 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
 }
 
 void ZirkOscjuceAudioProcessor::moveEqualAngles(const int &p_iSource, const float &p_fX, const float &p_fY){
-    if (m_bNeedTosetEqualAngless){
-        orderSourcesByAngle(getSelectedSource(),getSources());
-        m_bNeedTosetEqualAngless = false;
-    }
     moveCircular(p_iSource, p_fX, p_fY, false);
 }
 
 void ZirkOscjuceAudioProcessor::moveFullyEqual(const int &p_iSource, const float &p_fX, const float &p_fY){
-    if (m_bNeedTosetEqualAngless){
-        orderSourcesByAngle(getSelectedSource(),getSources());
-        m_bNeedTosetEqualAngless = false;
-    }
     moveCircular(p_iSource, p_fX, p_fY, true);
 }
 
-void ZirkOscjuceAudioProcessor::orderSourcesByAngle (int selected, SoundSource tab[]){
-    //m_bPreventFollowSelectedSource = true;
+void ZirkOscjuceAudioProcessor::setEqualAzimForAllSrc(){
     int nbrSources = getNbrSources();
-    vector<int> order = getOrderSources(selected, tab, nbrSources);
+    vector<int> order = getOrderSources(_SelectedSource, _AllSources, nbrSources);
     int count = 0;
     for(int i= 1; i < nbrSources ; ++i){
-        
-        float curangle = tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources;
+        float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
         float fX, fY;
-        SoundSource::azimElev01toXY01(curangle, tab[order[i]].getElevation(), fX, fY);
+        SoundSource::azimElev01toXY01(curangle, _AllSources[order[i]].getElevation01(), fX, fY);
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
-
     }
-    //m_bPreventFollowSelectedSource = false;
+}
+
+void ZirkOscjuceAudioProcessor::setEqualAzimElevForAllSrc(){
+    int nbrSources = getNbrSources();
+    vector<int> order = getOrderSources(_SelectedSource, _AllSources, nbrSources);
+    float fCurElevation = _AllSources[_SelectedSource].getElevation01();
+    int count = 0;
+    for(int i= 1; i < nbrSources ; ++i){
+        float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
+        float fX, fY;
+        SoundSource::azimElev01toXY01(curangle, fCurElevation, fX, fY);
+        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
+        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
+    }
 }
 
 //starting from the selected source, cycle through the other sources to find in which order they are
@@ -320,22 +322,22 @@ vector<int> ZirkOscjuceAudioProcessor::getOrderSources(int selected, SoundSource
         int current = (selected + 1)%nbrSources; //current is the next one after the seleted one
         
         int bestItem = current;
-        float bestDelta = tab[current].getAzimuth() - tab[selected].getAzimuth(); //difference between current and selected
+        float bestDelta = tab[current].getAzimuth01() - tab[selected].getAzimuth01(); //difference between current and selected
         if (bestDelta<0){
             bestDelta+=1;
         }
         
         while (current != selected) {
             float currentAzimuth;
-            if (tab[current].getAzimuth() - tab[selected].getAzimuth()>0 ){
-                currentAzimuth = tab[current].getAzimuth();
+            if (tab[current].getAzimuth01() - tab[selected].getAzimuth01()>0 ){
+                currentAzimuth = tab[current].getAzimuth01();
             }
             else{
-                currentAzimuth = tab[current].getAzimuth()+1;
+                currentAzimuth = tab[current].getAzimuth01()+1;
             }
-            if (currentAzimuth - tab[selected].getAzimuth() < bestDelta) {
+            if (currentAzimuth - tab[selected].getAzimuth01() < bestDelta) {
                 bestItem = current;
-                bestDelta = currentAzimuth - tab[selected].getAzimuth();
+                bestDelta = currentAzimuth - tab[selected].getAzimuth01();
                 
             }
             current = (current +1) % nbrSources;
@@ -365,10 +367,10 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     AudioPlayHead::CurrentPositionInfo cpi;
     getPlayHead()->getCurrentPosition(cpi);
     
-    if (cpi.isPlaying && m_iSelectedMovementConstraint != Independant){
-        m_bPreventFollowSelectedSource = false;
+    if (cpi.isPlaying){
+        m_bCurrentlyPlaying = true;
     } else {
-        m_bPreventFollowSelectedSource = true;
+        m_bCurrentlyPlaying = true;
     }
     
     Trajectory::Ptr trajectory = mTrajectory;
@@ -395,14 +397,6 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
         }
     }
     
-}
-
-bool ZirkOscjuceAudioProcessor::isFixedAngle(){
-    return m_bNeedTosetEqualAngless;
-}
-
-void ZirkOscjuceAudioProcessor::setEqualAngles(bool fixedAngle){
-    m_bNeedTosetEqualAngless = fixedAngle;
 }
 
 void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
@@ -906,8 +900,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
 void ZirkOscjuceAudioProcessor::sendOSCValues(){
     if (_isOscActive){
         for(int i=0;i<_NbrSources;++i){
-            float azim_osc = PercentToHR(_AllSources[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
-            float elev_osc = PercentToHR(_AllSources[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
+            float azim_osc = PercentToHR(_AllSources[i].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
+            float elev_osc = PercentToHR(_AllSources[i].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
             float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
             float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
             int channel_osc = _AllSources[i].getChannel()-1;
