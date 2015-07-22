@@ -266,10 +266,6 @@ public:
     
     void setEqualAngles(bool fixedAngle);
     
-    void setPreventFollowSelectedSource (bool p_bPreventFollowSelectedSource){
-        m_bPreventFollowSelectedSource = p_bPreventFollowSelectedSource;
-    }
-
     bool isFixedAngle();
     
     //! get the source order by the angle value

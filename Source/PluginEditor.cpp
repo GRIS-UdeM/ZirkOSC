@@ -1254,9 +1254,7 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
 }
 
 void ZirkOscjuceAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY){
-    //ourProcessor->setPreventFollowSelectedSource(true);
     ourProcessor->move(p_iSource, p_fX, p_fY);
-    //ourProcessor->setPreventFollowSelectedSource(false);
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){

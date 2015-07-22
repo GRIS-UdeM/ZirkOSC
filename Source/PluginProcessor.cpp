@@ -90,7 +90,7 @@ void ZirkOscjuceAudioProcessor::initSources(){
 }
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
-    if (!m_bPreventFollowSelectedSource && m_iSourceLocationChanged != -1 && m_fSourceOldX01[m_iSourceLocationChanged] != -1 && m_fSourceOldY01[m_iSourceLocationChanged] != -1) {
+    if (!m_bPreventFollowSelectedSource && m_iSourceLocationChanged != -1) {
         if (m_iSelectedMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
