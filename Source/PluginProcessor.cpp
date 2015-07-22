@@ -95,7 +95,7 @@ void ZirkOscjuceAudioProcessor::timerCallback(){
         if (m_iSelectedMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
-            //moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
+            moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
         }
         m_iSourceLocationChanged = -1.f;
     }
@@ -694,19 +694,23 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
     JUCE_COMPILER_WARNING("probably need to pause Processor::timercallback when x and y are set one after the other, externally")
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
         if  (ZirkOSC_X_ParamId + (iCurSource*5) == index) {
-            _AllSources[iCurSource].setX01(newValue);
-            m_iSourceLocationChanged = iCurSource;
-            if (m_fSourceOldX01[iCurSource] == -1.f){
-                //if this was not initialized, we get our first value here
-                m_fSourceOldX01[iCurSource] = newValue;
+            if (newValue != _AllSources[iCurSource].getX01()){
+                _AllSources[iCurSource].setX01(newValue);
+                m_iSourceLocationChanged = iCurSource;
+                if (m_fSourceOldX01[iCurSource] == -1.f){
+                    //if this was not initialized, we get our first value here
+                    m_fSourceOldX01[iCurSource] = newValue;
+                }
             }
             return;
         }
         else if (ZirkOSC_Y_ParamId + (iCurSource*5) == index) {
-            _AllSources[iCurSource].setY01(newValue);
-            m_iSourceLocationChanged = iCurSource;
-            if (m_fSourceOldY01[iCurSource] == -1.f){
-                m_fSourceOldY01[iCurSource] = newValue;
+            if (newValue != _AllSources[iCurSource].getY01()){
+                _AllSources[iCurSource].setY01(newValue);
+                m_iSourceLocationChanged = iCurSource;
+                if (m_fSourceOldY01[iCurSource] == -1.f){
+                    m_fSourceOldY01[iCurSource] = newValue;
+                }
             }
             return;
         }
