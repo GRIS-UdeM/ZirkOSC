@@ -64,7 +64,7 @@ _NbrSources(1)
 ,_SelectedSourceForTrajectory(0)
 ,m_iSourceLocationChanged(-1)
 ,m_bNeedTosetEqualAngless(false)
-,m_bFollowSelectedSource(false)
+,m_bPreventFollowSelectedSource(true)
 ,m_bIsEqualElev(false)
 {
     initSources();
@@ -90,15 +90,17 @@ void ZirkOscjuceAudioProcessor::initSources(){
 }
 
 void ZirkOscjuceAudioProcessor::timerCallback(){
-    const MessageManagerLock mmLock;
-    if (m_bFollowSelectedSource && m_iSourceLocationChanged != -1 && m_fSourceOldX01[m_iSourceLocationChanged] != -1 && m_fSourceOldY01[m_iSourceLocationChanged] != -1) {
+    if (!m_bPreventFollowSelectedSource && m_iSourceLocationChanged != -1 && m_fSourceOldX01[m_iSourceLocationChanged] != -1 && m_fSourceOldY01[m_iSourceLocationChanged] != -1) {
         if (m_iSelectedMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
+            cout << "timercallback ";
             moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
         }
+        
         m_iSourceLocationChanged = -1.f;
     }
+    const MessageManagerLock mmLock;
     sendOSCValues();
 }
 
@@ -107,8 +109,6 @@ void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
         return;
     }
     
-    //move selected source
-    m_bFollowSelectedSource = false;
     float fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
     float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
 
@@ -119,7 +119,6 @@ void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
         m_fSourceOldX01[p_iSource] = fX01;
         m_fSourceOldY01[p_iSource] = fY01;
     } else {
-        m_bFollowSelectedSource = true;
         if (m_iSelectedMovementConstraint == EqualAngles){
             m_bIsEqualElev = false;
             moveEqualAngles(p_iSource, p_fX, p_fY);
@@ -175,6 +174,8 @@ void ZirkOscjuceAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const
 
 void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsElevEqual){
     
+    cout << "movecircular" << newLine;
+    
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01;
     
     //calculate old coordinates for selected source.
@@ -190,6 +191,9 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     //calculate deltas for selected source.
     float fSelectedDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
     float fSelectedDeltaElev01 = fSelectedNewElev01 - fSelectedOldElev01;
+    if (fSelectedDeltaAzim01 == 0 && fSelectedDeltaElev01 ==0){
+        cout << "move circular no delta" << newLine;
+    }
     
     //move non-selected sources using the deltas
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
@@ -289,7 +293,7 @@ void ZirkOscjuceAudioProcessor::moveFullyEqual(const int &p_iSource, const float
 }
 
 void ZirkOscjuceAudioProcessor::orderSourcesByAngle (int selected, SoundSource tab[]){
-    m_bFollowSelectedSource = false;
+    //m_bPreventFollowSelectedSource = true;
     int nbrSources = getNbrSources();
     vector<int> order = getOrderSources(selected, tab, nbrSources);
     int count = 0;
@@ -302,7 +306,7 @@ void ZirkOscjuceAudioProcessor::orderSourcesByAngle (int selected, SoundSource t
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
 
     }
-    m_bFollowSelectedSource = true;
+    //m_bPreventFollowSelectedSource = false;
 }
 
 //starting from the selected source, cycle through the other sources to find in which order they are
@@ -356,14 +360,21 @@ ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
 
 void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-    double sampleRate = getSampleRate();
-    unsigned int oriFramesToProcess = buffer.getNumSamples();
+
+    
+    AudioPlayHead::CurrentPositionInfo cpi;
+    getPlayHead()->getCurrentPosition(cpi);
+    
+    if (cpi.isPlaying && m_iSelectedMovementConstraint != Independant){
+        m_bPreventFollowSelectedSource = false;
+    } else {
+        m_bPreventFollowSelectedSource = true;
+    }
     
     Trajectory::Ptr trajectory = mTrajectory;
     if (trajectory)
     {
-        AudioPlayHead::CurrentPositionInfo cpi;
-        getPlayHead()->getCurrentPosition(cpi);
+        
         
         if (cpi.isPlaying && cpi.timeInSamples != mLastTimeInSamples)
         {
@@ -371,6 +382,8 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             mLastTimeInSamples = cpi.timeInSamples;
             
             double bps = cpi.bpm / 60;
+            double sampleRate = getSampleRate();
+            unsigned int oriFramesToProcess = buffer.getNumSamples();
             float seconds = oriFramesToProcess / sampleRate;
             float beats = seconds * bps;
             
@@ -481,6 +494,7 @@ void ZirkOscjuceAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    
 }
 
 void ZirkOscjuceAudioProcessor::releaseResources()
@@ -697,10 +711,10 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
             if (newValue != _AllSources[iCurSource].getX01()){
                 _AllSources[iCurSource].setX01(newValue);
                 m_iSourceLocationChanged = iCurSource;
-                if (m_fSourceOldX01[iCurSource] == -1.f){
-                    //if this was not initialized, we get our first value here
-                    m_fSourceOldX01[iCurSource] = newValue;
-                }
+            }
+            if (m_fSourceOldX01[iCurSource] == -1.f){
+                //if this was not initialized, we get our first value here
+                m_fSourceOldX01[iCurSource] = newValue;
             }
             return;
         }
@@ -708,9 +722,9 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
             if (newValue != _AllSources[iCurSource].getY01()){
                 _AllSources[iCurSource].setY01(newValue);
                 m_iSourceLocationChanged = iCurSource;
-                if (m_fSourceOldY01[iCurSource] == -1.f){
-                    m_fSourceOldY01[iCurSource] = newValue;
-                }
+            }
+            if (m_fSourceOldY01[iCurSource] == -1.f){
+                m_fSourceOldY01[iCurSource] = newValue;
             }
             return;
         }

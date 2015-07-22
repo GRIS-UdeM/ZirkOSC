@@ -266,8 +266,8 @@ public:
     
     void setEqualAngles(bool fixedAngle);
     
-    void setFollowSelectedSource (bool p_bFollowSelectedSource){
-        m_bFollowSelectedSource = p_bFollowSelectedSource;
+    void setPreventFollowSelectedSource (bool p_bPreventFollowSelectedSource){
+        m_bPreventFollowSelectedSource = p_bPreventFollowSelectedSource;
     }
 
     bool isFixedAngle();
@@ -368,7 +368,7 @@ private:
 
     bool m_bNeedTosetEqualAngless;
     
-    bool m_bFollowSelectedSource;
+    bool m_bPreventFollowSelectedSource;
     
     bool m_bIsEqualElev;
     
