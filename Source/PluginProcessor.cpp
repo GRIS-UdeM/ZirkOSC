@@ -184,6 +184,10 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
     fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
     
+    if (fSelectedNewAzim01 == fSelectedOldAzim01 && fSelectedNewElev01 == fSelectedOldElev01){
+        return; //we got nothing to move here, so return
+    }
+    
     //calculate deltas for selected source.
     float fSelectedDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
     float fSelectedDeltaElev01 = fSelectedNewElev01 - fSelectedOldElev01;
@@ -285,8 +289,16 @@ void ZirkOscjuceAudioProcessor::setEqualAzimForAllSrc(){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
         float fX, fY;
         SoundSource::azimElev01toXY01(curangle, _AllSources[order[i]].getElevation01(), fX, fY);
+        
+//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
+//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
+        
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
+        
+//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
+//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
+
     }
 }
 
@@ -299,8 +311,15 @@ void ZirkOscjuceAudioProcessor::setEqualAzimElevForAllSrc(){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
         float fX, fY;
         SoundSource::azimElev01toXY01(curangle, fCurElevation, fX, fY);
+        
+//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
+//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
+        
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
+        
+//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
+//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
     }
 }
 

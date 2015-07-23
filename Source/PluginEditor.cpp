@@ -573,7 +573,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     }
     
     //------------ LABELS ON RIGHT SIDE +version label------------
-    m_VersionLabel.setBounds(5,5,180,25);
+    m_VersionLabel.setBounds(5,5,100,25);
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
