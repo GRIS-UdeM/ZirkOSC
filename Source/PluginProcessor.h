@@ -264,17 +264,16 @@ public:
     
     void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
     
-    void setEqualAngles(bool fixedAngle);
-    
-    void setFollowSelectedSource (bool p_bFollowSelectedSource){
-        m_bFollowSelectedSource = p_bFollowSelectedSource;
+    void setIsRecordingAutomation(bool b){
+        m_bIsRecordingAutomation = b;
     }
-
-    bool isFixedAngle();
     
     //! get the source order by the angle value
     std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
 
+    void setEqualAzimForAllSrc();
+    
+    void setEqualAzimElevForAllSrc();
     
 private:
     
@@ -292,7 +291,7 @@ private:
     
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     
-    void orderSourcesByAngle(int begin, SoundSource tab [] );
+ 
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
@@ -365,16 +364,16 @@ private:
     
     float m_fSourceOldX01[8];
     float m_fSourceOldY01[8];
-
-    bool m_bNeedTosetEqualAngless;
     
-    bool m_bFollowSelectedSource;
+    bool m_bCurrentlyPlaying;
     
     bool m_bIsEqualElev;
     
     float m_fROverflow[8];
     
     bool m_bIsElevationOverflow[8];
+    
+    bool m_bIsRecordingAutomation;
 
 };
 

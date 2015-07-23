@@ -79,7 +79,7 @@ public:
     //! sets the gain 
     void    setGain(float);
     //! gets the Azimuth [0,1]
-    float   getAzimuth();
+    float   getAzimuth01();
     //! sets the azimuth
     void    setAzimuth(float);
     //! returns the azimuth span
@@ -91,7 +91,7 @@ public:
     //! sets the elevation span
     void    setElevationSpan(float);
     //! returns the elevation [0,1]
-    float   getElevation();
+    float   getElevation01();
     //! returns the elevation [-1,1] from memory.
     float   getElevationRawValue();
     //! set the elevation 
