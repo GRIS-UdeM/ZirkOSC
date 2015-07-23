@@ -291,7 +291,7 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     
     String version = STRING(JUCE_APP_VERSION);
 #ifdef JUCE_DEBUG
-    version += " ";
+    version += "\n";
     version += STRING(__TIME__);
 #endif
     m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
@@ -614,7 +614,7 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     //------------ TRAJECTORIES ------------
     m_pTrajectoryTypeComboBox->         setBounds(15,           15,    100, 25);
     m_pTrajectoryDirectionComboBox->    setBounds(15+100,       15,    130,  25);
-    m_pTrajectoryReturnComboBox->       setBounds(15+230,       15,    75,  25);
+    m_pTrajectoryReturnComboBox->       setBounds(15+230,       15,    100,  25);
     
     m_pTrajectoryDurationTextEditor->   setBounds(15,           15+25, 230, 25);
     m_pSyncWTempoComboBox->             setBounds(15+230,       15+25, 100, 25);

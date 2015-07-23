@@ -289,16 +289,8 @@ void ZirkOscjuceAudioProcessor::setEqualAzimForAllSrc(){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
         float fX, fY;
         SoundSource::azimElev01toXY01(curangle, _AllSources[order[i]].getElevation01(), fX, fY);
-        
-//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
-//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
-        
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
-        
-//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
-//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
-
     }
 }
 
@@ -311,15 +303,8 @@ void ZirkOscjuceAudioProcessor::setEqualAzimElevForAllSrc(){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
         float fX, fY;
         SoundSource::azimElev01toXY01(curangle, fCurElevation, fX, fY);
-        
-//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
-//        beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
-        
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
         setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
-        
-//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5));
-//        endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5));
     }
 }
 
