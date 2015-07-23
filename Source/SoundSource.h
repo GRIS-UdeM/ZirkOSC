@@ -45,7 +45,7 @@ public:
     //set x and y, both are [-r,r]
     void    setXY(Point <float>);
     
-    void setXY(float azim01, float elev01);
+    void setXYUsingAzimElev(float azim01, float elev01);
     
     //set X (range [-r,r]) using parameter x in percent, ie,  [0,1]
     void setX01(float x);
@@ -62,8 +62,14 @@ public:
     
     static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
     
-    static void AzimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+    static void azimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
     
+    static void azimElev01toXY01(const float &p_fAzimuth01, const float &p_fElevation01, float &p_fX, float &p_fY, const float& fNewR);
+
+    static void azimElev01toXY(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+    
+    static void azimElevToXy (const float &p_fAzimuth, const float &p_fElevation, float &p_fX, float &p_fY);
+
     static void clampXY(float &x, float &y);
     
     
@@ -73,7 +79,7 @@ public:
     //! sets the gain 
     void    setGain(float);
     //! gets the Azimuth [0,1]
-    float   getAzimuth();
+    float   getAzimuth01();
     //! sets the azimuth
     void    setAzimuth(float);
     //! returns the azimuth span
@@ -85,7 +91,7 @@ public:
     //! sets the elevation span
     void    setElevationSpan(float);
     //! returns the elevation [0,1]
-    float   getElevation();
+    float   getElevation01();
     //! returns the elevation [-1,1] from memory.
     float   getElevationRawValue();
     //! set the elevation 
@@ -107,7 +113,7 @@ private:
     float m_fY;
     
     //! If source Elevation is over 90° you have to reverse the azim
-    bool _AzimReverse;
+    bool m_bIsAzimReversed;
     //! Source channel id id send to Zirkonium
     int _Channel =0;
     //! Gain parameter stored in percent (see HRToPercent function).

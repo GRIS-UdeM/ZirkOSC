@@ -31,13 +31,6 @@
 
 
 
-
-
-#ifndef DEBUG
-#define DEBUG
-#endif
-#undef DEBUG
-
 #ifndef TIMING_TESTS
 #define TIMING_TESTS
 #endif
@@ -127,11 +120,11 @@ public:
         m_pGainSlider           = addToList (new Slider(ZirkOSC_Gain_name[0]));
         m_pGainLabel            = addToList (new Label( ZirkOSC_Gain_name[0]));
 
-        m_pAzimuthSlider        = addToList (new Slider(ZirkOSC_Azim_or_x_name[0]));
-        m_pAzimuthLabel         = addToList (new Label( ZirkOSC_Azim_or_x_name[0]));
+        m_pAzimuthSlider        = addToList (new Slider(ZirkOSC_X_name[0]));
+        m_pAzimuthLabel         = addToList (new Label( ZirkOSC_X_name[0]));
         
-        m_pElevationSlider      = addToList (new Slider(ZirkOSC_Elev_or_y_name[0]));
-        m_pElevationLabel       = addToList (new Label( ZirkOSC_Elev_or_y_name[0]));
+        m_pElevationSlider      = addToList (new Slider(ZirkOSC_Y_name[0]));
+        m_pElevationLabel       = addToList (new Label( ZirkOSC_Y_name[0]));
         
         m_pAzimuthSpanSlider    = addToList (new Slider(ZirkOSC_AzimSpan_name[0]));
         m_pAzimuthSpanLabel     = addToList (new Label( ZirkOSC_AzimSpan_name[0]));
@@ -270,25 +263,25 @@ public:
 */
 
 ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter)
-:   AudioProcessorEditor (ownerFilter),
-_LinkSpanButton("Link span"),
-_OscActiveButton("OSC active"),
-_TabComponent(TabbedButtonBar::TabsAtTop),
+:   AudioProcessorEditor (ownerFilter)
+,_LinkSpanButton("Link span")
+,_OscActiveButton("OSC active")
+,_TabComponent(TabbedButtonBar::TabsAtTop)
 //strings in parameters are all used as juce::component names
-_FirstSourceIdLabel("channelNbr"),
-_ZkmOscPortLabel("OscPort"),
-_NbrSourceLabel("NbrSources"),
-m_VersionLabel("version"),
-_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad"),
-_IpadIncomingOscPortLabel("OSCIpadInco"),
-_IpadIpAddressLabel("ipadadressLabel"),
-_FirstSourceIdTextEditor("channelNbr"),
-_ZkmOscPortTextEditor("OscPort"),
-_NbrSourceTextEditor("NbrSource"),
-_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE"),
-_IpadIncomingOscPortTextEditor("OSCIpadIncoTE"),
-_IpadIpAddressTextEditor("ipaddress"),
-_MovementConstraintComboBox("MovementConstraint")
+,_FirstSourceIdLabel("channelNbr")
+,_ZkmOscPortLabel("OscPort")
+,_NbrSourceLabel("NbrSources")
+,m_VersionLabel("version")
+//,_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad")
+//,_IpadIncomingOscPortLabel("OSCIpadInco")
+//,_IpadIpAddressLabel("ipadadressLabel")
+,_FirstSourceIdTextEditor("channelNbr")
+,_ZkmOscPortTextEditor("OscPort")
+,_NbrSourceTextEditor("NbrSource")
+//,_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE")
+//,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
+//,_IpadIpAddressTextEditor("ipaddress")
+,_MovementConstraintComboBox("MovementConstraint")
 {
 
     ourProcessor = getProcessor();
@@ -320,22 +313,22 @@ _MovementConstraintComboBox("MovementConstraint")
     addAndMakeVisible(&_ZkmOscPortLabel);
     addAndMakeVisible(&_ZkmOscPortTextEditor);
     
-    _IpadIncomingOscPortLabel.setText("Inc. port",  dontSendNotification);
-    _IpadIncomingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadIncoming()));
-    addAndMakeVisible(&_IpadIncomingOscPortLabel);
-    addAndMakeVisible(&_IpadIncomingOscPortTextEditor);
+//    _IpadIncomingOscPortLabel.setText("Inc. port",  dontSendNotification);
+//    _IpadIncomingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadIncoming()));
+//    addAndMakeVisible(&_IpadIncomingOscPortLabel);
+//    addAndMakeVisible(&_IpadIncomingOscPortTextEditor);
+//    
+//    _IpadOutgoingOscPortLabel.setText("Out. port",  dontSendNotification);
+//    _IpadOutgoingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadOutgoing()));
+//    addAndMakeVisible(&_IpadOutgoingOscPortLabel);
+//    addAndMakeVisible(&_IpadOutgoingOscPortTextEditor);
+//    
+//    _IpadIpAddressLabel.setText("iPad IP add.",  dontSendNotification);
+//    _IpadIpAddressTextEditor.setText(String(ourProcessor->getOscAddressIpad()));
+//    addAndMakeVisible(&_IpadIpAddressLabel);
+//    addAndMakeVisible(&_IpadIpAddressTextEditor);
     
-    _IpadOutgoingOscPortLabel.setText("Out. port",  dontSendNotification);
-    _IpadOutgoingOscPortTextEditor.setText(String(ourProcessor->getOscPortIpadOutgoing()));
-    addAndMakeVisible(&_IpadOutgoingOscPortLabel);
-    addAndMakeVisible(&_IpadOutgoingOscPortTextEditor);
-    
-    _IpadIpAddressLabel.setText("iPad IP add.",  dontSendNotification);
-    _IpadIpAddressTextEditor.setText(String(ourProcessor->getOscAddressIpad()));
-    addAndMakeVisible(&_IpadIpAddressLabel);
-    addAndMakeVisible(&_IpadIpAddressTextEditor);
-    
-    m_bUseIpad = ourProcessor-> m_bUseIpad;
+//    m_bUseIpad = ourProcessor-> m_bUseIpad;
     
     //---------- TOGGLE BUTTONS ----------
     addAndMakeVisible(&_LinkSpanButton);
@@ -349,9 +342,9 @@ _MovementConstraintComboBox("MovementConstraint")
     //---------- CONSTRAINT COMBO BOX ----------
     _MovementConstraintComboBox.addItem("Independant",   Independant);
     _MovementConstraintComboBox.addItem("Circular",      Circular);
-    _MovementConstraintComboBox.addItem("Equal Elevation",  FixedRadius);
-    _MovementConstraintComboBox.addItem("Equal Azimuth",   FixedAngles);
-    _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyFixed);
+    _MovementConstraintComboBox.addItem("Equal Elevation",  EqualElev);
+    _MovementConstraintComboBox.addItem("Equal Azimuth",   EqualAngles);
+    _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyEqual);
     _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
     int selected_id = ourProcessor->getSelectedMovementConstraint();
     _MovementConstraintComboBox.setSelectedId(selected_id);
@@ -406,7 +399,7 @@ _MovementConstraintComboBox("MovementConstraint")
     m_pTrajectoryReturnComboBox->addListener(this);
     
     m_pTrajectoryTypeComboBox = m_oTrajectoryTab->getTypeComboBox();
-    for (int index = 1; index < Trajectory::NumberOfTrajectories(); ++index){
+    for (int index = 1; index <= Trajectory::NumberOfTrajectories(); ++index){
         m_pTrajectoryTypeComboBox->addItem(Trajectory::GetTrajectoryName(index), index);
     }
     
@@ -495,11 +488,11 @@ _MovementConstraintComboBox("MovementConstraint")
     _FirstSourceIdTextEditor.addListener(this);
     _ZkmOscPortTextEditor.addListener(this);
     _NbrSourceTextEditor.addListener(this);
-    if (m_bUseIpad){
-        _IpadOutgoingOscPortTextEditor.addListener(this);
-        _IpadIncomingOscPortTextEditor.addListener(this);
-        _IpadIpAddressTextEditor.addListener(this);
-    }
+//    if (m_bUseIpad){
+//        _IpadOutgoingOscPortTextEditor.addListener(this);
+//        _IpadIncomingOscPortTextEditor.addListener(this);
+//        _IpadIpAddressTextEditor.addListener(this);
+//    }
 
     this->setFocusContainer(true);
     
@@ -584,9 +577,9 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
+//    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
+//    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
+//    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
     // OSC button
     _OscActiveButton.setBounds(iCurWidth-80, 300, 80, 25);
@@ -684,72 +677,84 @@ void ZirkOscjuceAudioProcessorEditor::paint (Graphics& g){
 
 //Drawing Span Arc
 void ZirkOscjuceAudioProcessorEditor::paintSpanArc (Graphics& g){
-    int selectedSource = ourProcessor->getSelectedSource();
-    float azim = ourProcessor->getSources()[selectedSource].getAzimuth();
-    float elev = ourProcessor->getSources()[selectedSource].getElevation();
     
-    float   HRAzim = PercentToHR(azim, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max),
-            HRElev = PercentToHR(elev, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max),
-            HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max),
-            HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+    int selectedSource = ourProcessor->getSelectedSource();
+    
+    float HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+    float HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
 
+    //return if there is no span arc to paint
+    if (HRElevSpan == 0.f && HRAzimSpan == 0.f){
+        return;
+    }
+    
+    //get current azim+elev in angles
+    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01()  , ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    
+    //calculate max and min elevation in degrees
     Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
     Point<float> minElev = {HRAzim, HRElev-HRElevSpan/2};
-
+    
     if(minElev.getY() < ZirkOSC_ElevSpan_Min){
         maxElev.setY(maxElev.getY()+ ZirkOSC_ElevSpan_Min-minElev.getY());
         minElev.setY(ZirkOSC_ElevSpan_Min);
     }
-
+    
+    //convert max min elev to xy
     Point<float> screenMaxElev = degreeToXy(maxElev);
     Point<float> screenMinElev = degreeToXy(minElev);
+    
+    //form minmax elev, calculate minmax radius
     float maxRadius = sqrtf(screenMaxElev.getX()*screenMaxElev.getX() + screenMaxElev.getY()*screenMaxElev.getY());
     float minRadius = sqrtf(screenMinElev.getX()*screenMinElev.getX() + screenMinElev.getY()*screenMinElev.getY());
+    
     //drawing the path for spanning
     Path myPath;
     float x = screenMinElev.getX();
     float y = screenMinElev.getY();
     myPath.startNewSubPath(_ZirkOSC_Center_X+x,_ZirkOSC_Center_Y+y);
-
+    
     //half first arc center
     myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim), degreeToRadian(-HRAzim + HRAzimSpan/2 ));
-
+    
     if (maxElev.getY()> ZirkOSC_ElevSpan_Max) { // if we are over the top of the dome we draw the adjacent angle
-
-        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, M_PI+degreeToRadian(-HRAzim + HRAzimSpan/2), M_PI+degreeToRadian(-HRAzim - HRAzimSpan/2 ));
+        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, M_PI+degreeToRadian(-HRAzim + HRAzimSpan/2), M_PI+degreeToRadian(-HRAzim - HRAzimSpan/2));
+    } else {
+        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, degreeToRadian(-HRAzim+HRAzimSpan/2), degreeToRadian(-HRAzim-HRAzimSpan/2));
     }
-    else{
-        myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, maxRadius, maxRadius, 0.0, degreeToRadian(-HRAzim+HRAzimSpan/2), degreeToRadian(-HRAzim-HRAzimSpan/2 ));
-    }
-    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim ));
+    myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim));
     myPath.closeSubPath();
+    
     g.setColour(Colours::lightgrey);
     g.fillPath(myPath);
-    g.setColour(Colours::black);
     
-    //PathStrokeType strokeType = PathStrokeType( 1.0, juce::PathStrokeType::JointStyle::curved);
-    PathStrokeType strokeType = PathStrokeType( 1.0);
+    g.setColour(Colours::black);
+    PathStrokeType strokeType = PathStrokeType(1.0);
     g.strokePath(myPath, strokeType);
-
-    //g.strokePath(myPath, PathStrokeType::JointStyle::curved);
-
 }
 
 void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
-    Point<float> sourcePositionOnScreen;
-    float HRAzim, HRElev;
+    float fX, fY;
     int iXOffset = 0, iYOffset = 0;
+    g.setColour(Colours::black);
+    
     for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
-        JUCE_COMPILER_WARNING("remove all azim elev in here")
-        HRAzim = PercentToHR(ourProcessor->getSources()[i].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-        HRElev = PercentToHR(ourProcessor->getSources()[i].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        //cout << "paintSourcePoint: " << ourProcessor->getSources()[i].getAzimuth() << "\n";
-        sourcePositionOnScreen = degreeToXy(Point<float> (HRAzim, HRElev));
+        
+        ourProcessor->getSources()[i].getXY(fX, fY);
+        
+        float fCurR = hypotf(fX, fY);
+        if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
+            float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
+            
+            fX *= fExtraRatio;
+            fY *= fExtraRatio;
+        }
         
         //draw source circle
-        g.drawEllipse(_ZirkOSC_Center_X + sourcePositionOnScreen.getX()-4, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()-4, 8, 8,2);
+        g.drawEllipse(_ZirkOSC_Center_X + fX-4, _ZirkOSC_Center_Y + fY-4, 8, 8,2);
         
-        if (sourcePositionOnScreen.getX() > ZirkOscjuceAudioProcessor::s_iDomeRadius - 25 ){
+        if (fX > ZirkOscjuceAudioProcessor::s_iDomeRadius - 25 ){
             iXOffset = -20;
             iYOffset = 10;
         } else {
@@ -759,7 +764,7 @@ void ZirkOscjuceAudioProcessorEditor::paintSourcePoint (Graphics& g){
         
         //draw source labels
         if(!_isSourceBeingDragged){
-             g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + sourcePositionOnScreen.getX()+iXOffset, _ZirkOSC_Center_Y + sourcePositionOnScreen.getY()+iYOffset, 25, 10, Justification::centred, false);
+            g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + fX+iXOffset, _ZirkOSC_Center_Y + fY+iYOffset, 25, 10, Justification::centred, false);
         }
     }
 }
@@ -779,20 +784,16 @@ void ZirkOscjuceAudioProcessorEditor::paintCenterDot (Graphics& g){
 void ZirkOscjuceAudioProcessorEditor::paintAzimuthLine (Graphics& g){
     int selectedSource = ourProcessor->getSelectedSource();
     g.setColour(Colours::red);
-    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    JUCE_COMPILER_WARNING("remove all azim and elev in here")
-    Point <float> screen = degreeToXy(Point<float>(HRAzim,HRElev));
-    g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + screen.getX(), _ZirkOSC_Center_Y + screen.getY() );
+    float fX, fY;
+    ourProcessor->getSources()[selectedSource].getXY(fX, fY);
+    g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + fX, _ZirkOSC_Center_Y + fY );
 }
 
 void ZirkOscjuceAudioProcessorEditor::paintZenithCircle (Graphics& g){
     int selectedSource = ourProcessor->getSelectedSource();
-    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    JUCE_COMPILER_WARNING("remove all azim and elev in here")
-    Point <float> screen = degreeToXy(Point<float>(HRAzim,HRElev));
-    float radiusZenith = sqrtf(screen.getX()*screen.getX() + screen.getY()*screen.getY());
+    float fX, fY;
+    ourProcessor->getSources()[selectedSource].getXY(fX, fY);
+    float radiusZenith = sqrtf(fX*fX + fY*fY);
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
 }
 
@@ -818,9 +819,8 @@ void ZirkOscjuceAudioProcessorEditor::paintCoordLabels (Graphics& g){
 /*Conversion function*/
 
 /*!
-* \param p : Point <float> (Azimuth,Elevation) in degree
+* \param p : Point <float> (Azimuth,Elevation) in degree, xy in range [-r, r]
 */
-JUCE_COMPILER_WARNING("are these duplicates with soundsource?")
 Point <float> ZirkOscjuceAudioProcessorEditor::degreeToXy (Point <float> p){
     float x,y;
     x = -ZirkOscjuceAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(p.getX())) * cosf(degreeToRadian(p.getY()));
@@ -834,7 +834,7 @@ Point <float> ZirkOscjuceAudioProcessorEditor::degreeToXy (Point <float> p){
  */
 void ZirkOscjuceAudioProcessorEditor::timerCallback(){
     
-#if defined(DEBUG)
+#if defined(TIMING_TESTS)
     clock_t begin = clock();
     clock_t proc = clock();
 #endif
@@ -864,15 +864,15 @@ void ZirkOscjuceAudioProcessorEditor::timerCallback(){
             break;
     }
 
-#if defined(DEBUG)
-    clock_t sliders = clock();
+#if defined(TIMING_TESTS)
+    clock_t sliders = clock(); 
 #endif
     if (ourProcessor->hasToRefreshGui()){
         refreshGui();
         ourProcessor->setRefreshGui(false);
     }
     
-#if defined(DEBUG)
+#if defined(TIMING_TESTS)
     clock_t gui = clock();
 #endif
     
@@ -895,14 +895,12 @@ void ZirkOscjuceAudioProcessorEditor::updateSliders(){
     int selectedSource = ourProcessor->getSelectedSource();
     
     //based on selected source, update all sliders
-    JUCE_COMPILER_WARNING("all those calls to getSources() should probably be changed to something like getParameter()");
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
     
-    float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->setValue(HRValue,dontSendNotification);
-    //cout << "update sliders: " << ourProcessor->getSources()[selectedSource].getAzimuth() << "\n";
     
-    HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_pElevationSlider->setValue(HRValue,dontSendNotification);
     
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
@@ -935,9 +933,9 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     
-    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
-    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
-    _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
+//    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
+//    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
+//    _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
 }
 
 void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
@@ -1068,29 +1066,18 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     }
     
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
-    int selectedConstraint = ourProcessor->getSelectedMovementConstraint();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
     if (slider == m_pGainSlider) {
         ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
     }
     else if (slider == m_pAzimuthSlider) {
-        if (selectedConstraint == Independant){
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5));
-        } else {
-            for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
-            }
-        }
+        ourProcessor->setIsRecordingAutomation(true);
+        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
     }
     else if (slider == m_pElevationSlider) {
-        if (selectedConstraint == Independant){
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5));
-        } else {
-            for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
-            }
-        }
+        ourProcessor->setIsRecordingAutomation(true);
+        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
     }
     else if (slider == m_pElevationSpanSlider) {
         if(isSpanLinked){
@@ -1120,29 +1107,18 @@ void ZirkOscjuceAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     }
     
     int selectedSource = ourProcessor->getSelectedSource();                             //get selected source
-    int selectedConstraint = ourProcessor->getSelectedMovementConstraint();    //get selected movement constraint
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     
     if (slider == m_pGainSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5) );
     }
     else if (slider == m_pAzimuthSlider) {
-        if (selectedConstraint == Independant){
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5));
-        } else {
-            for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
-            }
-        }
+        ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
+        ourProcessor->setIsRecordingAutomation(false);
     }
     else if (slider == m_pElevationSlider) {
-        if (selectedConstraint == Independant){
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5));
-        } else {
-            for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
-            }
-        }
+        ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
+        ourProcessor->setIsRecordingAutomation(false);
     }
     else if (slider == m_pElevationSpanSlider) {
         if(isSpanLinked){
@@ -1175,86 +1151,22 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     int selectedSource = ourProcessor->getSelectedSource();
     bool isSpanLinked = ourProcessor->getIsSpanLinked();
     float percentValue=0;
-    SoundSource curLocationSource = ourProcessor->getSources()[selectedSource];
     float fX, fY;
-
-    JUCE_COMPILER_WARNING("this all needs to use the new move function")
     
     if (slider == m_pGainSlider) {
         ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) m_pGainSlider->getValue());
     }
-    
-    else if (slider == m_pAzimuthSlider || slider == m_pElevationSlider) {
-
-        //get selected movement constraint
-        int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
-        
-        if (slider == m_pAzimuthSlider ){
-            //figure out where the slider should move the point
-            percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-            if (selectedConstraint == Independant){
-                if (ZirkOscjuceAudioProcessor::s_bUseXY){
-                    float fX, fY;
-                    SoundSource::AzimElev01toXY01(percentValue, ourProcessor->getSources()[selectedSource].getElevation(), fX, fY);
-                    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5), fX);
-                    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5), fY);
-                } else {
-                    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5), percentValue);
-                }
-                return;
-            }
-            //if we get here, we're not in independent mode
-            else {
-                //calculate new location point using current location and new value of the slider
-                JUCE_COMPILER_WARNING("why do we need to create a new source here??? we need to know the x and y that go with percent and getElev. make soundsource::azimTOxy or something")
-                SoundSource newLocationSource(percentValue, curLocationSource.getElevation());
-                newLocationSource.getXY(fX, fY);
-            }
-        } else {
-            percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-            if (selectedConstraint == Independant){
-                if (ZirkOscjuceAudioProcessor::s_bUseXY){
-                    float fX, fY;
-                    SoundSource::AzimElev01toXY01(ourProcessor->getSources()[selectedSource].getAzimuth(), percentValue, fX, fY);
-                    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5), fX);
-                    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5), fY);
-                } else {
-                    ourProcessor->setParameterNotifyingHost  (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource * 5), percentValue);
-                }
-                return;
-            }
-            //if we get here, we're not in independent mode
-            else {
-                //calculate new location point using current location and new value of the slider
-                SoundSource newLocationSource(curLocationSource.getAzimuth(), percentValue);
-                newLocationSource.getXY(fX, fY);
-            }
-        }
-        
-        //if we get here, we're not in independent mode
-        if (selectedConstraint == FixedAngles){
-            moveFixedAngles(fX, fY);
-        }
-        else if (selectedConstraint == FixedRadius){
-            moveCircularWithFixedRadius(fX, fY);
-        }
-        else if (selectedConstraint == FullyFixed){
-            moveFullyFixed(fX, fY);
-        }
-        else if (selectedConstraint == DeltaLocked){
-            //Point<float> DeltaMove = newLocation - ourProcessor->getSources()[selectedSource].getXY();
-            JUCE_COMPILER_WARNING("name this properly")
-            float x,y;
-            ourProcessor->getSources()[selectedSource].getXY(x,y);
-            float deltax = fX -x;
-            float deltay = fY -y;
-            moveSourcesWithDelta(deltax, deltay);
-        }
-        else if (selectedConstraint == Circular){
-            moveCircular(fX, fY);
-        }
+    else if (slider == m_pAzimuthSlider ){
+        //figure out where the slider should move the point
+        percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+        SoundSource::azimElev01toXY(percentValue, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
+        move(selectedSource, fX, fY);
     }
-
+    else if (slider == m_pElevationSlider){
+        percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+        SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
+        move(selectedSource, fX, fY);
+    }
     else if (slider == m_pElevationSpanSlider) {
         percentValue = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
         if(isSpanLinked){
@@ -1265,7 +1177,6 @@ void ZirkOscjuceAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         else{
             ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_ElevSpan_ParamId + (selectedSource*5), percentValue);
         }
-        
     }
     else if (slider == m_pAzimuthSpanSlider) {
         percentValue = HRToPercent((float) m_pAzimuthSpanSlider->getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
@@ -1299,24 +1210,12 @@ void ZirkOscjuceAudioProcessorEditor::mouseDown (const MouseEvent &event){
 
     
     if(_isSourceBeingDragged){
-
-        //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture). Logic needs this
+        //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture).
+        ourProcessor->setIsRecordingAutomation(true);
         ourProcessor->setSelectedSource(source);
-        int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
-        if (selectedConstraint == Independant) {
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + source*5);
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + source*5);
-        }
-        else {
-            for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
-                ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
-                ourProcessor->getSources()[i].setAzimReverse(false);
-            }
-        }
-        //repaint();
+        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + source*5);
+        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + source*5);
     }
-    //m_pGainSlider->grabKeyboardFocus();
     _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
@@ -1337,63 +1236,27 @@ void ZirkOscjuceAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             return;
         }
         
-        int selectedSource = ourProcessor->getSelectedSource();
-        
         //get point of current event
-        Point<float> pointRelativeCenter = Point<float>(event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y);
+        float fX = event.x-_ZirkOSC_Center_X;
+        float fY = event.y-_ZirkOSC_Center_Y;
         
         //need to clamp the point to the circle
-        if (ZirkOscjuceAudioProcessor::s_bUseXY){
-            float fCurR = hypotf(pointRelativeCenter.x, pointRelativeCenter.y);
+
+            float fCurR = hypotf(fX, fY);
             if ( fCurR > ZirkOscjuceAudioProcessor::s_iDomeRadius){
                 float fExtraRatio = ZirkOscjuceAudioProcessor::s_iDomeRadius / fCurR;
                 
-                pointRelativeCenter.x *= fExtraRatio;
-                pointRelativeCenter.y *= fExtraRatio;
+                fX *= fExtraRatio;
+                fY *= fExtraRatio;
             }
-        }
-        move(selectedSource, pointRelativeCenter.x, pointRelativeCenter.y);
+        
+        move(ourProcessor->getSelectedSource(), fX, fY);
     }
     _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
 void ZirkOscjuceAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY){
-    if (p_iSource > ourProcessor->getNbrSources()){
-        return;
-    }
-    
-    int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
-    Point<float> newPoint(p_fX,p_fY);
-    
-    if(selectedConstraint == Independant) {
-        if (ZirkOscjuceAudioProcessor::s_bUseXY){
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, HRToPercent(p_fX,
-                                                                                                                                   -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, HRToPercent(p_fY,
-                                                                                                                                   -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
-        } else {
-            ourProcessor->getSources()[p_iSource].setXY(newPoint);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + p_iSource*5, ourProcessor->getSources()[p_iSource].getAzimuth());
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + p_iSource*5, ourProcessor->getSources()[p_iSource].getElevation());
-        }
-    } else if (selectedConstraint == FixedAngles){
-        moveFixedAngles(p_fX, p_fY);
-    } else if (selectedConstraint == FixedRadius){
-        moveCircularWithFixedRadius(p_fX, p_fY);
-    } else if (selectedConstraint == FullyFixed){
-        moveFullyFixed(p_fX, p_fY);
-    } else if (selectedConstraint == DeltaLocked){
-//        Point<float> DeltaMove = newPoint - ourProcessor->getSources()[p_iSource].getXY();
-        JUCE_COMPILER_WARNING("name this properly")
-        float x,y;
-        ourProcessor->getSources()[p_iSource].getXY(x,y);
-        float deltax = p_fX -x;
-        float deltay = p_fY -y;
-        moveSourcesWithDelta(deltax, deltay);
-    } else if (selectedConstraint == Circular){
-        moveCircular(p_fX, p_fY);
-    }
-    ourProcessor->sendOSCValues();
+    ourProcessor->move(p_iSource, p_fX, p_fY);
 }
 
 void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
@@ -1403,274 +1266,16 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
     }
     
     if(_isSourceBeingDragged){
-        int selectedConstrain = ourProcessor->getSelectedMovementConstraint();
-        if(selectedConstrain == Independant){
-            int selectedSource = ourProcessor->getSelectedSource();
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId+ selectedSource*5);
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + selectedSource*5);
-            
-        }
-        else {
-            for(int i = 0;i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5);
-                ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5);
-            }
-        }
-        _isSourceBeingDragged=false;
+        int selectedSource = ourProcessor->getSelectedSource();
+        ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId+ selectedSource*5);
+        ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + selectedSource*5);
+        ourProcessor->setIsRecordingAutomation(false);
+        _isSourceBeingDragged = false;
     }
-    //m_pGainSlider->grabKeyboardFocus();
     _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
-void ZirkOscjuceAudioProcessorEditor::moveFixedAngles(const float &p_fX, const float &p_fY){
-    if (_isNeedToSetFixedAngles){
-        orderSourcesByAngle(ourProcessor->getSelectedSource(),ourProcessor->getSources());
-        _isNeedToSetFixedAngles=false;
-    }
-    moveCircular(p_fX, p_fY);
-}
 
-void ZirkOscjuceAudioProcessorEditor::moveFullyFixed(const float &p_fX, const float &p_fY){
-    if (_isNeedToSetFixedAngles){
-        orderSourcesByAngle(ourProcessor->getSelectedSource(),ourProcessor->getSources());
-        _isNeedToSetFixedAngles=false;
-    }
-    moveCircularWithFixedRadius(p_fX, p_fY);
-}
-
-void ZirkOscjuceAudioProcessorEditor::orderSourcesByAngle (int selected, SoundSource tab[]){
-    int nbrSources = ourProcessor->getNbrSources();
-    vector<int> order = getOrderSources(selected, tab, nbrSources);
-    int count = 0;
-    for(int i= 1; i < nbrSources ; ++i){ //for(int i= 1; i != nbrSources ; ++i){
-        float curangle = tab[order[0]].getAzimuth()+ (float)(++count)/(float) nbrSources;
-        if (ZirkOscjuceAudioProcessor::s_bUseXY){
-            float fX, fY;
-            SoundSource::AzimElev01toXY01(curangle, tab[order[i]].getElevation(), fX, fY);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (order[i]*5), fX);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (order[i]*5), fY);
-        } else {
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (order[i]*5), curangle);
-        }
-    }
-}
-
-//starting from the selected source, cycle through the other sources to find in which order they are
-vector<int> ZirkOscjuceAudioProcessorEditor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
-
-    vector<int> order(nbrSources);
-    int firstItem = selected;
-    order[0] = selected;    //selected source is at order[0]
-    int count  = 1;
-    do{
-        int current = (selected + 1)%nbrSources; //current is the next one after the seleted one
-        
-        int bestItem = current;
-        float bestDelta = tab[current].getAzimuth() - tab[selected].getAzimuth(); //difference between current and selected
-        if (bestDelta<0){
-            bestDelta+=1;
-        }
-        
-        while (current != selected) {
-            float currentAzimuth;
-            if (tab[current].getAzimuth() - tab[selected].getAzimuth()>0 ){
-                currentAzimuth = tab[current].getAzimuth();
-            }
-            else{
-                currentAzimuth = tab[current].getAzimuth()+1;
-            }
-            if (currentAzimuth - tab[selected].getAzimuth() < bestDelta) {
-                bestItem = current;
-                bestDelta = currentAzimuth - tab[selected].getAzimuth();
-                
-            }
-            current = (current +1) % nbrSources;
-        }
-        
-        order[count++]=bestItem;
-        selected = bestItem;
-    } while (selected != firstItem && count < nbrSources);
-    return order;
-}
-
-void ZirkOscjuceAudioProcessorEditor::moveCircular(const float &p_fX, const float &p_fY ){
-    moveCircular(p_fX, p_fY, false);
-}
-
-void ZirkOscjuceAudioProcessorEditor::moveCircularWithFixedRadius(const float &p_fX, const float &p_fY){
-    moveCircular(p_fX, p_fY, true);
-}
-
-//what we need here is to move the selected source at the pointRelativeCenter, then move the other source by the delta
-void ZirkOscjuceAudioProcessorEditor::moveCircular(const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed){
-    if (!ZirkOscjuceAudioProcessor::s_bUseXY){
-        Point<float> pointRelativeCenter(p_fX, p_fY);
-        moveCircularAzimElev(pointRelativeCenter, p_bIsRadiusFixed);
-        return;
-    }
-    
-    //get azim and elevation for current source
-    int selectedSource = ourProcessor->getSelectedSource();
-    
-    //convert x,y[0,1] to azim,elev[0,1]
-    float fSelectedX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (selectedSource*5));
-    float fSelectedY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (selectedSource*5));
-    float fSelectedAzim, fSelectedElev;
-    SoundSource::XY01toAzimElev01(fSelectedX, fSelectedY, fSelectedAzim, fSelectedElev);
-    
-    //calculate deltas
-    float fDeltaAzim = SoundSource::XYtoAzim01(p_fX, p_fY) - fSelectedAzim;
-    float fDeltaElev = SoundSource::XYtoElev01(p_fX, p_fY) - fSelectedElev;
-    
-    //set selectedSource to its position
-    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + selectedSource*5, HRToPercent(p_fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
-    ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + selectedSource*5, HRToPercent(p_fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius));
-    
-    //for all other sources
-    for (int iCurSource = 0; iCurSource < ourProcessor->getNbrSources(); ++iCurSource) {
-        
-        if (iCurSource == selectedSource){
-            continue;
-        }
-        
-        float fCurX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5));
-        float fCurY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5));
-        fCurX = fCurX * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-        fCurY = fCurY * 2 * ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-        float fCurAzim = SoundSource::XYtoAzim01(fCurX, fCurY);
-        float fCurElev = SoundSource::XYtoElev01(fCurX, fCurY);
-        
-        float fNewAzim = fCurAzim+fDeltaAzim;
-        
-        //if radius is fixed, set all elevation to the same thing
-        if (p_bIsRadiusFixed){
-            float fX, fY;
-            SoundSource::AzimElev01toXY01(fNewAzim, fSelectedElev, fX, fY);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
-        }
-        //if radius is not fixed, set all elevation to be current elevation +/- deltaY
-        else {
-            //if azimuth is NOT reversed, ie, NOT on the other side of the dome's middle point
-            if(!ourProcessor->getSources()[iCurSource].isAzimReverse()){
-                float fX, fY;
-                SoundSource::AzimElev01toXY01(fNewAzim, fCurElev + fDeltaElev, fX, fY);
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
-            } else {
-                float fX, fY;
-                SoundSource::AzimElev01toXY01(fNewAzim, fCurElev - fDeltaElev, fX, fY);
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (iCurSource*5), fX);
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (iCurSource*5), fY);
-            }
-        }
-    }
-}
-
-
-
-void ZirkOscjuceAudioProcessorEditor::moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed){
-    int selectedSource = ourProcessor->getSelectedSource();
-    
-    //figure out new location that source should move to
-    SoundSource sourceNewLocation = SoundSource();
-    sourceNewLocation.setXY(pointRelativeCenter);
-    
-    float HRNewElevation = PercentToHR(sourceNewLocation.getElevation(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    float HRNewAzimuth   = PercentToHR(sourceNewLocation.getAzimuth(),   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    
-    //figure out previous/current location
-    float currentElevation = ourProcessor->getSources()[selectedSource].getElevation();
-    float currentAzimuth   = ourProcessor->getSources()[selectedSource].getAzimuth();
-    float HRElevation   =       PercentToHR(currentElevation, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    float HRAzimuth     = 180 + PercentToHR(currentAzimuth,   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    
-    //calculate difference between new and previous location
-    Point<float> deltaCircularMove = Point<float>(HRNewAzimuth-HRAzimuth, HRNewElevation-HRElevation);
-    float deltaX = HRToPercent(deltaCircularMove.getX(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float deltaY = HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    
-    //for all sources
-    for (int iCurSource = 0; iCurSource < ourProcessor->getNbrSources(); ++iCurSource) {
-        
-        //get current source Azimuth and elevation
-        float curSourceAzim = ourProcessor->getSources()[iCurSource].getAzimuth();
-        curSourceAzim += deltaX;
-        float curSourceElevRaw = ourProcessor->getSources()[iCurSource].getElevationRawValue();
-        
-        //set new azimuth through host
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + iCurSource * 5, curSourceAzim);
-        
-        //if radius is fixed, set all elevation to the same thing
-        if (isRadiusFixed){
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + iCurSource * 5, (currentElevation + HRToPercent(deltaCircularMove.getY(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-        }
-        //if radius is not fixed, set all elevation to be current elevation +/- deltaY
-        else {
-            //if azimuth is NOT reversed, ie, NOT on the other side of the dome's middle point
-            if(!ourProcessor->getSources()[iCurSource].isAzimReverse()){
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + iCurSource * 5, curSourceElevRaw + deltaY);
-            } else {
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + iCurSource * 5, curSourceElevRaw - deltaY);
-            }
-        }
-    }
-}
-
-
-void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDelta(const float &p_fX, const float &p_fY){
-    if (!ZirkOscjuceAudioProcessor::s_bUseXY){
-        moveSourcesWithDeltaAzimElev(Point<float>(p_fX, p_fY));
-        return;
-    }
-    
-    //simply need to move all sources to their current position + deltamove
-    for(int i=0; i<ourProcessor->getNbrSources(); ++i){
- 
-//        Point<float> currentPosition = ourProcessor->getSources()[i].getXY();
-//        Point<float> newPosition = currentPosition + DeltaMove;
-        
-        float currentX, currentY;
-        ourProcessor->getSources()[i].getXY(currentX, currentY);
-        float newX = currentX + p_fX;
-        float newY = currentY + p_fY;
-
-
-        JUCE_COMPILER_WARNING("if we clamp, sources that fall outside the circle don,t bouce back; but if we don't clamp, location parameters fall outside their correct range...")
-        //SoundSource::clampXY(newPosition.x, newPosition.y);
-        
-        float fX01 = (newX + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);
-        float fY01 = (newY + ZirkOscjuceAudioProcessor::s_iDomeRadius) / (2*ZirkOscjuceAudioProcessor::s_iDomeRadius);
-
-
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i * 5, fX01);
-        ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i * 5, fY01);
-        
-        ourProcessor->sendOSCValues();
-    }
-}
-
-void ZirkOscjuceAudioProcessorEditor::moveSourcesWithDeltaAzimElev(Point<float> DeltaMove){
-    int nbrSources = ourProcessor->getNbrSources();
-    bool inTheDome = true;
-    for (int i =0; i<ourProcessor->getNbrSources()&&inTheDome; ++i) {
-        inTheDome=ourProcessor->getSources()[i].isStillInTheDome(DeltaMove);
-    }
-    if (inTheDome){
-        for(int i=0;i<nbrSources;++i){
-            float currentx, currenty;
-            ourProcessor->getSources()[i].getXY(currentx, currenty);
-            float deltax = currentx+DeltaMove.x;
-            float deltay = currentx+DeltaMove.y;
-            ourProcessor->getSources()[i].setXY(deltax, deltay);
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + i*5, ourProcessor->getSources()[i].getAzimuth());
-                ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + i*5, ourProcessor->getSources()[i].getElevationRawValue());
-            //azimuthLabel.setText(String(ourProcessor->tabSource[i].getElevation()), false);
-            ourProcessor->sendOSCValues();
-        }
-    }
-    //repaint();
-}
 
 void ZirkOscjuceAudioProcessorEditor::textEditorFocusLost (TextEditor &textEditor){
     _isReturnKeyPressedCalledFromFocusLost = true;
@@ -1709,9 +1314,12 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
             
             //toggle fixed angle repositioning, if we need to
             int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
-            if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
-                _isNeedToSetFixedAngles=true;
+            if(selectedConstraint == EqualAngles){
+                ourProcessor->setEqualAzimForAllSrc();
+            } else if (selectedConstraint == FullyEqual){
+                ourProcessor->setEqualAzimElevForAllSrc();
             }
+
         }
         //otherwise just ignore new value
         else{
@@ -1744,7 +1352,6 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
             ourProcessor->getSources()[iCurSource].setChannel(newChannel++);
         }
-       ourProcessor->sendOSCValues();
     }
     
     else if(&_ZkmOscPortTextEditor == &textEditor ){
@@ -1770,35 +1377,16 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
         m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     }
     
-    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
-        int newIpadOutgoingPort = intValue;
-        String curIpAddress = ourProcessor->getOscAddressIpad();
-        
-        ourProcessor->changeOSCSendIPad(newIpadOutgoingPort, curIpAddress);
-        
-        _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
-    }
-    
-    else if (&_IpadIpAddressTextEditor == &textEditor) {
-        String newIpAddress = text;
-        int curOscOutgoingPort = ourProcessor->getOscPortIpadOutgoing().getIntValue();
-        
-        ourProcessor->changeOSCSendIPad(curOscOutgoingPort, newIpAddress);
-        
-        _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
-    }
-    
-    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {
-        int newIpadIncomingPort = intValue;
-        ourProcessor->changeOSCReceiveIpad(newIpadIncomingPort);
-        _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
-        
-    }
-    ourProcessor->sendOSCConfig();
-    ourProcessor->sendOSCValues();
-    ourProcessor->sendOSCMovementType();
+//    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
+//    }
+//    
+//    else if (&_IpadIpAddressTextEditor == &textEditor) {
+//    }
+//    
+//    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {
+//        
+//    }
     if (!_isReturnKeyPressedCalledFromFocusLost){
-        //m_pGainSlider->grabKeyboardFocus();
         _MovementConstraintComboBox.grabKeyboardFocus();
     }
 }
@@ -1813,10 +1401,11 @@ void ZirkOscjuceAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHas
         
         ourProcessor->setParameterNotifyingHost(ZirkOscjuceAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
 
-        if(selectedConstraint == FixedAngles || selectedConstraint == FullyFixed){
-            _isNeedToSetFixedAngles=true;
+        if(selectedConstraint == EqualAngles){
+            ourProcessor->setEqualAzimForAllSrc();
+        } else if (selectedConstraint == FullyEqual){
+            ourProcessor->setEqualAzimElevForAllSrc();
         }
-        ourProcessor->sendOSCMovementType();
     }
     
     else if (comboBoxThatHasChanged == m_pTrajectoryTypeComboBox){
@@ -1869,23 +1458,6 @@ int ZirkOscjuceAudioProcessorEditor::getNumSelectedTrajectoryReturns(){
     } else {
         return -1;
     }
-}
-
-
-bool ZirkOscjuceAudioProcessorEditor::isFixedAngle(){
-    return _isNeedToSetFixedAngles;
-}
-
-void ZirkOscjuceAudioProcessorEditor::setFixedAngle(bool fixedAngle){
-    _isNeedToSetFixedAngles = fixedAngle;
-}
-
-void ZirkOscjuceAudioProcessorEditor::setDraggableSource(bool drag){
-    _isSourceBeingDragged = drag;
-}
-
-bool ZirkOscjuceAudioProcessorEditor::isDraggableSource(){
-    return _isSourceBeingDragged;
 }
 
 int ZirkOscjuceAudioProcessorEditor::getNbSources()

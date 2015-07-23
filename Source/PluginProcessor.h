@@ -47,6 +47,7 @@ public:
     //! Called every 50ms;
     void timerCallback();
     
+    void move(int p_iSource, float p_fX, float p_fY);
     
     //==============================================================================
     //! Called before playback starts, to let the filter prepare itself. 
@@ -157,17 +158,11 @@ public:
     void setSelectedSource(int selected){ if ( selected >-1 && selected < 8) _SelectedSource= selected;};
     //! Returns the Osc Port for the Zirkonium sending
     int getOscPortZirkonium(){return _OscPortZirkonium;}
-    //! Retunrs the Osc port where the iPad messages are received
-    String getOscPortIpadIncoming(){ return _OscPortIpadIncoming;}
-    //! Returns the Osc iPad port where we send messages
-    String getOscPortIpadOutgoing(){ return _OscPortIpadOutgoing;}
-    //! Returns the iPad's IP address.
-    String getOscAddressIpad() {return _OscAddressIpad; }
     
     enum ParameterIds
     {
-        ZirkOSC_Azim_or_x_ParamId = 0,
-        ZirkOSC_Elev_or_y_ParamId,
+        ZirkOSC_X_ParamId = 0,
+        ZirkOSC_Y_ParamId,
         ZirkOSC_AzimSpan_ParamId,
         ZirkOSC_ElevSpan_ParamId,
         ZirkOSC_Gain_ParamId,
@@ -219,9 +214,6 @@ public:
         totalNumParams                      //50
     };
     
-    
- 
-    
     //! Send the current state to all the iPad and Zirkonium
     void sendOSCValues();
     
@@ -241,14 +233,7 @@ public:
     void setRefreshGui(bool gui) { _RefreshGui = gui;};
     //! Change the sending OSC port of the zirkonium
     void changeZirkoniumOSCPort(int newPort);
-    //! Send the configuration to the iPad (assignment Position -> id, nbr source)
-    void sendOSCConfig();
-    //! Send the movement type, selected constrain.
-    void sendOSCMovementType();
-    //! Change the sending OSC port of the iPad
-    void changeOSCSendIPad(int newPort, String newAddress);
-    //! Change the receiving OSC port (server).
-    void changeOSCReceiveIpad(int port);
+
     //! Returns the Editor.
     AudioProcessorEditor* getEditor() {return _Editor;};
     //! Set the width that the UI was last set to
@@ -259,10 +244,6 @@ public:
     void setLastUiHeight(int lastUiHeight);
     //! Return the height that the UI was last set to
     int getLastUiHeight();
-    //! Return the size of the dome radius
-    int getDomeRadius();
-    //! Set the size of the dome radius
-    void setDomeRadius(int iNewRadius);
     
     void storeCurrentLocations();
     
@@ -270,39 +251,52 @@ public:
     
     //radius of the dome
     static int s_iDomeRadius;
-    
-    //! wheter this instance of the plugin will use xy (true) or azim and elev (false) parameters for automations
-    static bool s_bUseXY;
-    
-    bool m_bUseIpad;
-    
+      
     bool isTrajectoryDone();
-
     
     //NEW TRAJECTORY CLASS METHODS
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
   	Trajectory::Ptr getTrajectory() { return mTrajectory; }
-
-    void moveTrajectoriesWithConstraints(float &p_fX, float &p_fY);
     
     void askForGuiRefresh(){_RefreshGui=true;};
     
     bool getIsJoystickEnabled() const { return _isJoystickEnabled; }
+    
     void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
     
+    void setIsRecordingAutomation(bool b){
+        m_bIsRecordingAutomation = b;
+    }
+    
+    //! get the source order by the angle value
+    std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
+
+    void setEqualAzimForAllSrc();
+    
+    void setEqualAzimElevForAllSrc();
+    
 private:
-    
-    
     
     void initSources();
     
     void processTrajectories();
     
     void stopTrajectory();
-        
+    
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsElevFixed);
+
+    void moveEqualAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
+    
+    void moveFullyEqual(const int &p_iSource, const float &p_fX, const float &p_fY);
+    
+    void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
+    
+ 
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
     //! Whether the editor has to refresh the GUI
+    JUCE_COMPILER_WARNING("this flag should really be used and the gui should NOT refresh if this flag is false")
     bool _RefreshGui = false;
     //! Current number of sources on the screnn
     int _NbrSources;
@@ -328,18 +322,9 @@ private:
     //Copy of all sources to be able to save and restore locations before and after a trajectory
     SoundSource _AllSourcesBuffer [8];
     
-    //! Osc Sever thread (receiving)
-    lo_server_thread _St;
     //! Zirkonium OSC address (sending)
     lo_address _OscZirkonium;
-    //! Ipad OSC address (sending)
-    lo_address _OscIpad;
-    //! Outgoing port to the iPad 
-    String _OscPortIpadOutgoing;
-    //! iPad address
-    String _OscAddressIpad;
-    //! Zirkonium incoming port
-    String _OscPortIpadIncoming;
+
     //! last saved ui width
     int _LastUiWidth;
     //! last saved ui height
@@ -370,12 +355,25 @@ private:
     
     int _SelectedSourceForTrajectory;
     
-    //NEW TRAJECTORY
     Trajectory::Ptr mTrajectory;
     
     int64 mLastTimeInSamples;
     
+    //the id of the source that was last changed
+    int m_iSourceLocationChanged;   
     
+    float m_fSourceOldX01[8];
+    float m_fSourceOldY01[8];
+    
+    bool m_bCurrentlyPlaying;
+    
+    bool m_bIsEqualElev;
+    
+    float m_fROverflow[8];
+    
+    bool m_bIsElevationOverflow[8];
+    
+    bool m_bIsRecordingAutomation;
 
 };
 

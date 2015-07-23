@@ -26,7 +26,6 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
 #include "Leap.h"
 
 /** ZirkLeap constructor taking two arguments and initializing its others components by default */
-JUCE_COMPILER_WARNING("this has access to both the processor and the editor, why?")
 ZirkLeap::ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor):
 ourProcessor(filter),
 mEditor(editor),
@@ -86,7 +85,6 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                     if (mLastPositionValid)
                     {
                         
-                        JUCE_COMPILER_WARNING("this bullshit should use the editor::move function")
                         //Leap Motion mouvement are calculated from the last position in order to have something dynamic and ergonomic
                         Leap::Vector delta = pos- mLastPosition;
                         
@@ -103,44 +101,9 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                         ourProcessor->getSources()[src].getXY(fX, fY);
                         fX += delta.x * scale;
                         fY -= delta.y * scale;
-                        int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
-                        if(selectedConstraint == Independant)
-                        {
-                            
-                            ourProcessor->getSources()[src].setXY(fX, fY);
-                            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + src*5, ourProcessor->getSources()[src].getAzimuth());
-                            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + src*5, ourProcessor->getSources()[src].getElevation());
-                            //send source position by osc
-                            ourProcessor->sendOSCValues();
-                            
-                        }
-                        else if (selectedConstraint == FixedAngles){
-                            mEditor->moveFixedAngles(fX, fY);
-                        }
-                        else if (selectedConstraint == FixedRadius){
-                            mEditor->moveCircularWithFixedRadius(fX, fY);
-                        }
-                        else if (selectedConstraint == FullyFixed){
-                            mEditor->moveFullyFixed(fX, fY);
-                        }
-                        else if (selectedConstraint == DeltaLocked){
-//                            Point<float> DeltaMove = sp - ourProcessor->getSources()[src].getXY();
-//                            mEditor->moveSourcesWithDelta(DeltaMove);
-                            
-                            JUCE_COMPILER_WARNING("name this properly")
-                            float x,y;
-                            ourProcessor->getSources()[src].getXY(x,y);
-                            float deltax = fX -x;
-                            float deltay = fY -y;
-                            mEditor->moveSourcesWithDelta(deltax, deltay);
-                            
-                        }
-                        else if (selectedConstraint == Circular){
-                            mEditor->moveCircular(fX, fY);
-                        }
                         
+                        mEditor->move(src, fX, fY);
                         
-                        mEditor->fieldChanged();
                     }
                     else
                     {

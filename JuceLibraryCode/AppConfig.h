@@ -213,10 +213,10 @@
  #define JucePlugin_Build_AAX              0
 #endif
 #ifndef  JucePlugin_Name
- #define JucePlugin_Name                   "ZirkOSC2"
+ #define JucePlugin_Name                   "ZirkOSC3"
 #endif
 #ifndef  JucePlugin_Desc
- #define JucePlugin_Desc                   "ZirkOSC2"
+ #define JucePlugin_Desc                   "ZirkOSC3"
 #endif
 #ifndef  JucePlugin_Manufacturer
  #define JucePlugin_Manufacturer           "UdeM"
@@ -258,13 +258,13 @@
  #define JucePlugin_EditorRequiresKeyboardFocus  0
 #endif
 #ifndef  JucePlugin_Version
- #define JucePlugin_Version                2.2.2
+ #define JucePlugin_Version                3.0.0
 #endif
 #ifndef  JucePlugin_VersionCode
- #define JucePlugin_VersionCode            0x20202
+ #define JucePlugin_VersionCode            0x30000
 #endif
 #ifndef  JucePlugin_VersionString
- #define JucePlugin_VersionString          "2.2.2"
+ #define JucePlugin_VersionString          "3.0.0"
 #endif
 #ifndef  JucePlugin_VSTUniqueID
  #define JucePlugin_VSTUniqueID            JucePlugin_PluginCode
@@ -279,16 +279,16 @@
  #define JucePlugin_AUSubType              JucePlugin_PluginCode
 #endif
 #ifndef  JucePlugin_AUExportPrefix
- #define JucePlugin_AUExportPrefix         ZirkOSC2AU
+ #define JucePlugin_AUExportPrefix         ZirkOSC3AU
 #endif
 #ifndef  JucePlugin_AUExportPrefixQuoted
- #define JucePlugin_AUExportPrefixQuoted   "ZirkOSC2AU"
+ #define JucePlugin_AUExportPrefixQuoted   "ZirkOSC3AU"
 #endif
 #ifndef  JucePlugin_AUManufacturerCode
  #define JucePlugin_AUManufacturerCode     JucePlugin_ManufacturerCode
 #endif
 #ifndef  JucePlugin_CFBundleIdentifier
- #define JucePlugin_CFBundleIdentifier     com.UdeM.ZirkOSC2
+ #define JucePlugin_CFBundleIdentifier     com.UdeM.ZirkOSC3
 #endif
 #ifndef  JucePlugin_RTASCategory
  #define JucePlugin_RTASCategory           ePlugInCategory_None
@@ -306,7 +306,7 @@
  #define JucePlugin_RTASDisableMultiMono   0
 #endif
 #ifndef  JucePlugin_AAXIdentifier
- #define JucePlugin_AAXIdentifier          com.udem.ZirkOSC2
+ #define JucePlugin_AAXIdentifier          com.udem.ZirkOSC3
 #endif
 #ifndef  JucePlugin_AAXManufacturerCode
  #define JucePlugin_AAXManufacturerCode    JucePlugin_ManufacturerCode

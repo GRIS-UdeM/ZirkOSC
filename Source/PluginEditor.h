@@ -67,33 +67,6 @@ public:
     void resized() override;
     
     void move (int, float, float);
-   
-    void moveSourcesWithDelta(const float &p_fX, const float &p_fY);
-    
-    void moveSourcesWithDeltaAzimElev(Point<float> DeltaMove);
-    
-    void moveCircular(const float &p_fX, const float &p_fY );
-    
-    void moveCircularWithFixedRadius (const float &p_fX, const float &p_fY);
-    
-    void moveCircular(const float &p_fX, const float &p_fY, bool p_bIsRadiusFixed);
-    
-    void moveCircularAzimElev(Point<float> pointRelativeCenter, bool isRadiusFixed);
-    
-    //! Move sources with fixed angle between each source
-    void moveFixedAngles(const float &p_fX, const float &p_fY);
-    //! Move sources with fixed angles and fixed radius
-    void moveFullyFixed(const float &p_fX, const float &p_fY);
-    //! Setter FixedAngle
-    void setFixedAngle(bool fixedAngle);
-    //! Getter FixedAngle
-    bool isFixedAngle();
-    //! Setter draggableSource
-    void setDraggableSource(bool drag);
-    //! Getter draggableSource
-    bool isDraggableSource();
-    
-    int getDomeRadius();
     
     //! Function to set the combination of Slider and Label.
     static void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);
@@ -101,10 +74,9 @@ public:
     //Import from octogris for Leap and Joystick
     
     Label * getmStateLeap() {return m_pLBLeapState;}
-    //int getOscLeapSource() { return getProcessor()->getOscLeapSource(); }
-    void fieldChanged() { mFieldNeedRepaint = true; }
     HIDDelegate * getHIDDel() {return mHIDDel;};
     void uncheckJoystickButton();
+    JUCE_COMPILER_WARNING("these 2 methods were created because of static issues in hid_delegate and such")
     int getNbSources();
     int getCBSelectedSource();
     
@@ -115,15 +87,13 @@ private:
     
     ZirkOscjuceAudioProcessor* ourProcessor;
     
-    
     void updateSliders();
+    
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     //! Called when a button is clicked
     void buttonClicked (Button* button);
-    
-    bool m_bUseIpad;
 
     int getNumSelectedTrajectoryDirections();
     
@@ -159,7 +129,7 @@ private:
     //! Function to set the position of one label and associated text editor.   
     void setLabelAndTextEditorPosition(int x, int y, int width, int height, Label* p_label, TextEditor* p_textEditor);
     //! Return the position of the source at the position p if no source returns -1
-    int getSourceFromPosition(Point<float> p );
+    int getSourceFromPosition(Point<float> p);
 
     //! Resizable corner to allow plugin window to be resized
     ScopedPointer<ResizableCornerComponent> _Resizer;
@@ -236,14 +206,12 @@ private:
     
     Label m_VersionLabel;
     
-    //! Label of the outgoing port to the iPad
-    Label _IpadOutgoingOscPortLabel;
-    //! Label of the incoming port
-    Label _IpadIncomingOscPortLabel;
-    //! Label of the iPad address
-    Label _IpadIpAddressLabel;
-    
-
+//    //! Label of the outgoing port to the iPad
+//    Label _IpadOutgoingOscPortLabel;
+//    //! Label of the incoming port
+//    Label _IpadIncomingOscPortLabel;
+//    //! Label of the iPad address
+//    Label _IpadIpAddressLabel;
 
 
     //! TextEditor for the channel number of the selected source
@@ -252,12 +220,12 @@ private:
     TextEditor _ZkmOscPortTextEditor;
     //! TextEditor for the Number of sources
     TextEditor _NbrSourceTextEditor;
-    //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
-    TextEditor _IpadOutgoingOscPortTextEditor;
-    //! TextEditor for the iPad incoming port  (from the ipad to the plugin)
-    TextEditor _IpadIncomingOscPortTextEditor;
-    //! TextEditor for the iPad ip address
-    TextEditor _IpadIpAddressTextEditor;
+//    //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
+//    TextEditor _IpadOutgoingOscPortTextEditor;
+//    //! TextEditor for the iPad incoming port  (from the ipad to the plugin)
+//    TextEditor _IpadIncomingOscPortTextEditor;
+//    //! TextEditor for the iPad ip address
+//    TextEditor _IpadIpAddressTextEditor;
     
 
 
@@ -266,9 +234,7 @@ private:
     
     //! If there is a source beeing drag
     bool _isSourceBeingDragged = false;
-    //! Whether the angles between the sources need to all be set equal
-    bool _isNeedToSetFixedAngles=false;
-    
+   
     
     
     //Import from Octogris
@@ -283,17 +249,10 @@ private:
     //! Toggle Button to de/activate joystick usage
     ToggleButton* m_pTBEnableJoystick;
     
-    
-    
     Label* m_pLBJoystickState;
     
-    
-    
-    bool mFieldNeedRepaint;
     //joystick
     ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
-
-
 
     //! Auto generated function, to get the processor
     ZirkOscjuceAudioProcessor* getProcessor() const
@@ -301,9 +260,7 @@ private:
         return static_cast <ZirkOscjuceAudioProcessor*> (getAudioProcessor());
     }
     
-    //! Order the sources by angle
-    void orderSourcesByAngle(int begin, SoundSource tab [] );
-    
+   
     /*Painting functions*/
     //! Paint the Azimuth line
     void paintAzimuthLine (Graphics& g);
@@ -322,20 +279,9 @@ private:
     //! Paint the Zenith circle, circle on the selected source
     void paintZenithCircle (Graphics& g);
     
-    JUCE_COMPILER_WARNING("we should never need this with xy params")
     //! projects dome coords to screen coords (sphere to circle)
     Point <float> degreeToXy (Point <float>);
 
-
-//    //! converts degree to radian
-//    inline float degreeToRadian (float);
-//    //! converts radian to Degree
-//    inline float radianToDegree (float);
-    //! get the source order by the angle value
-    std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
-    
-    
-    
     int _ZirkOSC_Center_X;
     int _ZirkOSC_Center_Y;
     
@@ -346,8 +292,8 @@ private:
     InterfaceTab* m_oInterfaceTab;
     
     ScopedPointer<Leap::Controller> mController;
+    
     ReferenceCountedObjectPtr<ZirkLeap>  mleap;
-
     
     enum
     {

@@ -8,17 +8,17 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.UdeM.ZirkOSC2</string>
+    <string>com.UdeM.ZirkOSC3</string>
     <key>CFBundleName</key>
-    <string>ZirkOSC2</string>
+    <string>ZirkOSC3</string>
     <key>CFBundlePackageType</key>
     <string>TDMw</string>
     <key>CFBundleSignature</key>
     <string>PTul</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.2.2</string>
+    <string>3.0.0</string>
     <key>CFBundleVersion</key>
-    <string>2.2.2</string>
+    <string>3.0.0</string>
     <key>NSHumanReadableCopyright</key>
     <string></string>
     <key>NSHighResolutionCapable</key>
@@ -27,11 +27,11 @@
     <array>
       <dict>
         <key>name</key>
-        <string>UdeM: ZirkOSC2</string>
+        <string>UdeM: ZirkOSC3</string>
         <key>description</key>
-        <string>ZirkOSC2</string>
+        <string>ZirkOSC3</string>
         <key>factoryFunction</key>
-        <string>ZirkOSC2AUFactory</string>
+        <string>ZirkOSC3AUFactory</string>
         <key>manufacturer</key>
         <string>UdeM</string>
         <key>type</key>
@@ -39,7 +39,7 @@
         <key>subtype</key>
         <string>Plug</string>
         <key>version</key>
-        <integer>131586</integer>
+        <integer>196608</integer>
       </dict>
     </array>
   </dict>

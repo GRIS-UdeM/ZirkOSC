@@ -27,7 +27,10 @@
 
 #include "Trajectories.h"
 #include "PluginProcessor.h"
+#include "PluginEditor.h"
 #include "ZirkConstants.h"
+
+
 
 using namespace std;
 
@@ -59,34 +62,24 @@ void Trajectory::start()
     _SelectedSourceForTrajectory = ourProcessor->getSelectedSource();
     
     //store initial parameter value
-    if (ZirkOscjuceAudioProcessor::s_bUseXY){
+
         //need to convert this to azim and elev
-        float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
+        float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
         fX       = fX*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-        float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
+        float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
         fY       = fY*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
         
         _TrajectoryInitialAzimuth   = SoundSource::XYtoAzim01(fX, fY);
         _TrajectoryInitialElevation = SoundSource::XYtoElev01(fX, fY);
-    } else {
-        _TrajectoryInitialAzimuth   = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
-        _TrajectoryInitialElevation = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
-    }
     ourProcessor->storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
     //    _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
     //    _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
     
-    if (ourProcessor->getSelectedMovementConstraint() == Independant){
-        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
-        ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
-    } else {
-        for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (i*5));
-            ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (i*5));
-        }
-    }
+    ourProcessor->setIsRecordingAutomation(true);
+    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
+    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
 }
 
 bool Trajectory::process(float seconds, float beats)
@@ -120,15 +113,9 @@ void Trajectory::stop()
 	if (!mStarted || mStopped) return;
 	mStopped = true;
 
-    if (ourProcessor->getSelectedMovementConstraint() == Independant){
-        ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5));
-        ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5));
-    } else {
-        for(int i = 0;i < ourProcessor->getNbrSources(); ++i){
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (i*5));
-            ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (i*5));
-        }
-    }
+    ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (_SelectedSourceForTrajectory*5));
+    ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (_SelectedSourceForTrajectory*5));
+    ourProcessor->setIsRecordingAutomation(false);
     
     //reset everything
     ourProcessor->restoreCurrentLocations();
@@ -145,7 +132,6 @@ Trajectory::Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool s
 	mStopped(false),
 	mDone(0),
 	mDurationSingleTrajectory(duration),
-//	mSource(source),
     _TrajectoryCount(times),
 	_isSyncWTempo(syncWTempo)
 {
@@ -156,26 +142,11 @@ Trajectory::Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool s
 }
 
 void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
-    if (ourProcessor->getSelectedMovementConstraint() == Independant){
-        if (ZirkOscjuceAudioProcessor::s_bUseXY){
-            float fX, fY;
-            SoundSource::AzimElev01toXY01(p_fNewAzimuth, p_fNewElevation, fX, fY);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), fX);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), fY);
-        } else {
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + (_SelectedSourceForTrajectory*5), p_fNewAzimuth);
-            ourProcessor->setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + (_SelectedSourceForTrajectory*5), p_fNewElevation);
-        }
-    } else {
-        JUCE_COMPILER_WARNING("again, need azimtoxy conversion")
-        SoundSource newLocationSource(p_fNewAzimuth, p_fNewElevation);
-        float x,y;
-        newLocationSource.getXY(x,y);
-        
-        
-        ourProcessor->moveTrajectoriesWithConstraints(x,y);
-    }
+    float fX, fY;
+    SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, fX, fY);
+    ourProcessor->move(_SelectedSourceForTrajectory, fX, fY);
 }
+
 
 // ==============================================================================
 class CircleTrajectory : public Trajectory
@@ -433,32 +404,60 @@ public:
 	: Trajectory(filter, duration, beats, times, source), mClock(0), mSpeed(speed) {}
 	
 protected:
-	void spProcess(float duration, float seconds)
-	{
+//	void spProcess(float duration, float seconds)
+//	{
+//        mClock += seconds;
+//        while(mClock > 0.01) {
+//            float fAzimuth, fElevation;
+//            mClock -= 0.01;
+//            if (ZirkOscjuceAudioProcessor::s_bUseXY){
+//
+//                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
+//                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+//                
+//                SoundSource::XY01toAzimElev01(fX, fY, fAzimuth, fElevation);
+//                
+//            } else {
+//                fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
+//                fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+//            }
+//            float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+//            float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
+//            fAzimuth += (r1 - 0.5) * mSpeed;
+//            fElevation += (r2 - 0.5) * mSpeed;
+//            move(fAzimuth, fElevation);
+//        }
+//	}
+
+    void spProcess(float duration, float seconds)
+    {
         mClock += seconds;
         while(mClock > 0.01) {
-            float fAzimuth, fElevation;
+
             mClock -= 0.01;
-            if (ZirkOscjuceAudioProcessor::s_bUseXY){
-                JUCE_COMPILER_WARNING("there's probably some more direct way of doing this. Here we're converting xy to azim+elev, then later in ::move() converting back to xy")
-                //need to convert this to azim and elev
-                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
-                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
-                
-                fAzimuth   = SoundSource::XYtoAzim01(fX, fY);
-                fElevation = SoundSource::XYtoElev01(fX, fY);
-            } else {
-                fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Azim_or_x_ParamId + _SelectedSourceForTrajectory*5);
-                fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Elev_or_y_ParamId + _SelectedSourceForTrajectory*5);
-            }
+            
             float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
             float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
-            fAzimuth += (r1 - 0.5) * mSpeed;
-            fElevation += (r2 - 0.5) * mSpeed;
-            move(fAzimuth, fElevation);
+
+                
+                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
+                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+                
+                fX += (r1 - 0.5) * mSpeed;
+                fY += (r2 - 0.5) * mSpeed;
+                
+                fX = PercentToHR(fX, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+                fY = PercentToHR(fY, -ZirkOscjuceAudioProcessor::s_iDomeRadius, ZirkOscjuceAudioProcessor::s_iDomeRadius);
+                
+                JUCE_COMPILER_WARNING("there has to be a way to have the random values be in the correct range without clamping...")
+                fX = clamp(fX, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
+                fY = clamp(fY, static_cast<float>(-ZirkOscjuceAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscjuceAudioProcessor::s_iDomeRadius));
+                
+            move(fX, fY);
+
+
         }
-	}
-	
+    }
 private:
 	MTRand_int32 mRNG;
 	float mClock;
@@ -756,7 +755,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor
 		case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, in, bReturn, cross);
         case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
             
-//        case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
+//      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
 //		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
 //		case 21: return new SymYTargetTrajectory(filter, duration, beats, times, source);
 //		case 22: return new ClosestSpeakerTargetTrajectory(filter, duration, beats, times, source);
