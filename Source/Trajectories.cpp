@@ -44,42 +44,42 @@ void Trajectory::start()
     ourProcessor->getPlayHead()->getCurrentPosition(cpi);
     
     m_dTrajectoryTimeDone = .0;
-    _TrajectoryBeginTime = .0;
+    m_dTrajectoryBeginTime = .0;
     _TrajectorySingleBeginTime = .0;
     
-    if (_isSyncWTempo) {
+    if (m_bIsSyncWTempo) {
         //convert measure count to a duration
         double dMesureLength = cpi.timeSigNumerator * (4 / cpi.timeSigDenominator) *  60 / cpi.bpm;
-        _TrajectoriesDurationBuffer = m_TotalTrajectoriesDuration * dMesureLength;
+        m_dTrajectoriesDurationBuffer = m_TotalTrajectoriesDuration * dMesureLength;
     } else {
-        _TrajectoriesDurationBuffer = m_TotalTrajectoriesDuration;
+        m_dTrajectoriesDurationBuffer = m_TotalTrajectoriesDuration;
     }
     
-    _TrajectoriesDurationBuffer *= _TrajectoryCount;
-    _TrajectorySingleLength = _TrajectoriesDurationBuffer / _TrajectoryCount;
+    m_dTrajectoriesDurationBuffer *= m_dTrajectoryCount;
+    m_dTrajectorySingleLength = m_dTrajectoriesDurationBuffer / m_dTrajectoryCount;
     
     //get automation started on currently selected source
-    _SelectedSourceForTrajectory = ourProcessor->getSelectedSource();
+    m_iSelectedSourceForTrajectory = ourProcessor->getSelectedSource();
     
     //store initial parameter value
 
         //need to convert this to azim and elev
-        float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
+        float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
         fX       = fX*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
-        float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+        float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
         fY       = fY*2*ZirkOscjuceAudioProcessor::s_iDomeRadius - ZirkOscjuceAudioProcessor::s_iDomeRadius;
         
-        _TrajectoryInitialAzimuth   = SoundSource::XYtoAzim01(fX, fY);
-        _TrajectoryInitialElevation = SoundSource::XYtoElev01(fX, fY);
+        m_fTrajectoryInitialAzimuth   = SoundSource::XYtoAzim01(fX, fY);
+        m_fTrajectoryInitialElevation = SoundSource::XYtoElev01(fX, fY);
     ourProcessor->storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
-    //    _TrajectoriesPhiAsin = asin(_TrajectoryInitialElevation);
-    //    _TrajectoriesPhiAcos = acos(_TrajectoryInitialElevation);
+    //    _TrajectoriesPhiAsin = asin(m_fTrajectoryInitialElevation);
+    //    _TrajectoriesPhiAcos = acos(m_fTrajectoryInitialElevation);
     
     ourProcessor->setIsRecordingAutomation(true);
-    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
-    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
+    ourProcessor->beginParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
 }
 
 bool Trajectory::process(float seconds, float beats)
@@ -93,7 +93,7 @@ bool Trajectory::process(float seconds, float beats)
 		return true;
 	}
 
-	float duration = _isSyncWTempo ? beats : seconds;
+	float duration = m_bIsSyncWTempo ? beats : seconds;
 	spProcess(duration, seconds);
 	
 	mDone += duration;
@@ -113,14 +113,14 @@ void Trajectory::stop()
 	if (!mStarted || mStopped) return;
 	mStopped = true;
 
-    ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (_SelectedSourceForTrajectory*5));
-    ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (_SelectedSourceForTrajectory*5));
+    ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (m_iSelectedSourceForTrajectory*5));
+    ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (m_iSelectedSourceForTrajectory*5));
     ourProcessor->setIsRecordingAutomation(false);
     
     //reset everything
     ourProcessor->restoreCurrentLocations();
     m_dTrajectoryTimeDone = .0;
-    _isWriteTrajectory = false;
+    m_bIsWriteTrajectory = false;
     
     ourProcessor->askForGuiRefresh();
 }
@@ -132,19 +132,23 @@ Trajectory::Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool s
 	mStopped(false),
 	mDone(0),
 	mDurationSingleTrajectory(duration),
-    _TrajectoryCount(times),
-	_isSyncWTempo(syncWTempo)
+    m_dTrajectoryCount(times),
+	m_bIsSyncWTempo(syncWTempo)
 {
 	if (mDurationSingleTrajectory < 0.0001) mDurationSingleTrajectory = 0.0001;
-	if (_TrajectoryCount < 0.0001) _TrajectoryCount = 0.0001;
+	if (m_dTrajectoryCount < 0.0001) m_dTrajectoryCount = 0.0001;
     
-	m_TotalTrajectoriesDuration = mDurationSingleTrajectory * _TrajectoryCount;
+	m_TotalTrajectoriesDuration = mDurationSingleTrajectory * m_dTrajectoryCount;
 }
 
 void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
     float fX, fY;
     SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, fX, fY);
-    ourProcessor->move(_SelectedSourceForTrajectory, fX, fY);
+    ourProcessor->move(m_iSelectedSourceForTrajectory, fX, fY);
+}
+
+void Trajectory::moveXY (const float &p_fNewX, const float &p_fNewY){
+    ourProcessor->move(m_iSelectedSourceForTrajectory, p_fNewX, p_fNewY);
 }
 
 
@@ -161,12 +165,12 @@ protected:
         float newAzimuth;
         float integralPart; //useless here
         
-        newAzimuth = mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - _TrajectoryBeginTime) / _TrajectorySingleLength, &integralPart);
+        newAzimuth = mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - m_dTrajectoryBeginTime) / m_dTrajectorySingleLength, &integralPart);
         
         if (!mCCW) newAzimuth = - newAzimuth;
-        newAzimuth = modf(_TrajectoryInitialAzimuth + newAzimuth, &integralPart);
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth + newAzimuth, &integralPart);
         
-        move(newAzimuth, _TrajectoryInitialElevation);
+        move(newAzimuth, m_fTrajectoryInitialElevation);
 	}
 	
 private:
@@ -174,37 +178,134 @@ private:
 };
 
 // ==============================================================================
+//class PendulumTrajectory : public Trajectory
+//{
+//public:
+//    PendulumTrajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source, bool in, bool rt, bool cross, const std::pair<int, int> &endPoint)
+//	: Trajectory(filter, duration, beats, times, source)
+//    , mIn(in)
+//    , mRT(rt)
+//    , mCross(cross)
+//    , m_iEndPair(endPoint)
+//    {
+//        oldElevationBuffer = -1.f;
+//        
+//        if (mIn)    m_bTrajectoryElevationDecreasing = false;
+//        else        m_bTrajectoryElevationDecreasing = true;
+//    }
+//	
+//protected:
+//	void spInit()
+//	{
+////		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
+////			mSourcesInitRT.add(mFilter->getSourceRT(i));
+//	}
+//	void spProcess(float duration, float seconds)
+//	{
+//        int multiple = mCross ? 2 : 1;
+//        float newElevation = mDone / mDurationSingleTrajectory, integralPart; //this just grows linearly with time from 0 to m_dTrajectoryCount
+//        
+//        if (mRT){
+//            if (mIn){
+//                newElevation = abs( sin(newElevation * multiple * M_PI) );  //varies between [0,1]
+//                newElevation = newElevation * (1-m_fTrajectoryInitialElevation) + m_fTrajectoryInitialElevation; //scale [0,1] to [m_fTrajectoryInitialElevation, 1]
+//
+//                if (mCross && oldElevationBuffer != -1.f){
+//                    //when we get to the top of the dome, we need to get back down
+//                    if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
+//                        (m_fTrajectoryInitialAzimuth > 0.5) ? m_fTrajectoryInitialAzimuth -= .5 : m_fTrajectoryInitialAzimuth += .5;
+//                        m_bTrajectoryElevationDecreasing = true;
+//                    }
+//                    //reset flag m_bTrajectoryElevationDecreasing as we go down
+//                    if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
+//                        m_bTrajectoryElevationDecreasing = false;
+//                    }
+//                }
+//                
+//            } else {
+//                //new way, simply oscilates between m_fTrajectoryInitialElevation and 0
+//                newElevation = abs( m_fTrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
+//            }
+//            
+//        } else {
+//            
+//            newElevation = modf(newElevation, &integralPart); //should be [0,1]
+//            if (mIn){
+//                
+//                if (mCross){
+//                    newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
+//                    newElevation = newElevation * (1 - m_fTrajectoryInitialElevation) + m_fTrajectoryInitialElevation;
+//                    if (oldElevationBuffer != -1.f){
+//                        
+//                        //when we get to the top of the dome, we need to get back down
+//                        if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
+//                            m_fTrajectoryInitialAzimuth > 0.5 ? m_fTrajectoryInitialAzimuth -= .5 : m_fTrajectoryInitialAzimuth += .5;
+//                            m_bTrajectoryElevationDecreasing = true;
+//                        }
+//                        //reset flag m_bTrajectoryElevationDecreasing as we go down
+//                        if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
+//                            m_fTrajectoryInitialAzimuth > 0.5 ? m_fTrajectoryInitialAzimuth -= .5 : m_fTrajectoryInitialAzimuth += .5;
+//                            m_bTrajectoryElevationDecreasing = false;
+//                        }
+//                    }
+//                } else {
+//                    newElevation = newElevation * (1 - m_fTrajectoryInitialElevation) + m_fTrajectoryInitialElevation;
+//                }
+//                
+//                
+//            } else {
+//                newElevation = m_fTrajectoryInitialElevation*(1-newElevation);
+//            }
+//        }
+//        
+//        oldElevationBuffer = newElevation;
+//        
+//        move (m_fTrajectoryInitialAzimuth, newElevation);
+//	}
+//	
+//private:
+//	bool mIn, mRT, mCross;
+//    float oldElevationBuffer;
+//    bool m_bTrajectoryElevationDecreasing;
+//    std::pair<int, int> m_iEndPair;
+//};
+
 class PendulumTrajectory : public Trajectory
 {
 public:
-	PendulumTrajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source, bool in, bool rt, bool cross)
-	: Trajectory(filter, duration, beats, times, source), mIn(in), mRT(rt), mCross(cross) {
+    PendulumTrajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source, bool in, bool rt, bool cross, const std::pair<int, int> &endPoint)
+    : Trajectory(filter, duration, beats, times, source)
+    , mIn(in)
+    , mRT(rt)
+    , mCross(cross)
+    , m_iEndPair(endPoint)
+    {
         oldElevationBuffer = -1.f;
         
         if (mIn)    m_bTrajectoryElevationDecreasing = false;
         else        m_bTrajectoryElevationDecreasing = true;
     }
-	
+    
 protected:
-	void spInit()
-	{
-//		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-//			mSourcesInitRT.add(mFilter->getSourceRT(i));
-	}
-	void spProcess(float duration, float seconds)
-	{
+    void spInit()
+    {
+        //		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
+        //			mSourcesInitRT.add(mFilter->getSourceRT(i));
+    }
+    void spProcess(float duration, float seconds)
+    {
         int multiple = mCross ? 2 : 1;
-        float newElevation = mDone / mDurationSingleTrajectory, integralPart; //this just grows linearly with time from 0 to _TrajectoryCount
+        float newElevation = mDone / mDurationSingleTrajectory, integralPart; //this just grows linearly with time from 0 to m_dTrajectoryCount
         
         if (mRT){
             if (mIn){
                 newElevation = abs( sin(newElevation * multiple * M_PI) );  //varies between [0,1]
-                newElevation = newElevation * (1-_TrajectoryInitialElevation) + _TrajectoryInitialElevation; //scale [0,1] to [_TrajectoryInitialElevation, 1]
-
+                newElevation = newElevation * (1-m_fTrajectoryInitialElevation) + m_fTrajectoryInitialElevation; //scale [0,1] to [m_fTrajectoryInitialElevation, 1]
+                
                 if (mCross && oldElevationBuffer != -1.f){
                     //when we get to the top of the dome, we need to get back down
                     if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
-                        (_TrajectoryInitialAzimuth > 0.5) ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                        (m_fTrajectoryInitialAzimuth > 0.5) ? m_fTrajectoryInitialAzimuth -= .5 : m_fTrajectoryInitialAzimuth += .5;
                         m_bTrajectoryElevationDecreasing = true;
                     }
                     //reset flag m_bTrajectoryElevationDecreasing as we go down
@@ -214,8 +315,8 @@ protected:
                 }
                 
             } else {
-                //new way, simply oscilates between _TrajectoryInitialElevation and 0
-                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
+                //new way, simply oscilates between m_fTrajectoryInitialElevation and 0
+                newElevation = abs( m_fTrajectoryInitialElevation * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
         } else {
@@ -225,47 +326,47 @@ protected:
                 
                 if (mCross){
                     newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
-                    newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                    newElevation = newElevation * (1 - m_fTrajectoryInitialElevation) + m_fTrajectoryInitialElevation;
                     if (oldElevationBuffer != -1.f){
                         
                         //when we get to the top of the dome, we need to get back down
                         if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
-                            _TrajectoryInitialAzimuth > 0.5 ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                            m_fTrajectoryInitialAzimuth > 0.5 ? m_fTrajectoryInitialAzimuth -= .5 : m_fTrajectoryInitialAzimuth += .5;
                             m_bTrajectoryElevationDecreasing = true;
                         }
                         //reset flag m_bTrajectoryElevationDecreasing as we go down
                         if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
-                            _TrajectoryInitialAzimuth > 0.5 ? _TrajectoryInitialAzimuth -= .5 : _TrajectoryInitialAzimuth += .5;
+                            m_fTrajectoryInitialAzimuth > 0.5 ? m_fTrajectoryInitialAzimuth -= .5 : m_fTrajectoryInitialAzimuth += .5;
                             m_bTrajectoryElevationDecreasing = false;
                         }
                     }
                 } else {
-                    newElevation = newElevation * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;
+                    newElevation = newElevation * (1 - m_fTrajectoryInitialElevation) + m_fTrajectoryInitialElevation;
                 }
                 
                 
             } else {
-                newElevation = _TrajectoryInitialElevation*(1-newElevation);
+                newElevation = m_fTrajectoryInitialElevation*(1-newElevation);
             }
         }
         
         oldElevationBuffer = newElevation;
         
-        move (_TrajectoryInitialAzimuth, newElevation);
-	}
-	
+        move (m_fTrajectoryInitialAzimuth, newElevation);
+    }
+    
 private:
-//	Array<FPoint> mSourcesInitRT;
-	bool mIn, mRT, mCross;
+    bool mIn, mRT, mCross;
     float oldElevationBuffer;
     bool m_bTrajectoryElevationDecreasing;
+    std::pair<int, int> m_iEndPair;
 };
 
 // ==============================================================================
 class SpiralTrajectory : public Trajectory
 {
 public:
-    SpiralTrajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool in, bool rt)
+    SpiralTrajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool in, bool rt, const std::pair<int, int> &endPoint)
     : Trajectory(filter, duration, beats, times, source), mCCW(ccw), mIn(in), mRT(rt) {}
     
 protected:
@@ -285,9 +386,9 @@ protected:
         //UP AND DOWN SPIRAL
         if (mRT){
             if (mIn){
-                newElevation = abs( (1 - _TrajectoryInitialElevation) * sin(newElevation * M_PI) ) + _TrajectoryInitialElevation;
+                newElevation = abs( (1 - m_fTrajectoryInitialElevation) * sin(newElevation * M_PI) ) + m_fTrajectoryInitialElevation;
             } else {
-                newElevation = abs( _TrajectoryInitialElevation * cos(newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
+                newElevation = abs( m_fTrajectoryInitialElevation * cos(newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
             if (!mCCW) theta = -theta;
@@ -296,14 +397,14 @@ protected:
         } else {
             
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-            newElevation = theta * (1 - _TrajectoryInitialElevation) + _TrajectoryInitialElevation;         //newElevation is a mapping of theta[0,1] to [_TrajectoryInitialElevation, 1]
+            newElevation = theta * (1 - m_fTrajectoryInitialElevation) + m_fTrajectoryInitialElevation;         //newElevation is a mapping of theta[0,1] to [m_fTrajectoryInitialElevation, 1]
             
             if (!mIn)
-                newElevation = _TrajectoryInitialElevation * (1 - newElevation) / (1-_TrajectoryInitialElevation);  //map newElevation from [_TrajectoryInitialElevation, 1] to [_TrajectoryInitialElevation, 0]
+                newElevation = m_fTrajectoryInitialElevation * (1 - newElevation) / (1-m_fTrajectoryInitialElevation);  //map newElevation from [m_fTrajectoryInitialElevation, 1] to [m_fTrajectoryInitialElevation, 0]
             
             if (!mCCW) theta = -theta;
         }
-        newAzimuth = modf(_TrajectoryInitialAzimuth + theta, &integralPart);                        //this is like adding a to theta
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth + theta, &integralPart);                        //this is like adding a to theta
         move(newAzimuth, newElevation);
     }
     
@@ -330,13 +431,13 @@ protected:
     {
         
         float integralPart; //useless here
-        float theta = mDone / mDurationSingleTrajectory;   //goes from 0 to _TrajectoryCount
-        theta = modf(theta, &integralPart); //does 0 -> 1 for _TrajectoryCount times
+        float theta = mDone / mDurationSingleTrajectory;   //goes from 0 to m_dTrajectoryCount
+        theta = modf(theta, &integralPart); //does 0 -> 1 for m_dTrajectoryCount times
         if (!mCCW) theta = -theta;
         
-        float newAzimuth = _TrajectoryInitialAzimuth + theta;
+        float newAzimuth = m_fTrajectoryInitialAzimuth + theta;
         
-        float newElevation = _TrajectoryInitialElevation + (1-_TrajectoryInitialElevation)/2 * abs(sin(theta * 2 * M_PI));
+        float newElevation = m_fTrajectoryInitialElevation + (1-m_fTrajectoryInitialElevation)/2 * abs(sin(theta * 2 * M_PI));
         
         move(newAzimuth, newElevation);
     }
@@ -412,14 +513,14 @@ protected:
 //            mClock -= 0.01;
 //            if (ZirkOscjuceAudioProcessor::s_bUseXY){
 //
-//                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
-//                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+//                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
+//                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
 //                
 //                SoundSource::XY01toAzimElev01(fX, fY, fAzimuth, fElevation);
 //                
 //            } else {
-//                fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
-//                fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+//                fAzimuth  = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
+//                fElevation= ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
 //            }
 //            float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
 //            float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
@@ -440,8 +541,8 @@ protected:
             float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
 
                 
-                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + _SelectedSourceForTrajectory*5);
-                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + _SelectedSourceForTrajectory*5);
+                float fX = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
+                float fY = ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
                 
                 fX += (r1 - 0.5) * mSpeed;
                 fY += (r2 - 0.5) * mSpeed;
@@ -692,9 +793,11 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_i
     return vReturns;
 }
 
-Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source)
+
+Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction,
+                                             bool bReturn, float times, int source, const std::pair<int,int> &endPair)
 {
-   
+    
     bool ccw, in, cross;
     float speed;
     
@@ -745,26 +848,24 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscjuceAudioProcessor
         default:
             break;
     }
-
     
-	switch(type)
-	{
-		case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw);
-		case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw);
-		case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, in, bReturn);
-		case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, in, bReturn, cross);
+    
+    switch(type)
+    {
+        case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw);
+        case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw);
+        case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, in, bReturn, endPair);
+        case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, in, bReturn, cross, endPair);
         case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
             
-//      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
-//		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
-//		case 21: return new SymYTargetTrajectory(filter, duration, beats, times, source);
-//		case 22: return new ClosestSpeakerTargetTrajectory(filter, duration, beats, times, source);
-	}
-	jassert(0);
-	return NULL;
+            //      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
+            //		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
+            //		case 21: return new SymYTargetTrajectory(filter, duration, beats, times, source);
+            //		case 22: return new ClosestSpeakerTargetTrajectory(filter, duration, beats, times, source);
+    }
+    jassert(0);
+    return NULL;
 }
-
-
 
 
 

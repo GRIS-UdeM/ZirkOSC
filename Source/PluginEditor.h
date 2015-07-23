@@ -159,6 +159,10 @@ private:
     
     TextButton* m_pWriteTrajectoryButton;
     
+    TextButton* m_pEndTrajectoryButton;
+    
+    std::pair <int, int> m_iEndLocationPair;
+    
     Label* m_pTrajectoryCountLabel;
     
     Label* m_pTrajectoryDurationLabel;

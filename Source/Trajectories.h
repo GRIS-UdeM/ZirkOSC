@@ -39,7 +39,7 @@ public:
 
 	static int NumberOfTrajectories();
 	static String GetTrajectoryName(int i);
-	static Trajectory::Ptr CreateTrajectory(int i, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source);
+    static Trajectory::Ptr CreateTrajectory(int i, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source, const std::pair<int,int> &endPoint);
 	
 public:
 	virtual ~Trajectory() {
@@ -59,6 +59,7 @@ protected:
 	virtual void spInit() {}
 	virtual void spProcess(float duration, float seconds) = 0;
     void move (const float &newAzimuth, const float &newElevation);
+    void moveXY (const float &p_fNewX, const float &p_fNewY);
 	
 private:
 	void start();
@@ -75,34 +76,32 @@ protected:
     float mDurationSingleTrajectory;
     
     //! Number of trajectories to draw in trajectory section
-    double _TrajectoryCount;
+    double m_dTrajectoryCount;
     
     //! Duration of trajectory movement
     double m_TotalTrajectoriesDuration;
     
-    double _TrajectoriesDurationBuffer;
+    double m_dTrajectoriesDurationBuffer;
     
     //    double _TrajectoriesPhiAsin;
     //  double _TrajectoriesPhiAcos;
     
-    double _TrajectoryBeginTime;
+    double m_dTrajectoryBeginTime;
     
-    double _TrajectorySingleBeginTime;
+    float m_fTrajectoryInitialAzimuth;
     
-    float _TrajectoryInitialAzimuth;
+    float m_fTrajectoryInitialElevation;
     
-    float _TrajectoryInitialElevation;
-    
-    double _TrajectorySingleLength;
+    double m_dTrajectorySingleLength;
     
     double m_dTrajectoryTimeDone;
     
     //!Whether to sync trajectories with tempo
-    bool _isSyncWTempo;
+    bool m_bIsSyncWTempo;
     //!Whether to write trajectory or not
-    bool _isWriteTrajectory;
+    bool m_bIsWriteTrajectory;
     
-    int _SelectedSourceForTrajectory;
+    int m_iSelectedSourceForTrajectory;
 };
 
 #endif  // TRAJECTORIES_H_INCLUDED

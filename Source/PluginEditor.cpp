@@ -156,6 +156,8 @@ class TrajectoryTab : public Component{
     
     TextButton* m_pWriteButton;
     
+    TextButton* m_pEndButton;
+    
     MiniProgressBar* mTrProgressBarTab;
     
     OwnedArray<Component> components;
@@ -186,6 +188,7 @@ public:
         m_pDurationTextEditor   = addToList (new TextEditor());
         
         m_pWriteButton          = addToList(new TextButton());
+        m_pEndButton            = addToList(new TextButton());
         
         mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
@@ -203,6 +206,7 @@ public:
     TextEditor*     getDurationTextEditor(){return m_pDurationTextEditor;}
     
     TextButton*     getWriteButton(){       return m_pWriteButton;}
+    TextButton*     getEndButton(){         return m_pEndButton;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -417,7 +421,7 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     
     //NBR TRAJECTORY TEXT EDITOR
     m_pTrajectoryCountTextEditor = m_oTrajectoryTab->getCountTextEditor();
-    m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
+    m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
     m_pTrajectoryCountTextEditor->addListener(this);
     m_pTrajectoryCountLabel = m_oTrajectoryTab->getCountLabel();
     m_pTrajectoryCountLabel->setText("cycle(s)",  dontSendNotification);
@@ -436,6 +440,12 @@ ZirkOscjuceAudioProcessorEditor::ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAud
     m_pWriteTrajectoryButton->setToggleState(ourProcessor->getIsWriteTrajectory(), dontSendNotification);
     m_pWriteTrajectoryButton->addListener(this);
 
+    //END TRAJECTORY BUTTON
+    m_pEndTrajectoryButton = m_oTrajectoryTab->getEndButton();
+    m_pEndTrajectoryButton->setButtonText("Set end point");
+    m_pEndTrajectoryButton->setClickingTogglesState(true);
+    m_pEndTrajectoryButton->addListener(this);
+    
     //PROGRESS BAR
     mTrProgressBar = m_oTrajectoryTab->getProgressBar();
     mTrProgressBar->setVisible(false);
@@ -596,10 +606,8 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     int iYRadius = (iCurHeight-ZirkOSC_SlidersGroupHeight-10)/2;
     ZirkOscjuceAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
     
-    
     //------------ CONSTRAINT COMBO BOX ------------
     _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight - ZirkOSC_SlidersGroupHeight - ZirkOSC_ConstraintComboBoxHeight+20, 220, ZirkOSC_ConstraintComboBoxHeight);
-    
     
     //------------ TABS ------------
     _TabComponent.setBounds(0, iCurHeight - ZirkOSC_SlidersGroupHeight + ZirkOSC_ConstraintComboBoxHeight, iCurWidth, ZirkOSC_SlidersGroupHeight);
@@ -623,16 +631,17 @@ void ZirkOscjuceAudioProcessorEditor::resized() {
     m_pTrajectoryCountTextEditor->      setBounds(15,           15+50, 230, 25);
     m_pTrajectoryCountLabel->           setBounds(15+230,       15+50, 75,  25);
 
+    m_pEndTrajectoryButton->            setBounds(15,           15+75, 100, 25);
+    
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
     
     //------------ INTERFACES ------------
-    m_pTBEnableLeap                     ->setBounds(15, 15, 100, 25);
-    m_pCBLeapSource                     ->setBounds(15, 15+25, 100, 25);
-    m_pTBEnableJoystick                     ->setBounds(15, 15+50, 100, 25);
-    
-    m_pLBLeapState->setBounds(15+100, 15, 200, 25);
-    m_pLBJoystickState->setBounds(15+100, 15+50, 200,25 );
+    m_pTBEnableLeap->                   setBounds(15,       15,     100, 25);
+    m_pCBLeapSource->                   setBounds(15,       15+25,  100, 25);
+    m_pTBEnableJoystick->               setBounds(15,       15+50,  100, 25);
+    m_pLBLeapState->                    setBounds(15+100,   15,     200, 25);
+    m_pLBJoystickState->                setBounds(15+100,   15+50,  200, 25 );
 
 }
 
@@ -930,7 +939,7 @@ void ZirkOscjuceAudioProcessorEditor::refreshGui(){
     }
     
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
-    m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
+    m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
     m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     
 //    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
@@ -978,7 +987,7 @@ void ZirkOscjuceAudioProcessorEditor::buttonClicked (Button* button){
             float repeats = m_pTrajectoryCountTextEditor->getText().getFloatValue();
             int source = ourProcessor->getSelectedSource();
             
-            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source));
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, m_iEndLocationPair));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
             mTrState = kTrWriting;
@@ -1265,13 +1274,20 @@ void ZirkOscjuceAudioProcessorEditor::mouseUp (const MouseEvent &event){
         return;
     }
     
-    if(_isSourceBeingDragged){
+    else if(_isSourceBeingDragged){
         int selectedSource = ourProcessor->getSelectedSource();
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId+ selectedSource*5);
         ourProcessor->endParameterChangeGesture(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + selectedSource*5);
         ourProcessor->setIsRecordingAutomation(false);
         _isSourceBeingDragged = false;
     }
+    
+    //if assigning end location
+    else if (m_pEndTrajectoryButton->getToggleState() &&  event.x>5 && event.x <20+ZirkOscjuceAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscjuceAudioProcessor::s_iDomeRadius*2) {
+        m_iEndLocationPair = make_pair (event.x, event.y);
+        cout << "location end: (" << m_iEndLocationPair.first << ", " << m_iEndLocationPair.second << ")\n";
+    }
+
     _MovementConstraintComboBox.grabKeyboardFocus();
 }
 
@@ -1363,10 +1379,10 @@ void ZirkOscjuceAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &te
     else if(m_pTrajectoryCountTextEditor == &textEditor ){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue >= 0 && doubleValue < 10000){
-            ourProcessor->setParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId, doubleValue);
+            ourProcessor->setParameter(ZirkOscjuceAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId, doubleValue);
 
         }
-        m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_TrajectoryCount_ParamId)));
+        m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscjuceAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
     }
     
     else if(m_pTrajectoryDurationTextEditor == &textEditor){

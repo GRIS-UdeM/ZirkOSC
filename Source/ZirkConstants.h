@@ -67,8 +67,8 @@ const String ZirkOSC_SelectedTrajectoryDirection_name = "SelectedTrajectoryDirec
 const String ZirkOSC_SelectedTrajectoryReturn_name = "SelectedTrajectoryReturn";
 const String ZirkOSC_NbrTrajectories_name = "NbrTrajectories";
 const String ZirkOSC_DurationTrajectories_name = "DurationTrajectories";
-const String ZirkOSC_isSyncWTempo_name = "SyncWTempo";
-const String ZirkOSC_isWriteTrajectory_name = "WriteTrajectory";
+const String ZirkOSCm_bIsSyncWTempo_name = "SyncWTempo";
+const String ZirkOSCm_bIsWriteTrajectory_name = "WriteTrajectory";
 
 const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 

@@ -55,13 +55,13 @@ _NbrSources(1)
 ,_OscPortZirkonium(18032)
 ,_isOscActive(true)
 ,_isSpanLinked(true)
-,_TrajectoryCount(0)
+,m_dTrajectoryCount(0)
 ,_TrajectoriesDuration(0)
 //,_TrajectoriesPhiAsin(0)
 //,_TrajectoriesPhiAcos(0)
-,_isSyncWTempo(false)
-,_isWriteTrajectory(false)
-,_SelectedSourceForTrajectory(0)
+,m_bIsSyncWTempo(false)
+,m_bIsWriteTrajectory(false)
+,m_iSelectedSourceForTrajectory(0)
 ,m_iSourceLocationChanged(-1)
 ,m_bCurrentlyPlaying(false)
 ,m_bIsEqualElev(false)
@@ -389,7 +389,7 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             bool done = trajectory->process(seconds, beats);
             if (done){
                 mTrajectory = NULL;
-                _isWriteTrajectory = false;
+                m_bIsWriteTrajectory = false;
             }
         }
     }
@@ -495,11 +495,11 @@ void ZirkOscjuceAudioProcessor::releaseResources()
 }
 
 void ZirkOscjuceAudioProcessor::setSelectedSourceForTrajectory(int iSelectedSource){
-    _SelectedSourceForTrajectory = iSelectedSource;
+    m_iSelectedSourceForTrajectory = iSelectedSource;
 }
 
 int ZirkOscjuceAudioProcessor::getSelectedSourceForTrajectory(){
-    return _SelectedSourceForTrajectory;
+    return m_iSelectedSourceForTrajectory;
 }
 
 //==============================================================================
@@ -546,11 +546,11 @@ bool ZirkOscjuceAudioProcessor::getIsOscActive(){
 }
 
 void ZirkOscjuceAudioProcessor::setIsSyncWTempo(bool isSyncWTempo){
-    _isSyncWTempo = isSyncWTempo;
+    m_bIsSyncWTempo = isSyncWTempo;
 }
 
 bool ZirkOscjuceAudioProcessor::getIsSyncWTempo(){
-    return _isSyncWTempo;
+    return m_bIsSyncWTempo;
 }
 
 
@@ -563,11 +563,11 @@ bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
 }
 
 void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
-    _isWriteTrajectory = isWriteTrajectory;
+    m_bIsWriteTrajectory = isWriteTrajectory;
 }
 
 bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){
-    return _isWriteTrajectory;
+    return m_bIsWriteTrajectory;
 }
 
 //==============================================================================
@@ -605,17 +605,17 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
             return m_fSelectedTrajectoryDirection;
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
             return m_fSelectedTrajectoryReturn;
-        case ZirkOSC_TrajectoryCount_ParamId:
-            return _TrajectoryCount;
+        case ZirkOSCm_dTrajectoryCount_ParamId:
+            return m_dTrajectoryCount;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             return _TrajectoriesDuration;
         case ZirkOSC_SyncWTempo_ParamId:
-            if (_isSyncWTempo)
+            if (m_bIsSyncWTempo)
                 return 1.0f;
             else
                 return 0.0f;
         case ZirkOSC_WriteTrajectories_ParamId:
-            if (_isWriteTrajectory)
+            if (m_bIsWriteTrajectory)
                 return 1.0f;
             else
                 return 0.0f;
@@ -676,23 +676,23 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
             m_fSelectedTrajectoryReturn = newValue;
             return;
             
-        case ZirkOSC_TrajectoryCount_ParamId:
-            _TrajectoryCount = newValue;
+        case ZirkOSCm_dTrajectoryCount_ParamId:
+            m_dTrajectoryCount = newValue;
             return;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             _TrajectoriesDuration = newValue;
             return;
         case ZirkOSC_SyncWTempo_ParamId:
             if (newValue > .5f)
-                _isSyncWTempo = true;
+                m_bIsSyncWTempo = true;
             else
-                _isSyncWTempo = false;
+                m_bIsSyncWTempo = false;
             return;
         case ZirkOSC_WriteTrajectories_ParamId:
             if (newValue > .5f)
-                _isWriteTrajectory = true;
+                m_bIsWriteTrajectory = true;
             else
-                _isWriteTrajectory = false;
+                m_bIsWriteTrajectory = false;
             return;
     }
 
@@ -747,14 +747,14 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
             return ZirkOSC_SelectedTrajectoryDirection_name;
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
             return ZirkOSC_SelectedTrajectoryReturn_name;
-        case ZirkOSC_TrajectoryCount_ParamId:
+        case ZirkOSCm_dTrajectoryCount_ParamId:
             return ZirkOSC_NbrTrajectories_name;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             return ZirkOSC_DurationTrajectories_name;
         case ZirkOSC_SyncWTempo_ParamId:
-            return ZirkOSC_isSyncWTempo_name;
+            return ZirkOSCm_bIsSyncWTempo_name;
         case ZirkOSC_WriteTrajectories_ParamId:
-            return ZirkOSC_isWriteTrajectory_name;
+            return ZirkOSCm_bIsWriteTrajectory_name;
     }
     
     
@@ -789,10 +789,10 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("isSpanLinked", _isSpanLinked);
     xml.setAttribute("isOscActive", _isOscActive);
     xml.setAttribute("selectedTrajectory", _SelectedTrajectory);
-    xml.setAttribute("nbrTrajectory", _TrajectoryCount);
+    xml.setAttribute("nbrTrajectory", m_dTrajectoryCount);
     xml.setAttribute("durationTrajectory", _TrajectoriesDuration);
-    xml.setAttribute("isSyncWTempo", _isSyncWTempo);
-    xml.setAttribute("isWriteTrajectory", _isWriteTrajectory);
+    xml.setAttribute("isSyncWTempo", m_bIsSyncWTempo);
+    xml.setAttribute("isWriteTrajectory", m_bIsWriteTrajectory);
     xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
     xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
     xml.setAttribute("presetDataVersion", s_kiDataVersion);
@@ -860,10 +860,10 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         _isOscActive                    = xmlState->getBoolAttribute("isOscActive", true);
         _isSpanLinked                   = xmlState->getBoolAttribute("isSpanLinked", false);
         _SelectedTrajectory             = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
-        _TrajectoryCount                = xmlState->getIntAttribute("nbrTrajectory", 0);
+        m_dTrajectoryCount                = xmlState->getIntAttribute("nbrTrajectory", 0);
         _TrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
-        _isSyncWTempo                   = xmlState->getBoolAttribute("isSyncWTempo", false);
-        _isWriteTrajectory              = xmlState->getBoolAttribute("isWriteTrajectory", false);
+        m_bIsSyncWTempo                   = xmlState->getBoolAttribute("isSyncWTempo", false);
+        m_bIsWriteTrajectory              = xmlState->getBoolAttribute("isWriteTrajectory", false);
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
             String channel      = "Channel" + to_string(iCurSrc);

@@ -207,7 +207,7 @@ public:
         ZirkOSC_SelectedTrajectory_ParamId,
         ZirkOSC_SelectedTrajectoryDirection_ParamId,
         ZirkOSC_SelectedTrajectoryReturn_ParamId,
-        ZirkOSC_TrajectoryCount_ParamId,
+        ZirkOSCm_dTrajectoryCount_ParamId,
         ZirkOSC_TrajectoriesDuration_ParamId,
         ZirkOSC_SyncWTempo_ParamId,
         ZirkOSC_WriteTrajectories_ParamId,
@@ -342,18 +342,18 @@ private:
     //OLD TRAJECTORIES
     
     //! Number of trajectories to draw in trajectory section
-    double _TrajectoryCount;
+    double m_dTrajectoryCount;
     
     //! Duration of trajectory movement
     double _TrajectoriesDuration;
     
     //!Whether to sync trajectories with tempo
-    bool _isSyncWTempo;
+    bool m_bIsSyncWTempo;
     
     //!Whether to write trajectory or not
-    bool _isWriteTrajectory;
+    bool m_bIsWriteTrajectory;
     
-    int _SelectedSourceForTrajectory;
+    int m_iSelectedSourceForTrajectory;
     
     Trajectory::Ptr mTrajectory;
     
