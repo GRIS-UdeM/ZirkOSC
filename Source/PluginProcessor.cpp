@@ -172,8 +172,6 @@ void ZirkOscjuceAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const
 
 void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsElevEqual){
     
-    cout << "movecircular" << newLine;
-    
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01;
     
     //calculate old coordinates for selected source.
@@ -189,9 +187,6 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     //calculate deltas for selected source.
     float fSelectedDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
     float fSelectedDeltaElev01 = fSelectedNewElev01 - fSelectedOldElev01;
-    if (fSelectedDeltaAzim01 == 0 && fSelectedDeltaElev01 ==0){
-        cout << "move circular no delta" << newLine;
-    }
     
     //move non-selected sources using the deltas
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
