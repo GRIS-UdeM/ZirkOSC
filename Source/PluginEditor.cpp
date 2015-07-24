@@ -746,11 +746,15 @@ void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g){
 void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
     float fX, fY;
     int iXOffset = 0, iYOffset = 0;
-    g.setColour(Colours::black);
     
     for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
         
         ourProcessor->getSources()[i].getXY(fX, fY);
+        if (ourProcessor->getSources()[i].isAzimReverse()){
+            g.setColour(Colours::red);
+        } else {
+            g.setColour(Colours::black);
+        }
         
         float fCurR = hypotf(fX, fY);
         if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){

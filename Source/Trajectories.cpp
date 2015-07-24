@@ -270,41 +270,53 @@ class PendulumTrajectory : public Trajectory
 public:
     PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool in, bool rt, bool cross, const std::pair<float, float> &endPoint)
     : Trajectory(filter, duration, beats, times, source)
-    , mIn(in)
-    , mRT(rt)
-    , mCross(cross)
+    , m_bIn(in)
+    , m_bRT(rt)
+    , m_bCross(cross)
     , m_fEndPair(endPoint)
     {
         oldElevationBuffer = -1.f;
         
-        if (mIn)    m_bTrajectoryElevationDecreasing = false;
+        if (m_bIn)    m_bTrajectoryElevationDecreasing = false;
         else        m_bTrajectoryElevationDecreasing = true;
     }
     
 protected:
     void spInit()
     {
-        m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
-        m_fB = m_fStartPair.second - m_fM * m_fStartPair.first;
+        if (m_fEndPair.first != m_fStartPair.first){
+            m_bYisDependent = true;
+            m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
+            m_fB = m_fStartPair.second - m_fM * m_fStartPair.first;
+        } else {
+            m_bYisDependent = false;
+            m_fM = 0;
+            m_fB = m_fStartPair.first;
+        }
+        
+        
         m_fDistance = hypot(m_fEndPair.first - m_fStartPair.first, m_fEndPair.second - m_fStartPair.second);
         
     }
     void spProcess(float duration, float seconds)
     {
-        float fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to m_dTrajectoryCount
         
-        float newX = m_fStartPair.first + fCurrentProgress;
-        if (newX > m_fEndPair.first){
-            int i = 0;
+        float newX, newY, fCurrentProgress;
+        if (m_bYisDependent){
+            fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to m_dTrajectoryCount
+            newX = m_fStartPair.first + fCurrentProgress;
+            newY = m_fM * newX + m_fB;
+        } else {
+            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to m_dTrajectoryCount
+            newX = m_fStartPair.first;
+            newY = m_fStartPair.second + fCurrentProgress;
         }
-        float newY = m_fM * newX + m_fB;
-
         
         moveXY (newX, newY);
     }
     
 private:
-    bool mIn, mRT, mCross;
+    bool m_bIn, m_bRT, m_bCross, m_bYisDependent;
     float oldElevationBuffer;
     bool m_bTrajectoryElevationDecreasing;
     std::pair<float, float> m_fEndPair;
