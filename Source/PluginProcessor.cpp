@@ -367,7 +367,7 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
     if (cpi.isPlaying){
         m_bCurrentlyPlaying = true;
     } else {
-        m_bCurrentlyPlaying = true;
+        m_bCurrentlyPlaying = false;
     }
     
     Trajectory::Ptr trajectory = mTrajectory;
