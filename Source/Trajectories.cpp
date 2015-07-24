@@ -174,27 +174,7 @@ private:
 
 // ==============================================================================
 //class PendulumTrajectory : public Trajectory
-//{
-//public:
-//    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool in, bool rt, bool cross, const std::pair<int, int> &endPoint)
-//	: Trajectory(filter, duration, beats, times, source)
-//    , mIn(in)
-//    , mRT(rt)
-//    , mCross(cross)
-//    , m_fEndPair(endPoint)
-//    {
-//        oldElevationBuffer = -1.f;
-//        
-//        if (mIn)    m_bTrajectoryElevationDecreasing = false;
-//        else        m_bTrajectoryElevationDecreasing = true;
-//    }
-//	
-//protected:
-//	void spInit()
-//	{
-////		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-////			mSourcesInitRT.add(mFilter->getSourceRT(i));
-//	}
+
 //	void spProcess(float duration, float seconds)
 //	{
 //        int multiple = mCross ? 2 : 1;
@@ -257,13 +237,7 @@ private:
 //        
 //        move (m_fTrajectoryInitialAzimuth01, newElevation);
 //	}
-//	
-//private:
-//	bool mIn, mRT, mCross;
-//    float oldElevationBuffer;
-//    bool m_bTrajectoryElevationDecreasing;
-//    std::pair<int, int> m_fEndPair;
-//};
+
 
 class PendulumTrajectory : public Trajectory
 {
@@ -301,20 +275,21 @@ protected:
     void spProcess(float duration, float seconds)
     {
         
-        float newX, newY, fCurrentProgress;
+        float newX, newY, temp, fCurrentProgress = modf((mDone / mDurationSingleTrajectory), &temp);
         if (m_bYisDependent){
-            
             if (m_bUseCosine){
-
-                fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos((mDone / mDurationSingleTrajectory) * M_PI_2));
-                cout << "fCurrentProgress after" << fCurrentProgress << newLine;
+                fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fCurrentProgress * M_PI_2));
             } else {
-                fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to.... (m_fEndPair.first - m_fStartPair.first)???
+                fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to m_dTrajectoryCount * (m_fEndPair.first - m_fStartPair.first)
             }
             newX = m_fStartPair.first + fCurrentProgress;
             newY = m_fM * newX + m_fB;
         } else {
-            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * mDone / mDurationSingleTrajectory;
+            if (m_bUseCosine){
+                fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * (1-cos((mDone / mDurationSingleTrajectory) * M_PI_2));
+            } else {
+                fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * mDone / mDurationSingleTrajectory;
+            }
             newX = m_fStartPair.first;
             newY = m_fStartPair.second + fCurrentProgress;
         }
