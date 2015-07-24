@@ -74,6 +74,7 @@
 		AF2ACDAFF91509E99ECBB26C /* ZirkLeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EE1B863AE4E08B04FFBBD4D0 /* ZirkLeap.cpp */; };
 		B0D952037F7FD33E9F39D897 /* AUCarbonViewControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B123575C9584AF53FFDDE18A /* AUCarbonViewControl.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		B11600F51CA9DF5D39DC8A96 /* AUBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F95A28A27D3AD58BCC492B7 /* AUBuffer.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		B161A6EB1B62EB88004B17D5 /* libLeap.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = B161A6EA1B62EB88004B17D5 /* libLeap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B2CF11ACAB879226E5251AA3 /* HID_Error_Handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B755C85B0B087E530A7BA68 /* HID_Error_Handler.cpp */; };
 		B2FCA89AD259F0CB9D568911 /* HID_Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF1CB688A2F18AA12A9142A0 /* HID_Utilities.cpp */; };
 		B3BCB64DEFC14ED9C73AE1D0 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F56DFCBE2E928A0F56D3C75 /* QTKit.framework */; };
@@ -98,6 +99,19 @@
 		F7B755A0A93AEBD7614AE4D5 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 883DF696460D914404CCC4AA /* Carbon.framework */; };
 		FEA100570230750E15390CCF /* pattern_match.c in Sources */ = {isa = PBXBuildFile; fileRef = BA85D240BA985D37722CE57C /* pattern_match.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B161A6E91B62EB73004B17D5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				B161A6EB1B62EB88004B17D5 /* libLeap.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		001A76FB0FD2292DC1C327D7 /* juce_win32_Files.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_win32_Files.cpp; path = ../../JuceLibraryCode/modules/juce_core/native/juce_win32_Files.cpp; sourceTree = SOURCE_ROOT; };
@@ -792,6 +806,7 @@
 		B074823B8FF5D03088E9BD40 /* SoundSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SoundSource.cpp; path = ../../Source/SoundSource.cpp; sourceTree = SOURCE_ROOT; };
 		B0DC7F40F9DB07977AEE7FF2 /* juce_RelativePoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_RelativePoint.h; path = ../../JuceLibraryCode/modules/juce_gui_basics/positioning/juce_RelativePoint.h; sourceTree = SOURCE_ROOT; };
 		B123575C9584AF53FFDDE18A /* AUCarbonViewControl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AUCarbonViewControl.cpp; path = Extras/CoreAudio/AudioUnits/AUPublic/AUCarbonViewBase/AUCarbonViewControl.cpp; sourceTree = DEVELOPER_DIR; };
+		B161A6EA1B62EB88004B17D5 /* libLeap.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libLeap.dylib; sourceTree = "<group>"; };
 		B170031E792899D96FE3E438 /* lo_throw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lo_throw.h; path = ../../liblo/lo/lo_throw.h; sourceTree = SOURCE_ROOT; };
 		B176A28B06E66C3350CBF817 /* juce_TextPropertyComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_TextPropertyComponent.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/properties/juce_TextPropertyComponent.cpp; sourceTree = SOURCE_ROOT; };
 		B185D1EB36F8E576C79AAECE /* CAAudioChannelLayout.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CAAudioChannelLayout.cpp; path = Extras/CoreAudio/PublicUtility/CAAudioChannelLayout.cpp; sourceTree = DEVELOPER_DIR; };
@@ -2885,6 +2900,7 @@
 		E1B83B44B1B770D8A9791CF3 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				B161A6EA1B62EB88004B17D5 /* libLeap.dylib */,
 				DA8A28B737DDFAC1313A74EC /* ZirkOSC */,
 				CF17D5EB7EF3F2828D087C14 /* Juce Modules */,
 				AC5859AF3102E03F76ECE0B1 /* Juce Library Code */,
@@ -3066,6 +3082,7 @@
 				96DF6391A7BB58699CC5BE63 /* Sources */,
 				44EBF758515C7CAB2926117B /* Frameworks */,
 				5E70BBE3B5A870A974756754 /* Post-build script */,
+				B161A6E91B62EB73004B17D5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -3083,7 +3100,7 @@
 		53E060E2F423652634CA95A8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0640;
+				LastUpgradeCheck = 0440;
 			};
 			buildConfigurationList = A521F2C1015CC84B37773B51 /* Build configuration list for PBXProject "ZirkOSC" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -3258,8 +3275,8 @@
 					"_NDEBUG=1",
 					"NDEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=3.0.0",
-					"JUCE_APP_VERSION_HEX=0x30000",
+					"JUCE_APP_VERSION=3.0.1",
+					"JUCE_APP_VERSION_HEX=0x30001",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -3310,8 +3327,8 @@
 					"_DEBUG=1",
 					"DEBUG=1",
 					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=3.0.0",
-					"JUCE_APP_VERSION_HEX=0x30000",
+					"JUCE_APP_VERSION=3.0.1",
+					"JUCE_APP_VERSION_HEX=0x30001",
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
@@ -3358,7 +3375,6 @@
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = ZirkOSC3;
 				WARNING_CFLAGS = "-Wreorder";
 				ZERO_LINK = NO;
