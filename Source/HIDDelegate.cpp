@@ -24,7 +24,7 @@
 //==============================================================================
 /** HIDDelegate constructor taking two arguments and initializaing its others components by default */
 
-HIDDelegate::HIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor):
+HIDDelegate::HIDDelegate(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor):
 mProcessor(filter),
 mEditor(editor),
 nbButton(0),
@@ -56,7 +56,7 @@ void HIDDelegate::Handle_DeviceRemovalCallback(void *inContext, IOReturn inResul
 #pragma unused (  inContext, inResult, inSender )
     
     printf("(context: %p, result: 0x%08X, sender: %p, device: %p).\n", inContext, inResult, inSender, (void *) inIOHIDDeviceRef);
-    ZirkOscjuceAudioProcessorEditor* tempEditor = (ZirkOscjuceAudioProcessorEditor*) inContext;
+    ZirkOscAudioProcessorEditor* tempEditor = (ZirkOscAudioProcessorEditor*) inContext;
     tempEditor->uncheckJoystickButton();
     
     //what to do when a joystick gets unplugged
@@ -64,7 +64,7 @@ void HIDDelegate::Handle_DeviceRemovalCallback(void *inContext, IOReturn inResul
 
 /** called when connected joystick is used, the type of use and value of use are recovered from IOHIDValueRef sent by the event. First the method convert the IOHIDValueRef to a IOHIDElementRef which allow us to get the usagePage (type of control), the usage (the id of the control), the PhysicalMin and PhysicalMax which are 0 and 1 for common buttons or the max can vary from 256 to 1024 in our experience for the axis from one joystick to an other. We use the physical maximum to get a normalized value otherwise a less precise joystick would not permit mouvement accross the whole circle.
  Exemple for usagePage, usage and value, if I press the button 5 of my joystick usagePage will be 9(Id of the button type and usage will be 5 (number of the button)and value will be 1 (1 if pressed and 0 if not) */
-void HIDDelegate::Handle_IOHIDDeviceInputValueCallback(void *          inContext,     // context in which the method is called here ZirkOscjuceAudioProcessorEditor
+void HIDDelegate::Handle_IOHIDDeviceInputValueCallback(void *          inContext,     // context in which the method is called here ZirkOscAudioProcessorEditor
                                                        IOReturn        inResult,      // completion result for the input value operation
                                                        void *          inSender,      // IOHIDDeviceRef of the device this element is from
                                                        IOHIDValueRef   inIOHIDValueRef){ // the new element value
@@ -86,7 +86,7 @@ void HIDDelegate::Handle_IOHIDDeviceInputValueCallback(void *          inContext
     double max = IOHIDElementGetPhysicalMax(tIOHIDElementRef);
     
     double value = IOHIDValueGetScaledValue(inIOHIDValueRef, kIOHIDValueScaleTypePhysical);
-    ZirkOscjuceAudioProcessorEditor* tempEditor = (ZirkOscjuceAudioProcessorEditor*) inContext;  //we get the editor from the context
+    ZirkOscAudioProcessorEditor* tempEditor = (ZirkOscAudioProcessorEditor*) inContext;  //we get the editor from the context
     if (tempEditor->getHIDDel() == NULL){
         printf("tempEditor == NULL\n");
         return;
@@ -249,12 +249,12 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
             //Switch to detect what part of the device is being used
             switch (usage) {
                 case 48:
-                    vx = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscjuceAudioProcessor::s_iDomeRadius*2;
+                    vx = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscAudioProcessor::s_iDomeRadius*2;
                     mEditor->move(iCurButton, vx, vy);
                     break;
                     
                 case 49:
-                    vy = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscjuceAudioProcessor::s_iDomeRadius*2;
+                    vy = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscAudioProcessor::s_iDomeRadius*2;
                     mEditor->move(iCurButton, vx, vy);
                     break;
                     
@@ -278,7 +278,7 @@ bool HIDDelegate::getButtonPressedTab(u_int32_t index)
     return buttonPressedTab[index];
 }
 /** CreateHIDDelegate is called to create a HIDDelegate instance through the ReferenceCountedObject so it is destroyed properly */
-HIDDelegate::Ptr HIDDelegate::CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor)
+HIDDelegate::Ptr HIDDelegate::CreateHIDDelegate(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor)
 {
     return new HIDDelegate(filter, editor);
 }

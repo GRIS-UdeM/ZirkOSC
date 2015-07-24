@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="puQm6u" name="ZirkOSC3" projectType="audioplug" version="3.0.0"
-              bundleIdentifier="com.UdeM.ZirkOSC3" buildVST="1" buildAU="1"
+<JUCERPROJECT id="puQm6u" name="ZirkOSC" projectType="audioplug" version="3.0.0"
+              bundleIdentifier="com.UdeM.ZirkOSC" buildVST="1" buildAU="1"
               pluginName="ZirkOSC3" pluginDesc="ZirkOSC3" pluginManufacturer="UdeM"
               pluginManufacturerCode="UdeM" pluginCode="Plug" pluginChannelConfigs="{8,2},{1,1}, {1,2}, {1,3}, {1,4}, {1,5}, {1,6}, {1,7}, {1,8}, {2,1}, {2,2}, {2,3}, {2,4}, {2,5}, {2,6}, {2,7}, {2,8}, {3,1}, {3,2}, {3,3}, {3,4},{3,5}, {3,6}, {3,7},{3,8}, {4,1}, {4,2}, {4,3}, {4,4}, {4,5}, {4,6}, {4,7}, {4,8}, {8,8},{6,6},{6,2},{8,2}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
@@ -10,7 +10,7 @@
               pluginRTASCategory="" aaxIdentifier="com.udem.ZirkOSC3" pluginAAXCategory="AAX_ePlugInCategory_Dynamics"
               jucerVersion="3.1.0" buildVST3="1" buildRTAS="0" buildAAX="0"
               pluginManufacturerEmail="support@yourcompany.com" includeBinaryInAppConfig="1">
-  <MAINGROUP id="NlVJUT" name="ZirkOSC3">
+  <MAINGROUP id="NlVJUT" name="ZirkOSC">
     <GROUP id="{AF8672D5-0456-195A-C664-CD955466754A}" name="HIDManager">
       <FILE id="LqLH52" name="HID_Config_Utilities.cpp" compile="1" resource="0"
             file="HIDManager/HID_Config_Utilities.cpp"/>

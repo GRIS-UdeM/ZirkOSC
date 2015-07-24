@@ -8,9 +8,9 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.UdeM.ZirkOSC3</string>
+    <string>com.UdeM.ZirkOSC</string>
     <key>CFBundleName</key>
-    <string>ZirkOSC3</string>
+    <string>ZirkOSC</string>
     <key>CFBundlePackageType</key>
     <string>TDMw</string>
     <key>CFBundleSignature</key>

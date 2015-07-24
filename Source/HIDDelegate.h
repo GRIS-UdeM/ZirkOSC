@@ -29,9 +29,9 @@ public:
     typedef ReferenceCountedObjectPtr<HIDDelegate> Ptr;
     
     //! Interface to call the builder using the ReferenceCountedObject benefits
-    static HIDDelegate::Ptr CreateHIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    static HIDDelegate::Ptr CreateHIDDelegate(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor);
     //! Builder
-    HIDDelegate(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    HIDDelegate(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor);
     //! Initializing all the member with the data from the joystick
     OSStatus Initialize_HID(void *inContext);
     
@@ -60,8 +60,8 @@ public:
 
 private:
     
-    ZirkOscjuceAudioProcessor *mProcessor;
-    ZirkOscjuceAudioProcessorEditor *mEditor;
+    ZirkOscAudioProcessor *mProcessor;
+    ZirkOscAudioProcessorEditor *mEditor;
     //! Number of counted buttons
     int nbButton;
     //! Table memorizing button states

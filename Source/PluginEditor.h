@@ -40,8 +40,8 @@ class HIDDelegate;
 class ZirkLeap;
 
 
-class ZirkOscjuceAudioProcessor;
-class ZirkOscjuceAudioProcessorEditor  : public AudioProcessorEditor,
+class ZirkOscAudioProcessor;
+class ZirkOscAudioProcessorEditor  : public AudioProcessorEditor,
 public ButtonListener,
 public SliderListener,
 public Timer,
@@ -53,9 +53,9 @@ public ComboBoxListener
 public:
     
     //! Constructor
-    ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter);
+    ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor* ownerFilter);
     //! Destructor
-    ~ZirkOscjuceAudioProcessorEditor();
+    ~ZirkOscAudioProcessorEditor();
 
     //! This is just a standard Juce paint method...
     void paint (Graphics& g);
@@ -85,7 +85,7 @@ public:
 
 private:
     
-    ZirkOscjuceAudioProcessor* ourProcessor;
+    ZirkOscAudioProcessor* ourProcessor;
     
     void updateSliders();
     
@@ -158,6 +158,12 @@ private:
     ComboBox* m_pSyncWTempoComboBox;
     
     TextButton* m_pWriteTrajectoryButton;
+    
+    TextButton* m_pEndTrajectoryButton;
+    
+    Label* m_pEndTrajectoryLabel;
+    
+    std::pair <float, float> m_fEndLocationPair;
     
     Label* m_pTrajectoryCountLabel;
     
@@ -233,7 +239,7 @@ private:
     ComboBox _MovementConstraintComboBox;
     
     //! If there is a source beeing drag
-    bool _isSourceBeingDragged = false;
+    bool m_bIsSourceBeingDragged = false;
    
     
     
@@ -255,9 +261,9 @@ private:
     ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
 
     //! Auto generated function, to get the processor
-    ZirkOscjuceAudioProcessor* getProcessor() const
+    ZirkOscAudioProcessor* getProcessor() const
     {
-        return static_cast <ZirkOscjuceAudioProcessor*> (getAudioProcessor());
+        return static_cast <ZirkOscAudioProcessor*> (getAudioProcessor());
     }
     
    

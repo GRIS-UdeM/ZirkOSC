@@ -41,9 +41,9 @@ Handling all the sound processing and directing.
 
 using namespace std;
 
-int ZirkOscjuceAudioProcessor::s_iDomeRadius = 172;
+int ZirkOscAudioProcessor::s_iDomeRadius = 172;
 
-ZirkOscjuceAudioProcessor::ZirkOscjuceAudioProcessor()
+ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 :
 _NbrSources(1)
 ,_SelectedMovementConstraint(.0f)
@@ -55,13 +55,13 @@ _NbrSources(1)
 ,_OscPortZirkonium(18032)
 ,_isOscActive(true)
 ,_isSpanLinked(true)
-,_TrajectoryCount(0)
+,m_dTrajectoryCount(0)
 ,_TrajectoriesDuration(0)
 //,_TrajectoriesPhiAsin(0)
 //,_TrajectoriesPhiAcos(0)
-,_isSyncWTempo(false)
-,_isWriteTrajectory(false)
-,_SelectedSourceForTrajectory(0)
+,m_bIsSyncWTempo(false)
+,m_bIsWriteTrajectory(false)
+,m_iSelectedSourceForTrajectory(0)
 ,m_iSourceLocationChanged(-1)
 ,m_bCurrentlyPlaying(false)
 ,m_bIsEqualElev(false)
@@ -78,7 +78,7 @@ _NbrSources(1)
     startTimer (50);
 }
 
-void ZirkOscjuceAudioProcessor::initSources(){
+void ZirkOscAudioProcessor::initSources(){
     for(int i = 0; i < 8; ++i){
         _AllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
         m_fSourceOldX01[i]          = -1.f;
@@ -88,7 +88,7 @@ void ZirkOscjuceAudioProcessor::initSources(){
     }
 }
 
-void ZirkOscjuceAudioProcessor::timerCallback(){
+void ZirkOscAudioProcessor::timerCallback(){
     if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iSelectedMovementConstraint != Independant&& m_iSourceLocationChanged != -1) {
         if (m_iSelectedMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
@@ -102,7 +102,7 @@ void ZirkOscjuceAudioProcessor::timerCallback(){
     sendOSCValues();
 }
 
-void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
+void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     if (p_iSource > getNbrSources()){
         return;
     }
@@ -110,8 +110,8 @@ void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     float fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
     float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
 
-    setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
-    setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
+    setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
+    setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
 
     if(m_iSelectedMovementConstraint == Independant){
         m_fSourceOldX01[p_iSource] = fX01;
@@ -141,7 +141,7 @@ void ZirkOscjuceAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
 }
 
 
-void ZirkOscjuceAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
+void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
     
     //calculate delta for selected source, which was already moved in ::move()
     float fSelectedOldX01 = m_fSourceOldX01[p_iSource];
@@ -170,7 +170,7 @@ void ZirkOscjuceAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const
     }
 }
 
-void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsElevEqual){
+void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsElevEqual){
     
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01;
     
@@ -204,8 +204,8 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
         
         
         //---------------------- GET CURRENT VALUES ---------------------
-        float fX = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
-        float fY = getParameter(ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
+        float fX = getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
+        float fY = getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
         float fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
         
         JUCE_COMPILER_WARNING("try a lambda function here")
@@ -273,15 +273,15 @@ void ZirkOscjuceAudioProcessor::moveCircular(const int &p_iSource, const float &
     }
 }
 
-void ZirkOscjuceAudioProcessor::moveEqualAngles(const int &p_iSource, const float &p_fX, const float &p_fY){
+void ZirkOscAudioProcessor::moveEqualAngles(const int &p_iSource, const float &p_fX, const float &p_fY){
     moveCircular(p_iSource, p_fX, p_fY, false);
 }
 
-void ZirkOscjuceAudioProcessor::moveFullyEqual(const int &p_iSource, const float &p_fX, const float &p_fY){
+void ZirkOscAudioProcessor::moveFullyEqual(const int &p_iSource, const float &p_fX, const float &p_fY){
     moveCircular(p_iSource, p_fX, p_fY, true);
 }
 
-void ZirkOscjuceAudioProcessor::setEqualAzimForAllSrc(){
+void ZirkOscAudioProcessor::setEqualAzimForAllSrc(){
     int nbrSources = getNbrSources();
     vector<int> order = getOrderSources(_SelectedSource, _AllSources, nbrSources);
     int count = 0;
@@ -289,12 +289,12 @@ void ZirkOscjuceAudioProcessor::setEqualAzimForAllSrc(){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
         float fX, fY;
         SoundSource::azimElev01toXY01(curangle, _AllSources[order[i]].getElevation01(), fX, fY);
-        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
-        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
+        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
+        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
     }
 }
 
-void ZirkOscjuceAudioProcessor::setEqualAzimElevForAllSrc(){
+void ZirkOscAudioProcessor::setEqualAzimElevForAllSrc(){
     int nbrSources = getNbrSources();
     vector<int> order = getOrderSources(_SelectedSource, _AllSources, nbrSources);
     float fCurElevation = _AllSources[_SelectedSource].getElevation01();
@@ -303,13 +303,13 @@ void ZirkOscjuceAudioProcessor::setEqualAzimElevForAllSrc(){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
         float fX, fY;
         SoundSource::azimElev01toXY01(curangle, fCurElevation, fX, fY);
-        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
-        setParameterNotifyingHost (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
+        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
+        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
     }
 }
 
 //starting from the selected source, cycle through the other sources to find in which order they are
-vector<int> ZirkOscjuceAudioProcessor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
+vector<int> ZirkOscAudioProcessor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
     
     vector<int> order(nbrSources);
     int firstItem = selected;
@@ -346,7 +346,7 @@ vector<int> ZirkOscjuceAudioProcessor::getOrderSources(int selected, SoundSource
     return order;
 }
 
-ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
+ZirkOscAudioProcessor::~ZirkOscAudioProcessor()
 {
     stopTimer();
     _isOscActive = false;
@@ -357,7 +357,7 @@ ZirkOscjuceAudioProcessor::~ZirkOscjuceAudioProcessor()
     _OscZirkonium = NULL;
 }
 
-void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 
     
@@ -389,51 +389,51 @@ void ZirkOscjuceAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
             bool done = trajectory->process(seconds, beats);
             if (done){
                 mTrajectory = NULL;
-                _isWriteTrajectory = false;
+                m_bIsWriteTrajectory = false;
             }
         }
     }
     
 }
 
-void ZirkOscjuceAudioProcessor::storeCurrentLocations(){
+void ZirkOscAudioProcessor::storeCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSourcesBuffer[iCurSource] = _AllSources[iCurSource];
     }
 }
 
-void ZirkOscjuceAudioProcessor::restoreCurrentLocations(){
+void ZirkOscAudioProcessor::restoreCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
         _AllSources[iCurSource] = _AllSourcesBuffer[iCurSource];
     }
 }
 
-const String ZirkOscjuceAudioProcessor::getParameterText (int index)
+const String ZirkOscAudioProcessor::getParameterText (int index)
 {
     return String (getParameter (index), 2);
 }
 
-const String ZirkOscjuceAudioProcessor::getInputChannelName (int channelIndex) const
+const String ZirkOscAudioProcessor::getInputChannelName (int channelIndex) const
 {
     return String (channelIndex + 1);
 }
 
-const String ZirkOscjuceAudioProcessor::getOutputChannelName (int channelIndex) const
+const String ZirkOscAudioProcessor::getOutputChannelName (int channelIndex) const
 {
     return String (channelIndex + 1);
 }
 
-bool ZirkOscjuceAudioProcessor::isInputChannelStereoPair (int index) const
+bool ZirkOscAudioProcessor::isInputChannelStereoPair (int index) const
 {
     return true;
 }
 
-bool ZirkOscjuceAudioProcessor::isOutputChannelStereoPair (int index) const
+bool ZirkOscAudioProcessor::isOutputChannelStereoPair (int index) const
 {
     return true;
 }
 
-bool ZirkOscjuceAudioProcessor::acceptsMidi() const
+bool ZirkOscAudioProcessor::acceptsMidi() const
 {
 #if JucePlugin_WantsMidiInput
     return true;
@@ -442,7 +442,7 @@ bool ZirkOscjuceAudioProcessor::acceptsMidi() const
 #endif
 }
 
-bool ZirkOscjuceAudioProcessor::producesMidi() const
+bool ZirkOscAudioProcessor::producesMidi() const
 {
 #if JucePlugin_ProducesMidiOutput
     return true;
@@ -451,132 +451,132 @@ bool ZirkOscjuceAudioProcessor::producesMidi() const
 #endif
 }
 
-bool ZirkOscjuceAudioProcessor::silenceInProducesSilenceOut() const
+bool ZirkOscAudioProcessor::silenceInProducesSilenceOut() const
 {
     return false;
 }
 
-int ZirkOscjuceAudioProcessor::getNumPrograms()
+int ZirkOscAudioProcessor::getNumPrograms()
 {
     return 1;
 }
 
-int ZirkOscjuceAudioProcessor::getCurrentProgram()
+int ZirkOscAudioProcessor::getCurrentProgram()
 {
     return 1;
 }
 
-void ZirkOscjuceAudioProcessor::setCurrentProgram (int index)
+void ZirkOscAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String ZirkOscjuceAudioProcessor::getProgramName (int index)
+const String ZirkOscAudioProcessor::getProgramName (int index)
 {
     return String::empty;
 }
 
-void ZirkOscjuceAudioProcessor::changeProgramName (int index, const String& newName)
+void ZirkOscAudioProcessor::changeProgramName (int index, const String& newName)
 {
 
 }
 
 //==============================================================================
-void ZirkOscjuceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     
 }
 
-void ZirkOscjuceAudioProcessor::releaseResources()
+void ZirkOscAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
-void ZirkOscjuceAudioProcessor::setSelectedSourceForTrajectory(int iSelectedSource){
-    _SelectedSourceForTrajectory = iSelectedSource;
+void ZirkOscAudioProcessor::setSelectedSourceForTrajectory(int iSelectedSource){
+    m_iSelectedSourceForTrajectory = iSelectedSource;
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedSourceForTrajectory(){
-    return _SelectedSourceForTrajectory;
+int ZirkOscAudioProcessor::getSelectedSourceForTrajectory(){
+    return m_iSelectedSourceForTrajectory;
 }
 
 //==============================================================================
-bool ZirkOscjuceAudioProcessor::hasEditor() const
+bool ZirkOscAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* ZirkOscjuceAudioProcessor::createEditor()
+AudioProcessorEditor* ZirkOscAudioProcessor::createEditor()
 {
-    _Editor = new ZirkOscjuceAudioProcessorEditor (this);
+    _Editor = new ZirkOscAudioProcessorEditor (this);
     return _Editor;
 }
 
 
-void ZirkOscjuceAudioProcessor::setLastUiWidth(int lastUiWidth)
+void ZirkOscAudioProcessor::setLastUiWidth(int lastUiWidth)
 {
     _LastUiWidth = lastUiWidth;
 }
 
-int ZirkOscjuceAudioProcessor::getLastUiWidth()
+int ZirkOscAudioProcessor::getLastUiWidth()
 {
     return _LastUiWidth;
 }
-void ZirkOscjuceAudioProcessor::setLastUiHeight(int lastUiHeight)
+void ZirkOscAudioProcessor::setLastUiHeight(int lastUiHeight)
 {
     _LastUiHeight = lastUiHeight;
 }
 
-int ZirkOscjuceAudioProcessor::getLastUiHeight()
+int ZirkOscAudioProcessor::getLastUiHeight()
 {
     return _LastUiHeight;
 }
 
 
 //set wheter plug is sending osc messages to zirkonium
-void ZirkOscjuceAudioProcessor::setIsOscActive(bool isOscActive){
+void ZirkOscAudioProcessor::setIsOscActive(bool isOscActive){
     _isOscActive = isOscActive;
 }
 
 //wheter plug is sending osc messages to zirkonium
-bool ZirkOscjuceAudioProcessor::getIsOscActive(){
+bool ZirkOscAudioProcessor::getIsOscActive(){
     return _isOscActive;
 }
 
-void ZirkOscjuceAudioProcessor::setIsSyncWTempo(bool isSyncWTempo){
-    _isSyncWTempo = isSyncWTempo;
+void ZirkOscAudioProcessor::setIsSyncWTempo(bool isSyncWTempo){
+    m_bIsSyncWTempo = isSyncWTempo;
 }
 
-bool ZirkOscjuceAudioProcessor::getIsSyncWTempo(){
-    return _isSyncWTempo;
+bool ZirkOscAudioProcessor::getIsSyncWTempo(){
+    return m_bIsSyncWTempo;
 }
 
 
-void ZirkOscjuceAudioProcessor::setIsSpanLinked(bool isSpanLinked){
+void ZirkOscAudioProcessor::setIsSpanLinked(bool isSpanLinked){
     _isSpanLinked = isSpanLinked;
 }
 
-bool ZirkOscjuceAudioProcessor::getIsSpanLinked(){
+bool ZirkOscAudioProcessor::getIsSpanLinked(){
     return _isSpanLinked;
 }
 
-void ZirkOscjuceAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
-    _isWriteTrajectory = isWriteTrajectory;
+void ZirkOscAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
+    m_bIsWriteTrajectory = isWriteTrajectory;
 }
 
-bool ZirkOscjuceAudioProcessor::getIsWriteTrajectory(){
-    return _isWriteTrajectory;
+bool ZirkOscAudioProcessor::getIsWriteTrajectory(){
+    return m_bIsWriteTrajectory;
 }
 
 //==============================================================================
-const String ZirkOscjuceAudioProcessor::getName() const
+const String ZirkOscAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-int ZirkOscjuceAudioProcessor::getNumParameters()
+int ZirkOscAudioProcessor::getNumParameters()
 {
     return totalNumParams;
 }
@@ -584,7 +584,7 @@ int ZirkOscjuceAudioProcessor::getNumParameters()
 // This method will be called by the host, probably on the audio thread, so
 // it's absolutely time-critical. Don't use critical sections or anything
 // UI-related, or anything at all that may block in any way!
-float ZirkOscjuceAudioProcessor::getParameter (int index)
+float ZirkOscAudioProcessor::getParameter (int index)
 {
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
@@ -605,17 +605,17 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
             return m_fSelectedTrajectoryDirection;
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
             return m_fSelectedTrajectoryReturn;
-        case ZirkOSC_TrajectoryCount_ParamId:
-            return _TrajectoryCount;
+        case ZirkOSCm_dTrajectoryCount_ParamId:
+            return m_dTrajectoryCount;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             return _TrajectoriesDuration;
         case ZirkOSC_SyncWTempo_ParamId:
-            if (_isSyncWTempo)
+            if (m_bIsSyncWTempo)
                 return 1.0f;
             else
                 return 0.0f;
         case ZirkOSC_WriteTrajectories_ParamId:
-            if (_isWriteTrajectory)
+            if (m_bIsWriteTrajectory)
                 return 1.0f;
             else
                 return 0.0f;
@@ -639,14 +639,14 @@ float ZirkOscjuceAudioProcessor::getParameter (int index)
             return _AllSources[iCurSrc].getGain();
         }
     }
-    cerr << "\n" << "wrong parameter id: " << index << "in ZirkOscjuceAudioProcessor::getParameter" << "\n";
+    cerr << "\n" << "wrong parameter id: " << index << "in ZirkOscAudioProcessor::getParameter" << "\n";
     return -1.f;
 }
 
 // This method will be called by the host, probably on the audio thread, so
 // it's absolutely time-critical. Don't use critical sections or anything
 // UI-related, or anything at all that may block in any way!
-void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
+void ZirkOscAudioProcessor::setParameter (int index, float newValue){
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
             _SelectedMovementConstraint = newValue;
@@ -676,23 +676,23 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
             m_fSelectedTrajectoryReturn = newValue;
             return;
             
-        case ZirkOSC_TrajectoryCount_ParamId:
-            _TrajectoryCount = newValue;
+        case ZirkOSCm_dTrajectoryCount_ParamId:
+            m_dTrajectoryCount = newValue;
             return;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             _TrajectoriesDuration = newValue;
             return;
         case ZirkOSC_SyncWTempo_ParamId:
             if (newValue > .5f)
-                _isSyncWTempo = true;
+                m_bIsSyncWTempo = true;
             else
-                _isSyncWTempo = false;
+                m_bIsSyncWTempo = false;
             return;
         case ZirkOSC_WriteTrajectories_ParamId:
             if (newValue > .5f)
-                _isWriteTrajectory = true;
+                m_bIsWriteTrajectory = true;
             else
-                _isWriteTrajectory = false;
+                m_bIsWriteTrajectory = false;
             return;
     }
 
@@ -728,11 +728,11 @@ void ZirkOscjuceAudioProcessor::setParameter (int index, float newValue){
             _AllSources[iCurSource].setGain(newValue); return;
         }
     }
-    cerr << "wrong parameter id: " << index << " in ZirkOscjuceAudioProcessor::setParameter\n";
+    cerr << "wrong parameter id: " << index << " in ZirkOscAudioProcessor::setParameter\n";
 }
 
 
-const String ZirkOscjuceAudioProcessor::getParameterName (int index)
+const String ZirkOscAudioProcessor::getParameterName (int index)
 {
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
@@ -747,14 +747,14 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
             return ZirkOSC_SelectedTrajectoryDirection_name;
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
             return ZirkOSC_SelectedTrajectoryReturn_name;
-        case ZirkOSC_TrajectoryCount_ParamId:
+        case ZirkOSCm_dTrajectoryCount_ParamId:
             return ZirkOSC_NbrTrajectories_name;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             return ZirkOSC_DurationTrajectories_name;
         case ZirkOSC_SyncWTempo_ParamId:
-            return ZirkOSC_isSyncWTempo_name;
+            return ZirkOSCm_bIsSyncWTempo_name;
         case ZirkOSC_WriteTrajectories_ParamId:
-            return ZirkOSC_isWriteTrajectory_name;
+            return ZirkOSCm_bIsWriteTrajectory_name;
     }
     
     
@@ -777,7 +777,7 @@ const String ZirkOscjuceAudioProcessor::getParameterName (int index)
 static const int s_kiDataVersion = 3;
 
 //==============================================================================
-void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
+void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
@@ -789,10 +789,10 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("isSpanLinked", _isSpanLinked);
     xml.setAttribute("isOscActive", _isOscActive);
     xml.setAttribute("selectedTrajectory", _SelectedTrajectory);
-    xml.setAttribute("nbrTrajectory", _TrajectoryCount);
+    xml.setAttribute("nbrTrajectory", m_dTrajectoryCount);
     xml.setAttribute("durationTrajectory", _TrajectoriesDuration);
-    xml.setAttribute("isSyncWTempo", _isSyncWTempo);
-    xml.setAttribute("isWriteTrajectory", _isWriteTrajectory);
+    xml.setAttribute("isSyncWTempo", m_bIsSyncWTempo);
+    xml.setAttribute("isWriteTrajectory", m_bIsWriteTrajectory);
     xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
     xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
     xml.setAttribute("presetDataVersion", s_kiDataVersion);
@@ -816,7 +816,7 @@ void ZirkOscjuceAudioProcessor::getStateInformation (MemoryBlock& destData)
 }
 
 
-void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     
@@ -860,10 +860,10 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
         _isOscActive                    = xmlState->getBoolAttribute("isOscActive", true);
         _isSpanLinked                   = xmlState->getBoolAttribute("isSpanLinked", false);
         _SelectedTrajectory             = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
-        _TrajectoryCount                = xmlState->getIntAttribute("nbrTrajectory", 0);
+        m_dTrajectoryCount                = xmlState->getIntAttribute("nbrTrajectory", 0);
         _TrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
-        _isSyncWTempo                   = xmlState->getBoolAttribute("isSyncWTempo", false);
-        _isWriteTrajectory              = xmlState->getBoolAttribute("isWriteTrajectory", false);
+        m_bIsSyncWTempo                   = xmlState->getBoolAttribute("isSyncWTempo", false);
+        m_bIsWriteTrajectory              = xmlState->getBoolAttribute("isWriteTrajectory", false);
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
             String channel      = "Channel" + to_string(iCurSrc);
@@ -881,8 +881,8 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
             float fDefaultX, fDefaultY;
             SoundSource::azimElev01toXY01(iCurSrc * .125, 0, fDefaultX, fDefaultY);
             
-            setParameter (ZirkOscjuceAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, static_cast<float>(xmlState->getDoubleAttribute(strX, fDefaultX)));
-            setParameter (ZirkOscjuceAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, static_cast<float>(xmlState->getDoubleAttribute(strY, fDefaultY)));
+            setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, static_cast<float>(xmlState->getDoubleAttribute(strX, fDefaultX)));
+            setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, static_cast<float>(xmlState->getDoubleAttribute(strY, fDefaultY)));
         }
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
@@ -892,8 +892,7 @@ void ZirkOscjuceAudioProcessor::setStateInformation (const void* data, int sizeI
     }
 }
 
-
-void ZirkOscjuceAudioProcessor::sendOSCValues(){
+void ZirkOscAudioProcessor::sendOSCValues(){
     if (_isOscActive){
         for(int i=0;i<_NbrSources;++i){
             float azim_osc = PercentToHR(_AllSources[i].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
@@ -904,13 +903,12 @@ void ZirkOscjuceAudioProcessor::sendOSCValues(){
             float gain_osc = _AllSources[i].getGain();
             
             lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
-            
         }
     }
 }
 
 
-void ZirkOscjuceAudioProcessor::changeZirkoniumOSCPort(int newPort){
+void ZirkOscAudioProcessor::changeZirkoniumOSCPort(int newPort){
     
     if(newPort<0 || newPort>100000){
         newPort = _OscPortZirkonium;//18032;
@@ -926,20 +924,20 @@ void ZirkOscjuceAudioProcessor::changeZirkoniumOSCPort(int newPort){
     
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedMovementConstraint() {
+int ZirkOscAudioProcessor::getSelectedMovementConstraint() {
     return m_iSelectedMovementConstraint;
 }
 
-int ZirkOscjuceAudioProcessor::getSelectedTrajectory() {
+int ZirkOscAudioProcessor::getSelectedTrajectory() {
     int value = PercentToIntStartsAtOne(_SelectedTrajectory, TotalNumberTrajectories);
     return value;
 }
 
-float ZirkOscjuceAudioProcessor::getSelectedTrajectoryDirection() {
+float ZirkOscAudioProcessor::getSelectedTrajectoryDirection() {
     return m_fSelectedTrajectoryDirection;
 }
 
-float ZirkOscjuceAudioProcessor::getSelectedTrajectoryReturn() {
+float ZirkOscAudioProcessor::getSelectedTrajectoryReturn() {
     return m_fSelectedTrajectoryReturn;
 }
 
@@ -947,7 +945,7 @@ float ZirkOscjuceAudioProcessor::getSelectedTrajectoryReturn() {
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new ZirkOscjuceAudioProcessor();
+    return new ZirkOscAudioProcessor();
 
 }
 

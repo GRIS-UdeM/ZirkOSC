@@ -26,9 +26,9 @@ class ZirkLeap : public ReferenceCountedObject , public Leap::Listener
 public:
     typedef ReferenceCountedObjectPtr<ZirkLeap> Ptr;
     //! Interface to call the builder using the ReferenceCountedObject benefits
-    static ZirkLeap::Ptr CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    static ZirkLeap::Ptr CreateLeapComponent(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor);
     //!Builder
-    ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor);
+    ZirkLeap(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor);
     //! Called when a Leap Motion is connected to the computer
     virtual void onConnect(const Leap::Controller& controller);
     //! Called when a Leap Motion is disconnected to the computer
@@ -43,8 +43,8 @@ public:
     
     
 private:
-    ZirkOscjuceAudioProcessor *ourProcessor;
-    ZirkOscjuceAudioProcessorEditor *mEditor;
+    ZirkOscAudioProcessor *ourProcessor;
+    ZirkOscAudioProcessorEditor *mEditor;
     
     ScopedPointer<Leap::Controller> mController;
     
