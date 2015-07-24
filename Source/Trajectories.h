@@ -91,9 +91,7 @@ protected:
     float m_fTrajectoryInitialAzimuth01;
     float m_fTrajectoryInitialElevation01;
 
-    float m_fTrajectoryInitialX;
-    float m_fTrajectoryInitialY;
-    std::pair<int, int> m_fEndPair;
+    std::pair<float, float> m_fStartPair;
     
     double m_dTrajectorySingleLength;
     

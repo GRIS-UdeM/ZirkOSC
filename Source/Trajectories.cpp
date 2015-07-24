@@ -63,13 +63,14 @@ void Trajectory::start()
     //store initial parameter value
 
     //need to convert this to azim and elev
-    m_fTrajectoryInitialX = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
-    m_fTrajectoryInitialX = m_fTrajectoryInitialX*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
-    m_fTrajectoryInitialY = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
-    m_fTrajectoryInitialY = m_fTrajectoryInitialY*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
+    m_fStartPair.first  = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
+    m_fStartPair.second = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
+
+    float fInitialX = m_fStartPair.first*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
+    float fInitialY = m_fStartPair.second*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
     
-    m_fTrajectoryInitialAzimuth01   = SoundSource::XYtoAzim01(m_fTrajectoryInitialX, m_fTrajectoryInitialY);
-    m_fTrajectoryInitialElevation01 = SoundSource::XYtoElev01(m_fTrajectoryInitialX, m_fTrajectoryInitialY);
+    m_fTrajectoryInitialAzimuth01   = SoundSource::XYtoAzim01(fInitialX, fInitialY);
+    m_fTrajectoryInitialElevation01 = SoundSource::XYtoElev01(fInitialX, fInitialY);
     ourProcessor->storeCurrentLocations();
     
     //convert current elevation as a radian offset for trajectories that use sin/cos
@@ -298,8 +299,10 @@ protected:
         
         if (mRT){
 
-                //new way, simply oscilates between m_fTrajectoryInitialElevation01 and 0
-                newElevation = abs( m_fTrajectoryInitialElevation01 * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
+            cout << "start pair " << m_fStartPair.first << ", " << m_fStartPair.second << newLine;
+            cout << "end pair "   << m_fEndPair.first   << ", " << m_fEndPair.second << newLine;
+            //new way, simply oscilates between m_fTrajectoryInitialElevation01 and 0
+            newElevation = abs( m_fTrajectoryInitialElevation01 * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
             
         } else {
             

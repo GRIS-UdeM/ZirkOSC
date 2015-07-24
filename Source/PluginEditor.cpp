@@ -772,7 +772,7 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         }
         
         //draw source labels
-        if(!_isSourceBeingDragged){
+        if(!m_bIsSourceBeingDragged){
             g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + fX+iXOffset, _ZirkOSC_Center_Y + fY+iYOffset, 25, 10, Justification::centred, false);
         }
     }
@@ -839,7 +839,7 @@ Point <float> ZirkOscAudioProcessorEditor::degreeToXy (Point <float> p){
 
 /*!
  * Function called every 50ms to refresh value from Host
- * repaint only if the user is not moving any source (_isSourceBeingDragged)
+ * repaint only if the user is not moving any source (m_bIsSourceBeingDragged)
  */
 void ZirkOscAudioProcessorEditor::timerCallback(){
     
@@ -885,7 +885,7 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
     clock_t gui = clock();
 #endif
     
-    //if(!_isSourceBeingDragged){
+    //if(!m_bIsSourceBeingDragged){
           repaint();
     //}
     
@@ -1213,12 +1213,12 @@ void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
         source=getSourceFromPosition(Point<float>(event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y));
     }
     
-    //if a source is clicked on, flag _isSourceBeingDragged to true
-    _isSourceBeingDragged = (source!=-1);
+    //if a source is clicked on, flag m_bIsSourceBeingDragged to true
+    m_bIsSourceBeingDragged = (source!=-1);
 
 
     
-    if(_isSourceBeingDragged){
+    if(m_bIsSourceBeingDragged){
         //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture).
         ourProcessor->setIsRecordingAutomation(true);
         ourProcessor->setSelectedSource(source);
@@ -1239,7 +1239,7 @@ int ZirkOscAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
 
 
 void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
-    if(_isSourceBeingDragged){
+    if(m_bIsSourceBeingDragged){
         
         if (ourProcessor->getIsWriteTrajectory()){
             return;
@@ -1274,19 +1274,21 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         return;
     }
     
-    else if(_isSourceBeingDragged){
+    else if(m_bIsSourceBeingDragged){
         int selectedSource = ourProcessor->getSelectedSource();
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId+ selectedSource*5);
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + selectedSource*5);
         ourProcessor->setIsRecordingAutomation(false);
-        _isSourceBeingDragged = false;
+        m_bIsSourceBeingDragged = false;
     }
     
     //if assigning end location
     else if (m_pEndTrajectoryButton->getToggleState() &&  event.x>5 && event.x <20+ZirkOscAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscAudioProcessor::s_iDomeRadius*2) {
-        m_fEndLocationPair = make_pair (HRToPercent(event.x,-ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius)
-                                                    event.y);
-        cout << "location end: (" << m_fEndLocationPair.first << ", " << m_fEndLocationPair.second << ")\n";
+        //get point of current event
+        m_fEndLocationPair = make_pair (HRToPercent(event.x-_ZirkOSC_Center_X, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius),
+                                        HRToPercent(event.y-_ZirkOSC_Center_Y, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius));
+
+        m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
     }
 
     _MovementConstraintComboBox.grabKeyboardFocus();

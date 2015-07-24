@@ -237,7 +237,7 @@ private:
     ComboBox _MovementConstraintComboBox;
     
     //! If there is a source beeing drag
-    bool _isSourceBeingDragged = false;
+    bool m_bIsSourceBeingDragged = false;
    
     
     
