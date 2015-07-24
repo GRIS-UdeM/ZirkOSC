@@ -161,6 +161,8 @@ private:
     
     TextButton* m_pEndTrajectoryButton;
     
+    Label* m_pEndTrajectoryLabel;
+    
     std::pair <float, float> m_fEndLocationPair;
     
     Label* m_pTrajectoryCountLabel;

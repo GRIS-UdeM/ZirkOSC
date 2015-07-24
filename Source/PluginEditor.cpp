@@ -47,6 +47,7 @@
 #include <string>
 #include <string.h>
 #include <sstream>
+#include <iomanip>
 #include <istream>
 #include <math.h>
 #include <ctime>
@@ -157,6 +158,7 @@ class TrajectoryTab : public Component{
     TextButton* m_pWriteButton;
     
     TextButton* m_pEndButton;
+    Label*      m_pEndLabel;
     
     MiniProgressBar* mTrProgressBarTab;
     
@@ -189,6 +191,7 @@ public:
         
         m_pWriteButton          = addToList(new TextButton());
         m_pEndButton            = addToList(new TextButton());
+        m_pEndLabel             = addToList(new Label());
         
         mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
@@ -207,6 +210,8 @@ public:
     
     TextButton*     getWriteButton(){       return m_pWriteButton;}
     TextButton*     getEndButton(){         return m_pEndButton;}
+    Label*          getEndLabel(){          return m_pEndLabel;}
+    
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -445,6 +450,11 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pEndTrajectoryButton->setButtonText("Set end point");
     m_pEndTrajectoryButton->setClickingTogglesState(true);
     m_pEndTrajectoryButton->addListener(this);
+
+    //END TRAJECTORY LABEL
+    JUCE_COMPILER_WARNING("this needs to get its values from processor, like other preset things")
+    m_pEndTrajectoryLabel = m_oTrajectoryTab->getEndLabel();
+    m_pEndTrajectoryLabel->setText("azim 0, Elevation 1", dontSendNotification);
     
     //PROGRESS BAR
     mTrProgressBar = m_oTrajectoryTab->getProgressBar();
@@ -632,6 +642,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryCountLabel->           setBounds(15+230,       15+50, 75,  25);
 
     m_pEndTrajectoryButton->            setBounds(15,           15+75, 100, 25);
+    m_pEndTrajectoryLabel->             setBounds(15+100,       15+75, 200, 25);
     
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
@@ -827,7 +838,6 @@ void ZirkOscAudioProcessorEditor::paintCoordLabels (Graphics& g){
     g.drawLine(_ZirkOSC_Center_X - ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y ,0.5f);
     g.drawLine(_ZirkOSC_Center_X , _ZirkOSC_Center_Y - ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_X , _ZirkOSC_Center_Y + ZirkOscAudioProcessor::s_iDomeRadius,0.5f);
 }
-
 
 /*Conversion function*/
 
@@ -1289,7 +1299,19 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
     //if assigning end location
     else if (m_pEndTrajectoryButton->getToggleState() &&  event.x>5 && event.x <20+ZirkOscAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscAudioProcessor::s_iDomeRadius*2) {
         //get point of current event
-        m_fEndLocationPair = make_pair (event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y);
+        
+        float fCenteredX = event.x-_ZirkOSC_Center_X;
+        float fCenteredY = event.y-_ZirkOSC_Center_Y;
+        
+        m_fEndLocationPair = make_pair (fCenteredX, fCenteredY);
+       
+        float fAzim = PercentToHR(SoundSource::XYtoAzim01(fCenteredX, fCenteredY), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+        float fElev = PercentToHR(SoundSource::XYtoElev01(fCenteredX, fCenteredY), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+        
+        ostringstream oss;
+        oss << "Azimuth: "  << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim << ", Elevation: " << fElev;
+        
+        m_pEndTrajectoryLabel->setText(oss.str(), dontSendNotification);
         m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
     }
 
