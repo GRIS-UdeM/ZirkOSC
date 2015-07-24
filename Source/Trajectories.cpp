@@ -303,11 +303,18 @@ protected:
         
         float newX, newY, fCurrentProgress;
         if (m_bYisDependent){
-            fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to m_dTrajectoryCount
+            
+            if (m_bUseCosine){
+
+                fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos((mDone / mDurationSingleTrajectory) * M_PI_2));
+                cout << "fCurrentProgress after" << fCurrentProgress << newLine;
+            } else {
+                fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to.... (m_fEndPair.first - m_fStartPair.first)???
+            }
             newX = m_fStartPair.first + fCurrentProgress;
             newY = m_fM * newX + m_fB;
         } else {
-            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to m_dTrajectoryCount
+            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * mDone / mDurationSingleTrajectory;
             newX = m_fStartPair.first;
             newY = m_fStartPair.second + fCurrentProgress;
         }
@@ -316,7 +323,7 @@ protected:
     }
     
 private:
-    bool m_bIn, m_bRT, m_bCross, m_bYisDependent;
+    bool m_bIn, m_bRT, m_bCross, m_bYisDependent, m_bUseCosine = true;
     float oldElevationBuffer;
     bool m_bTrajectoryElevationDecreasing;
     std::pair<float, float> m_fEndPair;
