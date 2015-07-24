@@ -34,15 +34,15 @@
 /**
  The processor class of the plug in
  */
-class ZirkOscjuceAudioProcessor  : public AudioProcessor,public Timer
+class ZirkOscAudioProcessor  : public AudioProcessor,public Timer
 {
 public:
     
     //==============================================================================
     //! Builder
-    ZirkOscjuceAudioProcessor();
+    ZirkOscAudioProcessor();
     //! Destroyer
-    ~ZirkOscjuceAudioProcessor();
+    ~ZirkOscAudioProcessor();
     
     //! Called every 50ms;
     void timerCallback();
@@ -294,7 +294,7 @@ private:
  
     
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscjuceAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscAudioProcessor)
     //! Whether the editor has to refresh the GUI
     JUCE_COMPILER_WARNING("this flag should really be used and the gui should NOT refresh if this flag is false")
     bool _RefreshGui = false;

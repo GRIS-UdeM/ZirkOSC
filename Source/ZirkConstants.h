@@ -146,12 +146,12 @@ inline int PercentToIntStartsAtOne(float percent, int max){
     return percent * (max-1) + 1;
 }
 
-//max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
+//max here represent the total range of numbers. Max defaut value = ZirkOscAudioProcessorEditor::TotalNumberConstraints
 inline float IntToPercentStartsAtOne(int integer, int max){
     return static_cast<float>((integer-1)) / (max - 1);
 }
 
-//max here represent the total range of numbers. Max defaut value = ZirkOscjuceAudioProcessorEditor::TotalNumberConstraints
+//max here represent the total range of numbers. Max defaut value = ZirkOscAudioProcessorEditor::TotalNumberConstraints
 inline float IntToPercentStartsAtZero(int integer, int max){
     return static_cast<float>(integer) / max;
 }

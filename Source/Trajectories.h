@@ -30,7 +30,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ZirkConstants.h"
 
-class ZirkOscjuceAudioProcessor;
+class ZirkOscAudioProcessor;
 
 class Trajectory : public ReferenceCountedObject
 {
@@ -39,7 +39,7 @@ public:
 
 	static int NumberOfTrajectories();
 	static String GetTrajectoryName(int i);
-    static Trajectory::Ptr CreateTrajectory(int i, ZirkOscjuceAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source, const std::pair<int,int> &endPoint);
+    static Trajectory::Ptr CreateTrajectory(int i, ZirkOscAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn, float times, int source, const std::pair<float, float> &endPoint);
 	
 public:
 	virtual ~Trajectory() {
@@ -65,9 +65,9 @@ private:
 	void start();
 	
 protected:
-	Trajectory(ZirkOscjuceAudioProcessor *filter, float duration, bool beats, float times, int source);
+	Trajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source);
 	
-	ZirkOscjuceAudioProcessor *ourProcessor;
+	ZirkOscAudioProcessor *ourProcessor;
 
 	bool mStarted, mStopped;
 
@@ -88,9 +88,12 @@ protected:
     
     double m_dTrajectoryBeginTime;
     
-    float m_fTrajectoryInitialAzimuth;
-    
-    float m_fTrajectoryInitialElevation;
+    float m_fTrajectoryInitialAzimuth01;
+    float m_fTrajectoryInitialElevation01;
+
+    float m_fTrajectoryInitialX;
+    float m_fTrajectoryInitialY;
+    std::pair<int, int> m_fEndPair;
     
     double m_dTrajectorySingleLength;
     

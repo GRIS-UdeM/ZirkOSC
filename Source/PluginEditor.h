@@ -40,8 +40,8 @@ class HIDDelegate;
 class ZirkLeap;
 
 
-class ZirkOscjuceAudioProcessor;
-class ZirkOscjuceAudioProcessorEditor  : public AudioProcessorEditor,
+class ZirkOscAudioProcessor;
+class ZirkOscAudioProcessorEditor  : public AudioProcessorEditor,
 public ButtonListener,
 public SliderListener,
 public Timer,
@@ -53,9 +53,9 @@ public ComboBoxListener
 public:
     
     //! Constructor
-    ZirkOscjuceAudioProcessorEditor (ZirkOscjuceAudioProcessor* ownerFilter);
+    ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor* ownerFilter);
     //! Destructor
-    ~ZirkOscjuceAudioProcessorEditor();
+    ~ZirkOscAudioProcessorEditor();
 
     //! This is just a standard Juce paint method...
     void paint (Graphics& g);
@@ -85,7 +85,7 @@ public:
 
 private:
     
-    ZirkOscjuceAudioProcessor* ourProcessor;
+    ZirkOscAudioProcessor* ourProcessor;
     
     void updateSliders();
     
@@ -161,7 +161,7 @@ private:
     
     TextButton* m_pEndTrajectoryButton;
     
-    std::pair <int, int> m_iEndLocationPair;
+    std::pair <float, float> m_fEndLocationPair;
     
     Label* m_pTrajectoryCountLabel;
     
@@ -259,9 +259,9 @@ private:
     ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
 
     //! Auto generated function, to get the processor
-    ZirkOscjuceAudioProcessor* getProcessor() const
+    ZirkOscAudioProcessor* getProcessor() const
     {
-        return static_cast <ZirkOscjuceAudioProcessor*> (getAudioProcessor());
+        return static_cast <ZirkOscAudioProcessor*> (getAudioProcessor());
     }
     
    

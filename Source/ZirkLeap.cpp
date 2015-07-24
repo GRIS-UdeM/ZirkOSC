@@ -26,7 +26,7 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
 #include "Leap.h"
 
 /** ZirkLeap constructor taking two arguments and initializing its others components by default */
-ZirkLeap::ZirkLeap(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor):
+ZirkLeap::ZirkLeap(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor):
 ourProcessor(filter),
 mEditor(editor),
 mController(NULL),
@@ -136,7 +136,7 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
 
 
 /** CreateLeapComponent is called to create a ZirkLeap instance through the ReferenceCountedObject so it is destroyed properly */
-ZirkLeap::Ptr ZirkLeap::CreateLeapComponent(ZirkOscjuceAudioProcessor *filter, ZirkOscjuceAudioProcessorEditor *editor)
+ZirkLeap::Ptr ZirkLeap::CreateLeapComponent(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor)
 {
     return new ZirkLeap(filter, editor);
 }
