@@ -1285,9 +1285,7 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
     //if assigning end location
     else if (m_pEndTrajectoryButton->getToggleState() &&  event.x>5 && event.x <20+ZirkOscAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscAudioProcessor::s_iDomeRadius*2) {
         //get point of current event
-        m_fEndLocationPair = make_pair (HRToPercent(event.x-_ZirkOSC_Center_X, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius),
-                                        HRToPercent(event.y-_ZirkOSC_Center_Y, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius));
-
+        m_fEndLocationPair = make_pair (event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y);
         m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
     }
 

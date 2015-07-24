@@ -35,6 +35,35 @@
 using namespace std;
 
 // ==============================================================================
+Trajectory::Trajectory(ZirkOscAudioProcessor *filter, float duration, bool syncWTempo, float times, int source)
+:
+ourProcessor(filter),
+mStarted(false),
+mStopped(false),
+mDone(0),
+mDurationSingleTrajectory(duration),
+m_dTrajectoryCount(times),
+m_bIsSyncWTempo(syncWTempo)
+{
+    if (mDurationSingleTrajectory < 0.0001) mDurationSingleTrajectory = 0.0001;
+    if (m_dTrajectoryCount < 0.0001) m_dTrajectoryCount = 0.0001;
+    
+    m_TotalTrajectoriesDuration = mDurationSingleTrajectory * m_dTrajectoryCount;
+    
+    //get automation started on currently selected source
+    m_iSelectedSourceForTrajectory = ourProcessor->getSelectedSource();
+    
+    //store initial parameter value
+    m_fStartPair.first = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
+    m_fStartPair.first = m_fStartPair.first*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
+    m_fStartPair.second = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
+    m_fStartPair.second = m_fStartPair.second*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
+    
+    m_fTrajectoryInitialAzimuth01   = SoundSource::XYtoAzim01(m_fStartPair.first, m_fStartPair.second);
+    m_fTrajectoryInitialElevation01 = SoundSource::XYtoElev01(m_fStartPair.first, m_fStartPair.second);
+    ourProcessor->storeCurrentLocations();
+}
+
 void Trajectory::start()
 {
 	spInit();
@@ -57,25 +86,7 @@ void Trajectory::start()
     m_dTrajectoriesDurationBuffer *= m_dTrajectoryCount;
     m_dTrajectorySingleLength = m_dTrajectoriesDurationBuffer / m_dTrajectoryCount;
     
-    //get automation started on currently selected source
-    m_iSelectedSourceForTrajectory = ourProcessor->getSelectedSource();
-    
-    //store initial parameter value
 
-    //need to convert this to azim and elev
-    m_fStartPair.first  = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
-    m_fStartPair.second = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
-
-    float fInitialX = m_fStartPair.first*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
-    float fInitialY = m_fStartPair.second*2*ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
-    
-    m_fTrajectoryInitialAzimuth01   = SoundSource::XYtoAzim01(fInitialX, fInitialY);
-    m_fTrajectoryInitialElevation01 = SoundSource::XYtoElev01(fInitialX, fInitialY);
-    ourProcessor->storeCurrentLocations();
-    
-    //convert current elevation as a radian offset for trajectories that use sin/cos
-    //    _TrajectoriesPhiAsin = asin(m_fTrajectoryInitialElevation01);
-    //    _TrajectoriesPhiAcos = acos(m_fTrajectoryInitialElevation01);
     
     ourProcessor->setIsRecordingAutomation(true);
     ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
@@ -123,22 +134,6 @@ void Trajectory::stop()
     m_bIsWriteTrajectory = false;
     
     ourProcessor->askForGuiRefresh();
-}
-
-Trajectory::Trajectory(ZirkOscAudioProcessor *filter, float duration, bool syncWTempo, float times, int source)
-:
-	ourProcessor(filter),
-	mStarted(false),
-	mStopped(false),
-	mDone(0),
-	mDurationSingleTrajectory(duration),
-    m_dTrajectoryCount(times),
-	m_bIsSyncWTempo(syncWTempo)
-{
-	if (mDurationSingleTrajectory < 0.0001) mDurationSingleTrajectory = 0.0001;
-	if (m_dTrajectoryCount < 0.0001) m_dTrajectoryCount = 0.0001;
-    
-	m_TotalTrajectoriesDuration = mDurationSingleTrajectory * m_dTrajectoryCount;
 }
 
 void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
@@ -289,55 +284,23 @@ public:
 protected:
     void spInit()
     {
-        //		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-        //			mSourcesInitRT.add(mFilter->getSourceRT(i));
+        m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
+        m_fB = m_fStartPair.second - m_fM * m_fStartPair.first;
+        m_fDistance = hypot(m_fEndPair.first - m_fStartPair.first, m_fEndPair.second - m_fStartPair.second);
+        
     }
     void spProcess(float duration, float seconds)
     {
-        int multiple = mCross ? 2 : 1;
-        float newElevation = mDone / mDurationSingleTrajectory, integralPart; //this just grows linearly with time from 0 to m_dTrajectoryCount
+        float fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * mDone / mDurationSingleTrajectory; //this just grows linearly with time from 0 to m_dTrajectoryCount
         
-        if (mRT){
-
-            cout << "start pair " << m_fStartPair.first << ", " << m_fStartPair.second << newLine;
-            cout << "end pair "   << m_fEndPair.first   << ", " << m_fEndPair.second << newLine;
-            //new way, simply oscilates between m_fTrajectoryInitialElevation01 and 0
-            newElevation = abs( m_fTrajectoryInitialElevation01 * cos(newElevation * M_PI /*+ _TrajectoriesPhiAcos*/) );  //only positive cos wave with phase _TrajectoriesPhi
-            
-        } else {
-            
-            newElevation = modf(newElevation, &integralPart); //should be [0,1]
-            if (mIn){
-                
-                if (mCross){
-                    newElevation = abs( sin(newElevation * M_PI) );  //varies between [0,1]
-                    newElevation = newElevation * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;
-                    if (oldElevationBuffer != -1.f){
-                        
-                        //when we get to the top of the dome, we need to get back down
-                        if (!m_bTrajectoryElevationDecreasing && newElevation < oldElevationBuffer){
-                            m_fTrajectoryInitialAzimuth01 > 0.5 ? m_fTrajectoryInitialAzimuth01 -= .5 : m_fTrajectoryInitialAzimuth01 += .5;
-                            m_bTrajectoryElevationDecreasing = true;
-                        }
-                        //reset flag m_bTrajectoryElevationDecreasing as we go down
-                        if (m_bTrajectoryElevationDecreasing && newElevation > oldElevationBuffer){
-                            m_fTrajectoryInitialAzimuth01 > 0.5 ? m_fTrajectoryInitialAzimuth01 -= .5 : m_fTrajectoryInitialAzimuth01 += .5;
-                            m_bTrajectoryElevationDecreasing = false;
-                        }
-                    }
-                } else {
-                    newElevation = newElevation * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;
-                }
-                
-                
-            } else {
-                newElevation = m_fTrajectoryInitialElevation01*(1-newElevation);
-            }
+        float newX = m_fStartPair.first + fCurrentProgress;
+        if (newX > m_fEndPair.first){
+            int i = 0;
         }
+        float newY = m_fM * newX + m_fB;
+
         
-        oldElevationBuffer = newElevation;
-        
-        move (m_fTrajectoryInitialAzimuth01, newElevation);
+        moveXY (newX, newY);
     }
     
 private:
@@ -345,6 +308,9 @@ private:
     float oldElevationBuffer;
     bool m_bTrajectoryElevationDecreasing;
     std::pair<float, float> m_fEndPair;
+    float m_fM;
+    float m_fB;
+    float m_fDistance;
 };
 
 // ==============================================================================
