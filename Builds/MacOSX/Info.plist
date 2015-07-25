@@ -8,7 +8,7 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.UdeM.ZirkOSC</string>
+    <string>com.UdeM.ZirkOSC3</string>
     <key>CFBundleName</key>
     <string>ZirkOSC</string>
     <key>CFBundlePackageType</key>
@@ -37,7 +37,7 @@
         <key>type</key>
         <string>aufx</string>
         <key>subtype</key>
-        <string>Plug</string>
+        <string>Zir3</string>
         <key>version</key>
         <integer>196609</integer>
       </dict>
