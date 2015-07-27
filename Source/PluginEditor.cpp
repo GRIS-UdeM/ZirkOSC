@@ -782,6 +782,8 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
             float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
             
+            g.setColour(Colours::grey);
+            
             fX *= fExtraRatio;
             fY *= fExtraRatio;
         }
