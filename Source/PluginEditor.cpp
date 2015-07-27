@@ -607,6 +607,11 @@ void ZirkOscAudioProcessorEditor::resized() {
     // link button
     _LinkSpanButton.setBounds(iCurWidth-80, 325, 80, 25);
 
+    //------------ SAVE SOURCE ELEVATION ---------------
+    float fAllElev01[8];
+    for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
+        fAllElev01[iCurSrc] = ourProcessor->getSources()[iCurSrc].getElevation01();
+    }
     
     //------------ WALLCIRCLE ------------
     _ZirkOSC_Center_X = (iCurWidth -80)/2;
@@ -615,6 +620,14 @@ void ZirkOscAudioProcessorEditor::resized() {
     int iXRadius = (iCurWidth -85)/2;
     int iYRadius = (iCurHeight-ZirkOSC_SlidersGroupHeight-10)/2;
     ZirkOscAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
+    
+    //------------ RESTORE SOURCE ELEVATION ---------------
+    for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
+        ourProcessor->getSources()[iCurSrc].setElevation01(fAllElev01[iCurSrc]);
+    }
+    
+
+    
     
     //------------ CONSTRAINT COMBO BOX ------------
     _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight - ZirkOSC_SlidersGroupHeight - ZirkOSC_ConstraintComboBoxHeight+20, 220, ZirkOSC_ConstraintComboBoxHeight);
@@ -654,6 +667,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pLBLeapState->                    setBounds(15+100,   15,     200, 25);
     m_pLBJoystickState->                setBounds(15+100,   15+50,  200, 25 );
 
+    
 }
 
 //Automatic function to set label and Slider

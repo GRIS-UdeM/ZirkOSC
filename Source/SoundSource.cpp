@@ -185,7 +185,7 @@ void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
 }
 
 
-void  SoundSource::setAzimuth(float azimuth01){
+void  SoundSource::setAzimuth01(float azimuth01){
     
     if (azimuth01>1 && !m_bIsAzimReversed)
         azimuth01 = azimuth01 - 1.0f;
@@ -196,16 +196,16 @@ void  SoundSource::setAzimuth(float azimuth01){
     setXYUsingAzimElev(azimuth01, getElevation01());
 }
 
-void SoundSource::setElevation(float elevation01){
+void SoundSource::setElevation01(float elevation01){
     //check if we need to reverse the azimuth
     if (elevation01>1 && !m_bIsAzimReversed){
         elevation01 = (1-(elevation01-1));
-        setAzimuth(_Azimuth - 0.5f);
+        setAzimuth01(_Azimuth - 0.5f);
         m_bIsAzimReversed=true;
     }
     else if (elevation01>1 && m_bIsAzimReversed){
         elevation01 = (1-(elevation01-1));
-        setAzimuth(_Azimuth - 0.5f);
+        setAzimuth01(_Azimuth - 0.5f);
         m_bIsAzimReversed=false;
     }
     

@@ -81,7 +81,7 @@ public:
     //! gets the Azimuth [0,1]
     float   getAzimuth01();
     //! sets the azimuth
-    void    setAzimuth(float);
+    void    setAzimuth01(float);
     //! returns the azimuth span
     float   getAzimuthSpan();
     //! sets the azimuth span
@@ -95,7 +95,7 @@ public:
     //! returns the elevation [-1,1] from memory.
     float   getElevationRawValue();
     //! set the elevation 
-    void    setElevation(float);
+    void    setElevation01(float);
     //! returns true if the point is inside the source. Point is relative to the center of the dome
     bool    contains(Point<float>);
     //! returns true if the azimuth has been reversed (elevation >1)
