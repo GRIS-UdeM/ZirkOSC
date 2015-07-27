@@ -175,7 +175,7 @@ private:
     
   	MiniProgressBar *mTrProgressBar;
     
-    void updateTrajectoryComboboxes();
+    void updateTrajectoryComponents();
     
     //---------------- SLIDERS ------------------
     

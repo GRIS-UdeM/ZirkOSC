@@ -415,7 +415,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pTrajectoryTypeComboBox->setSelectedId(ourProcessor->getSelectedTrajectory());
     m_pTrajectoryTypeComboBox->addListener(this);
 
-    //updateTrajectoryComboboxes();
+    //updateTrajectoryComponents();
     
     //TRAJECTORY DURATION EDITOR
     m_pTrajectoryDurationTextEditor = m_oTrajectoryTab->getDurationTextEditor();
@@ -546,7 +546,7 @@ ZirkOscAudioProcessorEditor::~ZirkOscAudioProcessorEditor() {
     }
 }
 
-void ZirkOscAudioProcessorEditor::updateTrajectoryComboboxes(){
+void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
     int iSelectedTrajectory = ourProcessor->getSelectedTrajectory();
     
     unique_ptr<vector<String>> allDirections = Trajectory::getTrajectoryPossibleDirections(iSelectedTrajectory);
@@ -571,6 +571,14 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComboboxes(){
         m_pTrajectoryReturnComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryReturn(), getNumSelectedTrajectoryReturns()));
     } else {
         m_pTrajectoryReturnComboBox->setVisible(false);
+    }
+    
+    if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == Spiral){
+        m_pEndTrajectoryButton->setVisible(true);
+        m_pEndTrajectoryLabel->setVisible(true);
+    } else {
+        m_pEndTrajectoryButton->setVisible(false);
+        m_pEndTrajectoryLabel->setVisible(false);
     }
 }
 
@@ -1472,7 +1480,7 @@ void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChan
         float fSelectedTraj = IntToPercentStartsAtOne(iSelectedTraj, TotalNumberTrajectories);
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, fSelectedTraj);
         
-        updateTrajectoryComboboxes();
+        updateTrajectoryComponents();
     }
     
     else if(comboBoxThatHasChanged == m_pSyncWTempoComboBox){
