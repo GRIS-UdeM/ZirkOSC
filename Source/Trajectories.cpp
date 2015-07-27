@@ -666,9 +666,9 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
             vDirections->push_back("Out, Counter Clockwise");
             break;
         case Pendulum:
-            vDirections->push_back("In");
-            vDirections->push_back("Out");
-            vDirections->push_back("Crossover");
+//            vDirections->push_back("In");
+//            vDirections->push_back("Out");
+//            vDirections->push_back("Crossover");
             break;
         case AllTrajectoryTypes::Random:
             vDirections->push_back("Slow");
