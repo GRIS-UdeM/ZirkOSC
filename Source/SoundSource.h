@@ -127,6 +127,10 @@ private:
     //! Elevation Span parameter stored in percent (see HRToPercent function).
     float _ElevationSpan=0;
     
+//    bool m_bPositionWas00;
+//    
+//    float m_fLastAzim;
+    
 };
 
 

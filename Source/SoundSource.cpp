@@ -144,18 +144,34 @@ void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
 }
 
 void SoundSource::setX01(float p_x){
+//    if (m_fX == 0 && m_fY ==0){
+//        m_bPositionWas00 = true;
+//        m_fLastAzim = getAzimuth01();
+//    } else {
+//        m_bPositionWas00 = false;
+//    }
     m_fX = PercentToHR(p_x, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+
 }
 
 void SoundSource::setY01(float p_y){
+//    if (m_fX == 0 && m_fY ==0){
+//        m_bPositionWas00 = true;
+//        m_fLastAzim = getAzimuth01();
+//    } else {
+//        m_bPositionWas00 = false;
+//    }
     m_fY = PercentToHR(p_y, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
 }
 
 //------------------------------------------------
 //azimuth range [0,1]
 float   SoundSource::getAzimuth01(){
-    
-    return XYtoAzim01(m_fX, m_fY);
+//    if (m_bPositionWas00){
+//        return m_fLastAzim;
+//    } else {
+        return XYtoAzim01(m_fX, m_fY);
+//    }
 }
 
 //elevation range [0,1]
