@@ -380,7 +380,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     m_pAzimuthSlider = m_oSlidersTab->getAzimuthSlider();
     m_pAzimuthLabel  = m_oSlidersTab->getAzimuthLabel();
-    setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min+.01, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->addListener(this);
     
     m_pElevationSlider = m_oSlidersTab->getElevationSlider();
@@ -625,9 +625,6 @@ void ZirkOscAudioProcessorEditor::resized() {
     for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
         ourProcessor->getSources()[iCurSrc].setElevation01(fAllElev01[iCurSrc]);
     }
-    
-
-    
     
     //------------ CONSTRAINT COMBO BOX ------------
     _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight - ZirkOSC_SlidersGroupHeight - ZirkOSC_ConstraintComboBoxHeight+20, 220, ZirkOSC_ConstraintComboBoxHeight);
@@ -935,6 +932,7 @@ void ZirkOscAudioProcessorEditor::updateSliders(){
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
     
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    if(HRValue < -179.99) HRValue = -179.99;
     m_pAzimuthSlider->setValue(HRValue,dontSendNotification);
     
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
@@ -1201,8 +1199,11 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     }
     else if (slider == m_pElevationSlider){
         percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
+        float fCurAzim = ourProcessor->getSources()[selectedSource].getAzimuth01();
+        SoundSource::azimElev01toXY(fCurAzim, percentValue, fX, fY);
         move(selectedSource, fX, fY);
+        ourProcessor->getSources()[selectedSource].setAzimuth01(fCurAzim);
+        fCurAzim = ourProcessor->getSources()[selectedSource].getAzimuth01();
     }
     else if (slider == m_pElevationSpanSlider) {
         percentValue = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
