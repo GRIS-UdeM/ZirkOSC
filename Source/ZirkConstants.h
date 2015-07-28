@@ -62,11 +62,11 @@ const float  ZirkOSC_Gain_Def = 1.0f;
 const String ZirkOSC_Movement_Constraint_name = "Move_Constraint";
 const String ZirkOSC_isOscActive_name = "is_OSC_Active";
 const String ZirkOSC_isSpanLinked_name = "is_Span_Linked";
-const String ZirkOSC_SelectedTrajectory_name = "SelectedTrajectory";
-const String ZirkOSC_SelectedTrajectoryDirection_name = "SelectedTrajectoryDirection";
-const String ZirkOSC_SelectedTrajectoryReturn_name = "SelectedTrajectoryReturn";
+const String ZirkOSC_SelectedTrajectory_name = "TrajName";
+const String ZirkOSC_SelectedTrajectoryDirection_name = "TrajDirection";
+const String ZirkOSC_SelectedTrajectoryReturn_name = "TrajReturn";
 const String ZirkOSC_NbrTrajectories_name = "NbrTrajectories";
-const String ZirkOSC_DurationTrajectories_name = "DurationTrajectories";
+const String ZirkOSC_DurationTrajectories_name = "TrajDuration";
 const String ZirkOSCm_bIsSyncWTempo_name = "SyncWTempo";
 const String ZirkOSCm_bIsWriteTrajectory_name = "WriteTrajectory";
 

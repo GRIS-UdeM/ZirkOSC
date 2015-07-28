@@ -69,7 +69,9 @@ _NbrSources(1)
 {
     initSources();
 
-    changeZirkoniumOSCPort(_OscPortZirkonium);
+    char port[32];
+    snprintf(port, sizeof(port), "%d", _OscPortZirkonium);
+    _OscZirkonium = lo_address_new("127.0.0.1", port);
     
     //default values for ui dimensions
     _LastUiWidth  = ZirkOSC_Window_Default_Width;
@@ -487,7 +489,7 @@ void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    
+    setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, m_iSelectedMovementConstraint);
 }
 
 void ZirkOscAudioProcessor::releaseResources()
@@ -649,56 +651,62 @@ float ZirkOscAudioProcessor::getParameter (int index)
 // it's absolutely time-critical. Don't use critical sections or anything
 // UI-related, or anything at all that may block in any way!
 void ZirkOscAudioProcessor::setParameter (int index, float newValue){
+    bool bFoundParameter = false;
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
             _SelectedMovementConstraint = newValue;
             m_iSelectedMovementConstraint = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
-            return;
+            bFoundParameter = true;
+            break;
         case ZirkOSC_isOscActive_ParamId:
             if (newValue > .5f)
                 _isOscActive = true;
             else
                 _isOscActive = false;
-            return;
+            bFoundParameter = true;
+            break;
         case ZirkOSC_isSpanLinked_ParamId:
             if (newValue > .5f)
                 _isSpanLinked = true;
             else
                 _isSpanLinked = false;
-            return;
+            bFoundParameter = true;
+            break;
         case ZirkOSC_SelectedTrajectory_ParamId:
             _SelectedTrajectory = newValue;
-            return;
-            
+            bFoundParameter = true;
+            break;
         case ZirkOSC_SelectedTrajectoryDirection_ParamId:
             m_fSelectedTrajectoryDirection = newValue;
-            return;
+            bFoundParameter = true;
 
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
             m_fSelectedTrajectoryReturn = newValue;
-            return;
-            
+            bFoundParameter = true;
+            break;
         case ZirkOSCm_dTrajectoryCount_ParamId:
             m_dTrajectoryCount = newValue;
-            return;
+            bFoundParameter = true;
+            break;
         case ZirkOSC_TrajectoriesDuration_ParamId:
             _TrajectoriesDuration = newValue;
-            return;
+            bFoundParameter = true;
+            break;
         case ZirkOSC_SyncWTempo_ParamId:
             if (newValue > .5f)
                 m_bIsSyncWTempo = true;
             else
                 m_bIsSyncWTempo = false;
-            return;
+            bFoundParameter = true;
+            break;
         case ZirkOSC_WriteTrajectories_ParamId:
             if (newValue > .5f)
                 m_bIsWriteTrajectory = true;
             else
                 m_bIsWriteTrajectory = false;
-            return;
+            bFoundParameter = true;
     }
-
-    JUCE_COMPILER_WARNING("probably need to pause Processor::timercallback when x and y are set one after the other, externally")
+    
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
         if  (ZirkOSC_X_ParamId + (iCurSource*5) == index) {
             if (newValue != _AllSources[iCurSource].getX01()){
@@ -708,7 +716,7 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
             if (m_fSourceOldX01[iCurSource] == -1.f){
                 m_fSourceOldX01[iCurSource] = newValue; //if this was not initialized, we get our first value here
             }
-            return;
+            bFoundParameter = true;
         }
         else if (ZirkOSC_Y_ParamId + (iCurSource*5) == index) {
             if (newValue != _AllSources[iCurSource].getY01()){
@@ -718,19 +726,23 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
             if (m_fSourceOldY01[iCurSource] == -1.f){
                 m_fSourceOldY01[iCurSource] = newValue;
             }
-            return;
+            bFoundParameter = true;
         }
         else if (ZirkOSC_AzimSpan_ParamId + (iCurSource*5) == index){
-            _AllSources[iCurSource].setAzimuthSpan(newValue); return;
+            _AllSources[iCurSource].setAzimuthSpan(newValue); bFoundParameter = true;
         }
         else if (ZirkOSC_ElevSpan_ParamId + (iCurSource*5) == index){
-            _AllSources[iCurSource].setElevationSpan(newValue); return;
+            _AllSources[iCurSource].setElevationSpan(newValue); bFoundParameter = true;
         }
         else if (ZirkOSC_Gain_ParamId + (iCurSource*5) == index){
-            _AllSources[iCurSource].setGain(newValue); return;
+            _AllSources[iCurSource].setGain(newValue); bFoundParameter = true;
         }
     }
-    cerr << "wrong parameter id: " << index << " in ZirkOscAudioProcessor::setParameter\n";
+    if (!bFoundParameter){
+        cerr << "wrong parameter id: " << index << " in ZirkOscAudioProcessor::setParameter\n";
+    } else {
+        m_bNeedToRefreshGui = true;
+    }
 }
 
 
@@ -891,7 +903,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
         m_fSelectedTrajectoryReturn    = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
         changeZirkoniumOSCPort(_OscPortZirkonium);
-        _RefreshGui=true;
+        m_bNeedToRefreshGui=true;
     }
 }
 

@@ -228,9 +228,9 @@ public:
     float getSelectedTrajectoryReturn();
     
     //! Retunrs true if the Editor has to refresh the Gui.
-    bool hasToRefreshGui(){return _RefreshGui;};
+    bool hasToRefreshGui(){return m_bNeedToRefreshGui;};
     //! If you want to refresh the Gui from the Processor.
-    void setRefreshGui(bool gui) { _RefreshGui = gui;};
+    void setRefreshGui(bool gui) { m_bNeedToRefreshGui = gui;};
     //! Change the sending OSC port of the zirkonium
     void changeZirkoniumOSCPort(int newPort);
 
@@ -258,7 +258,7 @@ public:
     void setTrajectory(Trajectory::Ptr t) { mTrajectory = t; }
   	Trajectory::Ptr getTrajectory() { return mTrajectory; }
     
-    void askForGuiRefresh(){_RefreshGui=true;};
+    void askForGuiRefresh(){m_bNeedToRefreshGui=true;};
     
     bool getIsJoystickEnabled() const { return _isJoystickEnabled; }
     
@@ -297,7 +297,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscAudioProcessor)
     //! Whether the editor has to refresh the GUI
     JUCE_COMPILER_WARNING("this flag should really be used and the gui should NOT refresh if this flag is false")
-    bool _RefreshGui = false;
+    bool m_bNeedToRefreshGui = false;
     //! Current number of sources on the screnn
     int _NbrSources;
     //! float ID of the selected movement constraint

@@ -236,7 +236,7 @@ private:
 
 
     //! Combobox to choose constrain type
-    ComboBox _MovementConstraintComboBox;
+    ComboBox m_oMovementConstraintComboBox;
     
     //! If there is a source beeing drag
     bool m_bIsSourceBeingDragged = false;

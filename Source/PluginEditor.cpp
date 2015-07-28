@@ -290,7 +290,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 //,_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE")
 //,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
 //,_IpadIpAddressTextEditor("ipaddress")
-,_MovementConstraintComboBox("MovementConstraint")
+,m_oMovementConstraintComboBox("MovementConstraint")
 {
 
     ourProcessor = getProcessor();
@@ -349,16 +349,16 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     
     //---------- CONSTRAINT COMBO BOX ----------
-    _MovementConstraintComboBox.addItem("Independant",   Independant);
-    _MovementConstraintComboBox.addItem("Circular",      Circular);
-    _MovementConstraintComboBox.addItem("Equal Elevation",  EqualElev);
-    _MovementConstraintComboBox.addItem("Equal Azimuth",   EqualAngles);
-    _MovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyEqual);
-    _MovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
+    m_oMovementConstraintComboBox.addItem("Independant",   Independant);
+    m_oMovementConstraintComboBox.addItem("Circular",      Circular);
+    m_oMovementConstraintComboBox.addItem("Equal Elevation",  EqualElev);
+    m_oMovementConstraintComboBox.addItem("Equal Azimuth",   EqualAngles);
+    m_oMovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyEqual);
+    m_oMovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
     int selected_id = ourProcessor->getSelectedMovementConstraint();
-    _MovementConstraintComboBox.setSelectedId(selected_id);
-    _MovementConstraintComboBox.addListener(this);
-    addAndMakeVisible(&_MovementConstraintComboBox);
+    m_oMovementConstraintComboBox.setSelectedId(selected_id);
+    m_oMovementConstraintComboBox.addListener(this);
+    addAndMakeVisible(&m_oMovementConstraintComboBox);
     
     
     //---------- SETTING UP TABS ----------
@@ -635,7 +635,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     }
     
     //------------ CONSTRAINT COMBO BOX ------------
-    _MovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight - ZirkOSC_SlidersGroupHeight - ZirkOSC_ConstraintComboBoxHeight+20, 220, ZirkOSC_ConstraintComboBoxHeight);
+    m_oMovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight - ZirkOSC_SlidersGroupHeight - ZirkOSC_ConstraintComboBoxHeight+20, 220, ZirkOSC_ConstraintComboBoxHeight);
     
     //------------ TABS ------------
     _TabComponent.setBounds(0, iCurHeight - ZirkOSC_SlidersGroupHeight + ZirkOSC_ConstraintComboBoxHeight, iCurWidth, ZirkOSC_SlidersGroupHeight);
@@ -882,8 +882,6 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
     clock_t begin = clock();
     clock_t proc = clock();
 #endif
-    
-    JUCE_COMPILER_WARNING("this update (and any other update) should only be done when there's actually something to change")
     updateSliders();
     
     switch(mTrState)
@@ -960,7 +958,7 @@ void ZirkOscAudioProcessorEditor::refreshGui(){
     _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getSourceId()));
-    _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraint());
+    m_oMovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraint());
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
 
@@ -1263,7 +1261,7 @@ void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
         ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + source*5);
         ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + source*5);
     }
-    _MovementConstraintComboBox.grabKeyboardFocus();
+    m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
 int ZirkOscAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
@@ -1299,7 +1297,7 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         
         move(ourProcessor->getSelectedSource(), fX, fY);
     }
-    _MovementConstraintComboBox.grabKeyboardFocus();
+    m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
 void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY){
@@ -1339,7 +1337,7 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
     }
 
-    _MovementConstraintComboBox.grabKeyboardFocus();
+    m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
 
@@ -1454,17 +1452,18 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
 //        
 //    }
     if (!_isReturnKeyPressedCalledFromFocusLost){
-        _MovementConstraintComboBox.grabKeyboardFocus();
+        m_oMovementConstraintComboBox.grabKeyboardFocus();
     }
 }
 
 void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
 
-    if (comboBoxThatHasChanged == &_MovementConstraintComboBox){
+    if (comboBoxThatHasChanged == &m_oMovementConstraintComboBox){
         
         int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
         
         float fSelectedConstraint = IntToPercentStartsAtOne(selectedConstraint, TotalNumberConstraints);
+        cout << "fSelectedConstraint " << fSelectedConstraint << newLine;
         
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
 
