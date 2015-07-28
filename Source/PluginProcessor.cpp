@@ -1,6 +1,6 @@
 /*
  ==============================================================================
- ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
+ ZirkOSC: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
  
  Copyright (C) 2015  GRIS-UdeM
  
@@ -69,7 +69,7 @@ _NbrSources(1)
 {
     initSources();
 
-    _OscZirkonium = lo_address_new("127.0.0.1", "10001");
+    changeZirkoniumOSCPort(_OscPortZirkonium);
     
     //default values for ui dimensions
     _LastUiWidth  = ZirkOSC_Window_Default_Width;
@@ -99,7 +99,9 @@ void ZirkOscAudioProcessor::timerCallback(){
         m_iSourceLocationChanged = -1.f;
     }
     const MessageManagerLock mmLock;
-    sendOSCValues();
+    if (_isOscActive){
+        sendOSCValues();
+    }
 }
 
 void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
@@ -805,7 +807,7 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
         String strX = "X" + to_string(iCurSrc);
         String strY = "Y" + to_string(iCurSrc);
         
-        xml.setAttribute(channel,       _AllSources[iCurSrc].getChannel());
+        xml.setAttribute(channel,       _AllSources[iCurSrc].getSourceId());
         xml.setAttribute(azimuthSpan,   _AllSources[iCurSrc].getAzimuthSpan());
         xml.setAttribute(elevationSpan, _AllSources[iCurSrc].getElevationSpan());
         xml.setAttribute(gain,          _AllSources[iCurSrc].getGain());
@@ -874,7 +876,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
             String strX         = "X" + to_string(iCurSrc);
             String strY         = "Y" + to_string(iCurSrc);
 
-            _AllSources[iCurSrc].setChannel(xmlState->getIntAttribute(channel , 0));
+            _AllSources[iCurSrc].setSourceId(xmlState->getIntAttribute(channel , 0));
             _AllSources[iCurSrc].setAzimuthSpan(    static_cast<float>(xmlState->getDoubleAttribute(azimuthSpan,0)));
             _AllSources[iCurSrc].setElevationSpan(  static_cast<float>(xmlState->getDoubleAttribute(elevationSpan,0)));
             _AllSources[iCurSrc].setGain(           static_cast<float>(xmlState->getDoubleAttribute(gain, 1)));
@@ -894,17 +896,16 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
 }
 
 void ZirkOscAudioProcessor::sendOSCValues(){
-    if (_isOscActive){
-        for(int i=0;i<_NbrSources;++i){
-            float azim_osc = PercentToHR(_AllSources[i].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
-            float elev_osc = PercentToHR(_AllSources[i].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
-            float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
-            float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
-            int channel_osc = _AllSources[i].getChannel()-1;
-            float gain_osc = _AllSources[i].getGain();
-            
-            lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
-        }
+    
+    for(int i=0;i<_NbrSources;++i){
+        float azim_osc = PercentToHR(_AllSources[i].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
+        float elev_osc = PercentToHR(_AllSources[i].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
+        float azimspan_osc = PercentToHR(_AllSources[i].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
+        float elevspan_osc = PercentToHR(_AllSources[i].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
+        int channel_osc = _AllSources[i].getSourceId()-1;
+        float gain_osc = _AllSources[i].getGain();
+        
+        lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
     }
 }
 
@@ -919,6 +920,7 @@ void ZirkOscAudioProcessor::changeZirkoniumOSCPort(int newPort){
     _OscPortZirkonium = newPort;
 	_OscZirkonium = NULL;
     lo_address_free(osc);
+    
 	char port[32];
 	snprintf(port, sizeof(port), "%d", newPort);
 	_OscZirkonium = lo_address_new("127.0.0.1", port);

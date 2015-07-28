@@ -1,6 +1,6 @@
 /*
  ==============================================================================
- ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
+ ZirkOSC: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
  
  Copyright (C) 2015  GRIS-UdeM
  
@@ -70,7 +70,7 @@ const String ZirkOSC_DurationTrajectories_name = "DurationTrajectories";
 const String ZirkOSCm_bIsSyncWTempo_name = "SyncWTempo";
 const String ZirkOSCm_bIsWriteTrajectory_name = "WriteTrajectory";
 
-const String ZirkOSC_Channel_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
+const String ZirkOSCm_iSourceId_name [ZirkOSC_Max_Sources] = {"1 Channel", "2 Channel","3 Channel","4 Channel","5 Channel","6 Channel","7 Channel","8 Channel"};
 
 const int ZirkOSC_reg_timerDelay = 50;// 50 = 1000 / 20; or 20fps
 

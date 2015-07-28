@@ -1,6 +1,6 @@
 /*
  ==============================================================================
- ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
+ ZirkOSC: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
  
  Copyright (C) 2015  GRIS-UdeM
  
@@ -34,9 +34,9 @@ public:
     
     void getXY(float &fX, float &fY);
     //! returns the channel (id in the Zirkonium)
-    int     getChannel();
+    int     getSourceId();
     //! sets the channel (id in the Zirkonium)
-    void    setChannel(int);
+    void    setSourceId(int);
     //! returns the X position, range [-r,r]
     float   getX();
     //! retunrs the Y position, range [-r,r]
@@ -115,7 +115,7 @@ private:
     //! If source Elevation is over 90° you have to reverse the azim
     bool m_bIsAzimReversed;
     //! Source channel id id send to Zirkonium
-    int _Channel =0;
+    int m_iSourceId =1;
     //! Gain parameter stored in percent (see HRToPercent function).
     float _Gain=1;
     //! Azimuth parameter stored in percent (see HRToPercent function).

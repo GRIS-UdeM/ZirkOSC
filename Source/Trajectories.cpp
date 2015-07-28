@@ -1,6 +1,6 @@
 /*
  ==============================================================================
- ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
+ ZirkOSC: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
  
  Copyright (C) 2015  GRIS-UdeM
  

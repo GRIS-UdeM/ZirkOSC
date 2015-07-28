@@ -1,6 +1,6 @@
 /*
  ==============================================================================
- ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
+ ZirkOSC: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
  
  Copyright (C) 2015  GRIS-UdeM
  
@@ -49,12 +49,12 @@ void    SoundSource::setGain(float gain){
     _Gain=gain;
 }
 
-int   SoundSource::getChannel(){
-    return _Channel;
+int   SoundSource::getSourceId(){
+    return m_iSourceId;
 }
 
-void    SoundSource::setChannel(int channel){
-    this->_Channel = channel;
+void    SoundSource::setSourceId(int iSourceId){
+    this->m_iSourceId = iSourceId;
 }
 
 bool    SoundSource::isAzimReverse(){

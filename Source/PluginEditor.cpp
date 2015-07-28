@@ -1,6 +1,6 @@
 /*
  ==============================================================================
- ZirkOSC2: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
+ ZirkOSC: VST and AU audio plug-in enabling spatial movement of sound sources in a dome of speakers.
  
  Copyright (C) 2015  GRIS-UdeM
  
@@ -313,7 +313,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     addAndMakeVisible(&m_VersionLabel);
     
     _FirstSourceIdLabel.setText("1st source ID",  dontSendNotification);
-    _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
+    _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getSourceId()));
     addAndMakeVisible(&_FirstSourceIdLabel);
     addAndMakeVisible(&_FirstSourceIdTextEditor);
     
@@ -809,7 +809,7 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         
         //draw source labels
         if(!m_bIsSourceBeingDragged){
-            g.drawText(String(ourProcessor->getSources()[i].getChannel()), _ZirkOSC_Center_X + fX+iXOffset, _ZirkOSC_Center_Y + fY+iYOffset, 25, 10, Justification::centred, false);
+            g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX+iXOffset, _ZirkOSC_Center_Y + fY+iYOffset, 25, 10, Justification::centred, false);
         }
     }
 }
@@ -959,7 +959,7 @@ void ZirkOscAudioProcessorEditor::updateSliders(){
 void ZirkOscAudioProcessorEditor::refreshGui(){
     _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
-    _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getChannel()));
+    _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getSourceId()));
     _MovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraint());
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
@@ -1362,7 +1362,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             ourProcessor->setNbrSources(intValue);
             
             //need to give those new sources IDs, so get first source ID
-            int sourceId = ourProcessor->getSources()[0].getChannel();
+            int sourceId = ourProcessor->getSources()[0].getSourceId();
             //updating leapSource Combobox
             m_pCBLeapSource->clear();
             int firstSource =_FirstSourceIdTextEditor.getText().getIntValue();
@@ -1376,7 +1376,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             m_pCBLeapSource->addListener(this);
             //then set all subsequent source IDs to subsequent numbers
             for (int iCurSource = 1; iCurSource < 8; ++iCurSource){
-                ourProcessor->getSources()[iCurSource].setChannel(++sourceId);
+                ourProcessor->getSources()[iCurSource].setSourceId(++sourceId);
             }
             
             //toggle fixed angle repositioning, if we need to
@@ -1417,7 +1417,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
     
         //set the ID of the first source to intValue, then set all subsequent source IDs to subsequent numbers
         for (int iCurSource = 0; iCurSource < 8; ++iCurSource){
-            ourProcessor->getSources()[iCurSource].setChannel(newChannel++);
+            ourProcessor->getSources()[iCurSource].setSourceId(newChannel++);
         }
     }
     
