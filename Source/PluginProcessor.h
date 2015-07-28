@@ -218,7 +218,11 @@ public:
     void sendOSCValues();
     
     //! Getter constrain type as integer, since parameters need to be stored as floats [0,1]
-    int getSelectedMovementConstraint();
+    int getMovementConstraint();
+    
+    void setMovementConstraint(float newValue);
+    
+    void setMovementConstraint(int newValue);
     
     //! Getter for trajectory as integer, since parameters need to be stored as floats [0,1]
     int getSelectedTrajectory();
@@ -301,9 +305,9 @@ private:
     //! Current number of sources on the screnn
     int _NbrSources;
     //! float ID of the selected movement constraint
-    float _SelectedMovementConstraint;
+    float m_fMovementConstraint;
     //! int ID of the selected movement constraint IMPORTANT: need to be set manually whenever float version of parameter is changed
-    int m_iSelectedMovementConstraint;
+    int m_iMovementConstraint;
     //! float ID of the selected trajectory
     float _SelectedTrajectory;
     

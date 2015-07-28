@@ -46,8 +46,6 @@ int ZirkOscAudioProcessor::s_iDomeRadius = 172;
 ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 :
 _NbrSources(1)
-,_SelectedMovementConstraint(.0f)
-,m_iSelectedMovementConstraint(Independant)
 ,_SelectedTrajectory(.0f)
 ,m_fSelectedTrajectoryDirection(.0f)
 ,m_fSelectedTrajectoryReturn(.0f)
@@ -67,6 +65,8 @@ _NbrSources(1)
 ,m_bIsEqualElev(false)
 ,m_bIsRecordingAutomation(false)
 {
+    setMovementConstraint(Independant);
+    
     initSources();
 
     char port[32];
@@ -91,8 +91,8 @@ void ZirkOscAudioProcessor::initSources(){
 }
 
 void ZirkOscAudioProcessor::timerCallback(){
-    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iSelectedMovementConstraint != Independant&& m_iSourceLocationChanged != -1) {
-        if (m_iSelectedMovementConstraint == DeltaLocked){
+    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iMovementConstraint != Independant&& m_iSourceLocationChanged != -1) {
+        if (m_iMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
             moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
@@ -117,27 +117,27 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
 
-    if(m_iSelectedMovementConstraint == Independant){
+    if(m_iMovementConstraint == Independant){
         m_fSourceOldX01[p_iSource] = fX01;
         m_fSourceOldY01[p_iSource] = fY01;
     } else if (getNbrSources()>1){
-        if (m_iSelectedMovementConstraint == EqualAngles){
+        if (m_iMovementConstraint == EqualAngles){
             m_bIsEqualElev = false;
             moveEqualAngles(p_iSource, p_fX, p_fY);
         }
-        else if (m_iSelectedMovementConstraint == EqualElev){
+        else if (m_iMovementConstraint == EqualElev){
             m_bIsEqualElev = true;
             moveCircular(p_iSource, p_fX, p_fY, m_bIsEqualElev);
         }
-        else if (m_iSelectedMovementConstraint == Circular){
+        else if (m_iMovementConstraint == Circular){
             m_bIsEqualElev = false;
             moveCircular(p_iSource, p_fX, p_fY, m_bIsEqualElev);
         }
-        else if (m_iSelectedMovementConstraint == FullyEqual){
+        else if (m_iMovementConstraint == FullyEqual){
             m_bIsEqualElev = true;
             moveFullyEqual(p_iSource, p_fX, p_fY);
         }
-        else if (m_iSelectedMovementConstraint == DeltaLocked){
+        else if (m_iMovementConstraint == DeltaLocked){
             m_bIsEqualElev = false;
             moveSourcesWithDelta(p_iSource, p_fX, p_fY);
         }
@@ -489,7 +489,7 @@ void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, m_iSelectedMovementConstraint);
+    setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, m_fMovementConstraint);
 }
 
 void ZirkOscAudioProcessor::releaseResources()
@@ -592,7 +592,7 @@ float ZirkOscAudioProcessor::getParameter (int index)
 {
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
-            return _SelectedMovementConstraint;
+            return m_fMovementConstraint;
         case ZirkOSC_isOscActive_ParamId:
             if (_isOscActive)
                 return 1.0f;
@@ -654,8 +654,7 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
     bool bFoundParameter = false;
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
-            _SelectedMovementConstraint = newValue;
-            m_iSelectedMovementConstraint = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
+            setMovementConstraint(newValue);
             bFoundParameter = true;
             break;
         case ZirkOSC_isOscActive_ParamId:
@@ -745,6 +744,15 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
     }
 }
 
+void ZirkOscAudioProcessor::setMovementConstraint(float p_fConstraint){
+    m_fMovementConstraint = p_fConstraint;
+    m_iMovementConstraint = PercentToIntStartsAtOne(m_fMovementConstraint, TotalNumberConstraints);
+}
+
+void ZirkOscAudioProcessor::setMovementConstraint(int p_iConstraint){
+    m_iMovementConstraint = p_iConstraint;
+    m_fMovementConstraint = IntToPercentStartsAtOne(m_iMovementConstraint, TotalNumberConstraints);
+}
 
 const String ZirkOscAudioProcessor::getParameterName (int index)
 {
@@ -799,7 +807,7 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute ("uiHeight", _LastUiHeight);
     xml.setAttribute("PortOSC", _OscPortZirkonium);
     xml.setAttribute("NombreSources", _NbrSources);
-    xml.setAttribute("MovementConstraint", _SelectedMovementConstraint);
+    xml.setAttribute("MovementConstraint", m_fMovementConstraint);
     xml.setAttribute("isSpanLinked", _isSpanLinked);
     xml.setAttribute("isOscActive", _isOscActive);
     xml.setAttribute("selectedTrajectory", _SelectedTrajectory);
@@ -870,8 +878,8 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         _LastUiHeight                   = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
         _OscPortZirkonium               = xmlState->getIntAttribute("PortOSC", 18032);
         _NbrSources                     = xmlState->getIntAttribute("NombreSources", 1);
-        _SelectedMovementConstraint     = static_cast<float>(xmlState->getDoubleAttribute("MovementConstraint", .2f));
-        m_iSelectedMovementConstraint   = PercentToIntStartsAtOne(_SelectedMovementConstraint, TotalNumberConstraints);
+        float fMovementConstraint       = xmlState->getDoubleAttribute("MovementConstraint", .0f);
+        setMovementConstraint(fMovementConstraint >= 0 ? fMovementConstraint : 0);
         _isOscActive                    = xmlState->getBoolAttribute("isOscActive", true);
         _isSpanLinked                   = xmlState->getBoolAttribute("isSpanLinked", false);
         _SelectedTrajectory             = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
@@ -939,8 +947,8 @@ void ZirkOscAudioProcessor::changeZirkoniumOSCPort(int newPort){
     
 }
 
-int ZirkOscAudioProcessor::getSelectedMovementConstraint() {
-    return m_iSelectedMovementConstraint;
+int ZirkOscAudioProcessor::getMovementConstraint() {
+    return m_iMovementConstraint;
 }
 
 int ZirkOscAudioProcessor::getSelectedTrajectory() {

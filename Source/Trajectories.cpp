@@ -229,6 +229,7 @@ public:
     : Trajectory(filter, duration, beats, times, source)
     , mCCW(ccw)
     , m_bRT(rt)
+    , m_fEndPair(endPoint)
     { }
     
 protected:
@@ -243,70 +244,87 @@ protected:
             m_fM = 0;
             m_fB = m_fStartPair.first;
         }
-//        m_fDistance = hypot(m_fEndPair.first - m_fStartPair.first, m_fEndPair.second - m_fStartPair.second);
+        //        m_fDistance = hypot(m_fEndPair.first - m_fStartPair.first, m_fEndPair.second - m_fStartPair.second);
         
         //make the end pair twice as far, in order to spiral around it
-        float fDeltaX = m_fEndPair.first - m_fStartPair.first;
-        float fDeltaY = m_fEndPair.second - m_fStartPair.second;
-        m_fEndPair.first  += fDeltaX;
-        m_fEndPair.second += fDeltaY;
+        m_fDeltaX = m_fEndPair.first - m_fStartPair.first;
+        m_fDeltaY = m_fEndPair.second - m_fStartPair.second;
+        m_fEndPair.first  += m_fDeltaX;
+        m_fEndPair.second += m_fDeltaY;
+        
+        //store initial positions
+        m_fStartPairBuffer.first = m_fStartPair.first;
+        m_fStartPairBuffer.second = m_fStartPair.second;
+        m_fEndPairBuffer.first = m_fEndPair.first;
+        m_fEndPairBuffer.second = m_fEndPair.second;
     }
+    
     void spProcess(float duration, float seconds)
     {
-        
         //pendulum stuff
         float fPendulumX, fPendulumY, temp, fCurrentProgress = modf((mDone / mDurationSingleTrajectory), &temp);
         if (m_bYisDependent){
-            fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * fCurrentProgress;// (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
+            fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fCurrentProgress * 4 * M_PI)) / 2;
             fPendulumX = m_fStartPair.first + fCurrentProgress;
             fPendulumY = m_fM * fPendulumX + m_fB;
+            
+            //cout << "X " << m_fDeltaX << "\t" << m_fDeltaXBuffer << "\t" << mDone << "\t" << mDurationSingleTrajectory << "\t" << m_dTrajectoryCount << newLine;
+            
+            m_fEndPair.first   = m_fEndPairBuffer.first   - ((m_fEndPairBuffer.first * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount));
+            
+            m_fStartPair.first = m_fStartPairBuffer.first - ((m_fEndPairBuffer.first - m_fStartPairBuffer.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
+
+            
         } else {
-            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * fCurrentProgress; //(1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
+            fCurrentProgress = m_fDeltaY * (1-cos(fCurrentProgress * 4 * M_PI)) / 2;
             fPendulumX = m_fStartPair.first;
             fPendulumY = m_fStartPair.second + fCurrentProgress;
+            
+            //cout << "Y " << m_fDeltaY << "\t" << m_fDeltaYBuffer << "\t" << mDone << "\t" << mDurationSingleTrajectory << "\t" << m_dTrajectoryCount << newLine;
+            
+            //m_fDeltaY -= m_fDeltaYBuffer * mDone / (mDurationSingleTrajectory*m_dTrajectoryCount);
         }
-//        fPendulumX -= m_fStartPair.first;
-//        fPendulumY -= m_fStartPair.second;
+        //        fPendulumX -= m_fStartPair.first;
+        //        fPendulumY -= m_fStartPair.second;
         
         
-//        //spiral stuff
-//        float newAzimuth, newElevation, theta;
-//        newElevation = mDone / mDurationSingleTrajectory;
-//        theta = modf(newElevation, &temp);                                          //result from this modf is theta [0,1]
-//        
-//        //multiplying theta or newElevation by fK here makes the spiral turn faster
-//        float fK =4;
-//        
-//        //UP AND DOWN SPIRAL
-//        if (m_bRT){
-//            if (mIn){
-//                newElevation = abs( (1 - m_fTrajectoryInitialElevation01) * sin(fK*newElevation * M_PI) ) + m_fTrajectoryInitialElevation01;
-//            } else {
-//                newElevation = abs( m_fTrajectoryInitialElevation01 * cos(fK*newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
-//            }
-//            
-//            if (!mCCW) theta = -theta;
-//            theta *= 2;
-//            
-//        } else {
-//            
-//            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-//            newElevation = theta * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;         //newElevation is a mapping of theta[0,1] to [m_fTrajectoryInitialElevation01, 1]
-//            
-//            if (!mIn)
-//                newElevation = m_fTrajectoryInitialElevation01 * (1 - newElevation) / (1-m_fTrajectoryInitialElevation01);  //map newElevation from [m_fTrajectoryInitialElevation01, 1] to [m_fTrajectoryInitialElevation01, 0]
-//            
-//            if (!mCCW) theta = -theta;
-//        }
-//        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + fK*theta, &temp);                        //this is like adding a to theta
-//        
-//        float fSpiralX, fSpiralY;
-//        SoundSource::azimElev01toXY(newAzimuth, newElevation, fSpiralX, fSpiralY);
-//        cout << fPendulumX << "\t" << fPendulumY << "\t" << fSpiralX << "\t" << fSpiralY << newLine;
-//        
-//        moveXY(fPendulumX+fSpiralX, fPendulumY+fSpiralY);
+        //        //spiral stuff
+        //        float newAzimuth, newElevation, theta;
+        //        newElevation = mDone / mDurationSingleTrajectory;
+        //        theta = modf(newElevation, &temp);                                          //result from this modf is theta [0,1]
+        //
+        //        //multiplying theta or newElevation by fK here makes the spiral turn faster
+        //        float fK =4;
+        //
+        //        //UP AND DOWN SPIRAL
+        //        if (m_bRT){
+        //            if (mIn){
+        //                newElevation = abs( (1 - m_fTrajectoryInitialElevation01) * sin(fK*newElevation * M_PI) ) + m_fTrajectoryInitialElevation01;
+        //            } else {
+        //                newElevation = abs( m_fTrajectoryInitialElevation01 * cos(fK*newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
+        //            }
+        //
+        //            if (!mCCW) theta = -theta;
+        //            theta *= 2;
+        //
+        //        } else {
+        //
+        //            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
+        //            newElevation = theta * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;         //newElevation is a mapping of theta[0,1] to [m_fTrajectoryInitialElevation01, 1]
+        //
+        //            if (!mIn)
+        //                newElevation = m_fTrajectoryInitialElevation01 * (1 - newElevation) / (1-m_fTrajectoryInitialElevation01);  //map newElevation from [m_fTrajectoryInitialElevation01, 1] to [m_fTrajectoryInitialElevation01, 0]
+        //
+        //            if (!mCCW) theta = -theta;
+        //        }
+        //        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + fK*theta, &temp);                        //this is like adding a to theta
+        //
+        //        float fSpiralX, fSpiralY;
+        //        SoundSource::azimElev01toXY(newAzimuth, newElevation, fSpiralX, fSpiralY);
+        //        cout << fPendulumX << "\t" << fPendulumY << "\t" << fSpiralX << "\t" << fSpiralY << newLine;
+        //
+        //        moveXY(fPendulumX+fSpiralX, fPendulumY+fSpiralY);
         moveXY(fPendulumX, fPendulumY);
-
     }
     
 private:
@@ -314,9 +332,12 @@ private:
     bool mCCW, mIn = true;
     bool m_bRT = false, m_bYisDependent;
     std::pair<float, float> m_fEndPair;
+    std::pair<float, float> m_fStartPairBuffer;
+    std::pair<float, float> m_fEndPairBuffer;
     float m_fM;
     float m_fB;
-//    float m_fDistance;
+    float m_fDeltaX, m_fDeltaY;
+    //    float m_fDistance;
 };
 
 //THIS VERSION IS KINDOF LIKE A CORKSCREW

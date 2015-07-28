@@ -355,7 +355,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_oMovementConstraintComboBox.addItem("Equal Azimuth",   EqualAngles);
     m_oMovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyEqual);
     m_oMovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
-    int selected_id = ourProcessor->getSelectedMovementConstraint();
+    int selected_id = ourProcessor->getMovementConstraint();
     m_oMovementConstraintComboBox.setSelectedId(selected_id);
     m_oMovementConstraintComboBox.addListener(this);
     addAndMakeVisible(&m_oMovementConstraintComboBox);
@@ -958,7 +958,7 @@ void ZirkOscAudioProcessorEditor::refreshGui(){
     _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getSourceId()));
-    m_oMovementConstraintComboBox.setSelectedId(ourProcessor->getSelectedMovementConstraint());
+    m_oMovementConstraintComboBox.setSelectedId(ourProcessor->getMovementConstraint());
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     _LinkSpanButton.setToggleState(ourProcessor->getIsSpanLinked(), dontSendNotification);
 
@@ -1378,7 +1378,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             }
             
             //toggle fixed angle repositioning, if we need to
-            int selectedConstraint = ourProcessor->getSelectedMovementConstraint();
+            int selectedConstraint = ourProcessor->getMovementConstraint();
             if(selectedConstraint == EqualAngles){
                 ourProcessor->setEqualAzimForAllSrc();
             } else if (selectedConstraint == FullyEqual){
@@ -1463,7 +1463,6 @@ void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChan
         int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
         
         float fSelectedConstraint = IntToPercentStartsAtOne(selectedConstraint, TotalNumberConstraints);
-        cout << "fSelectedConstraint " << fSelectedConstraint << newLine;
         
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
 
