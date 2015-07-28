@@ -235,6 +235,7 @@ public:
 protected:
     void spInit()
     {
+        //calculate line equation
         if (m_fEndPair.first != m_fStartPair.first){
             m_bYisDependent = true;
             m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
@@ -244,19 +245,22 @@ protected:
             m_fM = 0;
             m_fB = m_fStartPair.first;
         }
-        //        m_fDistance = hypot(m_fEndPair.first - m_fStartPair.first, m_fEndPair.second - m_fStartPair.second);
         
-        //make the end pair twice as far, in order to spiral around it
+        //buffer initial positions
+        m_fStartInit.first  = m_fStartPair.first;
+        m_fStartInit.second = m_fStartPair.second;
+        m_fEndInit.first    = m_fEndPair  .first;
+        m_fEndInit.second   = m_fEndPair  .second;
+        
+        
+        //calculate far end of spiral
         m_fDeltaX = m_fEndPair.first - m_fStartPair.first;
         m_fDeltaY = m_fEndPair.second - m_fStartPair.second;
-        m_fEndPair.first  += m_fDeltaX;
-        m_fEndPair.second += m_fDeltaY;
+        m_fFarEndPair.first  = m_fEndPair.first + m_fDeltaX;
+        m_fFarEndPair.second = m_fEndPair.second + m_fDeltaY;
         
-        //store initial positions
-        m_fStartPairBuffer.first = m_fStartPair.first;
-        m_fStartPairBuffer.second = m_fStartPair.second;
-        m_fEndPairBuffer.first = m_fEndPair.first;
-        m_fEndPairBuffer.second = m_fEndPair.second;
+        m_fEndPair.first  = m_fFarEndPair.first;
+        m_fEndPair.second = m_fFarEndPair.second;
     }
     
     void spProcess(float duration, float seconds)
@@ -268,11 +272,10 @@ protected:
             fPendulumX = m_fStartPair.first + fCurrentProgress;
             fPendulumY = m_fM * fPendulumX + m_fB;
             
-            //cout << "X " << m_fDeltaX << "\t" << m_fDeltaXBuffer << "\t" << mDone << "\t" << mDurationSingleTrajectory << "\t" << m_dTrajectoryCount << newLine;
             
-            m_fEndPair.first   = m_fEndPairBuffer.first   - ((m_fEndPairBuffer.first * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount));
-            
-            m_fStartPair.first = m_fStartPairBuffer.first - ((m_fEndPairBuffer.first - m_fStartPairBuffer.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
+            m_fEndPair.first = m_fFarEndPair.first + ((m_fEndInit.first - m_fFarEndPair.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
+    
+            m_fStartPair.first  = m_fStartInit.first  + ((m_fEndInit.first - m_fStartInit.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
 
             
         } else {
@@ -332,8 +335,9 @@ private:
     bool mCCW, mIn = true;
     bool m_bRT = false, m_bYisDependent;
     std::pair<float, float> m_fEndPair;
-    std::pair<float, float> m_fStartPairBuffer;
-    std::pair<float, float> m_fEndPairBuffer;
+    std::pair<float, float> m_fFarEndPair;
+    std::pair<float, float> m_fStartInit;
+    std::pair<float, float> m_fEndInit;
     float m_fM;
     float m_fB;
     float m_fDeltaX, m_fDeltaY;
