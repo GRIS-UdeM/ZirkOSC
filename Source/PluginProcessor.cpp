@@ -373,9 +373,9 @@ void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-
+    if (host.isReaper()){
         beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
-
+    }
 }
 
 void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
@@ -389,26 +389,23 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
             m_bCurrentlyPlaying = true;
             m_bDetectedPlayingStart = true;
             m_bDetectedPlayingEnd = false;
-            
-            m_iActualConstraint = getMovementConstraint();
-            int iTempConstraint = (m_iActualConstraint == DeltaLocked) ? m_iActualConstraint -1 : m_iActualConstraint +1;
-            setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(iTempConstraint, TotalNumberConstraints));
-            cout << "set to 1" << newLine;
-            m_iNeedToResetToActualConstraint = 25;
-        } else if (--m_iNeedToResetToActualConstraint == 0){
+            if (host.isReaper()){
+                m_iActualConstraint = getMovementConstraint();
+                int iTempConstraint = (m_iActualConstraint == DeltaLocked) ? m_iActualConstraint -1 : m_iActualConstraint +1;
+                setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(iTempConstraint, TotalNumberConstraints));
+                cout << "set to 1" << newLine;
+                m_iNeedToResetToActualConstraint = 25;
+            }
+        } else if ( host.isReaper() && --m_iNeedToResetToActualConstraint == 0){
             setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(m_iActualConstraint, TotalNumberConstraints));
             cout << "set to " << m_iActualConstraint << newLine;
             m_iNeedToResetToActualConstraint = -1;
         }
-//        else {
-//            setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(getMovementConstraint(), TotalNumberConstraints));
-//        }
+
     } else if (!cpi.isPlaying && !m_bDetectedPlayingEnd){
         m_bCurrentlyPlaying = false;
         m_bDetectedPlayingEnd = true;
         m_bDetectedPlayingStart = false;
-        //        endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
-        //        m_bStartedConstraintAutomation = false;
     }
 
     
@@ -439,8 +436,9 @@ void ZirkOscAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
-    
-    endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
+    if (host.isReaper()){
+        endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
+    }
 }
 
 void ZirkOscAudioProcessor::storeCurrentLocations(){
