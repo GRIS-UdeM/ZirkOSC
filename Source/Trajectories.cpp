@@ -258,9 +258,10 @@ protected:
         //UP AND DOWN SPIRAL
         if (m_bRT){
             if (mIn){
-                newElevation01 = abs( (1 - m_fTransposedStartElev01) * sin(fNumberOfTurns * newElevation01 * M_PI) ) + m_fTransposedStartElev01;
+                newElevation01 = abs( (1 - m_fTransposedStartElev01) * sin(newElevation01 * M_PI) ) + m_fTransposedStartElev01;
             } else {
-                newElevation01 = abs( m_fTransposedStartElev01 * cos(fNumberOfTurns * newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
+                JUCE_COMPILER_WARNING("mIn is always true; so either delete this or create another trajectory/mode for it")
+                newElevation01 = abs( m_fTransposedStartElev01 * cos(newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
             if (!mCCW) theta = -theta;
@@ -854,10 +855,12 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
             vDirections->push_back("Counter Clockwise");
             break;
         case Spiral:
-            vDirections->push_back("In, Clockwise");
-            vDirections->push_back("In, Counter Clockwise");
-            vDirections->push_back("Out, Clockwise");
-            vDirections->push_back("Out, Counter Clockwise");
+//            vDirections->push_back("In, Clockwise");
+//            vDirections->push_back("In, Counter Clockwise");
+//            vDirections->push_back("Out, Clockwise");
+//            vDirections->push_back("Out, Counter Clockwise");
+            vDirections->push_back("Clockwise");
+            vDirections->push_back("Counter Clockwise");
             break;
         case Pendulum:
 //            vDirections->push_back("In");

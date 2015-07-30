@@ -81,7 +81,7 @@ _NbrSources(1)
     _LastUiWidth  = ZirkOSC_Window_Default_Width;
     _LastUiHeight = ZirkOSC_Window_Default_Height;
     
-    startTimer (50);
+    startTimer (100);
 }
 
 void ZirkOscAudioProcessor::initSources(){
@@ -389,13 +389,13 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
             m_bCurrentlyPlaying = true;
             m_bDetectedPlayingStart = true;
             m_bDetectedPlayingEnd = false;
-            if (host.isReaper()){
+            if (true && host.isReaper()){
                 m_iActualConstraint = getMovementConstraint();
                 int iTempConstraint = (m_iActualConstraint == DeltaLocked) ? m_iActualConstraint -1 : m_iActualConstraint +1;
                 setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(iTempConstraint, TotalNumberConstraints));
                 m_iNeedToResetToActualConstraint = 25;
             }
-        } else if ( host.isReaper() && --m_iNeedToResetToActualConstraint == 0){
+        } else if (true &&  host.isReaper() && --m_iNeedToResetToActualConstraint == 0){
             setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(m_iActualConstraint, TotalNumberConstraints));
             m_iNeedToResetToActualConstraint = -1;
         }
