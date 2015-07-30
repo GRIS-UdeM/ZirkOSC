@@ -62,8 +62,12 @@ _NbrSources(1)
 ,m_iSelectedSourceForTrajectory(0)
 ,m_iSourceLocationChanged(-1)
 ,m_bCurrentlyPlaying(false)
+,m_bDetectedPlayingStart(false)
+,m_bDetectedPlayingEnd(true)
+,m_bStartedConstraintAutomation(false)
 ,m_bIsEqualElev(false)
 ,m_bIsRecordingAutomation(false)
+,m_iNeedToResetToActualConstraint(-1)
 {
     setMovementConstraint(Independant);
     
@@ -359,26 +363,58 @@ ZirkOscAudioProcessor::~ZirkOscAudioProcessor()
         lo_address_free(osc);
     }
     _OscZirkonium = NULL;
+    if (m_bStartedConstraintAutomation){
+        endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
+    }
+}
+
+//==============================================================================
+void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+{
+    // Use this method as the place to do any pre-playback
+    // initialisation that you need..
+
+        beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
+
 }
 
 void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-
-    
     AudioPlayHead::CurrentPositionInfo cpi;
     getPlayHead()->getCurrentPosition(cpi);
     
     if (cpi.isPlaying){
-        m_bCurrentlyPlaying = true;
-    } else {
+        
+        if (!m_bDetectedPlayingStart){
+            m_bCurrentlyPlaying = true;
+            m_bDetectedPlayingStart = true;
+            m_bDetectedPlayingEnd = false;
+            
+            m_iActualConstraint = getMovementConstraint();
+            int iTempConstraint = (m_iActualConstraint == DeltaLocked) ? m_iActualConstraint -1 : m_iActualConstraint +1;
+            setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(iTempConstraint, TotalNumberConstraints));
+            cout << "set to 1" << newLine;
+            m_iNeedToResetToActualConstraint = 25;
+        } else if (--m_iNeedToResetToActualConstraint == 0){
+            setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(m_iActualConstraint, TotalNumberConstraints));
+            cout << "set to " << m_iActualConstraint << newLine;
+            m_iNeedToResetToActualConstraint = -1;
+        }
+//        else {
+//            setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(getMovementConstraint(), TotalNumberConstraints));
+//        }
+    } else if (!cpi.isPlaying && !m_bDetectedPlayingEnd){
         m_bCurrentlyPlaying = false;
+        m_bDetectedPlayingEnd = true;
+        m_bDetectedPlayingStart = false;
+        //        endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
+        //        m_bStartedConstraintAutomation = false;
     }
+
     
     Trajectory::Ptr trajectory = mTrajectory;
     if (trajectory)
     {
-        
-        
         if (cpi.isPlaying && cpi.timeInSamples != mLastTimeInSamples)
         {
             // we're playing!
@@ -397,7 +433,14 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
             }
         }
     }
+}
+
+void ZirkOscAudioProcessor::releaseResources()
+{
+    // When playback stops, you can use this as an opportunity to free up any
+    // spare memory, etc.
     
+    endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
 }
 
 void ZirkOscAudioProcessor::storeCurrentLocations(){
@@ -482,20 +525,6 @@ const String ZirkOscAudioProcessor::getProgramName (int index)
 void ZirkOscAudioProcessor::changeProgramName (int index, const String& newName)
 {
 
-}
-
-//==============================================================================
-void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
-{
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, m_fMovementConstraint);
-}
-
-void ZirkOscAudioProcessor::releaseResources()
-{
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
 }
 
 void ZirkOscAudioProcessor::setSelectedSourceForTrajectory(int iSelectedSource){

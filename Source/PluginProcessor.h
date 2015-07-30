@@ -295,7 +295,6 @@ private:
     
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     
- 
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscAudioProcessor)
@@ -341,8 +340,10 @@ private:
     PluginHostType host;
 
     bool _isJoystickEnabled;
-
-
+    
+    int m_iActualConstraint;
+    
+    
     //OLD TRAJECTORIES
     
     //! Number of trajectories to draw in trajectory section
@@ -371,6 +372,11 @@ private:
     
     bool m_bCurrentlyPlaying;
     
+    bool m_bDetectedPlayingStart;
+    bool m_bDetectedPlayingEnd;
+    
+    bool m_bStartedConstraintAutomation;
+    
     bool m_bIsEqualElev;
     
     float m_fROverflow[8];
@@ -378,6 +384,7 @@ private:
     bool m_bIsElevationOverflow[8];
     
     bool m_bIsRecordingAutomation;
+    int m_iNeedToResetToActualConstraint;
 
 };
 
