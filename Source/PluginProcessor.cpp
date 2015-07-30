@@ -393,12 +393,10 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
                 m_iActualConstraint = getMovementConstraint();
                 int iTempConstraint = (m_iActualConstraint == DeltaLocked) ? m_iActualConstraint -1 : m_iActualConstraint +1;
                 setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(iTempConstraint, TotalNumberConstraints));
-                cout << "set to 1" << newLine;
                 m_iNeedToResetToActualConstraint = 25;
             }
         } else if ( host.isReaper() && --m_iNeedToResetToActualConstraint == 0){
             setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(m_iActualConstraint, TotalNumberConstraints));
-            cout << "set to " << m_iActualConstraint << newLine;
             m_iNeedToResetToActualConstraint = -1;
         }
 

@@ -235,44 +235,22 @@ public:
 protected:
     void spInit()
     {
-        //calculate line equation
-        if (m_fEndPair.first != m_fStartPair.first){
-            m_bYisDependent = true;
-            m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
-            m_fB = m_fStartPair.second - m_fM * m_fStartPair.first;
-        } else {
-            m_bYisDependent = false;
-            m_fM = 0;
-            m_fB = m_fStartPair.first;
-        }
-        
-        //buffer initial positions
-        m_fStartInit.first  = m_fStartPair.first;
-        m_fStartInit.second = m_fStartPair.second;
-        m_fEndInit.first    = m_fEndPair  .first;
-        m_fEndInit.second   = m_fEndPair  .second;
-        
-        m_fR  = hypotf(m_fEndPair.first - m_fStartPair.first, m_fEndPair.second - m_fStartPair.second);
-        m_fRInit = m_fR;
-        
-        //calculate far end of spiral
-        m_fDeltaX = m_fEndPair.first - m_fStartPair.first;
-        m_fDeltaY = m_fEndPair.second - m_fStartPair.second;
-        m_fFarEndPair.first  = m_fEndPair.first + m_fDeltaX;
-        m_fFarEndPair.second = m_fEndPair.second + m_fDeltaY;
-        
-        //set current end point to end of spiral
-        m_fEndPair.first  = m_fFarEndPair.first;
-        m_fEndPair.second = m_fFarEndPair.second;
+        //convert m_fTrajectoryInitialAzimuth01 + Elevation01 to m_fTransposedStartAzim01 + Elev01
+        float fStartX, fStartY;
+        SoundSource::azimElev01toXY(m_fTrajectoryInitialAzimuth01, m_fTrajectoryInitialElevation01, fStartX, fStartY);
+        float fTransposedStartX = fStartX - m_fEndPair.first;
+        float fTransposedStartY = fStartY - m_fEndPair.second;
+        m_fTransposedStartAzim01 = SoundSource::XYtoAzim01(fTransposedStartX, fTransposedStartY);
+        m_fTransposedStartElev01 = SoundSource::XYtoElev01(fTransposedStartX, fTransposedStartY);
     }
     
     void spProcess(float duration, float seconds)
     {
-        float newAzimuth, newElevation, theta;
+        float newAzimuth01, newElevation01, theta;
         float integralPart; //useless here
         
-        newElevation = mDone / mDurationSingleTrajectory;
-        theta = modf(newElevation, &integralPart);                                          //result from this modf is theta [0,1]
+        newElevation01 = mDone / mDurationSingleTrajectory;
+        theta = modf(newElevation01, &integralPart);                                          //result from this modf is theta [0,1]
         
         JUCE_COMPILER_WARNING("make this a parameter")
         float fNumberOfTurns = 3;
@@ -280,9 +258,9 @@ protected:
         //UP AND DOWN SPIRAL
         if (m_bRT){
             if (mIn){
-                newElevation = abs( (1 - m_fTrajectoryInitialElevation01) * sin(fNumberOfTurns * newElevation * M_PI) ) + m_fTrajectoryInitialElevation01;
+                newElevation01 = abs( (1 - m_fTransposedStartElev01) * sin(fNumberOfTurns * newElevation01 * M_PI) ) + m_fTransposedStartElev01;
             } else {
-                newElevation = abs( m_fTrajectoryInitialElevation01 * cos(fNumberOfTurns * newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
+                newElevation01 = abs( m_fTransposedStartElev01 * cos(fNumberOfTurns * newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             
             if (!mCCW) theta = -theta;
@@ -291,29 +269,31 @@ protected:
         } else {
             
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-            newElevation = theta * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;         //newElevation is a mapping of theta[0,1] to [m_fTrajectoryInitialElevation01, 1]
+            newElevation01 = theta * (1 - m_fTransposedStartElev01) + m_fTransposedStartElev01;         //newElevation is a mapping of theta[0,1] to [m_fTransposedStartElev01, 1]
             
             if (!mIn)
-                newElevation = m_fTrajectoryInitialElevation01 * (1 - newElevation) / (1-m_fTrajectoryInitialElevation01);  //map newElevation from [m_fTrajectoryInitialElevation01, 1] to [m_fTrajectoryInitialElevation01, 0]
+                newElevation01 = m_fTransposedStartElev01 * (1 - newElevation01) / (1-m_fTransposedStartElev01);  //map newElevation from [m_fTransposedStartElev01, 1] to [m_fTransposedStartElev01, 0]
             
             if (!mCCW) theta = -theta;
         }
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + fNumberOfTurns * theta, &integralPart);                        //this is like adding a to theta
-        move(newAzimuth, newElevation);
-        }
+        newAzimuth01 = modf(m_fTransposedStartAzim01 + fNumberOfTurns * theta, &integralPart);                        //this is like adding a to theta
+
+//        move(newAzimuth, newElevation);
+        
+        //convert newAzim+Elev to XY
+        float fNewX, fNewY;
+        SoundSource::azimElev01toXY(newAzimuth01, newElevation01, fNewX, fNewY);
+        fNewX += m_fEndPair.first;
+        fNewY += m_fEndPair.second;
+
+        moveXY(fNewX, fNewY);
+    }
     
 private:
     bool mCCW, mIn = true;
-    bool m_bRT = false, m_bYisDependent;
+    bool m_bRT = false;
     std::pair<float, float> m_fEndPair;
-    std::pair<float, float> m_fFarEndPair;
-    std::pair<float, float> m_fStartInit;
-    std::pair<float, float> m_fEndInit;
-    float m_fM;
-    float m_fB;
-    float m_fR;
-    float m_fRInit;
-    float m_fDeltaX, m_fDeltaY;
+    float m_fTransposedStartAzim01, m_fTransposedStartElev01;
 };
 
 
