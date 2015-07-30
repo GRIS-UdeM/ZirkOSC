@@ -268,28 +268,39 @@ protected:
     
     void spProcess(float duration, float seconds)
     {
-        float temp, fProgress = modf((mDone / mDurationSingleTrajectory), &temp); //fProgress [0,1]
-
-        float fX, fY;
-        if (m_bYisDependent){
+        float newAzimuth, newElevation, theta;
+        float integralPart; //useless here
+        
+        newElevation = mDone / mDurationSingleTrajectory;
+        theta = modf(newElevation, &integralPart);                                          //result from this modf is theta [0,1]
+        
+        JUCE_COMPILER_WARNING("make this a parameter")
+        float fNumberOfTurns = 3;
+        
+        //UP AND DOWN SPIRAL
+        if (m_bRT){
+            if (mIn){
+                newElevation = abs( (1 - m_fTrajectoryInitialElevation01) * sin(fNumberOfTurns * newElevation * M_PI) ) + m_fTrajectoryInitialElevation01;
+            } else {
+                newElevation = abs( m_fTrajectoryInitialElevation01 * cos(fNumberOfTurns * newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
+            }
             
-            fX = m_fStartPair.first + fProgress;
-            float arg = pow(m_fR,2) - pow(fX-m_fEndPair.first, 2);
-            fY = sqrt( arg) + m_fEndPair.second;
-            jassert(fY == fY);
-            
-            cout << fX << "\t" << fY << "\t" << m_fR << newLine;
-            
-            m_fR = m_fRInit - m_fRInit * fProgress;
-            m_fEndPair.first = m_fFarEndPair.first + ((m_fEndInit.first - m_fFarEndPair.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
-            m_fStartPair.first  = m_fStartInit.first  + ((m_fEndInit.first - m_fStartInit.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
+            if (!mCCW) theta = -theta;
+            theta *= 2;
             
         } else {
-            //TODO
+            
+            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
+            newElevation = theta * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;         //newElevation is a mapping of theta[0,1] to [m_fTrajectoryInitialElevation01, 1]
+            
+            if (!mIn)
+                newElevation = m_fTrajectoryInitialElevation01 * (1 - newElevation) / (1-m_fTrajectoryInitialElevation01);  //map newElevation from [m_fTrajectoryInitialElevation01, 1] to [m_fTrajectoryInitialElevation01, 0]
+            
+            if (!mCCW) theta = -theta;
         }
-        
-        moveXY(fX, fY);
-    }
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + fNumberOfTurns * theta, &integralPart);                        //this is like adding a to theta
+        move(newAzimuth, newElevation);
+        }
     
 private:
     bool mCCW, mIn = true;
