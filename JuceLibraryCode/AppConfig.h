@@ -38,6 +38,11 @@
 #define JUCE_MODULE_AVAILABLE_juce_video                    1
 
 //==============================================================================
+#ifndef    JUCE_STANDALONE_APPLICATION
+ #define   JUCE_STANDALONE_APPLICATION 0
+#endif
+
+//==============================================================================
 // juce_audio_devices flags:
 
 #ifndef    JUCE_ASIO
@@ -46,6 +51,10 @@
 
 #ifndef    JUCE_WASAPI
  //#define JUCE_WASAPI
+#endif
+
+#ifndef    JUCE_WASAPI_EXCLUSIVE
+ //#define JUCE_WASAPI_EXCLUSIVE
 #endif
 
 #ifndef    JUCE_DIRECTSOUND
@@ -131,6 +140,10 @@
 
 #ifndef    JUCE_INCLUDE_ZLIB_CODE
  //#define JUCE_INCLUDE_ZLIB_CODE
+#endif
+
+#ifndef    JUCE_USE_CURL
+ //#define JUCE_USE_CURL
 #endif
 
 //==============================================================================
@@ -258,13 +271,13 @@
  #define JucePlugin_EditorRequiresKeyboardFocus  0
 #endif
 #ifndef  JucePlugin_Version
- #define JucePlugin_Version                3.0.2
+ #define JucePlugin_Version                3.0.3
 #endif
 #ifndef  JucePlugin_VersionCode
- #define JucePlugin_VersionCode            0x30002
+ #define JucePlugin_VersionCode            0x30003
 #endif
 #ifndef  JucePlugin_VersionString
- #define JucePlugin_VersionString          "3.0.2"
+ #define JucePlugin_VersionString          "3.0.3"
 #endif
 #ifndef  JucePlugin_VSTUniqueID
  #define JucePlugin_VSTUniqueID            JucePlugin_PluginCode
