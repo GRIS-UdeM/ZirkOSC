@@ -87,8 +87,8 @@ _NbrSources(1)
 void ZirkOscAudioProcessor::initSources(){
     for(int i = 0; i < 8; ++i){
         _AllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
-        m_fSourceOldX01[i]          = -1.f;
-        m_fSourceOldY01[i]          = -1.f;
+        m_fSourceOldX01[i]          = _AllSources[i].getX01();
+        m_fSourceOldY01[i]          = _AllSources[i].getY01();
         m_fROverflow[i]             = s_iDomeRadius;
         m_bIsElevationOverflow[i]   = false;
     }
@@ -183,7 +183,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01;
     
     //calculate old coordinates for selected source.
-    float fSelectedOldX01 = m_fSourceOldX01[p_iSource];     //first time this is run, m_fSourceOldX01 was set by setParameter
+    float fSelectedOldX01 = m_fSourceOldX01[p_iSource];
     float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
     //convert x,y[0,1] to azim,elev[0,1]
     SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
@@ -737,9 +737,6 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
                 _AllSources[iCurSource].setX01(newValue);
                 m_iSourceLocationChanged = iCurSource;
             }
-            if (m_fSourceOldX01[iCurSource] == -1.f){
-                m_fSourceOldX01[iCurSource] = newValue; //if this was not initialized, we get our first value here
-            }
             bFoundParameter = true;
         }
         else if (ZirkOSC_Y_ParamId + (iCurSource*5) == index) {
@@ -747,9 +744,7 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
                 _AllSources[iCurSource].setY01(newValue);
                 m_iSourceLocationChanged = iCurSource;
             }
-            if (m_fSourceOldY01[iCurSource] == -1.f){
-                m_fSourceOldY01[iCurSource] = newValue;
-            }
+
             bFoundParameter = true;
         }
         else if (ZirkOSC_AzimSpan_ParamId + (iCurSource*5) == index){
@@ -926,11 +921,19 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
             _AllSources[iCurSrc].setElevationSpan(  static_cast<float>(xmlState->getDoubleAttribute(elevationSpan,0)));
             _AllSources[iCurSrc].setGain(           static_cast<float>(xmlState->getDoubleAttribute(gain, 1)));
             
+            //calculate default value, in case we cannot find the actual values
             float fDefaultX, fDefaultY;
             SoundSource::azimElev01toXY01(iCurSrc * .125, 0, fDefaultX, fDefaultY);
             
-            setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, static_cast<float>(xmlState->getDoubleAttribute(strX, fDefaultX)));
-            setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, static_cast<float>(xmlState->getDoubleAttribute(strY, fDefaultY)));
+            //fetch actual values
+            float fActualX01 = static_cast<float>(xmlState->getDoubleAttribute(strX, fDefaultX));
+            float fActualY01 = static_cast<float>(xmlState->getDoubleAttribute(strY, fDefaultY));
+
+            setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, fActualX01);
+            setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, fActualY01);
+
+            m_fSourceOldX01[iCurSrc] = fActualX01;
+            m_fSourceOldY01[iCurSrc] = fActualY01;
         }
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
