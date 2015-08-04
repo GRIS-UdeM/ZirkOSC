@@ -305,6 +305,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     version += STRING(__TIME__);
 #endif
     m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
+    m_VersionLabel.setJustificationType(Justification(Justification::right));
 
    	m_logoImage.setImage(ImageFileFormat::loadFrom (BinaryData::logoGris_png, (size_t) BinaryData::logoGris_pngSize));
     
@@ -604,7 +605,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     
     //------------ LABELS ON RIGHT SIDE +version label------------
     m_logoImage.setBounds(5,5,55,55);
-    m_VersionLabel.setBounds(iCurWidth-180,5,100,25);
+    m_VersionLabel.setBounds(iCurWidth-180,5,100,30);
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
