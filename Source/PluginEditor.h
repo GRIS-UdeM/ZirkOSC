@@ -283,7 +283,7 @@ private:
     //! Paint the wall circle, ie the main circle in the gui
     void paintWallCircle (Graphics& g);
     //! Paint the Zenith circle, circle on the selected source
-    void paintZenithCircle (Graphics& g);
+    void paintElevationCircle (Graphics& g);
     
     //! projects dome coords to screen coords (sphere to circle)
     Point <float> degreeToXy (Point <float>);

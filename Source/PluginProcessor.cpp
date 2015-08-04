@@ -43,6 +43,8 @@ using namespace std;
 
 int ZirkOscAudioProcessor::s_iDomeRadius = 172;
 
+bool ZirkOscAudioProcessor::s_bUseNewColorScheme = true;
+
 ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 :
 _NbrSources(1)

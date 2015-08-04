@@ -255,7 +255,9 @@ public:
     
     //radius of the dome
     static int s_iDomeRadius;
-      
+    
+    static bool s_bUseNewColorScheme;
+    
     bool isTrajectoryDone();
     
     //NEW TRAJECTORY CLASS METHODS

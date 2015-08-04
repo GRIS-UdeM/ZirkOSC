@@ -66,7 +66,11 @@ void    SoundSource::setAzimReverse(bool azimr){
 }
 
 bool    SoundSource::contains(Point <float> p){
-    return (p.getX()< getX()+5 && p.getX()> getX()-5 && p.getY()< getY()+5 && p.getY()> getY()-5 );
+    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
+        return (p.getX()< getX()+10 && p.getX()> getX()-10 && p.getY()< getY()+10 && p.getY()> getY()-10 );
+    } else {
+        return (p.getX()< getX()+5 && p.getX()> getX()-5 && p.getY()< getY()+5 && p.getY()> getY()-5 );
+    }
 }
 
 //range for both fX and fY is [-r,r]
