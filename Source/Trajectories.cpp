@@ -668,25 +668,24 @@ protected:
         while(mClock > 0.01) {
 
             mClock -= 0.01;
+
+            float fX01 = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
+            float fY01 = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
             
             float r1 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
             float r2 = mRNG.rand_uint32() / (float)0xFFFFFFFF;
-
-                
-                float fX = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
-                float fY = ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
-                
-                fX += (r1 - 0.5) * mSpeed;
-                fY += (r2 - 0.5) * mSpeed;
-                
-                fX = PercentToHR(fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-                fY = PercentToHR(fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-                
-                JUCE_COMPILER_WARNING("there has to be a way to have the random values be in the correct range without clamping...")
-                fX = clamp(fX, static_cast<float>(-ZirkOscAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscAudioProcessor::s_iDomeRadius));
-                fY = clamp(fY, static_cast<float>(-ZirkOscAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscAudioProcessor::s_iDomeRadius));
-                
-            move(fX, fY);
+            
+            fX01 += (r1 - 0.5) * mSpeed;
+            fY01 += (r2 - 0.5) * mSpeed;
+            
+            float fX = PercentToHR(fX01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+            float fY = PercentToHR(fY01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+            
+//            JUCE_COMPILER_WARNING("there has to be a way to have the random values be in the correct range without clamping...")
+//            fX = clamp(fX, static_cast<float>(-ZirkOscAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscAudioProcessor::s_iDomeRadius));
+//            fY = clamp(fY, static_cast<float>(-ZirkOscAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscAudioProcessor::s_iDomeRadius));
+            
+            moveXY(fX, fY);
 
 
         }
@@ -974,10 +973,10 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
             speed = .02;
             break;
         case Mid:
-            speed = .06;
+            speed = .04;
             break;
         case Fast:
-            speed = .1;
+            speed = .06;
             break;
         default:
             break;
