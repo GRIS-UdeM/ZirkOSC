@@ -11,6 +11,9 @@
               jucerVersion="3.2.0" buildVST3="1" buildRTAS="0" buildAAX="0"
               pluginManufacturerEmail="support@yourcompany.com" includeBinaryInAppConfig="1">
   <MAINGROUP id="NlVJUT" name="ZirkOSC">
+    <GROUP id="{80FB4041-7031-0A65-B275-7D045A973591}" name="Resources">
+      <FILE id="dZvflt" name="logoGris.jpg" compile="0" resource="1" file="logoGris.jpg"/>
+    </GROUP>
     <GROUP id="{AF8672D5-0456-195A-C664-CD955466754A}" name="HIDManager">
       <FILE id="LqLH52" name="HID_Config_Utilities.cpp" compile="1" resource="0"
             file="HIDManager/HID_Config_Utilities.cpp"/>
