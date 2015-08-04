@@ -765,10 +765,17 @@ void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g){
     myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim));
     myPath.closeSubPath();
     
-    g.setColour(Colours::lightgrey);
-    g.fillPath(myPath);
-    
-    g.setColour(Colours::black);
+    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
+        float hue = (float)selectedSource / ourProcessor->getNbrSources() + 0.577251;
+        if (hue > 1) hue -= 1;
+        g.setColour(Colour::fromHSV(hue, 1, 1, 0.1));
+        g.fillPath(myPath);
+        g.setColour(Colour::fromHSV(hue, 1, 1, 0.5));
+    } else {
+        g.setColour(Colours::lightgrey);
+        g.fillPath(myPath);
+        g.setColour(Colours::black);
+    }
     PathStrokeType strokeType = PathStrokeType(1.0);
     g.strokePath(myPath, strokeType);
 }
