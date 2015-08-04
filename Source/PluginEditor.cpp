@@ -305,9 +305,9 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     version += STRING(__TIME__);
 #endif
     m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
-   	m_logo.setImage(ImageFileFormat::loadFrom(File::createFileWithoutCheckingPath("logoGris.jpg")));
-    
-    
+
+   	m_logo.setImage(ImageFileFormat::loadFrom (BinaryData::logoGris_jpg, (size_t) BinaryData::logoGris_jpgSize));
+        
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
