@@ -837,6 +837,26 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
             //---- draw source point
             //fill source point
             g.setColour(Colour::fromHSV(hue, 1, 1, 1));
+            
+            
+            
+            
+            if (ourProcessor->getSources()[i].isAzimReverse()){
+                g.setColour(Colours::black);
+            }
+            
+            float fCurR = hypotf(fX, fY);
+            if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+                float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
+                
+                g.setColour(Colours::grey);
+                
+                fX *= fExtraRatio;
+                fY *= fExtraRatio;
+            }
+            
+            
+            
             g.fillEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter);
             //draw outside of source point
             g.setColour(Colours::red);
