@@ -212,7 +212,7 @@ private:
     
     Label m_VersionLabel;
     
-    ImageComponent m_logo;
+    ImageComponent m_logoImage;
     
 //    //! Label of the outgoing port to the iPad
 //    Label _IpadOutgoingOscPortLabel;

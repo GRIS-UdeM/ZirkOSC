@@ -281,7 +281,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,_ZkmOscPortLabel("OscPort")
 ,_NbrSourceLabel("NbrSources")
 ,m_VersionLabel("version")
-,m_logo()
+,m_logoImage()
 //,_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad")
 //,_IpadIncomingOscPortLabel("OSCIpadInco")
 //,_IpadIpAddressLabel("ipadadressLabel")
@@ -306,14 +306,14 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 #endif
     m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
 
-   	m_logo.setImage(ImageFileFormat::loadFrom (BinaryData::logoGrisLightGray_jpg, (size_t) BinaryData::logoGrisLightGray_jpgSize));
+   	m_logoImage.setImage(ImageFileFormat::loadFrom (BinaryData::logoGris_png, (size_t) BinaryData::logoGris_pngSize));
     
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
     
     addAndMakeVisible(&m_VersionLabel);
-    addAndMakeVisible(&m_logo);
+    addAndMakeVisible(&m_logoImage);
     
     _FirstSourceIdLabel.setText("1st source ID",  dontSendNotification);
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getSourceId()));
@@ -603,7 +603,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     }
     
     //------------ LABELS ON RIGHT SIDE +version label------------
-    m_logo.setBounds(5,5,55,55);
+    m_logoImage.setBounds(5,5,55,55);
     m_VersionLabel.setBounds(iCurWidth-180,5,100,25);
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
