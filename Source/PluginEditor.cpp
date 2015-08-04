@@ -306,8 +306,8 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 #endif
     m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
 
-   	m_logo.setImage(ImageFileFormat::loadFrom (BinaryData::logoGris_jpg, (size_t) BinaryData::logoGris_jpgSize));
-        
+   	m_logo.setImage(ImageFileFormat::loadFrom (BinaryData::logoGrisLightGray_jpg, (size_t) BinaryData::logoGrisLightGray_jpgSize));
+    
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
     addAndMakeVisible(&_NbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
@@ -389,7 +389,6 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pElevationSlider = m_oSlidersTab->getElevationSlider();
     m_pElevationLabel  = m_oSlidersTab->getElevationLabel();
     setSliderAndLabel("Elevation", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max-.01);
-    
     m_pElevationSlider->addListener(this);
     
     m_pElevationSpanSlider = m_oSlidersTab->getElevationSpanSlider();
@@ -604,7 +603,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     }
     
     //------------ LABELS ON RIGHT SIDE +version label------------
-    m_logo.setBounds(5,5,50,50);
+    m_logo.setBounds(5,5,55,55);
     m_VersionLabel.setBounds(iCurWidth-180,5,100,25);
     setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
     setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
