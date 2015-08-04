@@ -869,33 +869,44 @@ void ZirkOscAudioProcessorEditor::paintWallCircle (Graphics& g){
 }
 
 void ZirkOscAudioProcessorEditor::paintCenterDot (Graphics& g){
+    int iSelectedSrc = ourProcessor->getSelectedSource();
     if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        g.setColour(Colours::orangered);
+        float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
+        if (hue > 1) hue -= 1;
+        g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     } else {
         g.setColour(Colours::red);
     }
-    g.fillEllipse(_ZirkOSC_Center_X - 3.0f, _ZirkOSC_Center_Y - 3.0f, 6.0f,6.0f );
+    g.fillEllipse(_ZirkOSC_Center_X - 3.0f, _ZirkOSC_Center_Y - 3.0f, 6.0f, 6.0f );
 }
 
 void ZirkOscAudioProcessorEditor::paintAzimuthLine (Graphics& g){
+    JUCE_COMPILER_WARNING("if we decide to keep the new color scheme, remove this function and put in paint directly")
+    int iSelectedSrc = ourProcessor->getSelectedSource();
     if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        g.setColour(Colours::orangered);
+        float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
+        if (hue > 1) hue -= 1;
+        g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     } else {
         g.setColour(Colours::red);
     }
     float fX, fY;
-    ourProcessor->getSources()[ourProcessor->getSelectedSource()].getXY(fX, fY);
+    ourProcessor->getSources()[iSelectedSrc].getXY(fX, fY);
     g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + fX, _ZirkOSC_Center_Y + fY );
 }
 
 void ZirkOscAudioProcessorEditor::paintElevationCircle (Graphics& g){
+    int iSelectedSrc = ourProcessor->getSelectedSource();
+    JUCE_COMPILER_WARNING("if we decide to keep the new color scheme, remove this function and put in paint directly")
     if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        g.setColour(Colours::orangered);
+        float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
+        if (hue > 1) hue -= 1;
+        g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     } else {
         g.setColour(Colours::red);
     }
     float fX, fY;
-    ourProcessor->getSources()[ourProcessor->getSelectedSource()].getXY(fX, fY);
+    ourProcessor->getSources()[iSelectedSrc].getXY(fX, fY);
     float radiusZenith = sqrtf(fX*fX + fY*fY);
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
 }
