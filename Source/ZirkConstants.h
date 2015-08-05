@@ -94,8 +94,8 @@ enum AllConstraints {
     Independant = 1,/*!< Independant mode */
     Circular,        /*!< Circular */
     EqualElev,    /*!< All sources' radius are fixed */
-    EqualAngles,    /*!< Angle between sources are fixed */
-    FullyEqual,     /*!< EqualElev and EqualAngles */
+    EqualAzim,    /*!< Angle between sources are fixed */
+    EqualAzimElev,     /*!< EqualElev and EqualAzim */
     DeltaLocked,    /*!< Delta lock mode */
     TotalNumberConstraints
 };

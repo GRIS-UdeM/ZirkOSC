@@ -83,7 +83,7 @@ _NbrSources(1)
     _LastUiWidth  = ZirkOSC_Window_Default_Width;
     _LastUiHeight = ZirkOSC_Window_Default_Height;
     
-    startTimer (100);
+    startTimer (75);
 }
 
 void ZirkOscAudioProcessor::initSources(){
@@ -127,9 +127,9 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
         m_fSourceOldX01[p_iSource] = fX01;
         m_fSourceOldY01[p_iSource] = fY01;
     } else if (getNbrSources()>1){
-        if (m_iMovementConstraint == EqualAngles){
+        if (m_iMovementConstraint == EqualAzim){
             m_bIsEqualElev = false;
-            moveEqualAngles(p_iSource, p_fX, p_fY);
+            moveEqualAzim(p_iSource, p_fX, p_fY);
         }
         else if (m_iMovementConstraint == EqualElev){
             m_bIsEqualElev = true;
@@ -139,9 +139,9 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
             m_bIsEqualElev = false;
             moveCircular(p_iSource, p_fX, p_fY, m_bIsEqualElev);
         }
-        else if (m_iMovementConstraint == FullyEqual){
+        else if (m_iMovementConstraint == EqualAzimElev){
             m_bIsEqualElev = true;
-            moveFullyEqual(p_iSource, p_fX, p_fY);
+            moveEqualAzimElev(p_iSource, p_fX, p_fY);
         }
         else if (m_iMovementConstraint == DeltaLocked){
             m_bIsEqualElev = false;
@@ -283,11 +283,11 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
     }
 }
 
-void ZirkOscAudioProcessor::moveEqualAngles(const int &p_iSource, const float &p_fX, const float &p_fY){
+void ZirkOscAudioProcessor::moveEqualAzim(const int &p_iSource, const float &p_fX, const float &p_fY){
     moveCircular(p_iSource, p_fX, p_fY, false);
 }
 
-void ZirkOscAudioProcessor::moveFullyEqual(const int &p_iSource, const float &p_fX, const float &p_fY){
+void ZirkOscAudioProcessor::moveEqualAzimElev(const int &p_iSource, const float &p_fX, const float &p_fY){
     moveCircular(p_iSource, p_fX, p_fY, true);
 }
 
@@ -315,6 +315,17 @@ void ZirkOscAudioProcessor::setEqualAzimElevForAllSrc(){
         SoundSource::azimElev01toXY01(curangle, fCurElevation, fX, fY);
         setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
         setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
+    }
+}
+
+void ZirkOscAudioProcessor::setEqualElevForAllSrc(){
+    float fSelElevation01 = _AllSources[_SelectedSource].getElevation01();
+    for(int iCurSrc = 0; iCurSrc < getNbrSources() ; ++iCurSrc){
+        float fCurAzim01 = _AllSources[iCurSrc].getAzimuth01();
+        float fX01, fY01;
+        SoundSource::azimElev01toXY01(fCurAzim01, fSelElevation01, fX01, fY01);
+        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSrc*5), fX01);
+        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSrc*5), fY01);
     }
 }
 

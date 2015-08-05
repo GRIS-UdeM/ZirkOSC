@@ -278,6 +278,7 @@ public:
     std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
 
     void setEqualAzimForAllSrc();
+    void setEqualElevForAllSrc();
     
     void setEqualAzimElevForAllSrc();
     
@@ -291,9 +292,9 @@ private:
     
     void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsElevFixed);
 
-    void moveEqualAngles(const int &p_iSource, const float &p_fX, const float &p_fY);
+    void moveEqualAzim(const int &p_iSource, const float &p_fX, const float &p_fY);
     
-    void moveFullyEqual(const int &p_iSource, const float &p_fX, const float &p_fY);
+    void moveEqualAzimElev(const int &p_iSource, const float &p_fX, const float &p_fY);
     
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     

@@ -356,8 +356,8 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_oMovementConstraintComboBox.addItem("Independant",   Independant);
     m_oMovementConstraintComboBox.addItem("Circular",      Circular);
     m_oMovementConstraintComboBox.addItem("Equal Elevation",  EqualElev);
-    m_oMovementConstraintComboBox.addItem("Equal Azimuth",   EqualAngles);
-    m_oMovementConstraintComboBox.addItem("Equal Elev+Azim",   FullyEqual);
+    m_oMovementConstraintComboBox.addItem("Equal Azimuth",   EqualAzim);
+    m_oMovementConstraintComboBox.addItem("Equal Elev+Azim",   EqualAzimElev);
     m_oMovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
     int selected_id = ourProcessor->getMovementConstraint();
     m_oMovementConstraintComboBox.setSelectedId(selected_id);
@@ -1480,9 +1480,9 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             
             //toggle fixed angle repositioning, if we need to
             int selectedConstraint = ourProcessor->getMovementConstraint();
-            if(selectedConstraint == EqualAngles){
+            if(selectedConstraint == EqualAzim){
                 ourProcessor->setEqualAzimForAllSrc();
-            } else if (selectedConstraint == FullyEqual){
+            } else if (selectedConstraint == EqualAzimElev){
                 ourProcessor->setEqualAzimElevForAllSrc();
             }
 
@@ -1567,10 +1567,12 @@ void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChan
         
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
 
-        if(selectedConstraint == EqualAngles){
+        if(selectedConstraint == EqualAzim){
             ourProcessor->setEqualAzimForAllSrc();
-        } else if (selectedConstraint == FullyEqual){
+        } else if (selectedConstraint == EqualAzimElev){
             ourProcessor->setEqualAzimElevForAllSrc();
+        } else if (selectedConstraint == EqualElev){
+            ourProcessor->setEqualElevForAllSrc();
         }
     }
     
