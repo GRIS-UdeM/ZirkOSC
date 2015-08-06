@@ -882,12 +882,9 @@ void ZirkOscAudioProcessorEditor::paintWallCircle (Graphics& g){
         g.setColour(Colours::white);
     }
     g.fillEllipse(_ZirkOSC_Center_X-ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y-ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius * 2, ZirkOscAudioProcessor::s_iDomeRadius * 2);
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        g.setColour(Colours::white);
-    } else {
-        g.setColour(Colours::black);
+    if (!ZirkOscAudioProcessor::s_bUseNewColorScheme){
+        g.drawEllipse(_ZirkOSC_Center_X-ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y-ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius * 2, ZirkOscAudioProcessor::s_iDomeRadius * 2, 1.0f);
     }
-    g.drawEllipse(_ZirkOSC_Center_X-ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y-ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius * 2, ZirkOscAudioProcessor::s_iDomeRadius * 2, 1.0f);
 }
 
 void ZirkOscAudioProcessorEditor::paintCenterDot (Graphics& g){
@@ -935,7 +932,8 @@ void ZirkOscAudioProcessorEditor::paintElevationCircle (Graphics& g){
 
 void ZirkOscAudioProcessorEditor::paintCrosshairs (Graphics& g){
     if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        g.setColour(Colours::white);
+        //g.setColour(Colours::white);
+        return;
     } else {
         g.setColour(Colours::grey);
     }
