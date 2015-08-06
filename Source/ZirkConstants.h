@@ -91,7 +91,7 @@ const int ZirkOSC_NumMarks = sizeof(ZirkOSC_MarksAngles)/sizeof(ZirkOSC_MarksAng
 
 //! Enum of the movement constraints
 enum AllConstraints {
-    Independant = 1,/*!< Independant mode */
+    independent = 1,/*!< independent mode */
     Circular,        /*!< Circular */
     EqualElev,    /*!< All sources' radius are fixed */
     EqualAzim,    /*!< Angle between sources are fixed */

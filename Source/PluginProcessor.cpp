@@ -71,7 +71,7 @@ _NbrSources(1)
 ,m_bIsRecordingAutomation(false)
 ,m_iNeedToResetToActualConstraint(-1)
 {
-    setMovementConstraint(Independant);
+    setMovementConstraint(independent);
     
     initSources();
 
@@ -97,7 +97,7 @@ void ZirkOscAudioProcessor::initSources(){
 }
 
 void ZirkOscAudioProcessor::timerCallback(){
-    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iMovementConstraint != Independant&& m_iSourceLocationChanged != -1) {
+    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iMovementConstraint != independent&& m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
@@ -123,7 +123,7 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
 
-    if(m_iMovementConstraint == Independant){
+    if(m_iMovementConstraint == independent){
         m_fSourceOldX01[p_iSource] = fX01;
         m_fSourceOldY01[p_iSource] = fY01;
     } else if (getNbrSources()>1){
