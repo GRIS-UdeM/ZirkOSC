@@ -863,15 +863,13 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
             g.drawEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, 1);
             
             //---- draw source label
-            String s;
-            s << i+1;
             //draw it in black
             g.setColour(Colours::black);
-            g.drawText(s, _ZirkOSC_Center_X + fX-radius+1, _ZirkOSC_Center_Y + fY-radius+1, diameter, diameter, Justification(Justification::centred), false);
+            g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius+1, _ZirkOSC_Center_Y + fY-radius+1, diameter, diameter, Justification(Justification::centred), false);
             
             //then in white, to create 3d effect
             g.setColour(Colours::white);
-            g.drawText(s, _ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, Justification(Justification::centred), false);
+            g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, Justification(Justification::centred), false);
         }
     }
 }
