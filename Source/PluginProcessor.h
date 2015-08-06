@@ -282,6 +282,8 @@ public:
     
     void setEqualAzimElevForAllSrc();
     
+    void setCurrentAndOldLocation(const int &p_iSrc, const float &p_fX01, const float &p_fY01);
+    
 private:
     
     void initSources();

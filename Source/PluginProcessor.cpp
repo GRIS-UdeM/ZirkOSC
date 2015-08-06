@@ -297,11 +297,9 @@ void ZirkOscAudioProcessor::setEqualAzimForAllSrc(){
     int count = 0;
     for(int i= 1; i < nbrSources ; ++i){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
-        float fX, fY;
-        SoundSource::azimElev01toXY01(curangle, _AllSources[order[i]].getElevation01(), fX, fY);
-        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
-        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
-    }
+        float fX01, fY01;
+        SoundSource::azimElev01toXY01(curangle, _AllSources[order[i]].getElevation01(), fX01, fY01);
+        setCurrentAndOldLocation(i, fX01, fY01);    }
 }
 
 void ZirkOscAudioProcessor::setEqualAzimElevForAllSrc(){
@@ -311,11 +309,9 @@ void ZirkOscAudioProcessor::setEqualAzimElevForAllSrc(){
     int count = 0;
     for(int i= 1; i < nbrSources ; ++i){
         float curangle = _AllSources[order[0]].getAzimuth01()+ (float)(++count)/(float) nbrSources;
-        float fX, fY;
-        SoundSource::azimElev01toXY01(curangle, fCurElevation, fX, fY);
-        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (order[i]*5), fX);
-        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (order[i]*5), fY);
-    }
+        float fX01, fY01;
+        SoundSource::azimElev01toXY01(curangle, fCurElevation, fX01, fY01);
+        setCurrentAndOldLocation(i, fX01, fY01);    }
 }
 
 void ZirkOscAudioProcessor::setEqualElevForAllSrc(){
@@ -324,9 +320,16 @@ void ZirkOscAudioProcessor::setEqualElevForAllSrc(){
         float fCurAzim01 = _AllSources[iCurSrc].getAzimuth01();
         float fX01, fY01;
         SoundSource::azimElev01toXY01(fCurAzim01, fSelElevation01, fX01, fY01);
-        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSrc*5), fX01);
-        setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSrc*5), fY01);
+        setCurrentAndOldLocation(iCurSrc, fX01, fY01);
     }
+}
+
+void ZirkOscAudioProcessor::setCurrentAndOldLocation(const int &p_iSrc, const float &p_fX01, const float &p_fY01){
+    setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (p_iSrc*5), p_fX01);
+    setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (p_iSrc*5), p_fY01);
+    m_fSourceOldX01[p_iSrc] = p_fX01;
+    m_fSourceOldY01[p_iSrc] = p_fY01;
+
 }
 
 //starting from the selected source, cycle through the other sources to find in which order they are
@@ -944,9 +947,9 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
 
             setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, fActualX01);
             setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, fActualY01);
-
             m_fSourceOldX01[iCurSrc] = fActualX01;
             m_fSourceOldY01[iCurSrc] = fActualY01;
+            
         }
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
