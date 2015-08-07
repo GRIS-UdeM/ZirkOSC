@@ -1490,8 +1490,8 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
     
     else if(&_FirstSourceIdTextEditor == &textEditor ){
         
-        //we only have room for 3 digits, so limit that field to 3 digits
-        if (intValue > 999 - 8 || intValue < -99 ){
+        //we only have room for 2, positive digits, so limit that field to 3 digits
+        if (intValue > 99 - 8 || intValue < 0 ){
             return;
         }
         //updating leapSource Combobox
