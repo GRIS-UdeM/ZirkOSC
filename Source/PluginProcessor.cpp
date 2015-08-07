@@ -19,10 +19,6 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ==============================================================================
- 
- Description :
- 
-Handling all the sound processing and directing.
  */
 
 
@@ -38,8 +34,58 @@ Handling all the sound processing and directing.
 // using stringstream constructors.
 #include <iostream>
 
-
 using namespace std;
+
+//==============================================================================
+class DemoThread    : public BouncingBallComp,
+public Thread
+{
+public:
+    DemoThread()
+    : Thread ("Juce Demo Thread")
+    {
+        interval = Random::getSystemRandom().nextInt (50) + 6;
+        
+        // give the threads a random priority, so some will move more
+        // smoothly than others..
+        startThread (Random::getSystemRandom().nextInt (3) + 3);
+    }
+    
+    ~DemoThread()
+    {
+        // allow the thread 2 seconds to stop cleanly - should be plenty of time.
+        stopThread (2000);
+    }
+    
+    void run() override
+    {
+        // this is the code that runs this thread - we'll loop continuously,
+        // updating the coordinates of our blob.
+        
+        // threadShouldExit() returns true when the stopThread() method has been
+        // called, so we should check it often, and exit as soon as it gets flagged.
+        while (! threadShouldExit())
+        {
+            // sleep a bit so the threads don't all grind the CPU to a halt..
+            wait (interval);
+            
+            // because this is a background thread, we mustn't do any UI work without
+            // first grabbing a MessageManagerLock..
+            const MessageManagerLock mml (Thread::getCurrentThread());
+            
+            if (! mml.lockWasGained())  // if something is trying to kill this job, the lock
+                return;                 // will fail, in which case we'd better return..
+            
+            // now we've got the UI thread locked, we can mess about with the components
+            moveBall();
+        }
+    }
+    
+private:
+    int interval;
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DemoThread)
+};
 
 int ZirkOscAudioProcessor::s_iDomeRadius = 172;
 
