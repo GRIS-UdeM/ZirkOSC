@@ -1461,11 +1461,10 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             //updating leapSource Combobox
             m_pCBLeapSource->clear();
             int firstSource =_FirstSourceIdTextEditor.getText().getIntValue();
-            int j = 1;
-            for(int i = firstSource; i<intValue+firstSource; i++)
-            {
-                m_pCBLeapSource->addItem((String)i, j);
-                j++;
+            int iId = 1;
+            for(int i = firstSource; i<intValue+firstSource; i++) {
+                m_pCBLeapSource->addItem((String)i, iId++);
+
             }
             m_pCBLeapSource->setSelectedId(ourProcessor->getSelectedSource()+1);
             m_pCBLeapSource->addListener(this);
