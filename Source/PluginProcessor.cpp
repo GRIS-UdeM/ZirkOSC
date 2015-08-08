@@ -37,21 +37,20 @@
 using namespace std;
 
 //==============================================================================
-class DemoThread    : public BouncingBallComp,
-public Thread
+class SourceUpdateThread : public Thread
 {
 public:
-    DemoThread()
-    : Thread ("Juce Demo Thread")
+    SourceUpdateThread()
+    : Thread ("SourceUpdateThread")
     {
         interval = Random::getSystemRandom().nextInt (50) + 6;
         
         // give the threads a random priority, so some will move more
         // smoothly than others..
-        startThread (Random::getSystemRandom().nextInt (3) + 3);
+        startThread ();
     }
     
-    ~DemoThread()
+    ~SourceUpdateThread()
     {
         // allow the thread 2 seconds to stop cleanly - should be plenty of time.
         stopThread (2000);
@@ -84,7 +83,7 @@ public:
 private:
     int interval;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DemoThread)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceUpdateThread)
 };
 
 int ZirkOscAudioProcessor::s_iDomeRadius = 172;
