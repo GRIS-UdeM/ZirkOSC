@@ -40,48 +40,41 @@ using namespace std;
 class SourceUpdateThread : public Thread
 {
 public:
-    SourceUpdateThread()
+    SourceUpdateThread(ZirkOscAudioProcessor* p_pProcessor)
     : Thread ("SourceUpdateThread")
-    {
-        interval = Random::getSystemRandom().nextInt (50) + 6;
+    ,m_iInterval(50)
+    ,m_pProcessor(p_pProcessor) {
         
-        // give the threads a random priority, so some will move more
-        // smoothly than others..
         startThread ();
     }
     
-    ~SourceUpdateThread()
-    {
-        // allow the thread 2 seconds to stop cleanly - should be plenty of time.
-        stopThread (2000);
+    ~SourceUpdateThread() {
+        // allow the thread 1 second to stop cleanly - should be plenty of time.
+        stopThread (2 * m_iInterval);
     }
     
-    void run() override
-    {
-        // this is the code that runs this thread - we'll loop continuously,
-        // updating the coordinates of our blob.
-        
-        // threadShouldExit() returns true when the stopThread() method has been
-        // called, so we should check it often, and exit as soon as it gets flagged.
-        while (! threadShouldExit())
-        {
-            // sleep a bit so the threads don't all grind the CPU to a halt..
-            wait (interval);
-            
-            // because this is a background thread, we mustn't do any UI work without
-            // first grabbing a MessageManagerLock..
+    void run() override {
+       
+        // threadShouldExit() returns true when the stopThread() method has been called
+        while (! threadShouldExit()) {
+
+            // because this is a background thread, we mustn't do any UI work without first grabbing a MessageManagerLock..
             const MessageManagerLock mml (Thread::getCurrentThread());
             
             if (! mml.lockWasGained())  // if something is trying to kill this job, the lock
                 return;                 // will fail, in which case we'd better return..
             
             // now we've got the UI thread locked, we can mess about with the components
-            moveBall();
+            m_pProcessor->updateSourcesSendOsc();
+            
+            // sleep a bit so the threads don't all grind the CPU to a halt..
+            wait (m_iInterval);
         }
     }
     
 private:
-    int interval;
+    int m_iInterval;
+    ZirkOscAudioProcessor* m_pProcessor;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SourceUpdateThread)
 };
@@ -128,7 +121,9 @@ _NbrSources(1)
     _LastUiWidth  = ZirkOSC_Window_Default_Width;
     _LastUiHeight = ZirkOSC_Window_Default_Height;
     
-    startTimer (75);
+    m_pSourceUpdateThread = new SourceUpdateThread(this);
+    
+    //startTimer (75);
 }
 
 void ZirkOscAudioProcessor::initSources(){
@@ -142,6 +137,10 @@ void ZirkOscAudioProcessor::initSources(){
 }
 
 void ZirkOscAudioProcessor::timerCallback(){
+    //updateSourcesSendOsc();
+}
+
+void ZirkOscAudioProcessor::updateSourcesSendOsc(){
     if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iMovementConstraint != independent&& m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
@@ -426,6 +425,10 @@ ZirkOscAudioProcessor::~ZirkOscAudioProcessor()
     _OscZirkonium = NULL;
     if (m_bStartedConstraintAutomation){
         endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
+    }
+    
+    if (m_pSourceUpdateThread){
+        delete m_pSourceUpdateThread;
     }
 }
 

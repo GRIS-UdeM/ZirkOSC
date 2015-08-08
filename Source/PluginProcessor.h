@@ -31,6 +31,8 @@
 #include "SoundSource.h"
 #include "Trajectories.h"
 
+class SourceUpdateThread;
+
 /**
  The processor class of the plug in
  */
@@ -284,6 +286,8 @@ public:
     
     void setCurrentAndOldLocation(const int &p_iSrc, const float &p_fX01, const float &p_fY01);
     
+    void updateSourcesSendOsc();
+    
 private:
     
     void initSources();
@@ -389,7 +393,10 @@ private:
     bool m_bIsElevationOverflow[8];
     
     bool m_bIsRecordingAutomation;
+    
     int m_iNeedToResetToActualConstraint;
+    
+    SourceUpdateThread* m_pSourceUpdateThread;
 
 };
 

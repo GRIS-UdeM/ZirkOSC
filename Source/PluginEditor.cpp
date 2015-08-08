@@ -177,7 +177,7 @@ public:
 
         m_pTypeComboBox         = addToList (new ComboBox());
         
-        m_pDirectionComboBox     = addToList (new ComboBox());
+        m_pDirectionComboBox    = addToList (new ComboBox());
         
         m_pReturnComboBox       = addToList (new ComboBox());
         
