@@ -42,7 +42,7 @@ class SourceUpdateThread : public Thread
 public:
     SourceUpdateThread(ZirkOscAudioProcessor* p_pProcessor)
     : Thread ("SourceUpdateThread")
-    ,m_iInterval(50)
+    ,m_iInterval(25)
     ,m_pProcessor(p_pProcessor) {
         
         startThread ();
@@ -58,6 +58,9 @@ public:
         // threadShouldExit() returns true when the stopThread() method has been called
         while (! threadShouldExit()) {
 
+            // sleep a bit so the threads don't all grind the CPU to a halt..
+            wait (m_iInterval);
+
             // because this is a background thread, we mustn't do any UI work without first grabbing a MessageManagerLock..
             const MessageManagerLock mml (Thread::getCurrentThread());
             
@@ -66,9 +69,6 @@ public:
             
             // now we've got the UI thread locked, we can mess about with the components
             m_pProcessor->updateSourcesSendOsc();
-            
-            // sleep a bit so the threads don't all grind the CPU to a halt..
-            wait (m_iInterval);
         }
     }
     
