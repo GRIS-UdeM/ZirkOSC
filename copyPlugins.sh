@@ -1,8 +1,15 @@
 #!/bin/bash
 
-# cp -r /Users/nicolai/Library/Audio/Plug-Ins/Components/ZirkOSC3.component ~/Desktop
-# cp -r /Users/nicolai/Library/Audio/Plug-Ins/VST/ZirkOSC3.vst ~/Desktop
+VERSION="3.0.5"
 
-zip -r ~/Desktop/ZirkOSC.zip /Users/nicolai/Library/Audio/Plug-Ins/Components/ZirkOSC3.component /Users/nicolai/Library/Audio/Plug-Ins/VST/ZirkOSC3.vst 
+pushd ~/Library/Audio/Plug-Ins/Components/
+zip -r ~/Desktop/ZirkOSC$VERSION.zip ./ZirkOSC3.component 
+popd
+
+pushd ~/Library/Audio/Plug-Ins/VST/
+zip -r ~/Desktop/ZirkOSC$VERSION.zip ./ZirkOSC3.vst 
+popd
+
+#zip -rj ~/Desktop/ZirkOSC.zip ~/Library/Audio/Plug-Ins/Components/ZirkOSC3.component ~/Library/Audio/Plug-Ins/VST/ZirkOSC3.vst 
 
 echo "vst and component copied to ~/Desktop"
