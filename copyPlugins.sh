@@ -1,6 +1,7 @@
 #!/bin/bash
 
-VERSION="3.0.5"
+#VERSION="3.0.5"
+VERSION="$1"
 
 pushd ~/Library/Audio/Plug-Ins/Components/
 zip -r ~/Desktop/ZirkOSC$VERSION.zip ./ZirkOSC3.component 
