@@ -123,6 +123,7 @@ _NbrSources(1)
     
     m_pSourceUpdateThread = new SourceUpdateThread(this);
     
+    
     //startTimer (75);
 }
 
