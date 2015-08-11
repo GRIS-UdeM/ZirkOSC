@@ -151,6 +151,7 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
         
         m_iSourceLocationChanged = -1.f;
     }
+    JUCE_COMPILER_WARNING("need to go through code and check when we need to use this mmLock")
     const MessageManagerLock mmLock;
     if (_isOscActive){
         sendOSCValues();
