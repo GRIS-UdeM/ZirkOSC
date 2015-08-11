@@ -74,7 +74,6 @@
 		AF2ACDAFF91509E99ECBB26C /* ZirkLeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EE1B863AE4E08B04FFBBD4D0 /* ZirkLeap.cpp */; };
 		B0D952037F7FD33E9F39D897 /* AUCarbonViewControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B123575C9584AF53FFDDE18A /* AUCarbonViewControl.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		B11600F51CA9DF5D39DC8A96 /* AUBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3F95A28A27D3AD58BCC492B7 /* AUBuffer.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
-		B19B2C471B78F74A002BBB8D /* libLeap.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = B19B2C461B78F74A002BBB8D /* libLeap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B2CF11ACAB879226E5251AA3 /* HID_Error_Handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B755C85B0B087E530A7BA68 /* HID_Error_Handler.cpp */; };
 		B2FCA89AD259F0CB9D568911 /* HID_Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF1CB688A2F18AA12A9142A0 /* HID_Utilities.cpp */; };
 		B3BCB64DEFC14ED9C73AE1D0 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F56DFCBE2E928A0F56D3C75 /* QTKit.framework */; };
@@ -96,18 +95,20 @@
 		EE02B53730C4748F5E465CC3 /* AUDispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7790E0B01596CC8EC9C20D89 /* AUDispatch.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		EEF1F1FF264973E9A0E0F799 /* bundle.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DDCEFFF6205D6703B3D5C7 /* bundle.c */; };
 		F3A42555567CF8C242701B02 /* CAMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 30A07B6D48F76134466888BC /* CAMutex.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
+		F6D1C7C91B7A40E900B26E7C /* libLeap.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F6D1C7C81B7A40E900B26E7C /* libLeap.dylib */; };
+		F6D1C7CB1B7A40FF00B26E7C /* libLeap.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = F6D1C7C81B7A40E900B26E7C /* libLeap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		F7B755A0A93AEBD7614AE4D5 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 883DF696460D914404CCC4AA /* Carbon.framework */; };
 		FEA100570230750E15390CCF /* pattern_match.c in Sources */ = {isa = PBXBuildFile; fileRef = BA85D240BA985D37722CE57C /* pattern_match.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B19B2C451B78F73D002BBB8D /* CopyFiles */ = {
+		F6D1C7C21B7A3E8600B26E7C /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				B19B2C471B78F74A002BBB8D /* libLeap.dylib in CopyFiles */,
+				F6D1C7CB1B7A40FF00B26E7C /* libLeap.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -813,7 +814,6 @@
 		B170031E792899D96FE3E438 /* lo_throw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lo_throw.h; path = ../../liblo/lo/lo_throw.h; sourceTree = SOURCE_ROOT; };
 		B176A28B06E66C3350CBF817 /* juce_TextPropertyComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_TextPropertyComponent.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/properties/juce_TextPropertyComponent.cpp; sourceTree = SOURCE_ROOT; };
 		B185D1EB36F8E576C79AAECE /* CAAudioChannelLayout.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CAAudioChannelLayout.cpp; path = Extras/CoreAudio/PublicUtility/CAAudioChannelLayout.cpp; sourceTree = DEVELOPER_DIR; };
-		B19B2C461B78F74A002BBB8D /* libLeap.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libLeap.dylib; sourceTree = "<group>"; };
 		B1DA9B2DC5E516CBF6C394CF /* MusicDeviceBase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MusicDeviceBase.cpp; path = Extras/CoreAudio/AudioUnits/AUPublic/OtherBases/MusicDeviceBase.cpp; sourceTree = DEVELOPER_DIR; };
 		B22C29B514AD21AD2AB8420B /* juce_DirectoryIterator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_DirectoryIterator.h; path = ../../JuceLibraryCode/modules/juce_core/files/juce_DirectoryIterator.h; sourceTree = SOURCE_ROOT; };
 		B23177BC087343D0D5EBBDC8 /* juce_IIRFilterAudioSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_IIRFilterAudioSource.h; path = ../../JuceLibraryCode/modules/juce_audio_basics/sources/juce_IIRFilterAudioSource.h; sourceTree = SOURCE_ROOT; };
@@ -1099,6 +1099,7 @@
 		F60BCED8C509B2AA11615B1A /* juce_linux_SystemStats.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_linux_SystemStats.cpp; path = ../../JuceLibraryCode/modules/juce_core/native/juce_linux_SystemStats.cpp; sourceTree = SOURCE_ROOT; };
 		F6104F9863D85EDB56E8DEFE /* juce_DrawablePath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_DrawablePath.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/drawables/juce_DrawablePath.cpp; sourceTree = SOURCE_ROOT; };
 		F6999E006A8C315E3D5F9633 /* juce_MenuBarModel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_MenuBarModel.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/menus/juce_MenuBarModel.cpp; sourceTree = SOURCE_ROOT; };
+		F6D1C7C81B7A40E900B26E7C /* libLeap.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libLeap.dylib; sourceTree = "<group>"; };
 		F6DA95BC1E6C6CFC1C0B0C09 /* juce_DrawableImage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_DrawableImage.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/drawables/juce_DrawableImage.cpp; sourceTree = SOURCE_ROOT; };
 		F7A9990BAC7E77E8EF4620DA /* juce_FileListComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_FileListComponent.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/filebrowser/juce_FileListComponent.cpp; sourceTree = SOURCE_ROOT; };
 		F7AB0A9E375D008F6A4C624A /* HID_Queue_Utilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HID_Queue_Utilities.cpp; path = ../../HIDManager/HID_Queue_Utilities.cpp; sourceTree = SOURCE_ROOT; };
@@ -1147,6 +1148,7 @@
 				84A4BF8AD95C6E8EDD72D2A1 /* IOKit.framework in Frameworks */,
 				ADAF4D8E06E80D8DA8E31A84 /* OpenGL.framework in Frameworks */,
 				B3BCB64DEFC14ED9C73AE1D0 /* QTKit.framework in Frameworks */,
+				F6D1C7C91B7A40E900B26E7C /* libLeap.dylib in Frameworks */,
 				0A8A2FCB823D7C7F2845B993 /* QuartzCore.framework in Frameworks */,
 				7C3CED6D91AEE695B18C3B0D /* WebKit.framework in Frameworks */,
 			);
@@ -2828,6 +2830,7 @@
 		DA8A28B737DDFAC1313A74EC /* ZirkOSC */ = {
 			isa = PBXGroup;
 			children = (
+				F6D1C7C81B7A40E900B26E7C /* libLeap.dylib */,
 				0E3976C4859C93DADC151A52 /* Resources */,
 				04EF2B6AFFF4A3552918CC3D /* HIDManager */,
 				A0E38158353F90F434E51352 /* liblo */,
@@ -2926,7 +2929,6 @@
 		E1B83B44B1B770D8A9791CF3 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				B19B2C461B78F74A002BBB8D /* libLeap.dylib */,
 				DA8A28B737DDFAC1313A74EC /* ZirkOSC */,
 				CF17D5EB7EF3F2828D087C14 /* Juce Modules */,
 				AC5859AF3102E03F76ECE0B1 /* Juce Library Code */,
@@ -3108,7 +3110,7 @@
 				96DF6391A7BB58699CC5BE63 /* Sources */,
 				44EBF758515C7CAB2926117B /* Frameworks */,
 				5E70BBE3B5A870A974756754 /* Post-build script */,
-				B19B2C451B78F73D002BBB8D /* CopyFiles */,
+				F6D1C7C21B7A3E8600B26E7C /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -3321,7 +3323,8 @@
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"~/Documents/sdks/LeapSDK/lib\"",
+					"~/Documents/sdks/LeapSDK/lib",
+					"$(PROJECT_DIR)",
 				);
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -3372,7 +3375,8 @@
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"~/Documents/sdks/LeapSDK/lib\"",
+					"~/Documents/sdks/LeapSDK/lib",
+					"$(PROJECT_DIR)",
 				);
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
