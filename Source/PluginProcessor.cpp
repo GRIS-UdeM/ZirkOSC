@@ -83,6 +83,8 @@ int ZirkOscAudioProcessor::s_iDomeRadius = 172;
 
 bool ZirkOscAudioProcessor::s_bUseNewColorScheme = true;
 
+bool ZirkOscAudioProcessor::s_bForceConstraintAutomation = false;
+
 ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 :
 _NbrSources(1)
@@ -109,7 +111,7 @@ _NbrSources(1)
 ,m_bIsRecordingAutomation(false)
 ,m_iNeedToResetToActualConstraint(-1)
 {
-    setMovementConstraint(independent);
+    setMovementConstraint(Independent);
     
     initSources();
 
@@ -142,7 +144,7 @@ void ZirkOscAudioProcessor::timerCallback(){
 }
 
 void ZirkOscAudioProcessor::updateSourcesSendOsc(){
-    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iMovementConstraint != independent&& m_iSourceLocationChanged != -1) {
+    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iMovementConstraint != Independent&& m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
@@ -169,7 +171,7 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
 
-    if(m_iMovementConstraint == independent){
+    if(m_iMovementConstraint == Independent){
         m_fSourceOldX01[p_iSource] = fX01;
         m_fSourceOldY01[p_iSource] = fY01;
     } else if (getNbrSources()>1){
@@ -439,7 +441,7 @@ void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    if (host.isReaper()){
+    if (s_bForceConstraintAutomation && host.isReaper()){
         beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
     }
 }
@@ -455,13 +457,13 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
             m_bCurrentlyPlaying = true;
             m_bDetectedPlayingStart = true;
             m_bDetectedPlayingEnd = false;
-            if (true && host.isReaper()){
+            if (s_bForceConstraintAutomation && host.isReaper()){
                 m_iActualConstraint = getMovementConstraint();
                 int iTempConstraint = (m_iActualConstraint == DeltaLocked) ? m_iActualConstraint -1 : m_iActualConstraint +1;
                 setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(iTempConstraint, TotalNumberConstraints));
                 m_iNeedToResetToActualConstraint = 25;
             }
-        } else if (true &&  host.isReaper() && --m_iNeedToResetToActualConstraint == 0){
+        } else if (s_bForceConstraintAutomation &&  host.isReaper() && --m_iNeedToResetToActualConstraint == 0){
             setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(m_iActualConstraint, TotalNumberConstraints));
             m_iNeedToResetToActualConstraint = -1;
         }
@@ -500,7 +502,7 @@ void ZirkOscAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
-    if (host.isReaper()){
+    if (s_bForceConstraintAutomation && host.isReaper()){
         endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
     }
 }

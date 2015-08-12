@@ -353,7 +353,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     
     //---------- CONSTRAINT COMBO BOX ----------
-    m_oMovementConstraintComboBox.addItem("independent",   independent);
+    m_oMovementConstraintComboBox.addItem("Independent",   Independent);
     m_oMovementConstraintComboBox.addItem("Circular",      Circular);
     m_oMovementConstraintComboBox.addItem("Equal Elevation",  EqualElev);
     m_oMovementConstraintComboBox.addItem("Equal Azimuth",   EqualAzim);

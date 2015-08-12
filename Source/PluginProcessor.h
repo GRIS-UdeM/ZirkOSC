@@ -260,6 +260,8 @@ public:
     
     static bool s_bUseNewColorScheme;
     
+    static bool s_bForceConstraintAutomation;
+    
     bool isTrajectoryDone();
     
     //NEW TRAJECTORY CLASS METHODS
