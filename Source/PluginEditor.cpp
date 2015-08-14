@@ -799,7 +799,7 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
             }
             
             float fCurR = hypotf(fX, fY);
-            if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+            if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius+5){
                 float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
                 
                 g.setColour(Colours::grey);
@@ -846,7 +846,7 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
             }
             
             float fCurR = hypotf(fX, fY);
-            if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+            if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius+5){
                 float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
                 
                 g.setColour(Colours::grey);
