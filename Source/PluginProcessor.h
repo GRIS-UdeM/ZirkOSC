@@ -36,7 +36,7 @@ class SourceUpdateThread;
 /**
  The processor class of the plug in
  */
-class ZirkOscAudioProcessor  : public AudioProcessor,public Timer
+class ZirkOscAudioProcessor  : public AudioProcessor
 {
 public:
     
@@ -45,9 +45,7 @@ public:
     ZirkOscAudioProcessor();
     //! Destroyer
     ~ZirkOscAudioProcessor();
-    
-    //! Called every 50ms;
-    void timerCallback();
+
     
     void move(int p_iSource, float p_fX, float p_fY);
     

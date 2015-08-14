@@ -124,9 +124,6 @@ _NbrSources(1)
     _LastUiHeight = ZirkOSC_Window_Default_Height;
     
     m_pSourceUpdateThread = new SourceUpdateThread(this);
-    
-    
-    //startTimer (75);
 }
 
 void ZirkOscAudioProcessor::initSources(){
@@ -137,10 +134,6 @@ void ZirkOscAudioProcessor::initSources(){
         m_fROverflow[i]             = s_iDomeRadius;
         m_bIsElevationOverflow[i]   = false;
     }
-}
-
-void ZirkOscAudioProcessor::timerCallback(){
-    //updateSourcesSendOsc();
 }
 
 void ZirkOscAudioProcessor::updateSourcesSendOsc(){
@@ -421,7 +414,6 @@ vector<int> ZirkOscAudioProcessor::getOrderSources(int selected, SoundSource tab
 
 ZirkOscAudioProcessor::~ZirkOscAudioProcessor()
 {
-    stopTimer();
     _isOscActive = false;
     lo_address osc = _OscZirkonium;
     if (osc){
