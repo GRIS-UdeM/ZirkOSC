@@ -145,7 +145,7 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
             moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
         }
         
-        m_iSourceLocationChanged = -1.f;
+        m_iSourceLocationChanged = -1;
     }
     JUCE_COMPILER_WARNING("need to go through code and check when we need to use this mmLock")
     const MessageManagerLock mmLock;
