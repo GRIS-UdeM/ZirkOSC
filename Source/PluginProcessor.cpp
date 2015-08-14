@@ -49,8 +49,8 @@ public:
     }
     
     ~SourceUpdateThread() {
-        // allow the thread 1 second to stop cleanly - should be plenty of time.
-        stopThread (2 * m_iInterval);
+        // allow the thread .5 second to stop cleanly - should be plenty of time.
+        stopThread (500);
     }
     
     void run() override {
@@ -144,8 +144,9 @@ void ZirkOscAudioProcessor::timerCallback(){
 }
 
 void ZirkOscAudioProcessor::updateSourcesSendOsc(){
-    if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation && m_iMovementConstraint != Independent&& m_iSourceLocationChanged != -1) {
+    if (/*m_bCurrentlyPlaying && */!m_bIsRecordingAutomation && m_iMovementConstraint != Independent && m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
+            JUCE_COMPILER_WARNING("it is very likely that the getX and getY here do not return values for the same position")
             moveSourcesWithDelta(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY());
         } else {
             moveCircular(m_iSourceLocationChanged, _AllSources[m_iSourceLocationChanged].getX(), _AllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
@@ -799,6 +800,7 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
             bFoundParameter = true;
     }
     
+    JUCE_COMPILER_WARNING("Should replace these 2 calls by a single one, maybe with Points?")
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
         if  (ZirkOSC_X_ParamId + (iCurSource*5) == index) {
             if (newValue != _AllSources[iCurSource].getX01()){
