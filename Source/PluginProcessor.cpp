@@ -137,6 +137,8 @@ void ZirkOscAudioProcessor::initSources(){
 }
 
 void ZirkOscAudioProcessor::updateSourcesSendOsc(){
+    JUCE_COMPILER_WARNING("having this lock (or not) doesn't really seem to change anything...")
+    const MessageManagerLock mmLock;
     if (/*m_bCurrentlyPlaying && */!m_bIsRecordingAutomation && m_iMovementConstraint != Independent && m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
             JUCE_COMPILER_WARNING("it is very likely that the getX and getY here do not return values for the same position")
@@ -148,7 +150,7 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
         m_iSourceLocationChanged = -1;
     }
     JUCE_COMPILER_WARNING("need to go through code and check when we need to use this mmLock")
-    const MessageManagerLock mmLock;
+
     if (_isOscActive){
         sendOSCValues();
     }
