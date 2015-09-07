@@ -122,11 +122,11 @@ public:
     void setStateInformation (const void* data, int sizeInBytes);
     
     //! returns the sources
-    inline SoundSource* getSources(){ return _AllSources; }
+    inline SoundSource* getSources(){ return m_oAllSources; }
     //! returns the number of sources on the screen.
-    int getNbrSources() { return _NbrSources; }
+    int getNbrSources() { return m_iNbrSources; }
     //! Set the number of sources.
-    void setNbrSources(int newValue) { if ( newValue >-1 && newValue < 9) _NbrSources= newValue; }
+    void setNbrSources(int newValue) { if ( newValue >-1 && newValue < 9) m_iNbrSources= newValue; }
     
     //!set wheter plug is sending osc messages to zirkonium
     void setIsOscActive(bool isOscActive);
@@ -153,9 +153,9 @@ public:
     int getSelectedSourceForTrajectory();
     
     //! return the tab position of the selectedSource 
-    int getSelectedSource() { return _SelectedSource; }
+    int getSelectedSource() { return m_iSelectedSource; }
     //! Set the selected source 
-    void setSelectedSource(int selected){ if ( selected >-1 && selected < 8) _SelectedSource= selected;};
+    void setSelectedSource(int selected){ if ( selected >-1 && selected < 8) m_iSelectedSource= selected;};
     //! Returns the Osc Port for the Zirkonium sending
     int getOscPortZirkonium(){return _OscPortZirkonium;}
     
@@ -278,6 +278,7 @@ public:
     
     //! get the source order by the angle value
     std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
+    std::vector<float> getOrderSources();
 
     void setEqualAzimForAllSrc();
     void setEqualElevForAllSrc();
@@ -311,7 +312,7 @@ private:
     JUCE_COMPILER_WARNING("this flag should really be used and the gui should NOT refresh if this flag is false")
     bool m_bNeedToRefreshGui = false;
     //! Current number of sources on the screnn
-    int _NbrSources;
+    int m_iNbrSources;
     //! float ID of the selected movement constraint
     float m_fMovementConstraint;
     //! int ID of the selected movement constraint IMPORTANT: need to be set manually whenever float version of parameter is changed
@@ -324,13 +325,13 @@ private:
     float m_fSelectedTrajectoryReturn;
     
     //! Tab position of the selected source
-    int _SelectedSource;
+    int m_iSelectedSource;
     //! Osc port to send to the Zirkonium 
     int _OscPortZirkonium;
     //! The editor
     AudioProcessorEditor* _Editor;
     //! Sources array
-    SoundSource _AllSources [8];
+    SoundSource m_oAllSources [8];
     //Copy of all sources to be able to save and restore locations before and after a trajectory
     SoundSource _AllSourcesBuffer [8];
     
