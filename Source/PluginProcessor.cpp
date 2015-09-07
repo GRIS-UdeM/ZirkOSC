@@ -380,14 +380,16 @@ void ZirkOscAudioProcessor::setEqualAzimForAllSrc(){
         }
         
         int iCurPos         = fSortedAzims[iCurSrc];
-        int iCurDistance    = (iCurPos + fSelPos + 2) % m_iNbrSources;
+        
+        //int iCurDistance    = (iCurPos + fSelPos + 2) % m_iNbrSources;
+        int iCurDistance    = iCurPos - fSelPos;
+        if (iCurDistance < 1) iCurDistance += m_iNbrSources;
+        
         float fCurDelta     = iCurDistance * fEqualDelta;
         float fCurAngle     = fmodf(fSelAzim + fCurDelta, 1);
         float fCurElev = m_oAllSources[iCurSrc].getElevation01();
         float fX01, fY01;
         SoundSource::azimElev01toXY01(fCurAngle, fCurElev, fX01, fY01);
-        float fOldX01 = m_oAllSources[iCurSrc].getX01();
-        float fOldY01 = m_oAllSources[iCurSrc].getY01();
         setCurrentAndOldLocation(iCurSrc, fX01, fY01);
     }
 
