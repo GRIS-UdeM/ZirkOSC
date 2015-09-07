@@ -156,9 +156,9 @@ OSStatus HIDDelegate::Initialize_HID(void *inContext) {
 
     CFMutableArrayRef matchingCFArrayRef = CFArrayCreateMutable(kCFAllocatorDefault,0, &kCFTypeArrayCallBacks);
     if(CFGetTypeID(gIOHIDManagerRef)==IOHIDManagerGetTypeID() && matchingCFArrayRef){
-        //CFDictionaryRef matchingCFDictJoystickRef = hu_CreateMatchingDictionary(kHIDPage_GenericDesktop,kHIDUsage_GD_Joystick); //we set the matching dictionnary only with joysticks
+        CFDictionaryRef matchingCFDictJoystickRef = hu_CreateMatchingDictionary(kHIDPage_GenericDesktop,kHIDUsage_GD_Joystick); //we set the matching dictionnary only with joysticks
         CFDictionaryRef matchingCFDictGamePadRef  = hu_CreateMatchingDictionary(kHIDPage_GenericDesktop,kHIDUsage_GD_GamePad); //we set the matching dictionnary only with gamepads
-        //CFArrayAppendValue( matchingCFArrayRef, matchingCFDictJoystickRef );
+        CFArrayAppendValue( matchingCFArrayRef, matchingCFDictJoystickRef );
         CFArrayAppendValue( matchingCFArrayRef, matchingCFDictGamePadRef );
         if(matchingCFArrayRef) {
             IOHIDManagerSetDeviceMatchingMultiple( gIOHIDManagerRef, matchingCFArrayRef );
