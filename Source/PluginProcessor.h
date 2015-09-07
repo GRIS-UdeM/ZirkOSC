@@ -33,6 +33,14 @@
 
 class SourceUpdateThread;
 
+typedef struct
+{
+    int i;
+    float a;
+} IndexedAngle;
+
+int IndexedAngleCompare(const void *a, const void *b);
+
 /**
  The processor class of the plug in
  */
@@ -278,7 +286,7 @@ public:
     
     //! get the source order by the angle value
     std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
-    std::vector<float> getOrderSources();
+    std::vector<int> getOrderSources();
 
     void setEqualAzimForAllSrc();
     void setEqualElevForAllSrc();
