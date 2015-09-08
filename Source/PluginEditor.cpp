@@ -160,6 +160,10 @@ class TrajectoryTab : public Component{
     TextButton* m_pEndButton;
     Label*      m_pEndLabel;
     
+    TextEditor* m_pEndAzimTextEditor;
+    TextEditor* m_pEndElevTextEditor;
+    
+    
     MiniProgressBar* mTrProgressBarTab;
     
     OwnedArray<Component> components;
@@ -193,6 +197,9 @@ public:
         m_pEndButton            = addToList(new TextButton());
         m_pEndLabel             = addToList(new Label());
         
+        m_pEndAzimTextEditor       = addToList(new TextEditor());
+        m_pEndElevTextEditor       = addToList(new TextEditor());
+        
         mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
     
@@ -211,7 +218,9 @@ public:
     TextButton*     getWriteButton(){       return m_pWriteButton;}
     TextButton*     getEndButton(){         return m_pEndButton;}
     Label*          getEndLabel(){          return m_pEndLabel;}
-    
+
+    TextEditor*     getEndAzimTextEditor(){    return m_pEndAzimTextEditor;}
+    TextEditor*     getEndElevTextEditor(){    return m_pEndElevTextEditor;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -458,6 +467,11 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     JUCE_COMPILER_WARNING("this needs to get its values from processor, like other preset things")
     m_pEndTrajectoryLabel = m_oTrajectoryTab->getEndLabel();
     m_pEndTrajectoryLabel->setText("azim 0, Elevation 1", dontSendNotification);
+
+    m_pEndAzimTextEditor = m_oTrajectoryTab->getEndAzimTextEditor();
+    m_pEndAzimTextEditor->setText("0");
+    m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
+    m_pEndElevTextEditor->setText("1");
     
     //PROGRESS BAR
     mTrProgressBar = m_oTrajectoryTab->getProgressBar();
@@ -578,10 +592,16 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
     
     if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == Spiral){
         m_pEndTrajectoryButton->setVisible(true);
-        m_pEndTrajectoryLabel->setVisible(true);
+//        m_pEndTrajectoryLabel->setVisible(true);
+        
+        m_pEndAzimTextEditor->setVisible(true);
+        m_pEndElevTextEditor->setVisible(true);
     } else {
         m_pEndTrajectoryButton->setVisible(false);
         m_pEndTrajectoryLabel->setVisible(false);
+
+        m_pEndAzimTextEditor->setVisible(false);
+        m_pEndElevTextEditor->setVisible(false);
     }
 }
 
@@ -666,6 +686,9 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pEndTrajectoryButton->            setBounds(15,           15+75, 100, 25);
     m_pEndTrajectoryLabel->             setBounds(15+100,       15+75, 200, 25);
     
+    m_pEndAzimTextEditor->              setBounds(15+100,       15+75, 50, 25);
+    m_pEndElevTextEditor->              setBounds(15+150,        15+75, 50, 25);
+    
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
     
@@ -674,9 +697,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pCBLeapSource->                   setBounds(15,       15+25,  100, 25);
     m_pTBEnableJoystick->               setBounds(15,       15+50,  100, 25);
     m_pLBLeapState->                    setBounds(15+100,   15,     200, 25);
-    m_pLBJoystickState->                setBounds(15+100,   15+50,  200, 25 );
-
-    
+    m_pLBJoystickState->                setBounds(15+100,   15+50,  200, 25);
 }
 
 //Automatic function to set label and Slider
@@ -1429,8 +1450,12 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         
         ostringstream oss;
         oss << "Azimuth: "  << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim << ", Elevation: " << fElev;
-        
         m_pEndTrajectoryLabel->setText(oss.str(), dontSendNotification);
+        
+        NEED TO SET PRECISION
+        m_pEndAzimTextEditor->setText(std::to_string(fAzim));
+        m_pEndElevTextEditor->setText(std::to_string(fElev));
+        
         m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
     }
 

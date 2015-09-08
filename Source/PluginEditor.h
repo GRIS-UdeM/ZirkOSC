@@ -163,6 +163,9 @@ private:
     
     Label* m_pEndTrajectoryLabel;
     
+    TextEditor* m_pEndAzimTextEditor;
+    TextEditor* m_pEndElevTextEditor;
+    
     std::pair <float, float> m_fEndLocationPair;
     
     Label* m_pTrajectoryCountLabel;
