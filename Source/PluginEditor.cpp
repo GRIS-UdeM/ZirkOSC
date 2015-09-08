@@ -1448,14 +1448,19 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         float fAzim = PercentToHR(SoundSource::XYtoAzim01(fCenteredX, fCenteredY), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
         float fElev = PercentToHR(SoundSource::XYtoElev01(fCenteredX, fCenteredY), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         
-        ostringstream oss;
-        oss << "Azimuth: "  << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim << ", Elevation: " << fElev;
-        m_pEndTrajectoryLabel->setText(oss.str(), dontSendNotification);
-        
-        NEED TO SET PRECISION
-        m_pEndAzimTextEditor->setText(std::to_string(fAzim));
-        m_pEndElevTextEditor->setText(std::to_string(fElev));
-        
+//        ostringstream oss;
+//        oss << "Azimuth: "  << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim << ", Elevation: " << fElev;
+//        m_pEndTrajectoryLabel->setText(oss.str(), dontSendNotification);
+        {
+            ostringstream oss;
+            oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim;
+            m_pEndAzimTextEditor->setText(oss.str());
+        }
+        {
+            ostringstream oss;
+            oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fElev;
+            m_pEndElevTextEditor->setText(oss.str());
+        }
         m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
     }
 
