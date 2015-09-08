@@ -466,10 +466,11 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     float fBrightness = .6;
     m_pEndAzimTextEditor = m_oTrajectoryTab->getEndAzimTextEditor();
     m_pEndAzimTextEditor->setTextToShowWhenEmpty("Azimuth", juce::Colour::greyLevel(fBrightness));
-    m_pEndAzimTextEditor->setText("0");
     m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
     m_pEndElevTextEditor->setTextToShowWhenEmpty("Elevation", juce::Colour::greyLevel(fBrightness));
-    m_pEndElevTextEditor->setText("1");
+    m_pEndAzimTextEditor->setText("180.0", dontSendNotification);
+    m_pEndElevTextEditor->setText("90.0", dontSendNotification);
+
     
     //RESET END TRAJECTORY BUTTON
     m_pResetEndTrajectoryButton = m_oTrajectoryTab->getResetEndButton();
@@ -1223,12 +1224,13 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             m_pEndElevTextEditor->clear();
         } else {
             m_pSetEndTrajectoryButton->setButtonText("Set end point");
-            JUCE_COMPILER_WARNING("need to set text editors to values");
+            updateEndLocationTextEditors();
+
         }
     }
     else if (button == m_pResetEndTrajectoryButton){
-        m_pEndAzimTextEditor->setText("0", dontSendNotification);
-        m_pEndElevTextEditor->setText("1", dontSendNotification);
+        m_pEndAzimTextEditor->setText("180.0", dontSendNotification);
+        m_pEndElevTextEditor->setText("90.0", dontSendNotification);
     }
 }
 
@@ -1457,19 +1459,7 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         float fCenteredX = event.x-_ZirkOSC_Center_X;
         float fCenteredY = event.y-_ZirkOSC_Center_Y;
         m_fEndLocationPair = make_pair (fCenteredX, fCenteredY);
-       
-        {
-            ostringstream oss;
-            float fAzim = PercentToHR(SoundSource::XYtoAzim01(fCenteredX, fCenteredY), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-            oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim;
-            m_pEndAzimTextEditor->setText(oss.str());
-        }
-        {
-            ostringstream oss;
-            float fElev = PercentToHR(SoundSource::XYtoElev01(fCenteredX, fCenteredY), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-            oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fElev;
-            m_pEndElevTextEditor->setText(oss.str());
-        }
+        updateEndLocationTextEditors();
         m_pSetEndTrajectoryButton->setToggleState(false, dontSendNotification);
         m_pSetEndTrajectoryButton->setButtonText("Set end point");
         
@@ -1478,7 +1468,20 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
     m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
-
+void ZirkOscAudioProcessorEditor::updateEndLocationTextEditors(){
+    {
+        ostringstream oss;
+        float fAzim = PercentToHR(SoundSource::XYtoAzim01(m_fEndLocationPair.first, m_fEndLocationPair.second), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+        oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim;
+        m_pEndAzimTextEditor->setText(oss.str());
+    }
+    {
+        ostringstream oss;
+        float fElev = PercentToHR(SoundSource::XYtoElev01(m_fEndLocationPair.first, m_fEndLocationPair.second), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+        oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fElev;
+        m_pEndElevTextEditor->setText(oss.str());
+    }
+}
 
 void ZirkOscAudioProcessorEditor::textEditorFocusLost (TextEditor &textEditor){
     _isReturnKeyPressedCalledFromFocusLost = true;
