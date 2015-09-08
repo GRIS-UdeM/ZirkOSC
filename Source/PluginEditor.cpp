@@ -463,9 +463,12 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 
     //END TRAJECTORY TextEditors
     JUCE_COMPILER_WARNING("this needs to get its values from processor, like other preset things")
+    float fBrightness = .6;
     m_pEndAzimTextEditor = m_oTrajectoryTab->getEndAzimTextEditor();
+    m_pEndAzimTextEditor->setTextToShowWhenEmpty("Azimuth", juce::Colour::greyLevel(fBrightness));
     m_pEndAzimTextEditor->setText("0");
     m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
+    m_pEndElevTextEditor->setTextToShowWhenEmpty("Elevation", juce::Colour::greyLevel(fBrightness));
     m_pEndElevTextEditor->setText("1");
     
     //RESET END TRAJECTORY BUTTON
@@ -683,9 +686,9 @@ void ZirkOscAudioProcessorEditor::resized() {
 
     m_pSetEndTrajectoryButton->         setBounds(15,           15+75, 100, 25);
     
-    m_pEndAzimTextEditor->              setBounds(15+100,       15+75, 50, 25);
-    m_pEndElevTextEditor->              setBounds(15+150,       15+75, 50, 25);
-    m_pResetEndTrajectoryButton->       setBounds(15+150+50,    15+75, 50, 25);
+    m_pEndAzimTextEditor->              setBounds(15+100,       15+75, 65, 25);
+    m_pEndElevTextEditor->              setBounds(15+165,       15+75, 65, 25);
+    m_pResetEndTrajectoryButton->       setBounds(15+165+65,    15+75, 50, 25);
     
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
@@ -1216,13 +1219,16 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
     else if (button == m_pSetEndTrajectoryButton){
         if (m_pSetEndTrajectoryButton->getToggleState()){
             m_pSetEndTrajectoryButton->setButtonText("Cancel");
+            m_pEndAzimTextEditor->clear();
+            m_pEndElevTextEditor->clear();
         } else {
             m_pSetEndTrajectoryButton->setButtonText("Set end point");
+            JUCE_COMPILER_WARNING("need to set text editors to values");
         }
     }
     else if (button == m_pResetEndTrajectoryButton){
-        m_pEndAzimTextEditor->setText("0");
-        m_pEndElevTextEditor->setText("1");
+        m_pEndAzimTextEditor->setText("0", dontSendNotification);
+        m_pEndElevTextEditor->setText("1", dontSendNotification);
     }
 }
 
