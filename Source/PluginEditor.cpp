@@ -1215,6 +1215,13 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             m_pLBJoystickState->setText("", dontSendNotification);
         }
     }
+    else if (button == m_pEndTrajectoryButton){
+        if (m_pEndTrajectoryButton->getToggleState()){
+            m_pEndTrajectoryButton->setButtonText("Cancel");
+        } else {
+            m_pEndTrajectoryButton->setButtonText("Set end point");
+        }
+    }
 }
 
 
@@ -1439,29 +1446,25 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
     //if assigning end location
     else if (m_pEndTrajectoryButton->getToggleState() &&  event.x>5 && event.x <20+ZirkOscAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscAudioProcessor::s_iDomeRadius*2) {
         //get point of current event
-        
         float fCenteredX = event.x-_ZirkOSC_Center_X;
         float fCenteredY = event.y-_ZirkOSC_Center_Y;
-        
         m_fEndLocationPair = make_pair (fCenteredX, fCenteredY);
        
-        float fAzim = PercentToHR(SoundSource::XYtoAzim01(fCenteredX, fCenteredY), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-        float fElev = PercentToHR(SoundSource::XYtoElev01(fCenteredX, fCenteredY), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        
-//        ostringstream oss;
-//        oss << "Azimuth: "  << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim << ", Elevation: " << fElev;
-//        m_pEndTrajectoryLabel->setText(oss.str(), dontSendNotification);
         {
             ostringstream oss;
+            float fAzim = PercentToHR(SoundSource::XYtoAzim01(fCenteredX, fCenteredY), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
             oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim;
             m_pEndAzimTextEditor->setText(oss.str());
         }
         {
             ostringstream oss;
+            float fElev = PercentToHR(SoundSource::XYtoElev01(fCenteredX, fCenteredY), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
             oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fElev;
             m_pEndElevTextEditor->setText(oss.str());
         }
         m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
+        m_pEndTrajectoryButton->setButtonText("Set end point");
+        
     }
 
     m_oMovementConstraintComboBox.grabKeyboardFocus();
