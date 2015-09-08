@@ -297,6 +297,10 @@ public:
     
     void updateSourcesSendOsc();
     
+    bool isCurrentlyPlaying(){
+        return m_bCurrentlyPlaying;
+    }
+    
 private:
     
     void initSources();

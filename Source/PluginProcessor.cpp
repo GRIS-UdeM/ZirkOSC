@@ -160,6 +160,8 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     float fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
     float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
 
+    cout << "writing " << fX01 << ", " << fY01 << newLine;
+    
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
 
