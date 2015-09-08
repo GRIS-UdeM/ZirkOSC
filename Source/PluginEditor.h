@@ -159,12 +159,11 @@ private:
     
     TextButton* m_pWriteTrajectoryButton;
     
-    TextButton* m_pEndTrajectoryButton;
-    
-    Label* m_pEndTrajectoryLabel;
+    TextButton* m_pSetEndTrajectoryButton;
     
     TextEditor* m_pEndAzimTextEditor;
     TextEditor* m_pEndElevTextEditor;
+    TextButton* m_pResetEndTrajectoryButton;
     
     std::pair <float, float> m_fEndLocationPair;
     

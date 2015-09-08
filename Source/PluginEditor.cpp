@@ -162,7 +162,7 @@ class TrajectoryTab : public Component{
     
     TextEditor* m_pEndAzimTextEditor;
     TextEditor* m_pEndElevTextEditor;
-    
+    TextButton* m_pResetEndButton;
     
     MiniProgressBar* mTrProgressBarTab;
     
@@ -197,8 +197,9 @@ public:
         m_pEndButton            = addToList(new TextButton());
         m_pEndLabel             = addToList(new Label());
         
-        m_pEndAzimTextEditor       = addToList(new TextEditor());
-        m_pEndElevTextEditor       = addToList(new TextEditor());
+        m_pEndAzimTextEditor    = addToList(new TextEditor());
+        m_pEndElevTextEditor    = addToList(new TextEditor());
+        m_pResetEndButton       = addToList(new TextButton());
         
         mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
@@ -219,8 +220,9 @@ public:
     TextButton*     getEndButton(){         return m_pEndButton;}
     Label*          getEndLabel(){          return m_pEndLabel;}
 
-    TextEditor*     getEndAzimTextEditor(){    return m_pEndAzimTextEditor;}
-    TextEditor*     getEndElevTextEditor(){    return m_pEndElevTextEditor;}
+    TextEditor*     getEndAzimTextEditor(){ return m_pEndAzimTextEditor;}
+    TextEditor*     getEndElevTextEditor(){ return m_pEndElevTextEditor;}
+    TextButton*     getResetEndButton(){    return m_pResetEndButton;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -249,13 +251,9 @@ class InterfaceTab : public Component{
 public:
     InterfaceTab(){
         m_pEnableLeap = addToList(new ToggleButton());
-        
         m_pEnableJoystick = addToList(new ToggleButton());
-        
         m_pLeapState = addToList(new Label());
-        
         m_pJoystickState = addToList(new Label());
-        
         m_pLeapSourceCombo = addToList(new ComboBox());
         
     }
@@ -458,20 +456,22 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pWriteTrajectoryButton->addListener(this);
 
     //END TRAJECTORY BUTTON
-    m_pEndTrajectoryButton = m_oTrajectoryTab->getEndButton();
-    m_pEndTrajectoryButton->setButtonText("Set end point");
-    m_pEndTrajectoryButton->setClickingTogglesState(true);
-    m_pEndTrajectoryButton->addListener(this);
+    m_pSetEndTrajectoryButton = m_oTrajectoryTab->getEndButton();
+    m_pSetEndTrajectoryButton->setButtonText("Set end point");
+    m_pSetEndTrajectoryButton->setClickingTogglesState(true);
+    m_pSetEndTrajectoryButton->addListener(this);
 
-    //END TRAJECTORY LABEL
+    //END TRAJECTORY TextEditors
     JUCE_COMPILER_WARNING("this needs to get its values from processor, like other preset things")
-    m_pEndTrajectoryLabel = m_oTrajectoryTab->getEndLabel();
-    m_pEndTrajectoryLabel->setText("azim 0, Elevation 1", dontSendNotification);
-
     m_pEndAzimTextEditor = m_oTrajectoryTab->getEndAzimTextEditor();
     m_pEndAzimTextEditor->setText("0");
     m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
     m_pEndElevTextEditor->setText("1");
+    
+    //RESET END TRAJECTORY BUTTON
+    m_pResetEndTrajectoryButton = m_oTrajectoryTab->getResetEndButton();
+    m_pResetEndTrajectoryButton->setButtonText("Reset");
+    m_pResetEndTrajectoryButton->addListener(this);
     
     //PROGRESS BAR
     mTrProgressBar = m_oTrajectoryTab->getProgressBar();
@@ -591,17 +591,15 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
     }
     
     if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == Spiral){
-        m_pEndTrajectoryButton->setVisible(true);
-//        m_pEndTrajectoryLabel->setVisible(true);
-        
-        m_pEndAzimTextEditor->setVisible(true);
-        m_pEndElevTextEditor->setVisible(true);
+        m_pSetEndTrajectoryButton   ->setVisible(true);
+        m_pEndAzimTextEditor        ->setVisible(true);
+        m_pEndElevTextEditor        ->setVisible(true);
+        m_pResetEndTrajectoryButton ->setVisible(true);
     } else {
-        m_pEndTrajectoryButton->setVisible(false);
-        m_pEndTrajectoryLabel->setVisible(false);
-
-        m_pEndAzimTextEditor->setVisible(false);
-        m_pEndElevTextEditor->setVisible(false);
+        m_pSetEndTrajectoryButton   ->setVisible(false);
+        m_pEndAzimTextEditor        ->setVisible(false);
+        m_pEndElevTextEditor        ->setVisible(false);
+        m_pResetEndTrajectoryButton ->setVisible(false);
     }
 }
 
@@ -683,11 +681,11 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryCountTextEditor->      setBounds(15,           15+50, 230, 25);
     m_pTrajectoryCountLabel->           setBounds(15+230,       15+50, 75,  25);
 
-    m_pEndTrajectoryButton->            setBounds(15,           15+75, 100, 25);
-    m_pEndTrajectoryLabel->             setBounds(15+100,       15+75, 200, 25);
+    m_pSetEndTrajectoryButton->         setBounds(15,           15+75, 100, 25);
     
     m_pEndAzimTextEditor->              setBounds(15+100,       15+75, 50, 25);
-    m_pEndElevTextEditor->              setBounds(15+150,        15+75, 50, 25);
+    m_pEndElevTextEditor->              setBounds(15+150,       15+75, 50, 25);
+    m_pResetEndTrajectoryButton->       setBounds(15+150+50,    15+75, 50, 25);
     
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
@@ -1215,12 +1213,16 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             m_pLBJoystickState->setText("", dontSendNotification);
         }
     }
-    else if (button == m_pEndTrajectoryButton){
-        if (m_pEndTrajectoryButton->getToggleState()){
-            m_pEndTrajectoryButton->setButtonText("Cancel");
+    else if (button == m_pSetEndTrajectoryButton){
+        if (m_pSetEndTrajectoryButton->getToggleState()){
+            m_pSetEndTrajectoryButton->setButtonText("Cancel");
         } else {
-            m_pEndTrajectoryButton->setButtonText("Set end point");
+            m_pSetEndTrajectoryButton->setButtonText("Set end point");
         }
+    }
+    else if (button == m_pResetEndTrajectoryButton){
+        m_pEndAzimTextEditor->setText("0");
+        m_pEndElevTextEditor->setText("1");
     }
 }
 
@@ -1444,7 +1446,7 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
     }
     
     //if assigning end location
-    else if (m_pEndTrajectoryButton->getToggleState() &&  event.x>5 && event.x <20+ZirkOscAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscAudioProcessor::s_iDomeRadius*2) {
+    else if (m_pSetEndTrajectoryButton->getToggleState() &&  event.x>5 && event.x <20+ZirkOscAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscAudioProcessor::s_iDomeRadius*2) {
         //get point of current event
         float fCenteredX = event.x-_ZirkOSC_Center_X;
         float fCenteredY = event.y-_ZirkOSC_Center_Y;
@@ -1462,8 +1464,8 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
             oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fElev;
             m_pEndElevTextEditor->setText(oss.str());
         }
-        m_pEndTrajectoryButton->setToggleState(false, dontSendNotification);
-        m_pEndTrajectoryButton->setButtonText("Set end point");
+        m_pSetEndTrajectoryButton->setToggleState(false, dontSendNotification);
+        m_pSetEndTrajectoryButton->setButtonText("Set end point");
         
     }
 
