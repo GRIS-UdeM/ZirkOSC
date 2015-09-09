@@ -129,8 +129,7 @@ m_iNbrSources(1)
 void ZirkOscAudioProcessor::initSources(){
     for(int i = 0; i < 8; ++i){
         m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
-        m_fSourceOldX01[i]          = m_oAllSources[i].getX01();
-        m_fSourceOldY01[i]          = m_oAllSources[i].getY01();
+        m_oAllSources[i].setOldXY01(m_oAllSources[i].getX01(), m_oAllSources[i].getY01());
         m_fSourceOldAzim01[i]       = m_oAllSources[i].getAzimuth01();
         m_fROverflow[i]             = s_iDomeRadius;
         m_bIsElevationOverflow[i]   = false;
@@ -167,8 +166,7 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
 
     if(m_iMovementConstraint == Independent){
-        m_fSourceOldX01[p_iSource] = fX01;
-        m_fSourceOldY01[p_iSource] = fY01;
+        m_oAllSources[p_iSource].setOldXY01(fX01, fY01);
         float fAzim01, fElev01;
         SoundSource::XY01toAzimElev01(fX01, fY01, fAzim01, fElev01);
         m_fSourceOldAzim01[p_iSource] = fAzim01;
@@ -200,9 +198,8 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
 void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
     
     //calculate delta for selected source, which was already moved in ::move()
-    float fSelectedOldX01 = m_fSourceOldX01[p_iSource];
-    float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
-    
+    float fSelectedOldX01, fSelectedOldY01;
+    m_oAllSources[p_iSource].getOldXY01(fSelectedOldX01, fSelectedOldY01);
     float fSelectedDeltaX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldX01;
     float fSelectedDeltaY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldY01;
     
@@ -211,8 +208,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
         
         if (iCurSrc == p_iSource){
             //save old values for selected source
-            m_fSourceOldX01[p_iSource] = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
-            m_fSourceOldY01[p_iSource] = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
+            m_oAllSources[p_iSource].setOldXY01(HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius));
             m_fSourceOldAzim01[p_iSource] = SoundSource::XYtoAzim01(p_fX, p_fY);
             continue;
         }
@@ -222,8 +218,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
         
         m_oAllSources[iCurSrc].setX01(newX01);
         m_oAllSources[iCurSrc].setY01(newY01);
-        m_fSourceOldX01[iCurSrc] = newX01;
-        m_fSourceOldY01[iCurSrc] = newY01;
+        m_oAllSources[p_iSource].setOldXY01(newX01, newY01);
         float fAzim01, fElev01;
         SoundSource::XY01toAzimElev01(newX01, newY01, fAzim01, fElev01);
         m_fSourceOldAzim01[p_iSource] = fAzim01;
@@ -235,8 +230,8 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01;
     
     //calculate old coordinates for selected source.
-    float fSelectedOldX01 = m_fSourceOldX01[p_iSource];
-    float fSelectedOldY01 = m_fSourceOldY01[p_iSource];
+    float fSelectedOldX01, fSelectedOldY01;
+    m_oAllSources[p_iSource].getOldXY01(fSelectedOldX01, fSelectedOldY01);
     //convert x,y[0,1] to azim,elev[0,1]
     SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
     
@@ -257,8 +252,8 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         
         if (iCurSource == p_iSource){
             //save new values as old values for next time
-            m_fSourceOldX01[p_iSource] = HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius);
-            m_fSourceOldY01[p_iSource] = HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius);
+            m_oAllSources[p_iSource].setOldXY01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius));
+
             m_fSourceOldAzim01[p_iSource] = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
             continue;
         }
@@ -340,8 +335,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
             m_oAllSources[iCurSource].setY01(fY01);
         }
         //save new values as old values for next time
-        m_fSourceOldX01[iCurSource] = fX01;
-        m_fSourceOldY01[iCurSource] = fY01;
+        m_oAllSources[iCurSource].setOldXY01(fX01, fY01);
         float fAzim01, fElev01;
         SoundSource::XY01toAzimElev01(fX01, fY01, fAzim01, fElev01);
         m_fSourceOldAzim01[p_iSource] = fAzim01;
@@ -425,8 +419,7 @@ void ZirkOscAudioProcessor::setEqualElevForAllSrc(){
 void ZirkOscAudioProcessor::setCurrentAndOldLocation(const int &p_iSrc, const float &p_fX01, const float &p_fY01){
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (p_iSrc*5), p_fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (p_iSrc*5), p_fY01);
-    m_fSourceOldX01[p_iSrc] = p_fX01;
-    m_fSourceOldY01[p_iSrc] = p_fY01;
+    m_oAllSources[p_iSrc].setOldXY01(p_fX01, p_fY01);
     float fAzim01, fElev01;
     SoundSource::XY01toAzimElev01(p_fX01, p_fY01, fAzim01, fElev01);
     m_fSourceOldAzim01[p_iSrc] = fAzim01;
@@ -1137,8 +1130,8 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
 
             setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, fActualX01);
             setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, fActualY01);
-            m_fSourceOldX01[iCurSrc] = fActualX01;
-            m_fSourceOldY01[iCurSrc] = fActualY01;
+            m_oAllSources[iCurSrc].setOldXY01(fActualX01, fActualY01);
+
             float fAzim01, fElev01;
             SoundSource::XY01toAzimElev01(fActualX01, fActualY01, fAzim01, fElev01);
             m_fSourceOldAzim01[iCurSrc] = fAzim01;

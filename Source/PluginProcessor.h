@@ -390,8 +390,6 @@ private:
     int m_iSourceLocationChanged;   
     
     JUCE_COMPILER_WARNING("all these arrays should be variables in soundsource")
-    float m_fSourceOldX01[8];
-    float m_fSourceOldY01[8];
     float m_fSourceOldAzim01[8];
     float m_fROverflow[8];
     bool  m_bIsElevationOverflow[8];

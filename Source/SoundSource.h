@@ -111,6 +111,16 @@ public:
     bool wasElevationMaxed(){
         return m_bElevationWasMaxed;
     }
+    
+    void setOldXY01(const float &p_fX01, const float &p_fY01){
+        m_fOldX01 = p_fX01;
+        m_fOldY01 = p_fY01;
+    }
+    
+    void getOldXY01(float &p_fX01, float &p_fY01){
+        p_fX01 = m_fOldX01;
+        p_fY01 = m_fOldY01;
+    }
 
         
 private:
@@ -135,6 +145,9 @@ private:
     float _ElevationSpan=0;
 
     bool m_bElevationWasMaxed;
+    
+    float m_fOldX01;
+    float m_fOldY01;
     
 //    bool m_bPositionWas00;
 //    
