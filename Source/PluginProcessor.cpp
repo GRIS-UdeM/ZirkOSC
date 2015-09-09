@@ -246,35 +246,35 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
             m_oAllSources[p_iSource].setOldLoc01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius));
             continue;
         }
-        
-        
         //---------------------- GET CURRENT VALUES ---------------------
         float fX = getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
         float fY = getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
-        float fCurAzim01;
-        if (m_oAllSources[iCurSource].wasElevationMaxed()){
+        float fCurAzim01, fCurElev01;
+
+        
+        if (m_oAllSources[iCurSource].getElevationStatus() == over1){
             fCurAzim01 = m_oAllSources[iCurSource].getOldAzim01();
-        } else {
-            fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
+            JUCE_COMPILER_WARNING("like in under0 case, we need to convert extended R back to normal elevation")
+            fCurElev01 = SoundSource::XYtoElev01(fX, fY);
         }
         
-        
-        JUCE_COMPILER_WARNING("try a lambda function here")
-        float fCurElev01;
-        if (m_oAllSources[iCurSource].getElevationStatus() == under0){
+        else if (m_oAllSources[iCurSource].getElevationStatus() == under0){
+            fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
+            
+             // convert extended R back to normal elevation
             m_fROverflow[iCurSource] = m_fROverflow[iCurSource] - s_iDomeRadius;
             m_fROverflow[iCurSource] /= s_iDomeRadius;
             fCurElev01 = -asin(m_fROverflow[iCurSource]);
             fCurElev01 = radianToDegree(fCurElev01);    //need to convert output of asin which is is radians, to degree
             fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
-        } else {
+            
+        } else {    //normalRange
+            fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
             fCurElev01 = SoundSource::XYtoElev01(fX, fY);
         }
-        
         //---------------------- ENDOF GET CURRENT VALUES ---------------------
         
         float fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01;
-        
         float fX01, fY01;
         //if elev is equal, set all elevation to the same thing
         if (p_bIsElevEqual){
@@ -283,43 +283,28 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         }
         //if elev is not equal, set all elevation to be current elevation +/- deltaY
         else {
-            //if azimuth is reversed, ie, on the other side of the dome's middle point
-            float fNewElev01;
-//            if(getSources()[iCurSource].isAzimReverse()){
-//                fNewElev01 = fCurElev01 - fSelectedDeltaElev01;
-//            } else {
-                fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
-//            }
+            float fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
             
             if (fNewElev01 > 1){
-//                if (!getSources()[iCurSource].isAzimReverse()){
-//                    getSources()[iCurSource].setAzimReverse(true);
-//                } else {
-//                    getSources()[iCurSource].setAzimReverse(false);
-//                }
-//                fNewElev01 = 1 + (1-fNewElev01);
-//                float fAzimDegrees = PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-//                fAzimDegrees += (fAzimDegrees < 0 ? 180 : -180);
-//                fNewAzim01 = HRToPercent(fAzimDegrees, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-                fNewElev01 = 1;
-                m_oAllSources[iCurSource].setElevationWasMaxed(true);
-                cout << fNewAzim01 << newLine;
-            } else {
-                m_oAllSources[iCurSource].setElevationWasMaxed(false);
+                m_oAllSources[iCurSource].setElevationStatus(over1);
+
+                SoundSource::azimElev01toXY01(fNewAzim01, 1, fX01, fY01);
+                
+                JUCE_COMPILER_WARNING("like in the under0 case, i need to calculate a NEW_RADIUS, this time shooting up rather than on the side, then call this" +
+                                      "SoundSource::azimElev01toXY01(fNewAzim01, 1, fX01, fY01, NEW_RADIUS); ")
             }
-            
-            if (fNewElev01 < 0){
+            else if (fNewElev01 < 0){
+                m_oAllSources[iCurSource].setElevationStatus(under0);
                 //moving selected source moves this source out of the dome. need to calculate overflow
                 m_fROverflow[iCurSource] = s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
                 m_fROverflow[iCurSource] = s_iDomeRadius - m_fROverflow[iCurSource];
                 SoundSource::azimElev01toXY01(fNewAzim01, 0, fX01, fY01, m_fROverflow[iCurSource]);
-                m_oAllSources[iCurSource].setElevationStatus(under0);
 
             } else {
-                SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fX01, fY01);
                 m_oAllSources[iCurSource].setElevationStatus(normalRange);
+                SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fX01, fY01);
+                m_fROverflow[iCurSource] = s_iDomeRadius;
             }
-            
             m_oAllSources[iCurSource].setXY01(fX01, fY01);
         }
         //save new values as old values for next time

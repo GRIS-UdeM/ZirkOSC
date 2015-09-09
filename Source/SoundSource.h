@@ -107,14 +107,7 @@ public:
     void    setAzimReverse(bool);
     //! Check if the movement lets the source in the dome
     bool isStillInTheDome( Point<float> move);
-    
-    void setElevationWasMaxed(bool p_bMaxed){
-        m_bElevationWasMaxed = p_bMaxed;
-    }
-    bool wasElevationMaxed(){
-        return m_bElevationWasMaxed;
-    }
-    
+   
     void setOldLoc01(const float &p_fX01, const float &p_fY01){
         m_fOldX01 = p_fX01;
         m_fOldY01 = p_fY01;
