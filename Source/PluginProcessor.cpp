@@ -212,7 +212,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
         float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
         
         m_oAllSources[iCurSrc].setXY01(newX01, newY01);
-        m_oAllSources[p_iSource].setOldLoc01(newX01, newY01);
+        m_oAllSources[iCurSrc].setOldLoc01(newX01, newY01);
     }
 }
 
