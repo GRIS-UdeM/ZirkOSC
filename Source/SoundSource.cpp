@@ -27,8 +27,10 @@
 #include "PluginProcessor.h"
 
 
-SoundSource::SoundSource(){
-    m_bIsAzimReversed    = false;
+SoundSource::SoundSource()
+:m_bIsAzimReversed(false)
+,m_bElevationWasMaxed(false){
+    
 }
 
 SoundSource::SoundSource(float azimuth, float elevation) : SoundSource(){

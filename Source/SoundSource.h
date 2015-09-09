@@ -104,6 +104,13 @@ public:
     void    setAzimReverse(bool);
     //! Check if the movement lets the source in the dome
     bool isStillInTheDome( Point<float> move);
+    
+    void setElevationWasMaxed(bool p_bMaxed){
+        m_bElevationWasMaxed = p_bMaxed;
+    }
+    bool wasElevationMaxed(){
+        return m_bElevationWasMaxed;
+    }
 
         
 private:
@@ -126,6 +133,8 @@ private:
     float _AzimuthSpan=0;
     //! Elevation Span parameter stored in percent (see HRToPercent function).
     float _ElevationSpan=0;
+
+    bool m_bElevationWasMaxed;
     
 //    bool m_bPositionWas00;
 //    

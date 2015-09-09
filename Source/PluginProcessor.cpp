@@ -267,7 +267,13 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         //---------------------- GET CURRENT VALUES ---------------------
         float fX = getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
         float fY = getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
-        float fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
+        float fCurAzim01;
+        if (m_oAllSources[iCurSource].wasElevationMaxed()){
+            fCurAzim01 = m_fSourceOldAzim01[iCurSource];
+        } else {
+            fCurAzim01 = SoundSource::XYtoAzim01(fX, fY);
+        }
+        
         
         JUCE_COMPILER_WARNING("try a lambda function here")
         float fCurElev01;
@@ -296,11 +302,11 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         else {
             //if azimuth is reversed, ie, on the other side of the dome's middle point
             float fNewElev01;
-            if(getSources()[iCurSource].isAzimReverse()){
-                fNewElev01 = fCurElev01 - fSelectedDeltaElev01;
-            } else {
+//            if(getSources()[iCurSource].isAzimReverse()){
+//                fNewElev01 = fCurElev01 - fSelectedDeltaElev01;
+//            } else {
                 fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
-            }
+//            }
             
             if (fNewElev01 > 1){
 //                if (!getSources()[iCurSource].isAzimReverse()){
@@ -313,7 +319,10 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
 //                fAzimDegrees += (fAzimDegrees < 0 ? 180 : -180);
 //                fNewAzim01 = HRToPercent(fAzimDegrees, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
                 fNewElev01 = 1;
+                m_oAllSources[iCurSource].setElevationWasMaxed(true);
                 cout << fNewAzim01 << newLine;
+            } else {
+                m_oAllSources[iCurSource].setElevationWasMaxed(false);
             }
             
             if (fNewElev01 < 0){
