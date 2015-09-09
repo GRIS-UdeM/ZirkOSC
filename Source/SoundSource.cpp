@@ -149,25 +149,30 @@ void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
     m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
 
-void SoundSource::setX01(float p_x){
+void SoundSource::setX01(float p_x01){
 //    if (m_fX == 0 && m_fY ==0){
 //        m_bPositionWas00 = true;
 //        m_fLastAzim = getAzimuth01();
 //    } else {
 //        m_bPositionWas00 = false;
 //    }
-    m_fX = PercentToHR(p_x, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+    m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
 
 }
 
-void SoundSource::setY01(float p_y){
+void SoundSource::setY01(float p_y01){
 //    if (m_fX == 0 && m_fY ==0){
 //        m_bPositionWas00 = true;
 //        m_fLastAzim = getAzimuth01();
 //    } else {
 //        m_bPositionWas00 = false;
 //    }
-    m_fY = PercentToHR(p_y, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+    m_fY = PercentToHR(p_y01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+}
+
+void SoundSource::setXY01(float x01, float y01){
+    setX01(x01);
+    setY01(y01);
 }
 
 //------------------------------------------------

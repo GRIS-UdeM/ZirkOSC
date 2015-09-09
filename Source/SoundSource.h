@@ -52,6 +52,8 @@ public:
     
     void setY01(float y);
     
+    void setXY01(float x, float y);
+    
     float getX01();
     
     float getY01();

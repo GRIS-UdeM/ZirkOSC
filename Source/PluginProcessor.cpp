@@ -216,8 +216,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
         float newX01 = getSources()[iCurSrc].getX01() + fSelectedDeltaX01;
         float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
         
-        m_oAllSources[iCurSrc].setX01(newX01);
-        m_oAllSources[iCurSrc].setY01(newY01);
+        m_oAllSources[iCurSrc].setXY01(newX01, newY01);
         m_oAllSources[p_iSource].setOldXY01(newX01, newY01);
         float fAzim01, fElev01;
         SoundSource::XY01toAzimElev01(newX01, newY01, fAzim01, fElev01);
@@ -290,8 +289,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         //if elev is equal, set all elevation to the same thing
         if (p_bIsElevEqual){
             SoundSource::azimElev01toXY01(fNewAzim01, fSelectedOldElev01, fX01, fY01);
-            m_oAllSources[iCurSource].setX01(fX01);
-            m_oAllSources[iCurSource].setY01(fY01);
+            m_oAllSources[iCurSource].setXY01(fX01, fY01);
         }
         //if elev is not equal, set all elevation to be current elevation +/- deltaY
         else {
@@ -331,8 +329,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
                 m_bIsElevationOverflow[iCurSource] = false;
             }
             
-            m_oAllSources[iCurSource].setX01(fX01);
-            m_oAllSources[iCurSource].setY01(fY01);
+            m_oAllSources[iCurSource].setXY01(fX01, fY01);
         }
         //save new values as old values for next time
         m_oAllSources[iCurSource].setOldXY01(fX01, fY01);
