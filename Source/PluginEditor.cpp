@@ -818,7 +818,7 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         if (ourProcessor->isCurrentlyPlaying() && i == 0){
             float fX01 = HRToPercent(fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
             float fY01 = HRToPercent(fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-            cout << "reading " << fX01 << ", " << fY01 << newLine;
+            //cout << "reading " << fX01 << ", " << fY01 << newLine;
         }
         if (!ZirkOscAudioProcessor::s_bUseNewColorScheme){
             if (ourProcessor->getSources()[i].isAzimReverse()){

@@ -131,6 +131,7 @@ void ZirkOscAudioProcessor::initSources(){
         m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
         m_fSourceOldX01[i]          = m_oAllSources[i].getX01();
         m_fSourceOldY01[i]          = m_oAllSources[i].getY01();
+        m_fSourceOldAzim01[i]       = m_oAllSources[i].getAzimuth01();
         m_fROverflow[i]             = s_iDomeRadius;
         m_bIsElevationOverflow[i]   = false;
     }
@@ -160,7 +161,7 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     float fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
     float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
 
-    cout << "writing " << fX01 << ", " << fY01 << newLine;
+    //cout << "writing " << fX01 << ", " << fY01 << newLine;
     
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
@@ -168,6 +169,9 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     if(m_iMovementConstraint == Independent){
         m_fSourceOldX01[p_iSource] = fX01;
         m_fSourceOldY01[p_iSource] = fY01;
+        float fAzim01, fElev01;
+        SoundSource::XY01toAzimElev01(fX01, fY01, fAzim01, fElev01);
+        m_fSourceOldAzim01[p_iSource] = fAzim01;
     } else if (getNbrSources()>1){
         if (m_iMovementConstraint == EqualAzim){
             m_bIsEqualElev = false;
@@ -209,6 +213,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
             //save old values for selected source
             m_fSourceOldX01[p_iSource] = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
             m_fSourceOldY01[p_iSource] = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
+            m_fSourceOldAzim01[p_iSource] = SoundSource::XYtoAzim01(p_fX, p_fY);
             continue;
         }
         
@@ -219,6 +224,9 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
         m_oAllSources[iCurSrc].setY01(newY01);
         m_fSourceOldX01[iCurSrc] = newX01;
         m_fSourceOldY01[iCurSrc] = newY01;
+        float fAzim01, fElev01;
+        SoundSource::XY01toAzimElev01(newX01, newY01, fAzim01, fElev01);
+        m_fSourceOldAzim01[p_iSource] = fAzim01;
     }
 }
 
@@ -251,6 +259,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
             //save new values as old values for next time
             m_fSourceOldX01[p_iSource] = HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius);
             m_fSourceOldY01[p_iSource] = HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius);
+            m_fSourceOldAzim01[p_iSource] = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
             continue;
         }
         
@@ -294,15 +303,17 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
             }
             
             if (fNewElev01 > 1){
-                if (!getSources()[iCurSource].isAzimReverse()){
-                    getSources()[iCurSource].setAzimReverse(true);
-                } else {
-                    getSources()[iCurSource].setAzimReverse(false);
-                }
-                fNewElev01 = 1 + (1-fNewElev01);
-                float fAzimDegrees = PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-                fAzimDegrees += (fAzimDegrees < 0 ? 180 : -180);
-                fNewAzim01 = HRToPercent(fAzimDegrees, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+//                if (!getSources()[iCurSource].isAzimReverse()){
+//                    getSources()[iCurSource].setAzimReverse(true);
+//                } else {
+//                    getSources()[iCurSource].setAzimReverse(false);
+//                }
+//                fNewElev01 = 1 + (1-fNewElev01);
+//                float fAzimDegrees = PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+//                fAzimDegrees += (fAzimDegrees < 0 ? 180 : -180);
+//                fNewAzim01 = HRToPercent(fAzimDegrees, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+                fNewElev01 = 1;
+                cout << fNewAzim01 << newLine;
             }
             
             if (fNewElev01 < 0){
@@ -322,6 +333,9 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         //save new values as old values for next time
         m_fSourceOldX01[iCurSource] = fX01;
         m_fSourceOldY01[iCurSource] = fY01;
+        float fAzim01, fElev01;
+        SoundSource::XY01toAzimElev01(fX01, fY01, fAzim01, fElev01);
+        m_fSourceOldAzim01[p_iSource] = fAzim01;
     }
 }
 
@@ -404,7 +418,9 @@ void ZirkOscAudioProcessor::setCurrentAndOldLocation(const int &p_iSrc, const fl
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (p_iSrc*5), p_fY01);
     m_fSourceOldX01[p_iSrc] = p_fX01;
     m_fSourceOldY01[p_iSrc] = p_fY01;
-
+    float fAzim01, fElev01;
+    SoundSource::XY01toAzimElev01(p_fX01, p_fY01, fAzim01, fElev01);
+    m_fSourceOldAzim01[p_iSrc] = fAzim01;
 }
 
 //starting from the selected source, cycle through the other sources to find in which order they are
@@ -1114,7 +1130,9 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
             setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, fActualY01);
             m_fSourceOldX01[iCurSrc] = fActualX01;
             m_fSourceOldY01[iCurSrc] = fActualY01;
-            
+            float fAzim01, fElev01;
+            SoundSource::XY01toAzimElev01(fActualX01, fActualY01, fAzim01, fElev01);
+            m_fSourceOldAzim01[iCurSrc] = fAzim01;
         }
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
