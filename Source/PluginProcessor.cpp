@@ -130,8 +130,8 @@ void ZirkOscAudioProcessor::initSources(){
     for(int i = 0; i < 8; ++i){
         m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
         m_oAllSources[i].setOldLoc01(m_oAllSources[i].getX01(), m_oAllSources[i].getY01());
-        m_fROverflow[i]             = s_iDomeRadius;
-        m_bIsElevationOverflow[i]   = false;
+        m_fROverflow[i] = s_iDomeRadius;
+
     }
 }
 
@@ -261,12 +261,12 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         
         JUCE_COMPILER_WARNING("try a lambda function here")
         float fCurElev01;
-        if (m_bIsElevationOverflow[iCurSource]){
+        if (m_oAllSources[iCurSource].getElevationStatus() == under0){
             m_fROverflow[iCurSource] = m_fROverflow[iCurSource] - s_iDomeRadius;
             m_fROverflow[iCurSource] /= s_iDomeRadius;
-            fCurElev01 = -asin(m_fROverflow[iCurSource]); //need to convert output of sinm which is is radians, to degree then hr to percent
-            fCurElev01 = radianToDegree(fCurElev01);
-            fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+            fCurElev01 = -asin(m_fROverflow[iCurSource]);
+            fCurElev01 = radianToDegree(fCurElev01);    //need to convert output of asin which is is radians, to degree
+            fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
         } else {
             fCurElev01 = SoundSource::XYtoElev01(fX, fY);
         }
@@ -309,14 +309,15 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
             }
             
             if (fNewElev01 < 0){
+                //moving selected source moves this source out of the dome. need to calculate overflow
                 m_fROverflow[iCurSource] = s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
                 m_fROverflow[iCurSource] = s_iDomeRadius - m_fROverflow[iCurSource];
                 SoundSource::azimElev01toXY01(fNewAzim01, 0, fX01, fY01, m_fROverflow[iCurSource]);
-                m_bIsElevationOverflow[iCurSource] = true;
+                m_oAllSources[iCurSource].setElevationStatus(under0);
 
             } else {
                 SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fX01, fY01);
-                m_bIsElevationOverflow[iCurSource] = false;
+                m_oAllSources[iCurSource].setElevationStatus(normalRange);
             }
             
             m_oAllSources[iCurSource].setXY01(fX01, fY01);

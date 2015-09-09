@@ -36,6 +36,7 @@ SoundSource::SoundSource()
 SoundSource::SoundSource(float azimuth, float elevation) : SoundSource(){
     
     initAzimuthAndElevation(azimuth,elevation);
+    m_iElevationStatus = normalRange;
     
 }
 

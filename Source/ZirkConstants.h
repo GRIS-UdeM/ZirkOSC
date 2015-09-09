@@ -124,6 +124,12 @@ enum AllTrajectoryDirections {
     Fast
 };
 
+enum ElevationStatus{
+    normalRange,
+    over1,
+    under0
+};
+
 enum AllSyncOptions {
     SyncWTempo = 1,
     SyncWTime

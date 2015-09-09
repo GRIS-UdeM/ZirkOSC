@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "ZirkConstants.h"
 class SoundSource{
 public:
     SoundSource();
@@ -125,9 +126,16 @@ public:
         p_fY01 = m_fOldY01;
     }
     
-    
     float getOldAzim01(){
         return m_fOldAzim01;
+    }
+    
+    void setElevationStatus(ElevationStatus status){
+        m_iElevationStatus = status;
+    }
+    
+    ElevationStatus getElevationStatus(){
+        return m_iElevationStatus;
     }
 
         
@@ -157,6 +165,8 @@ private:
     float m_fOldX01;
     float m_fOldY01;
     float m_fOldAzim01;
+    ElevationStatus  m_iElevationStatus;
+
     
 //    bool m_bPositionWas00;
 //    
