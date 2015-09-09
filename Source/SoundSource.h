@@ -114,14 +114,20 @@ public:
         return m_bElevationWasMaxed;
     }
     
-    void setOldXY01(const float &p_fX01, const float &p_fY01){
+    void setOldLoc01(const float &p_fX01, const float &p_fY01){
         m_fOldX01 = p_fX01;
         m_fOldY01 = p_fY01;
+        m_fOldAzim01 = XYtoAzim01(m_fOldX01, m_fOldY01);
     }
     
     void getOldXY01(float &p_fX01, float &p_fY01){
         p_fX01 = m_fOldX01;
         p_fY01 = m_fOldY01;
+    }
+    
+    
+    float getOldAzim01(){
+        return m_fOldAzim01;
     }
 
         
@@ -150,6 +156,7 @@ private:
     
     float m_fOldX01;
     float m_fOldY01;
+    float m_fOldAzim01;
     
 //    bool m_bPositionWas00;
 //    
