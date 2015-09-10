@@ -388,9 +388,6 @@ private:
     
     //the id of the source that was last changed
     int m_iSourceLocationChanged;   
-    
-    JUCE_COMPILER_WARNING("all these arrays should be variables in soundsource")
-    float m_fROverflow[8];
         
     bool m_bCurrentlyPlaying;
     

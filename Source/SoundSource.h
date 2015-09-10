@@ -134,6 +134,14 @@ public:
     ElevationStatus getElevationStatus(){
         return m_iElevationStatus;
     }
+    
+    void setElevOverflow(const float &p_fElevOverflow){
+        m_fElevOverflow = p_fElevOverflow;
+    }
+    
+    float getElevOverflow(){
+        return m_fElevOverflow;
+    }
 
         
 private:
@@ -164,6 +172,7 @@ private:
     float m_fOldAzim01;
     float m_fOldElev01;
     ElevationStatus  m_iElevationStatus;
+    float m_fElevOverflow;
 
     
 //    bool m_bPositionWas00;

@@ -30,14 +30,12 @@
 SoundSource::SoundSource()
 :m_bIsAzimReversed(false)
 ,m_bElevationWasMaxed(false){
-    
+    m_iElevationStatus = normalRange;
+    m_fElevOverflow = ZirkOscAudioProcessor::s_iDomeRadius;
 }
 
 SoundSource::SoundSource(float azimuth, float elevation) : SoundSource(){
-    
     initAzimuthAndElevation(azimuth,elevation);
-    m_iElevationStatus = normalRange;
-    
 }
 
 SoundSource::~SoundSource(){
