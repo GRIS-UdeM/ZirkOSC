@@ -108,10 +108,14 @@ public:
     //! Check if the movement lets the source in the dome
     bool isStillInTheDome( Point<float> move);
    
-    void setOldLoc01(const float &p_fX01, const float &p_fY01){
+    void setOldLoc01(const float &p_fX01, const float &p_fY01, const float &p_fOldAzim01 = -1){
         m_fOldX01 = p_fX01;
         m_fOldY01 = p_fY01;
-        m_fOldAzim01 = XYtoAzim01(m_fOldX01, m_fOldY01);
+        if (p_fOldAzim01 == -1){
+            XY01toAzimElev01(m_fOldX01, m_fOldY01, m_fOldAzim01, m_fOldElev01);
+        } else {
+            m_fOldAzim01 = p_fOldAzim01;
+        }
     }
     
     void getOldXY01(float &p_fX01, float &p_fY01){
@@ -158,6 +162,7 @@ private:
     float m_fOldX01;
     float m_fOldY01;
     float m_fOldAzim01;
+    float m_fOldElev01;
     ElevationStatus  m_iElevationStatus;
 
     
