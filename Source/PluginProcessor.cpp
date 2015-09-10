@@ -240,15 +240,21 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         float fCurAzim01, fCurElev01;
         if (m_oAllSources[iCurSource].getElevationStatus() == over1){
             fCurAzim01 = m_oAllSources[iCurSource].getOldAzim01();
-            JUCE_COMPILER_WARNING("like in under0 case, we need to convert extended R back to normal elevation")
+            
+            // convert extended R back to normal elevation
             fCurElev01 = SoundSource::XYtoElev01(fCurX, fCurY);
+            float fCurElevOverflow = (m_oAllSources[iCurSource].getElevOverflow() - s_iDomeRadius) / s_iDomeRadius;
+            m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+            fCurElev01 = radianToDegree(acos(fCurElevOverflow));                        //need to convert output of acos which is is radians, to degree
+            fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
         }
         else if (m_oAllSources[iCurSource].getElevationStatus() == under0){
             fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
+        
             // convert extended R back to normal elevation
             float fCurElevOverflow = (m_oAllSources[iCurSource].getElevOverflow() - s_iDomeRadius) / s_iDomeRadius;
             m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-            fCurElev01 = radianToDegree(-asin(fCurElevOverflow));    //need to convert output of asin which is is radians, to degree
+            fCurElev01 = radianToDegree(-asin(fCurElevOverflow));                       //need to convert output of asin which is is radians, to degree
             fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
         }
         else {    //normalRange
@@ -265,15 +271,10 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         else {
             if (fNewElev01 > 1){
                 m_oAllSources[iCurSource].setElevationStatus(over1);
-                
-                SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01);
-
-                //FROM THIS POINT ON, fNewAzim01 IS NOT VALID
-                m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01, fNewAzim01);          //save new values as old values for next time
-
-                
-                JUCE_COMPILER_WARNING("like in the under0 case, i need to calculate a NEW_RADIUS, this time shooting up rather than on the side, then call this" +
-                                      "SoundSource::azimElev01toXY01(fNewAzim01, 1, fX01, fY01, NEW_RADIUS); ")
+                float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+                SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
+                m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+                m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01, fNewAzim01);
             }
             else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
                 m_oAllSources[iCurSource].setElevationStatus(under0);
