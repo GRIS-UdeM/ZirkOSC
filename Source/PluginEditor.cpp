@@ -1003,13 +1003,6 @@ Point <float> ZirkOscAudioProcessorEditor::degreeToXy (Point <float> p){
  * repaint only if the user is not moving any source (m_bIsSourceBeingDragged)
  */
 void ZirkOscAudioProcessorEditor::timerCallback(){
-    
-#if defined(TIMING_TESTS)
-    clock_t begin = clock();
-    clock_t proc = clock();
-#endif
-
-    
     if (mTrState ==  kTrWriting){
         Trajectory::Ptr t = ourProcessor->getTrajectory();
         if (t) {
@@ -1022,32 +1015,30 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
             startEditorTimer(ZirkOSC_reg_timerDelay);
         }
     }
-
-#if defined(TIMING_TESTS)
-    clock_t sliders = clock();
-#endif
     if (ourProcessor->hasToRefreshGui()){
+//#if defined(TIMING_TESTS)
+//        clock_t begin = clock();
+//        clock_t proc = clock();
+//#endif
         updateSliders();
+//#if defined(TIMING_TESTS)
+//        clock_t sliders = clock();
+//#endif
         refreshGui();
+//#if defined(TIMING_TESTS)
+//        clock_t gui = clock();
+//#endif
         repaint();
+//#if defined(TIMING_TESTS)
+//        clock_t end = clock();
+//        cout << "processor:\t" << proc - begin <<"ms"<< endl;
+//        cout << "sliders:\t" << sliders - proc <<"ms"<< endl;
+//        cout << "ref gui:\t" << gui - sliders <<"ms"<< endl;
+//        cout << "repaint:\t" << end - gui <<"ms"<< endl;
+//        cout << "whole thing:\t" << end - begin <<"ms"<< endl;
+//#endif
         ourProcessor->setRefreshGui(false);
     }
-    
-#if defined(TIMING_TESTS)
-    clock_t gui = clock();
-#endif
-    
-
-    
-#if defined(TIMING_TESTS)
-    clock_t end = clock();
-    cout << "processor:\t" << proc - begin <<"ms"<< endl;
-    cout << "sliders:\t" << sliders - proc <<"ms"<< endl;
-    cout << "ref gui:\t" << gui - sliders <<"ms"<< endl;
-    cout << "repaint:\t" << end - gui <<"ms"<< endl;
-    cout << "whole thing:\t" << end - begin <<"ms"<< endl;
-#endif
-    
 }
 
 void ZirkOscAudioProcessorEditor::updateSliders(){
