@@ -8,5 +8,12 @@ it basically happened all the time, and nobody noticed...?
 hypotheses
     * this will not happen with a pendulum going only in one direction
         * correct
+the problem is only when READING the automations. so if there was a way that i could wait for pairs of xy values to be read before refreshing, it could help?
 
+--setIsRecordingAutomation is set when we move a control. so in theory, if we are not recording automation, and setParameter is called, then we are reading an automation. 
+--so what we can do is block the message thing between a setX and setY
+that doesn't do anything. refresh is almost never blocked. 
+
+the other hypothesis is that there's some error when reading the automation. so basically xyToAzimElev is not right. i could test a bunch of azim->xy->azim conversions
+6 decimal places
 

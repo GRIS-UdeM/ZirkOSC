@@ -134,7 +134,12 @@ public:
     //! returns the number of sources on the screen.
     int getNbrSources() { return m_iNbrSources; }
     //! Set the number of sources.
-    void setNbrSources(int newValue) { if ( newValue >-1 && newValue < 9) m_iNbrSources= newValue; }
+    void setNbrSources(int newValue) {
+        if ( newValue >-1 && newValue < 9){
+            m_iNbrSources= newValue;
+            m_bNeedToRefreshGui = true;
+        }
+    }
     
     //!set wheter plug is sending osc messages to zirkonium
     void setIsOscActive(bool isOscActive);
@@ -163,7 +168,12 @@ public:
     //! return the tab position of the selectedSource 
     int getSelectedSource() { return m_iSelectedSource; }
     //! Set the selected source 
-    void setSelectedSource(int selected){ if ( selected >-1 && selected < 8) m_iSelectedSource= selected;};
+    void setSelectedSource(int selected){
+        if ( selected >-1 && selected < 8){
+            m_iSelectedSource= selected;
+            m_bNeedToRefreshGui = true;
+        }
+    }
     //! Returns the Osc Port for the Zirkonium sending
     int getOscPortZirkonium(){return _OscPortZirkonium;}
     

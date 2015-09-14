@@ -529,17 +529,7 @@ bool bRandom = false;
 
 void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-    float fValue = .001;
-    if (bRandom){
-        m_oAllSources[0].setX01(m_oAllSources[0].getX01()+fValue);
-        bRandom = false;
-    } else {
-        m_oAllSources[0].setX01(m_oAllSources[0].getX01()-fValue);
-        bRandom = true;
-    }
-    
-    
-    
+
     AudioPlayHead::CurrentPositionInfo cpi;
     getPlayHead()->getCurrentPosition(cpi);
     
