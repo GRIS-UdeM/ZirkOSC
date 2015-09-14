@@ -1119,12 +1119,12 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
         {
             ourProcessor->setIsWriteTrajectory(true);
             float duration = m_pTrajectoryDurationTextEditor->getText().getFloatValue();
-            bool beats = m_pSyncWTempoComboBox->getSelectedId() == 1;
+            bool beats = (m_pSyncWTempoComboBox->getSelectedId() == 1);
             int type = m_pTrajectoryTypeComboBox->getSelectedId();
             
             unique_ptr<AllTrajectoryDirections> direction = Trajectory::getTrajectoryDirection(type, m_pTrajectoryDirectionComboBox->getSelectedId()-1);
             
-            bool bReturn = m_pTrajectoryReturnComboBox->getSelectedId() == 2;
+            bool bReturn = (m_pTrajectoryReturnComboBox->getSelectedId() == 2);
             
             float repeats = m_pTrajectoryCountTextEditor->getText().getFloatValue();
             int source = ourProcessor->getSelectedSource();

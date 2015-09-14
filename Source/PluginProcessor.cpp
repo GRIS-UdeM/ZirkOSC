@@ -853,7 +853,7 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
         case ZirkOSC_SelectedTrajectoryDirection_ParamId:
             m_fSelectedTrajectoryDirection = newValue;
             bFoundParameter = true;
-
+            break;
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
             m_fSelectedTrajectoryReturn = newValue;
             bFoundParameter = true;
