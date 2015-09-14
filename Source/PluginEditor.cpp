@@ -390,12 +390,12 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     m_pAzimuthSlider = m_oSlidersTab->getAzimuthSlider();
     m_pAzimuthLabel  = m_oSlidersTab->getAzimuthLabel();
-    setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min+.01, ZirkOSC_Azim_Max);
+    setSliderAndLabel("Azimuth", m_pAzimuthSlider, m_pAzimuthLabel, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->addListener(this);
     
     m_pElevationSlider = m_oSlidersTab->getElevationSlider();
     m_pElevationLabel  = m_oSlidersTab->getElevationLabel();
-    setSliderAndLabel("Elevation", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max-.01);
+    setSliderAndLabel("Elevation", m_pElevationSlider, m_pElevationLabel, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_pElevationSlider->addListener(this);
     
     m_pElevationSpanSlider = m_oSlidersTab->getElevationSpanSlider();
@@ -1047,11 +1047,11 @@ void ZirkOscAudioProcessorEditor::updateSliders(){
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
     
     float HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    if(HRValue < -179.99) HRValue = -179.99;
+    //if(HRValue < -179.99) HRValue = -179.99;
     m_pAzimuthSlider->setValue(HRValue,dontSendNotification);
     
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    if(HRValue > 89.99) HRValue = 89.99;
+    //if(HRValue > 89.99) HRValue = 89.99;
     m_pElevationSlider->setValue(HRValue,dontSendNotification);
     
     HRValue = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
@@ -1330,8 +1330,13 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     }
     else if (slider == m_pElevationSlider){
         percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        if (percentValue > .99) percentValue = .99;
+        //if (percentValue > .99) percentValue = .99;
         SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
+        
+        if (percentValue == 1){
+            cout << SoundSource::XYtoElev01(fX, fY);
+        }
+        
         move(selectedSource, fX, fY);
     }
     else if (slider == m_pElevationSpanSlider) {
