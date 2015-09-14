@@ -308,7 +308,7 @@ private:
     
     enum
     {
-        kTrReady,
+        kTrReady = 0,
         kTrWriting
     };
     int mTrState;

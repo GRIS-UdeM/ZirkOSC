@@ -4,7 +4,9 @@ issue #42, j'ai une oscillation en xy que j'avais pas en rt. this also happens w
 2.0.15: yes
 2.0.12: yes
 it basically happened all the time, and nobody noticed...?
-___________________________________
-issue #40: pas d'azim inverse
+
+hypotheses
+    * this will not happen with a pendulum going only in one direction
+        * correct
 
 

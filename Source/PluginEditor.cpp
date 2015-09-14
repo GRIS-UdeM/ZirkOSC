@@ -1008,35 +1008,28 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
     clock_t begin = clock();
     clock_t proc = clock();
 #endif
-    updateSliders();
+
     
-    switch(mTrState)
-    {
-        case kTrWriting:
-        {
-            Trajectory::Ptr t = ourProcessor->getTrajectory();
-            if (t)
-            {
-                mTrProgressBar->setValue(t->progress());
-            }
-            else if (mTrState != kTrReady)
-            {
-                m_pWriteTrajectoryButton->setButtonText("Ready");
-                mTrProgressBar->setVisible(false);
-                m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
-                
-                mTrState = kTrReady;
-                startEditorTimer(ZirkOSC_reg_timerDelay);
-            }
+    if (mTrState ==  kTrWriting){
+        Trajectory::Ptr t = ourProcessor->getTrajectory();
+        if (t) {
+            mTrProgressBar->setValue(t->progress());
+        } else {
+            m_pWriteTrajectoryButton->setButtonText("Ready");
+            mTrProgressBar->setVisible(false);
+            m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
+            mTrState = kTrReady;
+            startEditorTimer(ZirkOSC_reg_timerDelay);
         }
-            break;
     }
 
 #if defined(TIMING_TESTS)
-    clock_t sliders = clock(); 
+    clock_t sliders = clock();
 #endif
     if (ourProcessor->hasToRefreshGui()){
+        updateSliders();
         refreshGui();
+        repaint();
         ourProcessor->setRefreshGui(false);
     }
     
@@ -1044,9 +1037,7 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
     clock_t gui = clock();
 #endif
     
-    //if(!m_bIsSourceBeingDragged){
-          repaint();
-    //}
+
     
 #if defined(TIMING_TESTS)
     clock_t end = clock();
