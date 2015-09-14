@@ -110,6 +110,7 @@ m_iNbrSources(1)
 ,m_bIsEqualElev(false)
 ,m_bIsRecordingAutomation(false)
 ,m_iNeedToResetToActualConstraint(-1)
+,m_bIsWaitingForSetY(false)
 {
     setMovementConstraint(Independent);
     
@@ -878,12 +879,15 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
             bFoundParameter = true;
     }
     
-    JUCE_COMPILER_WARNING("Should replace these 2 calls by a single one, maybe with Points?")
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
         if  (ZirkOSC_X_ParamId + (iCurSource*5) == index) {
             if (newValue != m_oAllSources[iCurSource].getX01()){
                 m_oAllSources[iCurSource].setX01(newValue);
                 m_iSourceLocationChanged = iCurSource;
+            }
+            if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation){
+                m_bIsWaitingForSetY = true;
+                cout << "set" << newLine;
             }
             bFoundParameter = true;
         }
@@ -892,7 +896,7 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
                 m_oAllSources[iCurSource].setY01(newValue);
                 m_iSourceLocationChanged = iCurSource;
             }
-
+            m_bIsWaitingForSetY = false;
             bFoundParameter = true;
         }
         else if (ZirkOSC_AzimSpan_ParamId + (iCurSource*5) == index){
