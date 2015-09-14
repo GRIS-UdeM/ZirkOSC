@@ -301,10 +301,6 @@ public:
         return m_bCurrentlyPlaying;
     }
     
-    bool isWaitingForSetY(){
-        return m_bIsWaitingForSetY;
-    }
-    
 private:
     
     void initSources();
@@ -406,8 +402,6 @@ private:
     int m_iNeedToResetToActualConstraint;
     
     SourceUpdateThread* m_pSourceUpdateThread;
-    
-    bool m_bIsWaitingForSetY;
 
 };
 

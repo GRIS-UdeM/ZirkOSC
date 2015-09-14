@@ -110,7 +110,6 @@ m_iNbrSources(1)
 ,m_bIsEqualElev(false)
 ,m_bIsRecordingAutomation(false)
 ,m_iNeedToResetToActualConstraint(-1)
-,m_bIsWaitingForSetY(false)
 {
     setMovementConstraint(Independent);
     
@@ -526,8 +525,21 @@ void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     }
 }
 
+bool bRandom = false;
+
 void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+    float fValue = .001;
+    if (bRandom){
+        m_oAllSources[0].setX01(m_oAllSources[0].getX01()+fValue);
+        bRandom = false;
+    } else {
+        m_oAllSources[0].setX01(m_oAllSources[0].getX01()-fValue);
+        bRandom = true;
+    }
+    
+    
+    
     AudioPlayHead::CurrentPositionInfo cpi;
     getPlayHead()->getCurrentPosition(cpi);
     
@@ -885,10 +897,6 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
                 m_oAllSources[iCurSource].setX01(newValue);
                 m_iSourceLocationChanged = iCurSource;
             }
-            if (m_bCurrentlyPlaying && !m_bIsRecordingAutomation){
-                m_bIsWaitingForSetY = true;
-                cout << "set" << newLine;
-            }
             bFoundParameter = true;
         }
         else if (ZirkOSC_Y_ParamId + (iCurSource*5) == index) {
@@ -896,7 +904,6 @@ void ZirkOscAudioProcessor::setParameter (int index, float newValue){
                 m_oAllSources[iCurSource].setY01(newValue);
                 m_iSourceLocationChanged = iCurSource;
             }
-            m_bIsWaitingForSetY = false;
             bFoundParameter = true;
         }
         else if (ZirkOSC_AzimSpan_ParamId + (iCurSource*5) == index){

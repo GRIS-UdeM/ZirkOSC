@@ -300,7 +300,6 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 //,_IpadIpAddressTextEditor("ipaddress")
 ,m_oMovementConstraintComboBox("MovementConstraint")
 {
-
     ourProcessor = getProcessor();
     
     //---------- RIGHT SIDE LABELS ----------
@@ -1015,7 +1014,7 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
             startEditorTimer(ZirkOSC_reg_timerDelay);
         }
     }
-    if (ourProcessor->hasToRefreshGui() && !ourProcessor->isWaitingForSetY()){
+    if (ourProcessor->hasToRefreshGui()){
 //#if defined(TIMING_TESTS)
 //        clock_t begin = clock();
 //        clock_t proc = clock();
@@ -1038,8 +1037,6 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
 //        cout << "whole thing:\t" << end - begin <<"ms"<< endl;
 //#endif
         ourProcessor->setRefreshGui(false);
-    } else if (ourProcessor->isWaitingForSetY()){
-        cout << "skip";
     }
 }
 
