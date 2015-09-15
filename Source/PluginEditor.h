@@ -283,8 +283,8 @@ private:
     void paintCrosshairs (Graphics& g);
     //! Paint sources points
     void paintSourcePoint (Graphics& g);
-    //! Paint the span arc
-    void paintSpanArc (Graphics& g);
+    //! Paint the span arc for iSrc
+    void paintSpanArc (Graphics& g, int iSrc);
     //! Paint the wall circle, ie the main circle in the gui
     void paintWallCircle (Graphics& g);
     //! Paint the Zenith circle, circle on the selected source

@@ -733,29 +733,27 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     paintCrosshairs(g);
     paintCoordLabels(g);
     paintCenterDot(g);
-    paintSpanArc(g);
+    for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc) {
+        paintSpanArc(g, iCurSrc);
+    }
     paintAzimuthLine(g);
     paintElevationCircle(g);
     paintSourcePoint(g);
 }
 
-
 //Drawing Span Arc
-void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g){
+void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g, int iSrc){
+    float HRElevSpan = PercentToHR(ourProcessor->getSources()[iSrc].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+    float HRAzimSpan = PercentToHR(ourProcessor->getSources()[iSrc].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
     
-    int selectedSource = ourProcessor->getSelectedSource();
-    
-    float HRElevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
-    float HRAzimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
-
     //return if there is no span arc to paint
     if (HRElevSpan == 0.f && HRAzimSpan == 0.f){
         return;
     }
     
     //get current azim+elev in angles
-    float HRAzim = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01()  , ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float HRElev = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    float HRAzim = PercentToHR(ourProcessor->getSources()[iSrc].getAzimuth01()  , ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float HRElev = PercentToHR(ourProcessor->getSources()[iSrc].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     
     //calculate max and min elevation in degrees
     Point<float> maxElev = {HRAzim, HRElev+HRElevSpan/2};
@@ -792,7 +790,7 @@ void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g){
     myPath.closeSubPath();
     
     if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        float hue = (float)selectedSource / ourProcessor->getNbrSources() + 0.577251;
+        float hue = (float)iSrc / ourProcessor->getNbrSources() + 0.577251;
         if (hue > 1) hue -= 1;
         g.setColour(Colour::fromHSV(hue, 1, 1, 0.1));
         g.fillPath(myPath);
