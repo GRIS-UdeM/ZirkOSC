@@ -81,8 +81,6 @@ private:
 
 int ZirkOscAudioProcessor::s_iDomeRadius = 172;
 
-bool ZirkOscAudioProcessor::s_bUseNewColorScheme = true;
-
 bool ZirkOscAudioProcessor::s_bForceConstraintAutomation = false;   //this was to force reaper to write an automation of the constraint combobox value when starting playback/record
 
 ZirkOscAudioProcessor::ZirkOscAudioProcessor()

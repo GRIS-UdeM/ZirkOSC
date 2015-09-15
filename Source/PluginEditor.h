@@ -279,8 +279,6 @@ private:
     void paintCenterDot (Graphics& g);
     //! Paint the cross coord labels
     void paintCoordLabels (Graphics& g);
-    //! Paint the crosshairs
-    void paintCrosshairs (Graphics& g);
     //! Paint sources points
     void paintSourcePoint (Graphics& g);
     //! Paint the span arc for iSrc

@@ -734,7 +734,6 @@ void ZirkOscAudioProcessorEditor::setLabelAndTextEditorPosition(int x, int y, in
 void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     g.fillAll (Colours::lightgrey);
     paintWallCircle(g);     //this is the big, main circle in the gui
-    paintCrosshairs(g);
     paintCoordLabels(g);
     paintCenterDot(g);
     for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc) {
@@ -793,17 +792,11 @@ void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g, int iSrc){
     myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim));
     myPath.closeSubPath();
     
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        float hue = (float)iSrc / ourProcessor->getNbrSources() + 0.577251;
-        if (hue > 1) hue -= 1;
-        g.setColour(Colour::fromHSV(hue, 1, 1, 0.1));
-        g.fillPath(myPath);
-        g.setColour(Colour::fromHSV(hue, 1, 1, 0.5));
-    } else {
-        g.setColour(Colours::lightgrey);
-        g.fillPath(myPath);
-        g.setColour(Colours::black);
-    }
+    float hue = (float)iSrc / ourProcessor->getNbrSources() + 0.577251;
+    if (hue > 1) hue -= 1;
+    g.setColour(Colour::fromHSV(hue, 1, 1, 0.1));
+    g.fillPath(myPath);
+    g.setColour(Colour::fromHSV(hue, 1, 1, 0.5));
     PathStrokeType strokeType = PathStrokeType(1.0);
     g.strokePath(myPath, strokeType);
 }
@@ -821,124 +814,74 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
             float fY01 = HRToPercent(fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
             //cout << "reading " << fX01 << ", " << fY01 << newLine;
         }
-        if (!ZirkOscAudioProcessor::s_bUseNewColorScheme){
-            if (ourProcessor->getSources()[i].isAzimReverse()){
-                g.setColour(Colours::red);
-            } else {
-                    g.setColour(Colours::black);
-            }
-            
-            float fCurR = hypotf(fX, fY);
-            if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius+5){
-                float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
-                
-                g.setColour(Colours::grey);
-                
-                fX *= fExtraRatio;
-                fY *= fExtraRatio;
-            }
-            
-            //draw source circle
-            g.drawEllipse(_ZirkOSC_Center_X + fX-4, _ZirkOSC_Center_Y + fY-4, 8, 8,2);
-            
-            if (fX > ZirkOscAudioProcessor::s_iDomeRadius - 25 ){
-                iXOffset = -20;
-                iYOffset = 10;
-            } else {
-                iXOffset = 4;
-                iYOffset = -2;
-            }
-            
-            //draw source labels
-            if(!m_bIsSourceBeingDragged){
-                g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX+iXOffset, _ZirkOSC_Center_Y + fY+iYOffset, 25, 10, Justification::centred, false);
-            }
-            
-        } else {
-            
-            
-            //----------------------------------------------------------------------------------------------
-            
-            const float radius = 10, diameter = 20;
-            
-            float hue = (float)i / ourProcessor->getNbrSources() + 0.577251;
-            if (hue > 1) hue -= 1;
-            
-            //---- draw source point
-            //fill source point
-            g.setColour(Colour::fromHSV(hue, 1, 1, 1));
-            
-            
-            
-            
-            if (ourProcessor->getSources()[i].isAzimReverse()){
-                g.setColour(Colours::black);
-            }
-            
-            float fCurR = hypotf(fX, fY);
-            if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius+5){
-                float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
-                
-                g.setColour(Colours::grey);
-                
-                fX *= fExtraRatio;
-                fY *= fExtraRatio;
-            }
-            
-            
-            
-            g.fillEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter);
-            //draw outside of source point
-            g.setColour(Colours::red);
-            g.drawEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, 1);
-            
-            //---- draw source label
-            //draw it in black
+
+        //----------------------------------------------------------------------------------------------
+        
+        const float radius = 10, diameter = 20;
+        
+        float hue = (float)i / ourProcessor->getNbrSources() + 0.577251;
+        if (hue > 1) hue -= 1;
+        
+        //---- draw source point
+        //fill source point
+        g.setColour(Colour::fromHSV(hue, 1, 1, 1));
+        
+        
+        
+        
+        if (ourProcessor->getSources()[i].isAzimReverse()){
             g.setColour(Colours::black);
-            g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius+1, _ZirkOSC_Center_Y + fY-radius+1, diameter, diameter, Justification(Justification::centred), false);
-            
-            //then in white, to create 3d effect
-            g.setColour(Colours::white);
-            g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, Justification(Justification::centred), false);
         }
+        
+        float fCurR = hypotf(fX, fY);
+        if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius+5){
+            float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
+            
+            g.setColour(Colours::grey);
+            
+            fX *= fExtraRatio;
+            fY *= fExtraRatio;
+        }
+        
+        
+        
+        g.fillEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter);
+        //draw outside of source point
+        g.setColour(Colours::red);
+        g.drawEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, 1);
+        
+        //---- draw source label
+        //draw it in black
+        g.setColour(Colours::black);
+        g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius+1, _ZirkOSC_Center_Y + fY-radius+1, diameter, diameter, Justification(Justification::centred), false);
+        
+        //then in white, to create 3d effect
+        g.setColour(Colours::white);
+        g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, Justification(Justification::centred), false);
+        
     }
 }
 
 void ZirkOscAudioProcessorEditor::paintWallCircle (Graphics& g){
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        uint8 grey = 80;
-        g.setColour(Colour(grey, grey, grey));
-    } else {
-        g.setColour(Colours::white);
-    }
+    uint8 grey = 80;
+    g.setColour(Colour(grey, grey, grey));
     g.fillEllipse(_ZirkOSC_Center_X-ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y-ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius * 2, ZirkOscAudioProcessor::s_iDomeRadius * 2);
-    if (!ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        g.drawEllipse(_ZirkOSC_Center_X-ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y-ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius * 2, ZirkOscAudioProcessor::s_iDomeRadius * 2, 1.0f);
-    }
 }
 
 void ZirkOscAudioProcessorEditor::paintCenterDot (Graphics& g){
     int iSelectedSrc = ourProcessor->getSelectedSource();
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
-        if (hue > 1) hue -= 1;
-        g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
-    } else {
-        g.setColour(Colours::red);
-    }
+    float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
+    if (hue > 1) hue -= 1;
+    g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     g.fillEllipse(_ZirkOSC_Center_X - 3.0f, _ZirkOSC_Center_Y - 3.0f, 6.0f, 6.0f );
 }
 
 void ZirkOscAudioProcessorEditor::paintAzimuthLine (Graphics& g){
     JUCE_COMPILER_WARNING("if we decide to keep the new color scheme, remove this function and put in paint directly")
     int iSelectedSrc = ourProcessor->getSelectedSource();
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
-        if (hue > 1) hue -= 1;
-        g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
-    } else {
-        g.setColour(Colours::red);
-    }
+    float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
+    if (hue > 1) hue -= 1;
+    g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     float fX, fY;
     ourProcessor->getSources()[iSelectedSrc].getXY(fX, fY);
     g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + fX, _ZirkOSC_Center_Y + fY );
@@ -947,42 +890,17 @@ void ZirkOscAudioProcessorEditor::paintAzimuthLine (Graphics& g){
 void ZirkOscAudioProcessorEditor::paintElevationCircle (Graphics& g){
     int iSelectedSrc = ourProcessor->getSelectedSource();
     JUCE_COMPILER_WARNING("if we decide to keep the new color scheme, remove this function and put in paint directly")
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
-        if (hue > 1) hue -= 1;
-        g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
-    } else {
-        g.setColour(Colours::red);
-    }
+    float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
+    if (hue > 1) hue -= 1;
+    g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     float fX, fY;
     ourProcessor->getSources()[iSelectedSrc].getXY(fX, fY);
     float radiusZenith = sqrtf(fX*fX + fY*fY);
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
 }
 
-void ZirkOscAudioProcessorEditor::paintCrosshairs (Graphics& g){
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        //g.setColour(Colours::white);
-        return;
-    } else {
-        g.setColour(Colours::grey);
-    }
-    float radianAngle=0.0f;
-    float fraction = 0.9f;
-    Point<float> axis = Point<float>();
-    for (int i= 0; i<ZirkOSC_NumMarks; ++i) {
-        radianAngle = degreeToRadian(ZirkOSC_MarksAngles[i]);
-        axis = {cosf(radianAngle), sinf(radianAngle)};
-        g.drawLine(_ZirkOSC_Center_X+(ZirkOscAudioProcessor::s_iDomeRadius*fraction)*axis.getX(), _ZirkOSC_Center_Y+(ZirkOscAudioProcessor::s_iDomeRadius*fraction)*axis.getY(),_ZirkOSC_Center_X+(ZirkOscAudioProcessor::s_iDomeRadius)*axis.getX(), _ZirkOSC_Center_Y+(ZirkOscAudioProcessor::s_iDomeRadius)*axis.getY(),1.0f);
-    }
-}
-
 void ZirkOscAudioProcessorEditor::paintCoordLabels (Graphics& g){
-    if (ZirkOscAudioProcessor::s_bUseNewColorScheme){
-        g.setColour(Colours::white);
-    } else {
-        g.setColour(Colours::black);
-    }
+    g.setColour(Colours::white);
     g.drawLine(_ZirkOSC_Center_X - ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_Y ,0.5f);
     g.drawLine(_ZirkOSC_Center_X , _ZirkOSC_Center_Y - ZirkOscAudioProcessor::s_iDomeRadius, _ZirkOSC_Center_X , _ZirkOSC_Center_Y + ZirkOscAudioProcessor::s_iDomeRadius,0.5f);
 }
