@@ -36,14 +36,14 @@ using namespace std;
 
 // ==============================================================================
 Trajectory::Trajectory(ZirkOscAudioProcessor *filter, float duration, bool syncWTempo, float times, int source)
-:
-ourProcessor(filter),
-mStarted(false),
-mStopped(false),
-mDone(0),
-mDurationSingleTrajectory(duration),
-m_dTrajectoryCount(times),
-m_bIsSyncWTempo(syncWTempo)
+//:m_iSkip(0)
+:ourProcessor(filter)
+,mStarted(false)
+,mStopped(false)
+,mDone(0)
+,mDurationSingleTrajectory(duration)
+,m_dTrajectoryCount(times)
+,m_bIsSyncWTempo(syncWTempo)
 {
     if (mDurationSingleTrajectory < 0.0001) mDurationSingleTrajectory = 0.0001;
     if (m_dTrajectoryCount < 0.0001) m_dTrajectoryCount = 0.0001;
@@ -72,7 +72,7 @@ void Trajectory::start()
     AudioPlayHead::CurrentPositionInfo cpi;
     ourProcessor->getPlayHead()->getCurrentPosition(cpi);
     
-    m_dTrajectoryTimeDone = .0;
+    m_dTrajectoryTimeDone  = .0;
     m_dTrajectoryBeginTime = .0;
     
     if (m_bIsSyncWTempo) {
@@ -105,7 +105,12 @@ bool Trajectory::process(float seconds, float beats)
 	}
 
 	float duration = m_bIsSyncWTempo ? beats : seconds;
-	spProcess(duration, seconds);
+//    if (m_iSkip == 10){
+        spProcess(duration, seconds);
+//        m_iSkip = 0;
+//    } else {
+//        ++m_iSkip;
+//    }
 	
 	mDone += duration;
 	if (mDone > m_TotalTrajectoriesDuration)

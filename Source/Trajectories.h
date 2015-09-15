@@ -63,6 +63,7 @@ protected:
 	
 private:
 	void start();
+//    int m_iSkip;
 	
 protected:
 	Trajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source);

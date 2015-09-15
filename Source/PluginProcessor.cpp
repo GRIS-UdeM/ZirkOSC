@@ -140,8 +140,7 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
             moveSourcesWithDelta(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         } else {
             moveCircular(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
-        }
-        
+        }        
         m_iSourceLocationChanged = -1;
     }
     if (_isOscActive){
