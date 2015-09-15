@@ -739,9 +739,19 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc) {
         paintSpanArc(g, iCurSrc);
     }
-    paintAzimuthLine(g);
-    paintElevationCircle(g);
     paintSourcePoint(g);
+
+    //draw line and circle for selected source
+    int iSelectedSrc = ourProcessor->getSelectedSource();
+    float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
+    if (hue > 1) hue -= 1;
+    g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
+    float fX, fY;
+    ourProcessor->getSources()[iSelectedSrc].getXY(fX, fY);
+    g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + fX, _ZirkOSC_Center_Y + fY );
+    float radiusZenith = sqrtf(fX*fX + fY*fY);
+    g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
+
 }
 
 //Drawing Span Arc
@@ -803,18 +813,9 @@ void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g, int iSrc){
 
 void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
     float fX, fY;
-    int iXOffset = 0, iYOffset = 0;
-    
     for (int i=0; i<ourProcessor->getNbrSources(); ++i) {
         
         ourProcessor->getSources()[i].getXY(fX, fY);
-        
-        if (ourProcessor->isCurrentlyPlaying() && i == 0){
-            float fX01 = HRToPercent(fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-            float fY01 = HRToPercent(fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-            //cout << "reading " << fX01 << ", " << fY01 << newLine;
-        }
-
         //----------------------------------------------------------------------------------------------
         
         const float radius = 10, diameter = 20;
@@ -825,9 +826,6 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         //---- draw source point
         //fill source point
         g.setColour(Colour::fromHSV(hue, 1, 1, 1));
-        
-        
-        
         
         if (ourProcessor->getSources()[i].isAzimReverse()){
             g.setColour(Colours::black);
@@ -842,9 +840,7 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
             fX *= fExtraRatio;
             fY *= fExtraRatio;
         }
-        
-        
-        
+
         g.fillEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter);
         //draw outside of source point
         g.setColour(Colours::red);
@@ -858,7 +854,6 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         //then in white, to create 3d effect
         g.setColour(Colours::white);
         g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, Justification(Justification::centred), false);
-        
     }
 }
 
@@ -874,29 +869,6 @@ void ZirkOscAudioProcessorEditor::paintCenterDot (Graphics& g){
     if (hue > 1) hue -= 1;
     g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     g.fillEllipse(_ZirkOSC_Center_X - 3.0f, _ZirkOSC_Center_Y - 3.0f, 6.0f, 6.0f );
-}
-
-void ZirkOscAudioProcessorEditor::paintAzimuthLine (Graphics& g){
-    JUCE_COMPILER_WARNING("if we decide to keep the new color scheme, remove this function and put in paint directly")
-    int iSelectedSrc = ourProcessor->getSelectedSource();
-    float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
-    if (hue > 1) hue -= 1;
-    g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
-    float fX, fY;
-    ourProcessor->getSources()[iSelectedSrc].getXY(fX, fY);
-    g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + fX, _ZirkOSC_Center_Y + fY );
-}
-
-void ZirkOscAudioProcessorEditor::paintElevationCircle (Graphics& g){
-    int iSelectedSrc = ourProcessor->getSelectedSource();
-    JUCE_COMPILER_WARNING("if we decide to keep the new color scheme, remove this function and put in paint directly")
-    float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
-    if (hue > 1) hue -= 1;
-    g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
-    float fX, fY;
-    ourProcessor->getSources()[iSelectedSrc].getXY(fX, fY);
-    float radiusZenith = sqrtf(fX*fX + fY*fY);
-    g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
 }
 
 void ZirkOscAudioProcessorEditor::paintCoordLabels (Graphics& g){

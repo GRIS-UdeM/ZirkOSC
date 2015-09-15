@@ -273,8 +273,7 @@ private:
     
    
     /*Painting functions*/
-    //! Paint the Azimuth line
-    void paintAzimuthLine (Graphics& g);
+
     //! Paint the center dot
     void paintCenterDot (Graphics& g);
     //! Paint the cross coord labels
@@ -285,8 +284,6 @@ private:
     void paintSpanArc (Graphics& g, int iSrc);
     //! Paint the wall circle, ie the main circle in the gui
     void paintWallCircle (Graphics& g);
-    //! Paint the Zenith circle, circle on the selected source
-    void paintElevationCircle (Graphics& g);
     
     //! projects dome coords to screen coords (sphere to circle)
     Point <float> degreeToXy (Point <float>);
