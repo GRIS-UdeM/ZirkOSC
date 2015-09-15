@@ -449,13 +449,13 @@ protected:
         m_fEndInit.first    = m_fEndPair  .first;
         m_fEndInit.second   = m_fEndPair  .second;
         
-        //calculate far end of spiral
+        //calculate far end of pendulum
         float fDeltaX = m_fEndPair.first - m_fStartPair.first;
         float fDeltaY = m_fEndPair.second - m_fStartPair.second;
         m_fFarEndPair.first  = m_fEndPair.first + fDeltaX;
         m_fFarEndPair.second = m_fEndPair.second + fDeltaY;
         
-        //set current end point to end of spiral
+        //set current end point to end of pendulum
         m_fEndPair.first  = m_fFarEndPair.first;
         m_fEndPair.second = m_fFarEndPair.second;
     }
@@ -843,6 +843,7 @@ String Trajectory::GetTrajectoryName(int i)
         case Ellipse: return "Ellipse";
         case Spiral: return "Spiral";
         case Pendulum: return "Pendulum";
+        case DampedPendulum: return "Damped Pendulum";
         case AllTrajectoryTypes::Random: return "Random";
 	}
 	jassert(0);
@@ -867,6 +868,7 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
             vDirections->push_back("Counter Clockwise");
             break;
         case Pendulum:
+        case DampedPendulum:
 //            vDirections->push_back("In");
 //            vDirections->push_back("Out");
 //            vDirections->push_back("Crossover");
@@ -897,6 +899,7 @@ unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSe
             *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+5);
             break;
         case Pendulum:
+        case DampedPendulum:
             *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+2);
             break;
         case AllTrajectoryTypes::Random:
@@ -921,6 +924,7 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_i
             return nullptr;
         case Spiral:
         case Pendulum:
+        case DampedPendulum:
             vReturns->push_back("One Way");
             vReturns->push_back("Return");
             break;
@@ -993,7 +997,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
         case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw);
         case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw);
         case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair);
-//        case Spiral:                     return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair);
+        case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair);
         case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, bReturn, endPair);
         case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
             

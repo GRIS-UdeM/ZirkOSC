@@ -423,8 +423,6 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     m_pTrajectoryTypeComboBox->setSelectedId(ourProcessor->getSelectedTrajectory());
     m_pTrajectoryTypeComboBox->addListener(this);
-
-    //updateTrajectoryComponents();
     
     //TRAJECTORY DURATION EDITOR
     m_pTrajectoryDurationTextEditor = m_oTrajectoryTab->getDurationTextEditor();
@@ -577,6 +575,10 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         }
         m_pTrajectoryDirectionComboBox->setVisible(true);
         m_pTrajectoryDirectionComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryDirection(), getNumSelectedTrajectoryDirections()));
+        
+        int w = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? 40: 0;
+        m_pTrajectoryTypeComboBox->         setBounds(15,           15,    100+w, 25);
+        m_pTrajectoryDirectionComboBox->    setBounds(15+100+w,     15,    130-w,  25);
     } else {
         m_pTrajectoryDirectionComboBox->setVisible(false);
     }
@@ -593,7 +595,7 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pTrajectoryReturnComboBox->setVisible(false);
     }
     
-    if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == Spiral){
+    if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == Spiral || iSelectedTrajectory == DampedPendulum){
         m_pSetEndTrajectoryButton   ->setVisible(true);
         m_pEndAzimTextEditor        ->setVisible(true);
         m_pEndElevTextEditor        ->setVisible(true);
@@ -673,8 +675,10 @@ void ZirkOscAudioProcessorEditor::resized() {
     setSliderAndLabelPosition(15, 15+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
     
     //------------ TRAJECTORIES ------------
-    m_pTrajectoryTypeComboBox->         setBounds(15,           15,    100, 25);
-    m_pTrajectoryDirectionComboBox->    setBounds(15+100,       15,    130,  25);
+    int w = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? 40: 0;
+    m_pTrajectoryTypeComboBox->         setBounds(15,           15,    100+w, 25);
+    m_pTrajectoryDirectionComboBox->    setBounds(15+100+w,     15,    130-w,  25);
+
     m_pTrajectoryReturnComboBox->       setBounds(15+230,       15,    100,  25);
     
     m_pTrajectoryDurationTextEditor->   setBounds(15,           15+25, 230, 25);
