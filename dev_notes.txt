@@ -27,4 +27,10 @@ hypotheses/tests
     
     * ok. so the problem has to be when writing automations. basically, the y we write is not the one that goes with the x that we wrote. like there's a delay between storing x and storing y, which may be caused by the different daws. For instance, DP has no such oscillations. 
 
+:
+x.
+t
+v 
+s.
+t
 

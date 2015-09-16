@@ -466,9 +466,6 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pEndElevTextEditor->setTextToShowWhenEmpty("Elevation", juce::Colour::greyLevel(fBrightness));
     updateEndLocationTextEditors();
     
-    
-
-    
     //RESET END TRAJECTORY BUTTON
     m_pResetEndTrajectoryButton = m_oTrajectoryTab->getResetEndButton();
     m_pResetEndTrajectoryButton->setButtonText("Reset");
@@ -739,8 +736,6 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc) {
         paintSpanArc(g, iCurSrc);
     }
-    paintSourcePoint(g);
-
     //draw line and circle for selected source
     int iSelectedSrc = ourProcessor->getSelectedSource();
     float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
@@ -751,7 +746,8 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     g.drawLine(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, _ZirkOSC_Center_X + fX, _ZirkOSC_Center_Y + fY );
     float radiusZenith = sqrtf(fX*fX + fY*fY);
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
-
+    //draw sources
+    paintSourcePoint(g);
 }
 
 //Drawing Span Arc
@@ -1109,15 +1105,11 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
         }
     }
     else if (button == m_pResetEndTrajectoryButton){
-        std::pair<float, float> pair = std::make_pair(180.0, 90.0);
+        std::pair<float, float> pair = std::make_pair(0, 0);
         ourProcessor->setEndLocation(pair);
-        m_pEndAzimTextEditor->setText("180.0", dontSendNotification);
-        m_pEndElevTextEditor->setText("90.0", dontSendNotification);
+        updateEndLocationTextEditors();
     }
 }
-
-
-
 
 
 void ZirkOscAudioProcessorEditor::sliderDragStarted (Slider* slider) {
@@ -1227,11 +1219,6 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         //if (percentValue > .99) percentValue = .99;
         SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
-        
-        if (percentValue == 1){
-            cout << SoundSource::XYtoElev01(fX, fY);
-        }
-        
         move(selectedSource, fX, fY);
     }
     else if (slider == m_pElevationSpanSlider) {
