@@ -175,5 +175,10 @@ inline double radianToDegree(float radian){
     return (radian/(2 * M_PI) * 360.0);
 }
 
+static bool areSame(double a, double b)
+{
+    return fabs(a - b) < .00001;
+}
+
 #endif
 

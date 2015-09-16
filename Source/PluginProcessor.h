@@ -327,8 +327,8 @@ private:
     void moveEqualAzim(const int &p_iSource, const float &p_fX, const float &p_fY);
     void moveEqualAzimElev(const int &p_iSource, const float &p_fX, const float &p_fY);
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
-    
-    
+    bool setPositionParameters(int index, float newValue);
+    bool setOtherParameters(int index, float newValue);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscAudioProcessor)
     //! Whether the editor has to refresh the GUI

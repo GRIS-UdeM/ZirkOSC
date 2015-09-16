@@ -814,7 +814,7 @@ float ZirkOscAudioProcessor::getParameter (int index)
             return m_oAllSources[iCurSrc].getGain();
         }
     }
-    cerr << "\n" << "wrong parameter id: " << index << "in ZirkOscAudioProcessor::getParameter" << "\n";
+    DBG("wrong parameter id: " << index << "in ZirkOscAudioProcessor::getParameter" << "\n");
     return -1.f;
 }
 
@@ -822,91 +822,131 @@ float ZirkOscAudioProcessor::getParameter (int index)
 // it's absolutely time-critical. Don't use critical sections or anything
 // UI-related, or anything at all that may block in any way!
 void ZirkOscAudioProcessor::setParameter (int index, float newValue){
-    bool bFoundParameter = false;
+    
+    
+    if (!setPositionParameters(index, newValue) && !setOtherParameters(index, newValue)){
+        m_bNeedToRefreshGui = false;
+        setPositionParameters(index, newValue);
+        setOtherParameters(index, newValue);
+        DBG("wrong parameter id: " << index << " in ZirkOscAudioProcessor::setParameter\n");
+    }
+}
+
+bool ZirkOscAudioProcessor::setOtherParameters(int index, float newValue){
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
-            setMovementConstraint(newValue);
-            bFoundParameter = true;
-            break;
+            if (m_fMovementConstraint != newValue){
+                setMovementConstraint(newValue);
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_isOscActive_ParamId:
-            if (newValue > .5f)
+            if (newValue > .5f && !_isOscActive){
                 _isOscActive = true;
-            else
+                m_bNeedToRefreshGui = true;
+            } else if (_isOscActive){
                 _isOscActive = false;
-            bFoundParameter = true;
-            break;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_isSpanLinked_ParamId:
-            if (newValue > .5f)
+            if (newValue > .5f && !_isSpanLinked){
                 _isSpanLinked = true;
-            else
+                m_bNeedToRefreshGui = true;
+            } else if (_isSpanLinked){
                 _isSpanLinked = false;
-            bFoundParameter = true;
-            break;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_SelectedTrajectory_ParamId:
-            _SelectedTrajectory = newValue;
-            bFoundParameter = true;
-            break;
+            if (_SelectedTrajectory != newValue){
+                _SelectedTrajectory = newValue;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_SelectedTrajectoryDirection_ParamId:
-            m_fSelectedTrajectoryDirection = newValue;
-            bFoundParameter = true;
-            break;
+            if(m_fSelectedTrajectoryDirection != newValue){
+                m_fSelectedTrajectoryDirection = newValue;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
-            m_fSelectedTrajectoryReturn = newValue;
-            bFoundParameter = true;
-            break;
+            if(m_fSelectedTrajectoryReturn != newValue){
+                m_fSelectedTrajectoryReturn = newValue;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSCm_dTrajectoryCount_ParamId:
-            m_dTrajectoryCount = newValue;
-            bFoundParameter = true;
-            break;
+            if(m_dTrajectoryCount != newValue){
+                m_dTrajectoryCount = newValue;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_TrajectoriesDuration_ParamId:
-            _TrajectoriesDuration = newValue;
-            bFoundParameter = true;
-            break;
+            if(_TrajectoriesDuration != newValue){
+                _TrajectoriesDuration = newValue;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_SyncWTempo_ParamId:
-            if (newValue > .5f)
+            if (newValue > .5f && !m_bIsSyncWTempo){
                 m_bIsSyncWTempo = true;
-            else
+                m_bNeedToRefreshGui = true;
+            } else if (m_bIsSyncWTempo){
                 m_bIsSyncWTempo = false;
-            bFoundParameter = true;
-            break;
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         case ZirkOSC_WriteTrajectories_ParamId:
             if (newValue > .5f)
                 m_bIsWriteTrajectory = true;
             else
                 m_bIsWriteTrajectory = false;
-            bFoundParameter = true;
+            return true;
     }
-    
+    return false;
+}
+
+bool ZirkOscAudioProcessor::setPositionParameters(int index, float newValue){
     for(int iCurSource = 0; iCurSource < 8; ++iCurSource){
-        if  (ZirkOSC_X_ParamId + (iCurSource*5) == index) {
-            if (newValue != m_oAllSources[iCurSource].getX01()){
+        if(ZirkOSC_X_ParamId + (iCurSource*5) == index){
+            if(newValue != m_oAllSources[iCurSource].getX01()) {
                 m_oAllSources[iCurSource].setX01(newValue);
                 m_iSourceLocationChanged = iCurSource;
+                m_bNeedToRefreshGui = true;
             }
-            bFoundParameter = true;
+            return true;
         }
-        else if (ZirkOSC_Y_ParamId + (iCurSource*5) == index) {
-            if (newValue != m_oAllSources[iCurSource].getY01()){
+        else if (ZirkOSC_Y_ParamId + (iCurSource*5) == index){
+            if(newValue != m_oAllSources[iCurSource].getY01()) {
                 m_oAllSources[iCurSource].setY01(newValue);
                 m_iSourceLocationChanged = iCurSource;
+                m_bNeedToRefreshGui = true;
             }
-            bFoundParameter = true;
-        }
-        else if (ZirkOSC_AzimSpan_ParamId + (iCurSource*5) == index){
-            m_oAllSources[iCurSource].setAzimuthSpan(newValue); bFoundParameter = true;
+            return true;
+        } else if (ZirkOSC_AzimSpan_ParamId + (iCurSource*5) == index){
+            if (newValue != m_oAllSources[iCurSource].getAzimuthSpan()){
+            m_oAllSources[iCurSource].setAzimuthSpan(newValue);
+            m_bNeedToRefreshGui = true;
+            }
+            return true;
         }
         else if (ZirkOSC_ElevSpan_ParamId + (iCurSource*5) == index){
-            m_oAllSources[iCurSource].setElevationSpan(newValue); bFoundParameter = true;
+            if (newValue != m_oAllSources[iCurSource].getElevationSpan()){
+                m_oAllSources[iCurSource].setElevationSpan(newValue);
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         }
         else if (ZirkOSC_Gain_ParamId + (iCurSource*5) == index){
-            m_oAllSources[iCurSource].setGain(newValue); bFoundParameter = true;
+            if (newValue != m_oAllSources[iCurSource].getGain()){
+                m_oAllSources[iCurSource].setGain(newValue);
+                m_bNeedToRefreshGui = true;
+            }
+            return true;
         }
     }
-    if (!bFoundParameter){
-        cerr << "wrong parameter id: " << index << " in ZirkOscAudioProcessor::setParameter\n";
-    } else {
-        m_bNeedToRefreshGui = true;
-    }
+    return false;
 }
 
 void ZirkOscAudioProcessor::setMovementConstraint(float p_fConstraint){
