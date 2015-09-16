@@ -134,7 +134,6 @@ void ZirkOscAudioProcessor::initSources(){
 void ZirkOscAudioProcessor::updateSourcesSendOsc(){
     if (/*m_bCurrentlyPlaying && */!m_bIsRecordingAutomation && m_iMovementConstraint != Independent && m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
-            JUCE_COMPILER_WARNING("it is very likely that the getX and getY here do not return values for the same position")
             moveSourcesWithDelta(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         } else {
             moveCircular(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
@@ -984,6 +983,8 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
     xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
     xml.setAttribute("presetDataVersion", s_kiDataVersion);
+    xml.setAttribute("endLocationAzim", m_fEndLocationPair.first);
+    xml.setAttribute("endLocationElev", m_fEndLocationPair.second);
     
     for(int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
         String channel      = "Channel"         + to_string(iCurSrc);
@@ -1051,8 +1052,12 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         _SelectedTrajectory             = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
         m_dTrajectoryCount                = xmlState->getIntAttribute("nbrTrajectory", 0);
         _TrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
-        m_bIsSyncWTempo                   = xmlState->getBoolAttribute("isSyncWTempo", false);
-        m_bIsWriteTrajectory              = xmlState->getBoolAttribute("isWriteTrajectory", false);
+        m_bIsSyncWTempo                 = xmlState->getBoolAttribute("isSyncWTempo", false);
+        m_bIsWriteTrajectory            = xmlState->getBoolAttribute("isWriteTrajectory", false);
+
+        m_fEndLocationPair.first        = xmlState->getDoubleAttribute("endLocationAzim", 180.0);
+        m_fEndLocationPair.second       = xmlState->getDoubleAttribute("endLocationElev", 90.0);
+        
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
             String channel      = "Channel" + to_string(iCurSrc);

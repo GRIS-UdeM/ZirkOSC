@@ -309,27 +309,29 @@ public:
         return m_bCurrentlyPlaying;
     }
     
+    std::pair<float, float> getEndLocation(){
+        return m_fEndLocationPair;
+    }
+
+    void setEndLocation(std::pair<float, float> pair){
+        m_fEndLocationPair = pair;
+    }
+
+    
 private:
     
     void initSources();
-    
     void processTrajectories();
-    
     void stopTrajectory();
-    
     void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsElevFixed);
-
     void moveEqualAzim(const int &p_iSource, const float &p_fX, const float &p_fY);
-    
     void moveEqualAzimElev(const int &p_iSource, const float &p_fX, const float &p_fY);
-    
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscAudioProcessor)
     //! Whether the editor has to refresh the GUI
-    JUCE_COMPILER_WARNING("this flag should really be used and the gui should NOT refresh if this flag is false")
     bool m_bNeedToRefreshGui = false;
     //! Current number of sources on the screnn
     int m_iNbrSources;
@@ -394,23 +396,16 @@ private:
     int64 mLastTimeInSamples;
     
     //the id of the source that was last changed
-    int m_iSourceLocationChanged;   
-        
+    int m_iSourceLocationChanged;
     bool m_bCurrentlyPlaying;
-    
     bool m_bDetectedPlayingStart;
     bool m_bDetectedPlayingEnd;
-    
     bool m_bStartedConstraintAutomation;
-    
     bool m_bIsEqualElev;
-    
     bool m_bIsRecordingAutomation;
-    
     int m_iNeedToResetToActualConstraint;
-    
     SourceUpdateThread* m_pSourceUpdateThread;
-
+    std::pair <float, float> m_fEndLocationPair;
 };
 
 #endif  // __PLUGINPROCESSOR_H_F70DA35D__

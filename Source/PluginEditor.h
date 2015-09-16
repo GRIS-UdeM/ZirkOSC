@@ -166,8 +166,6 @@ private:
     TextEditor* m_pEndElevTextEditor;
     TextButton* m_pResetEndTrajectoryButton;
     
-    std::pair <float, float> m_fEndLocationPair;
-    
     Label* m_pTrajectoryCountLabel;
     
     Label* m_pTrajectoryDurationLabel;

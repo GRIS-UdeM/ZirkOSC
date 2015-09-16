@@ -459,14 +459,14 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pSetEndTrajectoryButton->addListener(this);
 
     //END TRAJECTORY TextEditors
-    JUCE_COMPILER_WARNING("this needs to get its values from processor, like other preset things")
     float fBrightness = .6;
     m_pEndAzimTextEditor = m_oTrajectoryTab->getEndAzimTextEditor();
     m_pEndAzimTextEditor->setTextToShowWhenEmpty("Azimuth", juce::Colour::greyLevel(fBrightness));
     m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
     m_pEndElevTextEditor->setTextToShowWhenEmpty("Elevation", juce::Colour::greyLevel(fBrightness));
-    m_pEndAzimTextEditor->setText("180.0", dontSendNotification);
-    m_pEndElevTextEditor->setText("90.0", dontSendNotification);
+    std::pair<float, float> endLocation = ourProcessor->getEndLocation();
+    m_pEndAzimTextEditor->setText(std::to_string(endLocation.first), dontSendNotification);
+    m_pEndElevTextEditor->setText(std::to_string(endLocation.second), dontSendNotification);
 
     
     //RESET END TRAJECTORY BUTTON
@@ -1021,7 +1021,8 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             float repeats = m_pTrajectoryCountTextEditor->getText().getFloatValue();
             int source = ourProcessor->getSelectedSource();
             
-            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, m_fEndLocationPair));
+            JUCE_COMPILER_WARNING("why is this processor method taking processor stuff as parameters?")
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocation()));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
             mTrState = kTrWriting;
@@ -1108,6 +1109,8 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
         }
     }
     else if (button == m_pResetEndTrajectoryButton){
+        std::pair<float, float> pair = std::make_pair(180.0, 90.0);
+        ourProcessor->setEndLocation(pair);
         m_pEndAzimTextEditor->setText("180.0", dontSendNotification);
         m_pEndElevTextEditor->setText("90.0", dontSendNotification);
     }
@@ -1342,7 +1345,7 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         //get point of current event
         float fCenteredX = event.x-_ZirkOSC_Center_X;
         float fCenteredY = event.y-_ZirkOSC_Center_Y;
-        m_fEndLocationPair = make_pair (fCenteredX, fCenteredY);
+        ourProcessor->setEndLocation(make_pair (fCenteredX, fCenteredY));
         updateEndLocationTextEditors();
         m_pSetEndTrajectoryButton->setToggleState(false, dontSendNotification);
         m_pSetEndTrajectoryButton->setButtonText("Set end point");
@@ -1353,15 +1356,18 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
 }
 
 void ZirkOscAudioProcessorEditor::updateEndLocationTextEditors(){
+    
+    std::pair<float, float> endLocation = ourProcessor->getEndLocation();
+    float fAzim = PercentToHR(SoundSource::XYtoAzim01(endLocation.first, endLocation.second), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float fElev = PercentToHR(SoundSource::XYtoElev01(endLocation.first, endLocation.second), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+
     {
         ostringstream oss;
-        float fAzim = PercentToHR(SoundSource::XYtoAzim01(m_fEndLocationPair.first, m_fEndLocationPair.second), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
         oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim;
         m_pEndAzimTextEditor->setText(oss.str());
     }
     {
         ostringstream oss;
-        float fElev = PercentToHR(SoundSource::XYtoElev01(m_fEndLocationPair.first, m_fEndLocationPair.second), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fElev;
         m_pEndElevTextEditor->setText(oss.str());
     }

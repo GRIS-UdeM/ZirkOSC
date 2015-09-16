@@ -5,15 +5,26 @@ issue #42, j'ai une oscillation en xy que j'avais pas en rt. this also happens w
 2.0.12: yes
 it basically happened all the time, and nobody noticed...?
 
-hypotheses
+hypotheses/tests
     * this will not happen with a pendulum going only in one direction
         * correct
-the problem is only when READING the automations. so if there was a way that i could wait for pairs of xy values to be read before refreshing, it could help?
+   
+   * the problem is only when READING the automations. 
+        * so if there was a way that i could wait for pairs of xy values to be read 
+          before refreshing, it could help?
+        * setIsRecordingAutomation is set when we move a control. so in theory, if we 
+          are not recording automation, and setParameter is called, then we are reading 
+          an automation. 
+        * so what we can do is block the message thing between a setX and setY
+            * that doesn't do anything. refresh is almost never blocked. 
 
---setIsRecordingAutomation is set when we move a control. so in theory, if we are not recording automation, and setParameter is called, then we are reading an automation. 
---so what we can do is block the message thing between a setX and setY
-that doesn't do anything. refresh is almost never blocked. 
+    * there's some numerical error when reading the automation. 
+        * so basically xyToAzimElev is not right. i could test a bunch of azim->xy->azim 
+          conversions
+        * float = 6 decimal places
+        * i did that, and smallest numerical error required to see oscillation is .001
+          so very unlikely that this is the problem
+    
+    * ok. so the problem has to be when writing automations. basically, the y we write is not the one that goes with the x that we wrote. like there's a delay between storing x and storing y, which may be caused by the different daws. For instance, DP has no such oscillations. 
 
-the other hypothesis is that there's some error when reading the automation. so basically xyToAzimElev is not right. i could test a bunch of azim->xy->azim conversions
-6 decimal places
 
