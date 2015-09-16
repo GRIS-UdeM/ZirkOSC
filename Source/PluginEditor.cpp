@@ -634,11 +634,13 @@ void ZirkOscAudioProcessorEditor::resized() {
 //    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
     // OSC button
-    _OscActiveButton.setBounds(iCurWidth-80, 300, 80, 25);
-    
-    // link button
-    _LinkSpanButton.setBounds(iCurWidth-80, 325, 80, 25);
+    //_OscActiveButton.setBounds(iCurWidth-80, 300, 80, 25);
+    _OscActiveButton.setBounds(iCurWidth-80, 155, 80, 25);
 
+    // link button
+    //_LinkSpanButton.setBounds(iCurWidth-80, 325, 80, 25);
+    _LinkSpanButton.setBounds(iCurWidth-80, 180, 80, 25);
+    
     //------------ SAVE SOURCE ELEVATION ---------------
     float fAllElev01[8];
     for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
