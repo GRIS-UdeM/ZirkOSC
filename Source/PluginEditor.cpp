@@ -464,9 +464,9 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pEndAzimTextEditor->setTextToShowWhenEmpty("Azimuth", juce::Colour::greyLevel(fBrightness));
     m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
     m_pEndElevTextEditor->setTextToShowWhenEmpty("Elevation", juce::Colour::greyLevel(fBrightness));
-    std::pair<float, float> endLocation = ourProcessor->getEndLocation();
-    m_pEndAzimTextEditor->setText(std::to_string(endLocation.first), dontSendNotification);
-    m_pEndElevTextEditor->setText(std::to_string(endLocation.second), dontSendNotification);
+    updateEndLocationTextEditors();
+    
+    
 
     
     //RESET END TRAJECTORY BUTTON
