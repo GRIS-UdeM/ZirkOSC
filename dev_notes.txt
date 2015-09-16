@@ -26,11 +26,27 @@ hypotheses/tests
           so very unlikely that this is the problem
     
     * ok. so the problem has to be when writing automations. basically, the y we write is not the one that goes with the x that we wrote. like there's a delay between storing x and storing y, which may be caused by the different daws. For instance, DP has no such oscillations. 
+_________________________________________________
+#46
+so my understanding is that this may be due to reaper not recording initial state of plugin in the automation? Right, the first point it records is after the circle was started, so we get back to that point. yeah it's definitely something like that. Logic doesn't do that. and the reason it doesn't do that in write in reaper, is because we are still writing after the trajectory is done, so it doesn't return to its "original", initial, offset  recording point
+___________________________________________________
+#43
 
-:
-x.
-t
-v 
-s.
-t
+2,1,1   no
+2,2,0   no
+3,0,1   no
+3,0,2   yes
 
+most recent: 9d5e35999359f2fb72a62992797e3f034d8be45d
+not working: ad69a56584cd9d5bebd1c3d21f46fbea08150b99
+not working: 486bb720c50b803611f06ab528b7e1b0d2ffb810
+not working: 8e575ae84efa145a906af6fddd9b83c49f71705f
+not working: 8689ae93b9786617dcc49be7f00573f87103a364
+working: dadf4b3f3425aa26bcc8dfe698d7791524390d36
+working: 01184e25f95ec69e6f52fff0f29a5fd2e18bb911
+working: 1be65b328470cce74aeef366a20263818141b3dc
+working: 10998caede09acf1dbf1549a5654110325ac8011
+
+
+___________________________________________________
+NOT SURE WHERE ELSE TO WRITE THIS, BUT THE PROBLEM WITH REAPER AND TOUCH MODE IS THAT IT IS CONSTANTLY SETTING THE PARAMETERS IN THE PLUGIN. SO IT IS CONSTANLY CALLING SET PARAMETER. DP, FOR INSTANCE, ONLY SETS VALUES WHEN THERE IS A CHANGE. 
