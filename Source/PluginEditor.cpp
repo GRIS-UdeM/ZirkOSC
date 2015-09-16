@@ -1127,9 +1127,11 @@ void ZirkOscAudioProcessorEditor::sliderDragStarted (Slider* slider) {
     else if (slider == m_pAzimuthSlider) {
         ourProcessor->setIsRecordingAutomation(true);
         ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
+        ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
     }
     else if (slider == m_pElevationSlider) {
         ourProcessor->setIsRecordingAutomation(true);
+        ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
         ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
     }
     else if (slider == m_pElevationSpanSlider) {
@@ -1167,9 +1169,11 @@ void ZirkOscAudioProcessorEditor::sliderDragEnded (Slider* slider) {
     }
     else if (slider == m_pAzimuthSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
+        ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
         ourProcessor->setIsRecordingAutomation(false);
     }
     else if (slider == m_pElevationSlider) {
+        ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
         ourProcessor->setIsRecordingAutomation(false);
     }
@@ -1264,7 +1268,7 @@ void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
 
     
     if(m_bIsSourceBeingDragged){
-        //if sources are being dragged, tell host that their parameters are about to change (beginParameterChangeGesture).
+        //if sources are being dragged, tell host that their parameters are about to change.
         ourProcessor->setIsRecordingAutomation(true);
         ourProcessor->setSelectedSource(source);
         ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + source*5);
