@@ -93,12 +93,10 @@ void Trajectory::start()
     ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
 }
 
-bool Trajectory::process(float seconds, float beats)
-{
+bool Trajectory::process(float seconds, float beats){
 	if (mStopped) return true;
 	if (!mStarted) start();
-	if (mDone == m_TotalTrajectoriesDuration)
-	{
+	if (mDone == m_TotalTrajectoriesDuration) {
 		spProcess(0, 0);
 		stop();
 		return true;
@@ -230,11 +228,12 @@ private:
 class SpiralTrajectory : public Trajectory
 {
 public:
-    SpiralTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt, const std::pair<int, int> &endPoint)
+    SpiralTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt, const std::pair<int, int> &endPoint, float fTurns)
     : Trajectory(filter, duration, beats, times, source)
     , mCCW(ccw)
     , m_bRT(rt)
     , m_fEndPair(endPoint)
+    , m_fNumberOfTurns(fTurns)
     { }
     
 protected:
@@ -251,14 +250,10 @@ protected:
     
     void spProcess(float duration, float seconds)
     {
-        float newAzimuth01, newElevation01, theta;
-        float integralPart; //useless here
+        float newAzimuth01, theta, integralPart; //integralPart is only a temp buffer
         
-        newElevation01 = mDone / mDurationSingleTrajectory;
+        float newElevation01 = mDone / mDurationSingleTrajectory;
         theta = modf(newElevation01, &integralPart);                                          //result from this modf is theta [0,1]
-        
-        JUCE_COMPILER_WARNING("make this a parameter")
-        float fNumberOfTurns = 3;
         
         //UP AND DOWN SPIRAL
         if (m_bRT){
@@ -282,7 +277,7 @@ protected:
             
             if (!mCCW) theta = -theta;
         }
-        newAzimuth01 = modf(m_fTransposedStartAzim01 + fNumberOfTurns * theta, &integralPart);                        //this is like adding a to theta
+        newAzimuth01 = modf(m_fTransposedStartAzim01 + m_fNumberOfTurns * theta, &integralPart);                        //this is like adding a to theta
 
 //        move(newAzimuth, newElevation);
         
@@ -300,6 +295,7 @@ private:
     bool m_bRT = false;
     std::pair<float, float> m_fEndPair;
     float m_fTransposedStartAzim01, m_fTransposedStartElev01;
+    float m_fNumberOfTurns;
 };
 
 
@@ -937,7 +933,7 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_i
 
 
 Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction,
-                                             bool bReturn, float times, int source, const std::pair<float, float> &endPair)
+                                             bool bReturn, float times, int source, const std::pair<float, float> &endPair, float fTurns)
 {
     
     bool ccw, in, cross;
@@ -996,7 +992,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
     {
         case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw);
         case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw);
-        case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair);
+        case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
         case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair);
         case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, bReturn, endPair);
         case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);

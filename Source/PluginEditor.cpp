@@ -1020,7 +1020,8 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             int source = ourProcessor->getSelectedSource();
             
             JUCE_COMPILER_WARNING("why is this processor method taking processor stuff as parameters?")
-            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocation()));
+            float fTurns = 4.5;
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocation(), fTurns));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
             mTrState = kTrWriting;
