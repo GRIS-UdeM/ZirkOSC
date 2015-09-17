@@ -84,8 +84,7 @@ int ZirkOscAudioProcessor::s_iDomeRadius = 172;
 bool ZirkOscAudioProcessor::s_bForceConstraintAutomation = false;   //this was to force reaper to write an automation of the constraint combobox value when starting playback/record
 
 ZirkOscAudioProcessor::ZirkOscAudioProcessor()
-:
-m_iNbrSources(1)
+:m_iNbrSources(1)
 ,m_fSelectedTrajectory(.0f)
 ,m_fSelectedTrajectoryDirection(.0f)
 ,m_fSelectedTrajectoryReturn(.0f)

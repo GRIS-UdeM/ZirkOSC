@@ -165,8 +165,10 @@ protected:
         
         newAzimuth = mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - m_dTrajectoryBeginTime) / m_dTrajectorySingleLength, &integralPart);
         
+        float turns = .5;
+        
         if (!mCCW) newAzimuth = - newAzimuth;
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + turns * newAzimuth, &integralPart);
         
         move(newAzimuth, m_fTrajectoryInitialElevation01);
 	}
@@ -268,7 +270,6 @@ protected:
             theta *= 2;
             
         } else {
-            
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
             newElevation01 = theta * (1 - m_fTransposedStartElev01) + m_fTransposedStartElev01;         //newElevation is a mapping of theta[0,1] to [m_fTransposedStartElev01, 1]
             
@@ -493,60 +494,6 @@ private:
     //    float m_fDistance;
 };
 
-
-
-
-//class SpiralTrajectory : public Trajectory
-//{
-//public:
-//    SpiralTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool in, bool rt, const std::pair<int, int> &endPoint)
-//    : Trajectory(filter, duration, beats, times, source), mCCW(ccw), mIn(in), mRT(rt) {}
-//    
-//protected:
-//    void spInit()
-//    {
-//        //		for (int i = 0; i < mFilter->getNumberOfSources(); i++)
-//        //			mSourcesInitRT.add(mFilter->getSourceRT(i));
-//    }
-//    void spProcess(float duration, float seconds)
-//    {
-//        float newAzimuth, newElevation, theta;
-//        float integralPart; //useless here
-//        
-//        newElevation = mDone / mDurationSingleTrajectory;
-//        theta = modf(newElevation, &integralPart);                                          //result from this modf is theta [0,1]
-//        
-//        //UP AND DOWN SPIRAL
-//        if (mRT){
-//            if (mIn){
-//                newElevation = abs( (1 - m_fTrajectoryInitialElevation01) * sin(newElevation * M_PI) ) + m_fTrajectoryInitialElevation01;
-//            } else {
-//                newElevation = abs( m_fTrajectoryInitialElevation01 * cos(newElevation * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
-//            }
-//            
-//            if (!mCCW) theta = -theta;
-//            theta *= 2;
-//            
-//        } else {
-//            
-//            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-//            newElevation = theta * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;         //newElevation is a mapping of theta[0,1] to [m_fTrajectoryInitialElevation01, 1]
-//            
-//            if (!mIn)
-//                newElevation = m_fTrajectoryInitialElevation01 * (1 - newElevation) / (1-m_fTrajectoryInitialElevation01);  //map newElevation from [m_fTrajectoryInitialElevation01, 1] to [m_fTrajectoryInitialElevation01, 0]
-//            
-//            if (!mCCW) theta = -theta;
-//        }
-//        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + theta, &integralPart);                        //this is like adding a to theta
-//        move(newAzimuth, newElevation);
-//    }
-//    
-//private:
-//    //	Array<FPoint> mSourcesInitRT;
-//    bool mCCW, mIn, mRT;
-//};
-
-
 // ==============================================================================
 class EllipseTrajectory : public Trajectory
 {
@@ -567,6 +514,10 @@ protected:
         float theta = mDone / mDurationSingleTrajectory;   //goes from 0 to m_dTrajectoryCount
         theta = modf(theta, &integralPart); //does 0 -> 1 for m_dTrajectoryCount times
         if (!mCCW) theta = -theta;
+        
+        float turns = 2;
+        
+        theta *= turns;
         
         float newAzimuth = m_fTrajectoryInitialAzimuth01 + theta;
         
