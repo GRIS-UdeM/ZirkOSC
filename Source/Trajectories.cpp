@@ -154,8 +154,10 @@ void Trajectory::moveXY (const float &p_fNewX, const float &p_fNewY){
 class CircleTrajectory : public Trajectory
 {
 public:
-	CircleTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw)
-	: Trajectory(filter, duration, beats, times, source), mCCW(ccw) {}
+	CircleTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, float fTurns)
+	:Trajectory(filter, duration, beats, times, source), mCCW(ccw)
+    ,m_fTurns(fTurns)
+    {}
 	
 protected:
 	void spProcess(float duration, float seconds)
@@ -165,16 +167,16 @@ protected:
         
         newAzimuth = mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - m_dTrajectoryBeginTime) / m_dTrajectorySingleLength, &integralPart);
         
-        float turns = .5;
         
         if (!mCCW) newAzimuth = - newAzimuth;
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + turns * newAzimuth, &integralPart);
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + m_fTurns * newAzimuth, &integralPart);
         
         move(newAzimuth, m_fTrajectoryInitialElevation01);
 	}
 	
 private:
 	bool mCCW;
+    float m_fTurns;
 };
 
 // ==============================================================================
@@ -498,8 +500,10 @@ private:
 class EllipseTrajectory : public Trajectory
 {
 public:
-	EllipseTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw)
-	: Trajectory(filter, duration, beats, times, source), mCCW(ccw) {}
+	EllipseTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, float fTurns)
+	:Trajectory(filter, duration, beats, times, source), mCCW(ccw)
+    ,m_fTurns(fTurns)
+    {}
 	
 protected:
 	void spInit()
@@ -515,9 +519,7 @@ protected:
         theta = modf(theta, &integralPart); //does 0 -> 1 for m_dTrajectoryCount times
         if (!mCCW) theta = -theta;
         
-        float turns = 2;
-        
-        theta *= turns;
+        theta *= m_fTurns;
         
         float newAzimuth = m_fTrajectoryInitialAzimuth01 + theta;
         
@@ -529,6 +531,7 @@ protected:
 private:
 //	Array<FPoint> mSourcesInitRT;
 	bool mCCW;
+    float m_fTurns;
 };
 
 // ==============================================================================
@@ -937,12 +940,10 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
         default:
             break;
     }
-    
-    
-    switch(type)
-    {
-        case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw);
-        case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw);
+
+    switch(type) {
+        case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw, fTurns);
+        case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw, fTurns);
         case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
         case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair);
         case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, bReturn, endPair);

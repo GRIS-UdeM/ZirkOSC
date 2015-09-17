@@ -620,14 +620,13 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pResetEndTrajectoryButton ->setVisible(false);
     }
     
-    if (iSelectedTrajectory == Spiral){
+    if (iSelectedTrajectory == Spiral || iSelectedTrajectory == Circle || iSelectedTrajectory == Ellipse){
         m_pTrajectoryTurnsLabel->setVisible(true);
         m_pTrajectoryTurnsTextEditor->setVisible(true);
     } else {
         m_pTrajectoryTurnsLabel->setVisible(false);
         m_pTrajectoryTurnsTextEditor->setVisible(false);
     }
-
 }
 
 void ZirkOscAudioProcessorEditor::resized() {
