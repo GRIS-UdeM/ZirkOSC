@@ -175,7 +175,7 @@ public:
         }
     }
     //! Returns the Osc Port for the Zirkonium sending
-    int getOscPortZirkonium(){return _OscPortZirkonium;}
+    int getOscPortZirkonium(){return m_iOscPortZirkonium;}
     
     enum ParameterIds
     {
@@ -257,7 +257,7 @@ public:
     void changeZirkoniumOSCPort(int newPort);
 
     //! Returns the Editor.
-    AudioProcessorEditor* getEditor() {return _Editor;};
+    AudioProcessorEditor* getEditor() {return m_oEditor;};
     //! Set the width that the UI was last set to
     void setLastUiWidth(int lastUiWidth);
     //! Get the width that the UI was last set to
@@ -283,10 +283,6 @@ public:
   	Trajectory::Ptr getTrajectory() { return mTrajectory; }
     
     void askForGuiRefresh(){m_bNeedToRefreshGui=true;};
-    
-    bool getIsJoystickEnabled() const { return _isJoystickEnabled; }
-    
-    void setIsJoystickEnabled(int s) { _isJoystickEnabled = s; }
     
     void setIsRecordingAutomation(bool b){
         m_bIsRecordingAutomation = b;
@@ -316,6 +312,13 @@ public:
     void setEndLocation(std::pair<float, float> pair){
         m_fEndLocationPair = pair;
     }
+    
+    double getTurns(){
+        return m_dTrajectoryTurns;
+    }
+    void setTurns(double turns){
+        m_dTrajectoryTurns = turns;
+    }
 
     
 private:
@@ -340,7 +343,7 @@ private:
     //! int ID of the selected movement constraint IMPORTANT: need to be set manually whenever float version of parameter is changed
     int m_iMovementConstraint;
     //! float ID of the selected trajectory
-    float _SelectedTrajectory;
+    float m_fSelectedTrajectory;
     
     float m_fSelectedTrajectoryDirection;
     
@@ -349,13 +352,13 @@ private:
     //! Tab position of the selected source
     int m_iSelectedSource;
     //! Osc port to send to the Zirkonium 
-    int _OscPortZirkonium;
+    int m_iOscPortZirkonium;
     //! The editor
-    AudioProcessorEditor* _Editor;
+    AudioProcessorEditor* m_oEditor;
     //! Sources array
     SoundSource m_oAllSources [8];
     //Copy of all sources to be able to save and restore locations before and after a trajectory
-    SoundSource _AllSourcesBuffer [8];
+    SoundSource m_oAllSourcesBuffer [8];
     
     //! Zirkonium OSC address (sending)
     lo_address _OscZirkonium;
@@ -365,28 +368,20 @@ private:
     //! last saved ui height
     int _LastUiHeight;
     //! Whether we're sending OSC messages to the zirkonium
-    bool _isOscActive;
+    bool m_bIsOscActive;
     //! If the span are linked
-    bool _isSpanLinked;
+    bool m_bIsSpanLinked;
     
     PluginHostType host;
-
-    bool _isJoystickEnabled;
     
     int m_iActualConstraint;
     
     //OLD TRAJECTORIES
     
-    //! Number of trajectories to draw in trajectory section
     double m_dTrajectoryCount;
-    
-    //! Duration of trajectory movement
-    double _TrajectoriesDuration;
-    
-    //!Whether to sync trajectories with tempo
+    double m_dTrajectoriesDuration;
+    double m_dTrajectoryTurns;
     bool m_bIsSyncWTempo;
-    
-    //!Whether to write trajectory or not
     bool m_bIsWriteTrajectory;
     
     int m_iSelectedSourceForTrajectory;

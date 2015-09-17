@@ -164,6 +164,9 @@ class TrajectoryTab : public Component{
     TextEditor* m_pEndElevTextEditor;
     TextButton* m_pResetEndButton;
     
+    Label*      m_pTurnsLabel;
+    TextEditor* m_pTurnsTextEditor;
+    
     MiniProgressBar* mTrProgressBarTab;
     
     OwnedArray<Component> components;
@@ -201,6 +204,9 @@ public:
         m_pEndElevTextEditor    = addToList(new TextEditor());
         m_pResetEndButton       = addToList(new TextButton());
         
+        m_pTurnsLabel           = addToList (new Label());
+        m_pTurnsTextEditor      = addToList (new TextEditor());
+        
         mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
     
@@ -223,6 +229,9 @@ public:
     TextEditor*     getEndAzimTextEditor(){ return m_pEndAzimTextEditor;}
     TextEditor*     getEndElevTextEditor(){ return m_pEndElevTextEditor;}
     TextButton*     getResetEndButton(){    return m_pResetEndButton;}
+    
+    Label*          getTurnsLabel(){        return m_pTurnsLabel;}
+    TextEditor*     getTurnsTextEditor(){   return m_pTurnsTextEditor;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -438,6 +447,13 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pTrajectoryCountLabel = m_oTrajectoryTab->getCountLabel();
     m_pTrajectoryCountLabel->setText("cycle(s)",  dontSendNotification);
     
+    //TURNS
+    m_pTrajectoryTurnsTextEditor = m_oTrajectoryTab->getTurnsTextEditor();
+    m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getTurns()));
+    m_pTrajectoryTurnsTextEditor->addListener(this);
+    m_pTrajectoryTurnsLabel = m_oTrajectoryTab->getTurnsLabel();
+    m_pTrajectoryTurnsLabel->setText("turn(s)",  dontSendNotification);
+    
     //SYNC W TEMPO TOGGLE BUTTON
     m_pSyncWTempoComboBox = m_oTrajectoryTab->getSyncWTempoComboBox();
     m_pSyncWTempoComboBox->addItem("beat(s)",      SyncWTempo);
@@ -603,6 +619,15 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pEndElevTextEditor        ->setVisible(false);
         m_pResetEndTrajectoryButton ->setVisible(false);
     }
+    
+    if (iSelectedTrajectory == Spiral){
+        m_pTrajectoryTurnsLabel->setVisible(true);
+        m_pTrajectoryTurnsTextEditor->setVisible(true);
+    } else {
+        m_pTrajectoryTurnsLabel->setVisible(false);
+        m_pTrajectoryTurnsTextEditor->setVisible(false);
+    }
+
 }
 
 void ZirkOscAudioProcessorEditor::resized() {
@@ -685,13 +710,18 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryDurationLabel->        setBounds(15+230+100,   15+25, 65,  25);
   
     m_pTrajectoryCountTextEditor->      setBounds(15,           15+50, 230, 25);
-    m_pTrajectoryCountLabel->           setBounds(15+230,       15+50, 75,  25);
+    m_pTrajectoryCountLabel->           setBounds(15+230,       15+50, 50,  25);
+
+    m_pTrajectoryTurnsTextEditor->      setBounds(15+230+50,    15+50, 50, 25);
+    m_pTrajectoryTurnsLabel->           setBounds(15+230+100,   15+50, 50, 25);
 
     m_pSetEndTrajectoryButton->         setBounds(15,           15+75, 100, 25);
     
     m_pEndAzimTextEditor->              setBounds(15+100,       15+75, 65, 25);
     m_pEndElevTextEditor->              setBounds(15+165,       15+75, 65, 25);
     m_pResetEndTrajectoryButton->       setBounds(15+165+65,    15+75, 50, 25);
+    
+    
     
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
@@ -1019,8 +1049,8 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             float repeats = m_pTrajectoryCountTextEditor->getText().getFloatValue();
             int source = ourProcessor->getSelectedSource();
             
-            JUCE_COMPILER_WARNING("why is this processor method taking processor stuff as parameters?")
-            float fTurns = 4.5;
+            float fTurns = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
+            
             ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocation(), fTurns));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
@@ -1062,7 +1092,6 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
     }
     else if(button == m_pTBEnableJoystick) {
         bool bIsJoystickEnabled = m_pTBEnableJoystick->getToggleState();
-        ourProcessor->setIsJoystickEnabled(bIsJoystickEnabled);
         if (bIsJoystickEnabled) {
             if (!gIOHIDManagerRef) {
                 m_pLBJoystickState->setText("Joystick not connected", dontSendNotification);
@@ -1081,7 +1110,6 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
                     }
                 }
             } else {
-                ourProcessor->setIsJoystickEnabled(false);
                 m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
                 m_pLBJoystickState->setText("Joystick connected to another ZirkOSC", dontSendNotification);
             }
@@ -1104,7 +1132,6 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
         } else {
             m_pSetEndTrajectoryButton->setButtonText("Set end point");
             updateEndLocationTextEditors();
-
         }
     }
     else if (button == m_pResetEndTrajectoryButton){
@@ -1343,7 +1370,6 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         updateEndLocationTextEditors();
         m_pSetEndTrajectoryButton->setToggleState(false, dontSendNotification);
         m_pSetEndTrajectoryButton->setButtonText("Set end point");
-        
     }
 
     m_oMovementConstraintComboBox.grabKeyboardFocus();
@@ -1464,6 +1490,12 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             ourProcessor->setParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
         }
         m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+    } else if (m_pTrajectoryTurnsTextEditor == &textEditor){
+        double doubleValue = textEditor.getText().getDoubleValue();
+        if (doubleValue > 0 && doubleValue <= 10){
+            ourProcessor->setTurns(doubleValue);
+        }
+        m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getTurns()));
     }
     
 //    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {

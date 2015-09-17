@@ -86,15 +86,16 @@ bool ZirkOscAudioProcessor::s_bForceConstraintAutomation = false;   //this was t
 ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 :
 m_iNbrSources(1)
-,_SelectedTrajectory(.0f)
+,m_fSelectedTrajectory(.0f)
 ,m_fSelectedTrajectoryDirection(.0f)
 ,m_fSelectedTrajectoryReturn(.0f)
 ,m_iSelectedSource(0)
-,_OscPortZirkonium(18032)
-,_isOscActive(true)
-,_isSpanLinked(true)
+,m_iOscPortZirkonium(18032)
+,m_bIsOscActive(true)
+,m_bIsSpanLinked(true)
 ,m_dTrajectoryCount(1)
-,_TrajectoriesDuration(5)
+,m_dTrajectoryTurns(3)
+,m_dTrajectoriesDuration(5)
 //,_TrajectoriesPhiAsin(0)
 //,_TrajectoriesPhiAcos(0)
 ,m_bIsSyncWTempo(false)
@@ -114,7 +115,7 @@ m_iNbrSources(1)
     initSources();
 
     char port[32];
-    snprintf(port, sizeof(port), "%d", _OscPortZirkonium);
+    snprintf(port, sizeof(port), "%d", m_iOscPortZirkonium);
     _OscZirkonium = lo_address_new("127.0.0.1", port);
     
     //default values for ui dimensions
@@ -140,7 +141,7 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
         }        
         m_iSourceLocationChanged = -1;
     }
-    if (_isOscActive){
+    if (m_bIsOscActive){
         sendOSCValues();
     }
 }
@@ -496,7 +497,7 @@ vector<int> ZirkOscAudioProcessor::getOrderSources(){
 
 ZirkOscAudioProcessor::~ZirkOscAudioProcessor()
 {
-    _isOscActive = false;
+    m_bIsOscActive = false;
     lo_address osc = _OscZirkonium;
     if (osc){
         lo_address_free(osc);
@@ -587,13 +588,13 @@ void ZirkOscAudioProcessor::releaseResources()
 
 void ZirkOscAudioProcessor::storeCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        _AllSourcesBuffer[iCurSource] = m_oAllSources[iCurSource];
+        m_oAllSourcesBuffer[iCurSource] = m_oAllSources[iCurSource];
     }
 }
 
 void ZirkOscAudioProcessor::restoreCurrentLocations(){
     for (int iCurSource = 0; iCurSource<8; ++iCurSource){
-        m_oAllSources[iCurSource] = _AllSourcesBuffer[iCurSource];
+        m_oAllSources[iCurSource] = m_oAllSourcesBuffer[iCurSource];
     }
 }
 
@@ -685,8 +686,8 @@ bool ZirkOscAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* ZirkOscAudioProcessor::createEditor()
 {
-    _Editor = new ZirkOscAudioProcessorEditor (this);
-    return _Editor;
+    m_oEditor = new ZirkOscAudioProcessorEditor (this);
+    return m_oEditor;
 }
 
 
@@ -712,12 +713,12 @@ int ZirkOscAudioProcessor::getLastUiHeight()
 
 //set wheter plug is sending osc messages to zirkonium
 void ZirkOscAudioProcessor::setIsOscActive(bool isOscActive){
-    _isOscActive = isOscActive;
+    m_bIsOscActive = isOscActive;
 }
 
 //wheter plug is sending osc messages to zirkonium
 bool ZirkOscAudioProcessor::getIsOscActive(){
-    return _isOscActive;
+    return m_bIsOscActive;
 }
 
 void ZirkOscAudioProcessor::setIsSyncWTempo(bool isSyncWTempo){
@@ -730,11 +731,11 @@ bool ZirkOscAudioProcessor::getIsSyncWTempo(){
 
 
 void ZirkOscAudioProcessor::setIsSpanLinked(bool isSpanLinked){
-    _isSpanLinked = isSpanLinked;
+    m_bIsSpanLinked = isSpanLinked;
 }
 
 bool ZirkOscAudioProcessor::getIsSpanLinked(){
-    return _isSpanLinked;
+    return m_bIsSpanLinked;
 }
 
 void ZirkOscAudioProcessor::setIsWriteTrajectory(bool isWriteTrajectory){
@@ -765,17 +766,17 @@ float ZirkOscAudioProcessor::getParameter (int index)
         case ZirkOSC_MovementConstraint_ParamId:
             return m_fMovementConstraint;
         case ZirkOSC_isOscActive_ParamId:
-            if (_isOscActive)
+            if (m_bIsOscActive)
                 return 1.0f;
             else
                 return 0.0f;
         case ZirkOSC_isSpanLinked_ParamId:
-            if (_isSpanLinked)
+            if (m_bIsSpanLinked)
                 return 1.0f;
             else
                 return 0.0f;
         case ZirkOSC_SelectedTrajectory_ParamId:
-            return _SelectedTrajectory;
+            return m_fSelectedTrajectory;
         case ZirkOSC_SelectedTrajectoryDirection_ParamId:
             return m_fSelectedTrajectoryDirection;
         case ZirkOSC_SelectedTrajectoryReturn_ParamId:
@@ -783,7 +784,7 @@ float ZirkOscAudioProcessor::getParameter (int index)
         case ZirkOSCm_dTrajectoryCount_ParamId:
             return m_dTrajectoryCount;
         case ZirkOSC_TrajectoriesDuration_ParamId:
-            return _TrajectoriesDuration;
+            return m_dTrajectoriesDuration;
         case ZirkOSC_SyncWTempo_ParamId:
             if (m_bIsSyncWTempo)
                 return 1.0f;
@@ -841,26 +842,26 @@ bool ZirkOscAudioProcessor::setOtherParameters(int index, float newValue){
             }
             return true;
         case ZirkOSC_isOscActive_ParamId:
-            if (newValue > .5f && !_isOscActive){
-                _isOscActive = true;
+            if (newValue > .5f && !m_bIsOscActive){
+                m_bIsOscActive = true;
                 m_bNeedToRefreshGui = true;
-            } else if (_isOscActive){
-                _isOscActive = false;
+            } else if (m_bIsOscActive){
+                m_bIsOscActive = false;
                 m_bNeedToRefreshGui = true;
             }
             return true;
         case ZirkOSC_isSpanLinked_ParamId:
-            if (newValue > .5f && !_isSpanLinked){
-                _isSpanLinked = true;
+            if (newValue > .5f && !m_bIsSpanLinked){
+                m_bIsSpanLinked = true;
                 m_bNeedToRefreshGui = true;
-            } else if (_isSpanLinked){
-                _isSpanLinked = false;
+            } else if (m_bIsSpanLinked){
+                m_bIsSpanLinked = false;
                 m_bNeedToRefreshGui = true;
             }
             return true;
         case ZirkOSC_SelectedTrajectory_ParamId:
-            if (_SelectedTrajectory != newValue){
-                _SelectedTrajectory = newValue;
+            if (m_fSelectedTrajectory != newValue){
+                m_fSelectedTrajectory = newValue;
                 m_bNeedToRefreshGui = true;
             }
             return true;
@@ -877,14 +878,15 @@ bool ZirkOscAudioProcessor::setOtherParameters(int index, float newValue){
             }
             return true;
         case ZirkOSCm_dTrajectoryCount_ParamId:
+            JUCE_COMPILER_WARNING("is this ever used??")
             if(m_dTrajectoryCount != newValue){
                 m_dTrajectoryCount = newValue;
                 m_bNeedToRefreshGui = true;
             }
             return true;
         case ZirkOSC_TrajectoriesDuration_ParamId:
-            if(_TrajectoriesDuration != newValue){
-                _TrajectoriesDuration = newValue;
+            if(m_dTrajectoriesDuration != newValue){
+                m_dTrajectoriesDuration = newValue;
                 m_bNeedToRefreshGui = true;
             }
             return true;
@@ -1010,14 +1012,14 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
     xml.setAttribute ("uiWidth", _LastUiWidth);
     xml.setAttribute ("uiHeight", _LastUiHeight);
-    xml.setAttribute("PortOSC", _OscPortZirkonium);
+    xml.setAttribute("PortOSC", m_iOscPortZirkonium);
     xml.setAttribute("NombreSources", m_iNbrSources);
     xml.setAttribute("MovementConstraint", m_fMovementConstraint);
-    xml.setAttribute("isSpanLinked", _isSpanLinked);
-    xml.setAttribute("isOscActive", _isOscActive);
-    xml.setAttribute("selectedTrajectory", _SelectedTrajectory);
+    xml.setAttribute("isSpanLinked", m_bIsSpanLinked);
+    xml.setAttribute("isOscActive", m_bIsOscActive);
+    xml.setAttribute("selectedTrajectory", m_fSelectedTrajectory);
     xml.setAttribute("nbrTrajectory", m_dTrajectoryCount);
-    xml.setAttribute("durationTrajectory", _TrajectoriesDuration);
+    xml.setAttribute("durationTrajectory", m_dTrajectoriesDuration);
     xml.setAttribute("isSyncWTempo", m_bIsSyncWTempo);
     xml.setAttribute("isWriteTrajectory", m_bIsWriteTrajectory);
     xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
@@ -1083,15 +1085,15 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         JUCE_COMPILER_WARNING("we don't even use those values to load the editor, why store them?")
         _LastUiWidth                    = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
         _LastUiHeight                   = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
-        _OscPortZirkonium               = xmlState->getIntAttribute("PortOSC", 18032);
+        m_iOscPortZirkonium               = xmlState->getIntAttribute("PortOSC", 18032);
         m_iNbrSources                     = xmlState->getIntAttribute("NombreSources", 1);
         float fMovementConstraint       = xmlState->getDoubleAttribute("MovementConstraint", .0f);
         setMovementConstraint(fMovementConstraint >= 0 ? fMovementConstraint : 0);
-        _isOscActive                    = xmlState->getBoolAttribute("isOscActive", true);
-        _isSpanLinked                   = xmlState->getBoolAttribute("isSpanLinked", false);
-        _SelectedTrajectory             = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
+        m_bIsOscActive                    = xmlState->getBoolAttribute("isOscActive", true);
+        m_bIsSpanLinked                   = xmlState->getBoolAttribute("isSpanLinked", false);
+        m_fSelectedTrajectory             = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
         m_dTrajectoryCount                = xmlState->getIntAttribute("nbrTrajectory", 0);
-        _TrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
+        m_dTrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
         m_bIsSyncWTempo                 = xmlState->getBoolAttribute("isSyncWTempo", false);
         m_bIsWriteTrajectory            = xmlState->getBoolAttribute("isWriteTrajectory", false);
 
@@ -1127,7 +1129,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
         m_fSelectedTrajectoryReturn    = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
-        changeZirkoniumOSCPort(_OscPortZirkonium);
+        changeZirkoniumOSCPort(m_iOscPortZirkonium);
         m_bNeedToRefreshGui=true;
     }
 }
@@ -1152,11 +1154,11 @@ void ZirkOscAudioProcessor::sendOSCValues(){
 void ZirkOscAudioProcessor::changeZirkoniumOSCPort(int newPort){
     
     if(newPort<0 || newPort>100000){
-        newPort = _OscPortZirkonium;//18032;
+        newPort = m_iOscPortZirkonium;//18032;
     }
     
     lo_address osc = _OscZirkonium;
-    _OscPortZirkonium = newPort;
+    m_iOscPortZirkonium = newPort;
 	_OscZirkonium = NULL;
     lo_address_free(osc);
     
@@ -1171,7 +1173,7 @@ int ZirkOscAudioProcessor::getMovementConstraint() {
 }
 
 int ZirkOscAudioProcessor::getSelectedTrajectory() {
-    int value = PercentToIntStartsAtOne(_SelectedTrajectory, TotalNumberTrajectories);
+    int value = PercentToIntStartsAtOne(m_fSelectedTrajectory, TotalNumberTrajectories);
     return value;
 }
 

@@ -167,11 +167,12 @@ private:
     TextButton* m_pResetEndTrajectoryButton;
     
     Label* m_pTrajectoryCountLabel;
+    Label* m_pTrajectoryTurnsLabel;
     
     Label* m_pTrajectoryDurationLabel;
     
     TextEditor* m_pTrajectoryCountTextEditor;
-    
+    TextEditor* m_pTrajectoryTurnsTextEditor;
     TextEditor* m_pTrajectoryDurationTextEditor;
     
   	MiniProgressBar *mTrProgressBar;
