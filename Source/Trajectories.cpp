@@ -158,22 +158,14 @@ public:
 	:Trajectory(filter, duration, beats, times, source), mCCW(ccw)
     ,m_fTurns(fTurns)
     {}
-	
 protected:
-	void spProcess(float duration, float seconds)
-	{
-        float newAzimuth;
-        float integralPart; //useless here
-        
-        newAzimuth = mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - m_dTrajectoryBeginTime) / m_dTrajectorySingleLength, &integralPart);
-        
-        
+	void spProcess(float duration, float seconds){
+        float newAzimuth, integralPart;
+        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - m_dTrajectoryBeginTime) / m_dTrajectorySingleLength, &integralPart);
         if (!mCCW) newAzimuth = - newAzimuth;
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + m_fTurns * newAzimuth, &integralPart);
-        
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
         move(newAzimuth, m_fTrajectoryInitialElevation01);
 	}
-	
 private:
 	bool mCCW;
     float m_fTurns;
@@ -255,7 +247,6 @@ protected:
     void spProcess(float duration, float seconds)
     {
         float newAzimuth01, theta, integralPart; //integralPart is only a temp buffer
-        
         float newElevation01 = mDone / mDurationSingleTrajectory;
         theta = modf(newElevation01, &integralPart);                                          //result from this modf is theta [0,1]
         
