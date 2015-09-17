@@ -94,8 +94,8 @@ m_iNbrSources(1)
 ,m_bIsOscActive(true)
 ,m_bIsSpanLinked(true)
 ,m_dTrajectoryCount(1)
-,m_dTrajectoryTurns(3)
 ,m_dTrajectoriesDuration(5)
+,m_dTrajectoryTurns(1)
 //,_TrajectoriesPhiAsin(0)
 //,_TrajectoriesPhiAcos(0)
 ,m_bIsSyncWTempo(false)
@@ -1027,6 +1027,7 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("presetDataVersion", s_kiDataVersion);
     xml.setAttribute("endLocationAzim", m_fEndLocationPair.first);
     xml.setAttribute("endLocationElev", m_fEndLocationPair.second);
+    xml.setAttribute("turns", m_dTrajectoryTurns);
     
     for(int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
         String channel      = "Channel"         + to_string(iCurSrc);
@@ -1096,10 +1097,10 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         m_dTrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
         m_bIsSyncWTempo                 = xmlState->getBoolAttribute("isSyncWTempo", false);
         m_bIsWriteTrajectory            = xmlState->getBoolAttribute("isWriteTrajectory", false);
-
         m_fEndLocationPair.first        = xmlState->getDoubleAttribute("endLocationAzim", 180.0);
         m_fEndLocationPair.second       = xmlState->getDoubleAttribute("endLocationElev", 90.0);
         
+        m_dTrajectoryTurns              = xmlState->getDoubleAttribute("turns", 1);
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
             String channel      = "Channel" + to_string(iCurSrc);
