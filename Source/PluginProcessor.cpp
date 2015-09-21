@@ -273,7 +273,10 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
         //if elev is equal, set all elevation to the same thing
         if (p_bIsElevEqual){
-            SoundSource::azimElev01toXY01(fNewAzim01, fSelectedOldElev01, fNewX01, fNewY01);
+            SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
+            m_oAllSources[iCurSource].setElevationStatus(normalRange);
+            m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
+            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);
         }
         //if elev is not equal, set all elevation to be current elevation +/- deltaY
         else {
