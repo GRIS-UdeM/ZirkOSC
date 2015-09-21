@@ -105,7 +105,6 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 ,m_bDetectedPlayingStart(false)
 ,m_bDetectedPlayingEnd(true)
 ,m_bStartedConstraintAutomation(false)
-,m_bIsEqualElev(false)
 ,m_bIsRecordingAutomation(false)
 ,m_iNeedToResetToActualConstraint(-1)
 {
@@ -148,7 +147,7 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
         if (m_iMovementConstraint == DeltaLocked){
             moveSourcesWithDelta(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         } else {
-            moveCircular(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY(), m_bIsEqualElev);
+            moveCircular(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         }        
         m_iSourceLocationChanged = -1;
     }
@@ -164,35 +163,16 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
     
     float fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
     float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
-
-    //cout << "writing " << fX01 << ", " << fY01 << newLine;
     
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
 
-    if(m_iMovementConstraint == Independent){
+    if(m_iMovementConstraint == Independent || getNbrSources() == 1){
         m_oAllSources[p_iSource].setOldLoc01(fX01, fY01);
-    } else if (getNbrSources()>1){
-        if (m_iMovementConstraint == EqualAzim){
-            m_bIsEqualElev = false;
-            moveEqualAzim(p_iSource, p_fX, p_fY);
-        }
-        else if (m_iMovementConstraint == EqualElev){
-            m_bIsEqualElev = true;
-            moveCircular(p_iSource, p_fX, p_fY, m_bIsEqualElev);
-        }
-        else if (m_iMovementConstraint == Circular){
-            m_bIsEqualElev = false;
-            moveCircular(p_iSource, p_fX, p_fY, m_bIsEqualElev);
-        }
-        else if (m_iMovementConstraint == EqualAzimElev){
-            m_bIsEqualElev = true;
-            moveEqualAzimElev(p_iSource, p_fX, p_fY);
-        }
-        else if (m_iMovementConstraint == DeltaLocked){
-            m_bIsEqualElev = false;
-            moveSourcesWithDelta(p_iSource, p_fX, p_fY);
-        }
+    } else if (m_iMovementConstraint == DeltaLocked){
+        moveSourcesWithDelta(p_iSource, p_fX, p_fY);
+    } else {
+        moveCircular(p_iSource, p_fX, p_fY);
     }
 }
 
@@ -222,7 +202,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
     }
 }
 
-void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, bool p_bIsElevEqual){
+void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY){
     //calculate old, new, and delta azim elev coordinates for selected source
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01, fSelectedOldX01, fSelectedOldY01;
     m_oAllSources[p_iSource].getOldXY01(fSelectedOldX01, fSelectedOldY01);
@@ -271,46 +251,28 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         }
         //---------------------- CALCULATE NEW VALUES ---------------------
         float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
-        //if elev is equal, set all elevation to the same thing
-//        if (p_bIsElevEqual){
-//            SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-//            m_oAllSources[iCurSource].setElevationStatus(normalRange);
-//            m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
-//            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);
-//        }
-//        //if elev is not equal, set all elevation to be current elevation +/- deltaY
-//        else {
-            if (fNewElev01 > 1){
-                m_oAllSources[iCurSource].setElevationStatus(over1);
-                float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-                SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
-                m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-                m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01, fNewAzim01);
-            }
-            else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
-                m_oAllSources[iCurSource].setElevationStatus(under0);
-                float fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-                SoundSource::azimElev01toXY01(fNewAzim01, 0, fNewX01, fNewY01, fCurElevOverflow);
-                m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-                m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time
-            }
-            else {  //normal range
-                m_oAllSources[iCurSource].setElevationStatus(normalRange);
-                SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-                m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
-                m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time
-            }
-//        }
+        if (fNewElev01 > 1){
+            m_oAllSources[iCurSource].setElevationStatus(over1);
+            float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+            SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
+            m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01, fNewAzim01);
+        }
+        else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
+            m_oAllSources[iCurSource].setElevationStatus(under0);
+            float fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+            SoundSource::azimElev01toXY01(fNewAzim01, 0, fNewX01, fNewY01, fCurElevOverflow);
+            m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time
+        }
+        else {  //normal range
+            m_oAllSources[iCurSource].setElevationStatus(normalRange);
+            SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
+            m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
+            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time
+        }
         m_oAllSources[iCurSource].setXY01(fNewX01, fNewY01);
     }
-}
-
-void ZirkOscAudioProcessor::moveEqualAzim(const int &p_iSource, const float &p_fX, const float &p_fY){
-    moveCircular(p_iSource, p_fX, p_fY, false);
-}
-
-void ZirkOscAudioProcessor::moveEqualAzimElev(const int &p_iSource, const float &p_fX, const float &p_fY){
-    moveCircular(p_iSource, p_fX, p_fY, true);
 }
 
 int IndexedAngleCompare(const void *a, const void *b){

@@ -325,9 +325,7 @@ private:
     void initSources();
     void processTrajectories();
     void stopTrajectory();
-    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, bool p_bIsElevFixed);
-    void moveEqualAzim(const int &p_iSource, const float &p_fX, const float &p_fY);
-    void moveEqualAzimElev(const int &p_iSource, const float &p_fX, const float &p_fY);
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY);
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     bool setPositionParameters(int index, float newValue);
     bool setOtherParameters(int index, float newValue);
@@ -395,7 +393,6 @@ private:
     bool m_bDetectedPlayingStart;
     bool m_bDetectedPlayingEnd;
     bool m_bStartedConstraintAutomation;
-    bool m_bIsEqualElev;
     bool m_bIsRecordingAutomation;
     int m_iNeedToResetToActualConstraint;
     SourceUpdateThread* m_pSourceUpdateThread;
