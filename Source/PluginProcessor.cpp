@@ -305,7 +305,6 @@ int IndexedAngleCompare(const void *a, const void *b){
 }
 
 void ZirkOscAudioProcessor::setEqualAzimForAllSrc(){
-
     vector<int> fSortedAzims = getOrderSources();
     
     int   fSelPos   = fSortedAzims[m_iSelectedSource];
@@ -370,109 +369,7 @@ void ZirkOscAudioProcessor::setCurrentAndOldLocation(const int &p_iSrc, const fl
     m_oAllSources[p_iSrc].setOldLoc01(p_fX01, p_fY01);
 }
 
-//starting from the selected source, cycle through the other sources to find in which order they are
-vector<int> ZirkOscAudioProcessor::getOrderSources(int selected, SoundSource tab [], int nbrSources){
-    
-    vector<int> order(nbrSources);
-    int firstItem = selected;
-    order[0] = selected;    //selected source is at order[0]
-    int count  = 1;
-    do{
-        int current = (selected + 1)%nbrSources; //current is the next one after the seleted one
-        
-        int bestItem = current;
-        float bestDelta = tab[current].getAzimuth01() - tab[selected].getAzimuth01(); //difference between current and selected
-        if (bestDelta<0){
-            bestDelta+=1;
-        }
-        
-        while (current != selected) {
-            float currentAzimuth;
-            if (tab[current].getAzimuth01() - tab[selected].getAzimuth01()>0 ){
-                currentAzimuth = tab[current].getAzimuth01();
-            }
-            else{
-                currentAzimuth = tab[current].getAzimuth01()+1;
-            }
-            if (currentAzimuth - tab[selected].getAzimuth01() < bestDelta) {
-                bestItem = current;
-                bestDelta = currentAzimuth - tab[selected].getAzimuth01();
-                
-            }
-            current = (current +1) % nbrSources;
-        }
-        
-        order[count++]=bestItem;
-        selected = bestItem;
-    } while (selected != firstItem && count < nbrSources);
-    return order;
-}
 
-
-
-//vector<float> ZirkOscAudioProcessor::getOrderSources(){
-//    
-//    std::vector<float> vSourcesAngularOrder(m_iNbrSources);
-//    
-//    IndexedAngle * ia = new IndexedAngle[m_iNbrSources];
-//    
-//    for (int iCurSrc = 0; iCurSrc < m_iNbrSources; iCurSrc++) {
-//        ia[iCurSrc].i = iCurSrc;
-//        ia[iCurSrc].a = m_oAllSources[iCurSrc].getAzimuth01();
-//    }
-//    
-//    qsort(ia, m_iNbrSources, sizeof(IndexedAngle), IndexedAngleCompare);
-//    
-//    int b;
-//    for (b = 0; b < m_iNbrSources && ia[b].i != m_iSelectedSource; b++) ;
-//    
-//    if (b == m_iNbrSources) {
-//        printf("error!\n");
-//        b = 0;
-//    }
-//    
-//    for (int j = 1; j < m_iNbrSources; j++) {
-//        int o = (b + j) % m_iNbrSources;
-//        o = ia[o].i;
-//        vSourcesAngularOrder[o] = (M_PI * 2. * j) / m_iNbrSources;
-//    }
-//    
-//    delete[] ia;
-//    return vSourcesAngularOrder;
-//}
-
-
-//vector<IndexedAngle> ZirkOscAudioProcessor::getOrderSources(){
-//    //gather unsorted information
-//    std::vector<IndexedAngle> indexedAngles (m_iNbrSources);
-//    for (int iCurSrc = 0; iCurSrc < m_iNbrSources; iCurSrc++) {
-//        indexedAngles[iCurSrc].i = iCurSrc;
-//        indexedAngles[iCurSrc].a = m_oAllSources[iCurSrc].getAzimuth01();
-//    }
-//    //sort and return sorted angles
-//    qsort(&indexedAngles[0], m_iNbrSources, sizeof(IndexedAngle), IndexedAngleCompare);
-//    return indexedAngles;
-
-//    //this just checks that the selected source is at the last index, ie, unsortedAngles[m_iNbrSources]
-//    int b;
-//    for (b = 0; b < m_iNbrSources && indexedAngles[b].i != m_iSelectedSource; b++) ;
-//    
-//    if (b == m_iNbrSources) {
-//        printf("error!\n");
-//        b = 0;
-//    }
-//    
-//    //convert angles[0,1] to rad angles, and put in return vector. useless in our case, we can just use the indexes (and/or raw angles) from unsortedAngles
-//    std::vector<IndexedAngle> vSourcesWithSortedAngles (m_iNbrSources);
-//    for (int j = 1; j < m_iNbrSources; j++) {
-//        int o = (b + j) % m_iNbrSources;
-//        o = indexedAngles[o].i;
-//        vSourcesWithSortedAngles[o].i = o;
-//        vSourcesWithSortedAngles[o].a = (M_PI * 2. * j) / m_iNbrSources;
-//    }
-//    
-//    return indexedAngles;
-//}
 
 
 vector<int> ZirkOscAudioProcessor::getOrderSources(){

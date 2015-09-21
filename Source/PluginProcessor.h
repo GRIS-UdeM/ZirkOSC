@@ -289,7 +289,6 @@ public:
     }
     
     //! get the source order by the angle value
-    std::vector<int> getOrderSources(int, SoundSource[], int nbrSources);
     std::vector<int> getOrderSources();
 
     void setEqualAzimForAllSrc();
