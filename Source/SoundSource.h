@@ -30,7 +30,7 @@
 class SoundSource{
 public:
     SoundSource();
-    SoundSource(float,float);
+    SoundSource(float,float, int p_iSrcId);
     ~SoundSource();
     
     void getXY(float &fX, float &fY);

@@ -34,8 +34,10 @@ SoundSource::SoundSource()
     m_fElevOverflow = ZirkOscAudioProcessor::s_iDomeRadius;
 }
 
-SoundSource::SoundSource(float azimuth, float elevation) : SoundSource(){
+SoundSource::SoundSource(float azimuth, float elevation, int p_iSrcId) : SoundSource()
+{
     initAzimuthAndElevation(azimuth,elevation);
+    m_iSourceId = p_iSrcId;
 }
 
 SoundSource::~SoundSource(){
