@@ -305,6 +305,9 @@ int IndexedAngleCompare(const void *a, const void *b){
 }
 
 void ZirkOscAudioProcessor::setEqualAzimForAllSrc(){
+    
+        cout << "setEqualAzim\n";
+    
     vector<int> fSortedAzims = getOrderSources();
     
     int   fSelPos   = fSortedAzims[m_iSelectedSource];
@@ -329,6 +332,9 @@ void ZirkOscAudioProcessor::setEqualAzimForAllSrc(){
 }
 
 void ZirkOscAudioProcessor::setEqualAzimElevForAllSrc(){
+    
+    cout << "setEqualAzimElev\n";
+    
     vector<int> fSortedAzims = getOrderSources();
     
     int   fSelPos   = fSortedAzims[m_iSelectedSource];
