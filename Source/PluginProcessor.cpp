@@ -95,6 +95,7 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 ,m_dTrajectoryCount(1)
 ,m_dTrajectoriesDuration(5)
 ,m_dTrajectoryTurns(1)
+,m_dTrajectoryNbrOscil(2)
 //,_TrajectoriesPhiAsin(0)
 //,_TrajectoriesPhiAcos(0)
 ,m_bIsSyncWTempo(false)
@@ -125,7 +126,6 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 
 void ZirkOscAudioProcessor::initSources(){
     int i = 0, iId = 0;
-    
     m_oAllSources[i++] = SoundSource(.5 + 1*.125/2,0, ++iId);
     m_oAllSources[i++] = SoundSource(.5 - 1*.125/2,0, ++iId);
     m_oAllSources[i++] = SoundSource(.5 + 3*.125/2,0, ++iId);
@@ -134,7 +134,6 @@ void ZirkOscAudioProcessor::initSources(){
     m_oAllSources[i++] = SoundSource(.5 - 5*.125/2,0, ++iId);
     m_oAllSources[i++] = SoundSource(.5 + 7*.125/2,0, ++iId);
     m_oAllSources[i++] = SoundSource(.5 - 7*.125/2,0, ++iId);
-
     
     for(i = 0; i < 8; ++i){
         //m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
@@ -907,6 +906,7 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("endLocationAzim", m_fEndLocationPair.first);
     xml.setAttribute("endLocationElev", m_fEndLocationPair.second);
     xml.setAttribute("turns", m_dTrajectoryTurns);
+    xml.setAttribute("oscil", m_dTrajectoryNbrOscil);
     
     for(int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
         String channel      = "Channel"         + to_string(iCurSrc);
@@ -978,8 +978,8 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         m_bIsWriteTrajectory            = xmlState->getBoolAttribute("isWriteTrajectory", false);
         m_fEndLocationPair.first        = xmlState->getDoubleAttribute("endLocationAzim", 180.0);
         m_fEndLocationPair.second       = xmlState->getDoubleAttribute("endLocationElev", 90.0);
-        
         m_dTrajectoryTurns              = xmlState->getDoubleAttribute("turns", 1);
+        m_dTrajectoryNbrOscil           = xmlState->getDoubleAttribute("oscil", m_dTrajectoryNbrOscil);
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
             String channel      = "Channel" + to_string(iCurSrc);

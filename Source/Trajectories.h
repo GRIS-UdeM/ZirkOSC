@@ -40,7 +40,7 @@ public:
 	static int NumberOfTrajectories();
 	static String GetTrajectoryName(int i);
     static Trajectory::Ptr CreateTrajectory(int i, ZirkOscAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction, bool bReturn,
-                                            float times, int source, const std::pair<float, float> &endPoint, float fTurns);
+                                            float times, int source, const std::pair<float, float> &endPoint, float fTurns, float fNbrOscil);
 	
 public:
 	virtual ~Trajectory() {

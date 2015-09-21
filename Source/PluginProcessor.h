@@ -303,22 +303,25 @@ public:
     bool isCurrentlyPlaying(){
         return m_bCurrentlyPlaying;
     }
-    
     std::pair<float, float> getEndLocation(){
         return m_fEndLocationPair;
     }
-
     void setEndLocation(std::pair<float, float> pair){
         m_fEndLocationPair = pair;
     }
-    
     double getTurns(){
         return m_dTrajectoryTurns;
     }
     void setTurns(double turns){
         m_dTrajectoryTurns = turns;
     }
-
+    double getNbrOscil(){
+        return m_dTrajectoryNbrOscil;
+    }
+    void setNbrOscil(double nbrOscil){
+        m_dTrajectoryNbrOscil = nbrOscil;
+    }
+    
     
 private:
     
@@ -373,13 +376,12 @@ private:
     
     int m_iActualConstraint;
     
-    //OLD TRAJECTORIES
-    
     double m_dTrajectoryCount;
     double m_dTrajectoriesDuration;
     double m_dTrajectoryTurns;
-    bool m_bIsSyncWTempo;
-    bool m_bIsWriteTrajectory;
+    double m_dTrajectoryNbrOscil;
+    bool   m_bIsSyncWTempo;
+    bool   m_bIsWriteTrajectory;
     
     int m_iSelectedSourceForTrajectory;
     

@@ -168,12 +168,14 @@ private:
     
     Label* m_pTrajectoryCountLabel;
     Label* m_pTrajectoryTurnsLabel;
+    Label* m_pTrajectoryNbrOscilLabel;
     
     Label* m_pTrajectoryDurationLabel;
     
     TextEditor* m_pTrajectoryCountTextEditor;
     TextEditor* m_pTrajectoryTurnsTextEditor;
     TextEditor* m_pTrajectoryDurationTextEditor;
+    TextEditor* m_pTrajectoryNbrOscilTextEditor;
     
   	MiniProgressBar *mTrProgressBar;
     

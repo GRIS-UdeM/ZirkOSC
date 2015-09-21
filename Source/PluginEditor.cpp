@@ -166,6 +166,9 @@ class TrajectoryTab : public Component{
     
     Label*      m_pTurnsLabel;
     TextEditor* m_pTurnsTextEditor;
+
+    Label*      m_pNbrOscilLabel;
+    TextEditor* m_pNbrOscilTextEditor;
     
     MiniProgressBar* mTrProgressBarTab;
     
@@ -206,6 +209,10 @@ public:
         
         m_pTurnsLabel           = addToList (new Label());
         m_pTurnsTextEditor      = addToList (new TextEditor());
+
+        m_pNbrOscilLabel           = addToList (new Label());
+        m_pNbrOscilTextEditor      = addToList (new TextEditor());
+        
         
         mTrProgressBarTab       = addToList(new MiniProgressBar());
     }
@@ -232,6 +239,9 @@ public:
     
     Label*          getTurnsLabel(){        return m_pTurnsLabel;}
     TextEditor*     getTurnsTextEditor(){   return m_pTurnsTextEditor;}
+    
+    Label*          getNbrOscilLabel(){        return m_pTurnsLabel;}
+    TextEditor*     getNbrOscilTextEditor(){   return m_pTurnsTextEditor;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -453,6 +463,13 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pTrajectoryTurnsTextEditor->addListener(this);
     m_pTrajectoryTurnsLabel = m_oTrajectoryTab->getTurnsLabel();
     m_pTrajectoryTurnsLabel->setText("turn(s)",  dontSendNotification);
+
+    //Nbr Oscillations
+    m_pTrajectoryNbrOscilTextEditor = m_oTrajectoryTab->getNbrOscilTextEditor();
+    m_pTrajectoryNbrOscilTextEditor->setText(String(ourProcessor->getNbrOscil()));
+    m_pTrajectoryNbrOscilTextEditor->addListener(this);
+    m_pTrajectoryNbrOscilLabel = m_oTrajectoryTab->getNbrOscilLabel();
+    m_pTrajectoryNbrOscilLabel->setText("Oscillation(s)",  dontSendNotification);
     
     //SYNC W TEMPO TOGGLE BUTTON
     m_pSyncWTempoComboBox = m_oTrajectoryTab->getSyncWTempoComboBox();
@@ -627,6 +644,16 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pTrajectoryTurnsLabel->setVisible(false);
         m_pTrajectoryTurnsTextEditor->setVisible(false);
     }
+    
+    if (iSelectedTrajectory == DampedPendulum){
+        m_pTrajectoryNbrOscilTextEditor->setVisible(true);
+        m_pTrajectoryNbrOscilLabel->setVisible(true);
+    } else {
+        m_pTrajectoryNbrOscilTextEditor->setVisible(false);
+        m_pTrajectoryNbrOscilLabel->setVisible(false);
+    }
+    
+
 }
 
 void ZirkOscAudioProcessorEditor::resized() {
@@ -714,6 +741,9 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryTurnsTextEditor->      setBounds(15+230+50,    15+50, 50, 25);
     m_pTrajectoryTurnsLabel->           setBounds(15+230+100,   15+50, 50, 25);
 
+    m_pTrajectoryNbrOscilTextEditor->      setBounds(15+230+50,    15+50, 50, 25);
+    m_pTrajectoryNbrOscilLabel->           setBounds(15+230+100,   15+50, 75, 25);
+    
     m_pSetEndTrajectoryButton->         setBounds(15,           15+75, 100, 25);
     
     m_pEndAzimTextEditor->              setBounds(15+100,       15+75, 65, 25);
@@ -1043,14 +1073,13 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             
             unique_ptr<AllTrajectoryDirections> direction = Trajectory::getTrajectoryDirection(type, m_pTrajectoryDirectionComboBox->getSelectedId()-1);
             
-            bool bReturn = (m_pTrajectoryReturnComboBox->getSelectedId() == 2);
+            bool bReturn    = (m_pTrajectoryReturnComboBox->getSelectedId() == 2);
+            float repeats   = m_pTrajectoryCountTextEditor->getText().getFloatValue();
+            int    source   = ourProcessor->getSelectedSource();
+            float fTurns    = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
+            float fNbrOscil = m_pTrajectoryNbrOscilTextEditor->getText().getFloatValue();
             
-            float repeats = m_pTrajectoryCountTextEditor->getText().getFloatValue();
-            int source = ourProcessor->getSelectedSource();
-            
-            float fTurns = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
-            
-            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocation(), fTurns));
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocation(), fTurns, fNbrOscil));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
             mTrState = kTrWriting;
@@ -1495,6 +1524,12 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             ourProcessor->setTurns(doubleValue);
         }
         m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getTurns()));
+    } else if (m_pTrajectoryNbrOscilTextEditor == &textEditor){
+        double doubleValue = textEditor.getText().getDoubleValue();
+        if (doubleValue > 0 && doubleValue <= 10){
+            ourProcessor->setNbrOscil(doubleValue);
+        }
+        m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getNbrOscil()));
     }
     
 //    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
@@ -1514,13 +1549,9 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
 void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
 
     if (comboBoxThatHasChanged == &m_oMovementConstraintComboBox){
-        
         int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
-        
         float fSelectedConstraint = IntToPercentStartsAtOne(selectedConstraint, TotalNumberConstraints);
-        
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId, fSelectedConstraint);
-
         if(selectedConstraint == EqualAzim){
             ourProcessor->setEqualAzimForAllSrc();
         } else if (selectedConstraint == EqualAzimElev){
@@ -1534,7 +1565,6 @@ void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChan
         int iSelectedTraj = comboBoxThatHasChanged->getSelectedId();
         float fSelectedTraj = IntToPercentStartsAtOne(iSelectedTraj, TotalNumberTrajectories);
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, fSelectedTraj);
-        
         updateTrajectoryComponents();
     }
     
