@@ -125,8 +125,20 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 }
 
 void ZirkOscAudioProcessor::initSources(){
-    for(int i = 0; i < 8; ++i){
-        m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
+    int i = 0;
+    
+    m_oAllSources[i++] = SoundSource(.5 + 1*.125/2,0);
+    m_oAllSources[i++] = SoundSource(.5 - 1*.125/2,0);
+    m_oAllSources[i++] = SoundSource(.5 + 3*.125/2,0);
+    m_oAllSources[i++] = SoundSource(.5 - 3*.125/2,0);
+    m_oAllSources[i++] = SoundSource(.5 + 5*.125/2,0);
+    m_oAllSources[i++] = SoundSource(.5 - 5*.125/2,0);
+    m_oAllSources[i++] = SoundSource(.5 + 7*.125/2,0);
+    m_oAllSources[i++] = SoundSource(.5 - 7*.125/2,0);
+
+    
+    for(i = 0; i < 8; ++i){
+        //m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
         m_oAllSources[i].setOldLoc01(m_oAllSources[i].getX01(), m_oAllSources[i].getY01());
     }
 }
