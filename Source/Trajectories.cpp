@@ -217,11 +217,7 @@ protected:
         newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
         //if (!mCCW) newAzimuth = - newAzimuth;
         newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
-//        float fCircleX, fCircleY;
-//        SoundSource::azimElev01toXY(newAzimuth, SoundSource::XYtoElev01(newX, newY), fCircleX, fCircleY);
-        
         move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
-        //moveXY (newX+fCircleX, newY+fCircleY);
     }
     
 private:

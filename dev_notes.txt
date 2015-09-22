@@ -52,4 +52,6 @@ ___________________________________________________
 NOT SURE WHERE ELSE TO WRITE THIS, BUT THE PROBLEM WITH REAPER AND TOUCH MODE IS THAT IT IS CONSTANTLY SETTING THE PARAMETERS IN THE PLUGIN. SO IT IS CONSTANLY CALLING SET PARAMETER. DP, FOR INSTANCE, ONLY SETS VALUES WHEN THERE IS A CHANGE. 
 _______________________________________________
 #45
+* turns need to be implemented in damped pendulum
+* need to have direction in pendulums, will probably need to expand col2
 
