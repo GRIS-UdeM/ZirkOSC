@@ -240,8 +240,8 @@ public:
     Label*          getTurnsLabel(){        return m_pTurnsLabel;}
     TextEditor*     getTurnsTextEditor(){   return m_pTurnsTextEditor;}
     
-    Label*          getNbrOscilLabel(){        return m_pTurnsLabel;}
-    TextEditor*     getNbrOscilTextEditor(){   return m_pTurnsTextEditor;}
+    Label*          getNbrOscilLabel(){        return m_pNbrOscilLabel;}
+    TextEditor*     getNbrOscilTextEditor(){   return m_pNbrOscilTextEditor;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -739,10 +739,10 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryCountTextEditor->      setBounds(m_iL_M,               m_iT_M+50, iCol1w,  25);
     m_pTrajectoryCountLabel->           setBounds(m_iL_M+iCol1w,        m_iT_M+50, 50,      25);
     //row 3 col 3.5 and 4 are either of these things
-    m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+iCol1w+50+30,     m_iT_M+50, 50,      25);
-    m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol3w,        m_iT_M+50, 50,      25);
-    m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+iCol1w+50+30,     m_iT_M+50, 50,      25);
-    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol3w,        m_iT_M+50, 75,      25);
+    m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+iCol1w+50,     m_iT_M+50, 50,      25);
+    m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol1w+100,    m_iT_M+50, 50,      25);
+    m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+iCol3w,        m_iT_M+50, 50,      25);
+    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol3w+50,     m_iT_M+50, 75,      25);
     //end location line
     m_pSetEndTrajectoryButton->         setBounds(m_iL_M,               m_iT_M+75, 100,     25);
     m_pEndAzimTextEditor->              setBounds(m_iL_M+100,           m_iT_M+75, 65,      25);
