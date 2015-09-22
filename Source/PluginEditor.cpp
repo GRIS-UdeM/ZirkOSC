@@ -318,6 +318,8 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 //,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
 //,_IpadIpAddressTextEditor("ipaddress")
 ,m_oMovementConstraintComboBox("MovementConstraint")
+,m_iL_M(15)
+,m_iT_M(15)
 {
     ourProcessor = getProcessor();
     
@@ -606,9 +608,7 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pTrajectoryDirectionComboBox->setVisible(true);
         m_pTrajectoryDirectionComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryDirection(), getNumSelectedTrajectoryDirections()));
         
-        int w = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? 40: 0;
-        m_pTrajectoryTypeComboBox->         setBounds(15,           15,    100+w, 25);
-        m_pTrajectoryDirectionComboBox->    setBounds(15+100+w,     15,    130-w,  25);
+        updateTrajTypeDir();
     } else {
         m_pTrajectoryDirectionComboBox->setVisible(false);
     }
@@ -717,50 +717,51 @@ void ZirkOscAudioProcessorEditor::resized() {
     //------------ TABS ------------
     _TabComponent.setBounds(0, iCurHeight - ZirkOSC_SlidersGroupHeight + ZirkOSC_ConstraintComboBoxHeight, iCurWidth, ZirkOSC_SlidersGroupHeight);
 
-    //------------ LABELS AND SLIDERS ------------
-    setSliderAndLabelPosition(15, 15,     iCurWidth-40, 20, m_pGainSlider,          m_pGainLabel);
-    setSliderAndLabelPosition(15, 15+30,  iCurWidth-40, 20, m_pAzimuthSlider,       m_pAzimuthLabel);
-    setSliderAndLabelPosition(15, 15+60,  iCurWidth-40, 20, m_pElevationSlider,     m_pElevationLabel);
-    setSliderAndLabelPosition(15, 15+90,  iCurWidth-40, 20, m_pAzimuthSpanSlider,   m_pAzimuthSpanLabel);
-    setSliderAndLabelPosition(15, 15+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
+    //------------ LABELS + SLIDERS TAB ------------
+    setSliderAndLabelPosition(m_iL_M, m_iT_M,     iCurWidth-40, 20, m_pGainSlider,          m_pGainLabel);
+    setSliderAndLabelPosition(m_iL_M, m_iT_M+30,  iCurWidth-40, 20, m_pAzimuthSlider,       m_pAzimuthLabel);
+    setSliderAndLabelPosition(m_iL_M, m_iT_M+60,  iCurWidth-40, 20, m_pElevationSlider,     m_pElevationLabel);
+    setSliderAndLabelPosition(m_iL_M, m_iT_M+90,  iCurWidth-40, 20, m_pAzimuthSpanSlider,   m_pAzimuthSpanLabel);
+    setSliderAndLabelPosition(m_iL_M, m_iT_M+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
     
-    //------------ TRAJECTORIES ------------
-    int w = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? 40: 0;
-    m_pTrajectoryTypeComboBox->         setBounds(15,           15,    100+w, 25);
-    m_pTrajectoryDirectionComboBox->    setBounds(15+100+w,     15,    130-w,  25);
+    //------------ TRAJECTORIES TAB------------
+    updateTrajTypeDir();
+    m_pTrajectoryReturnComboBox->       setBounds(m_iL_M+230,       m_iT_M,    100,  25);
 
-    m_pTrajectoryReturnComboBox->       setBounds(15+230,       15,    100,  25);
-    
-    m_pTrajectoryDurationTextEditor->   setBounds(15,           15+25, 230, 25);
-    m_pSyncWTempoComboBox->             setBounds(15+230,       15+25, 100, 25);
-    m_pTrajectoryDurationLabel->        setBounds(15+230+100,   15+25, 65,  25);
+    m_pTrajectoryDurationTextEditor->   setBounds(m_iL_M,           m_iT_M+25, 230, 25);
+    m_pSyncWTempoComboBox->             setBounds(m_iL_M+230,       m_iT_M+25, 100, 25);
+    m_pTrajectoryDurationLabel->        setBounds(m_iL_M+230+100,   m_iT_M+25, 65,  25);
   
-    m_pTrajectoryCountTextEditor->      setBounds(15,           15+50, 230, 25);
-    m_pTrajectoryCountLabel->           setBounds(15+230,       15+50, 50,  25);
+    m_pTrajectoryCountTextEditor->      setBounds(m_iL_M,           m_iT_M+50, 230, 25);
+    m_pTrajectoryCountLabel->           setBounds(m_iL_M+230,       m_iT_M+50, 50,  25);
 
-    m_pTrajectoryTurnsTextEditor->      setBounds(15+230+50,    15+50, 50, 25);
-    m_pTrajectoryTurnsLabel->           setBounds(15+230+100,   15+50, 50, 25);
+    m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+230+50,    m_iT_M+50, 50, 25);
+    m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+230+100,   m_iT_M+50, 50, 25);
 
-    m_pTrajectoryNbrOscilTextEditor->      setBounds(15+230+50,    15+50, 50, 25);
-    m_pTrajectoryNbrOscilLabel->           setBounds(15+230+100,   15+50, 75, 25);
+    m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+230+50,    m_iT_M+50, 50, 25);
+    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+230+100,   m_iT_M+50, 75, 25);
     
-    m_pSetEndTrajectoryButton->         setBounds(15,           15+75, 100, 25);
+    m_pSetEndTrajectoryButton->         setBounds(m_iL_M,           m_iT_M+75, 100, 25);
     
-    m_pEndAzimTextEditor->              setBounds(15+100,       15+75, 65, 25);
-    m_pEndElevTextEditor->              setBounds(15+165,       15+75, 65, 25);
-    m_pResetEndTrajectoryButton->       setBounds(15+165+65,    15+75, 50, 25);
-    
-    
+    m_pEndAzimTextEditor->              setBounds(m_iL_M+100,       m_iT_M+75, 65, 25);
+    m_pEndElevTextEditor->              setBounds(m_iL_M+165,       m_iT_M+75, 65, 25);
+    m_pResetEndTrajectoryButton->       setBounds(m_iL_M+165+65,    m_iT_M+75, 50, 25);
     
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
     
-    //------------ INTERFACES ------------
-    m_pTBEnableLeap->                   setBounds(15,       15,     100, 25);
-    m_pCBLeapSource->                   setBounds(15,       15+25,  100, 25);
-    m_pTBEnableJoystick->               setBounds(15,       15+50,  100, 25);
-    m_pLBLeapState->                    setBounds(15+100,   15,     200, 25);
-    m_pLBJoystickState->                setBounds(15+100,   15+50,  200, 25);
+    //------------ INTERFACES TAB ------------
+    m_pTBEnableLeap->                   setBounds(m_iL_M,       m_iT_M,     100, 25);
+    m_pCBLeapSource->                   setBounds(m_iL_M,       m_iT_M+25,  100, 25);
+    m_pTBEnableJoystick->               setBounds(m_iL_M,       m_iT_M+50,  100, 25);
+    m_pLBLeapState->                    setBounds(m_iL_M+100,   m_iT_M,     200, 25);
+    m_pLBJoystickState->                setBounds(m_iL_M+100,   m_iT_M+50,  200, 25);
+}
+
+void ZirkOscAudioProcessorEditor::updateTrajTypeDir(){
+    int w = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? 40: 0;
+    m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,           m_iT_M,    100+w, 25);
+    m_pTrajectoryDirectionComboBox->    setBounds(m_iL_M+100+w,     m_iT_M,    130-w,  25);
 }
 
 //Automatic function to set label and Slider

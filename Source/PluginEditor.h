@@ -81,8 +81,6 @@ public:
     int getCBSelectedSource();
     
     void startEditorTimer(int ms);
-
-
 private:
     
     ZirkOscAudioProcessor* ourProcessor;
@@ -90,6 +88,8 @@ private:
     void updateSliders();
     
     void updateEndLocationTextEditors();
+    
+    void updateTrajTypeDir();
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
@@ -246,10 +246,7 @@ private:
     
     //! If there is a source beeing drag
     bool m_bIsSourceBeingDragged = false;
-   
-    
-    
-    //Import from Octogris
+
     //-------------INTERFACES------------------
     
     //! Toggle Button to de/activate leap motion usage
@@ -308,6 +305,9 @@ private:
         kTrWriting
     };
     int mTrState;
+    
+    int m_iL_M; //left margin
+    int m_iT_M; //top margin
 
     
 };
