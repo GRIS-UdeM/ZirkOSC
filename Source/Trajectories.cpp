@@ -161,7 +161,7 @@ public:
 protected:
 	void spProcess(float duration, float seconds){
         float newAzimuth, integralPart;
-        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory; //modf((m_dTrajectoryTimeDone - m_dTrajectoryBeginTime) / m_dTrajectorySingleLength, &integralPart);
+        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
         if (!mCCW) newAzimuth = - newAzimuth;
         newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
         move(newAzimuth, m_fTrajectoryInitialElevation01);
@@ -175,17 +175,15 @@ private:
 class PendulumTrajectory : public Trajectory
 {
 public:
-    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool rt,  const std::pair<float, float> &endPoint)
+    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool rt,  const std::pair<float, float> &endPoint, float fTurns)
     : Trajectory(filter, duration, beats, times, source)
     , m_bRT(rt)
     , m_fEndPair(endPoint)
-    {
-        
-    }
+    , m_fTurns(fTurns)
+    { }
     
 protected:
-    void spInit()
-    {
+    void spInit() {
         if (m_fEndPair.first != m_fStartPair.first){
             m_bYisDependent = true;
             m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
@@ -196,8 +194,9 @@ protected:
             m_fB = m_fStartPair.first;
         }
     }
-    void spProcess(float duration, float seconds)
-    {
+    void spProcess(float duration, float seconds) {
+        
+        
         float newX, newY, temp, fCurrentProgress = modf((mDone / mDurationSingleTrajectory), &temp);
         int iReturn = m_bRT ? 2:1;
         if (m_bYisDependent){
@@ -210,7 +209,19 @@ protected:
             newY = m_fStartPair.second + fCurrentProgress;
         }
         
-        moveXY (newX, newY);
+        float fPendulumAzim = SoundSource::XYtoAzim01(newX, newY);
+        float fPendulumElev = SoundSource::XYtoElev01(newX, newY);
+        
+        //circle part
+        float newAzimuth, integralPart;
+        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
+        //if (!mCCW) newAzimuth = - newAzimuth;
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+//        float fCircleX, fCircleY;
+//        SoundSource::azimElev01toXY(newAzimuth, SoundSource::XYtoElev01(newX, newY), fCircleX, fCircleY);
+        
+        move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
+        //moveXY (newX+fCircleX, newY+fCircleY);
     }
     
 private:
@@ -218,6 +229,7 @@ private:
     std::pair<float, float> m_fEndPair;
     float m_fM;
     float m_fB;
+    float m_fTurns;
 };
 
 // ==============================================================================
@@ -937,7 +949,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
         case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw, fTurns);
         case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
         case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns, fNbrOscil);
-        case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, bReturn, endPair);
+        case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, bReturn, endPair, fTurns);
         case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
             
             //      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
