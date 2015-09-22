@@ -250,17 +250,11 @@ public:
 class InterfaceTab : public Component{
     
     ToggleButton* m_pEnableLeap;
-    
     ToggleButton* m_pEnableJoystick;
-    
     Label* m_pLeapState;
-    
     Label* m_pJoystickState;
-    
     ComboBox* m_pLeapSourceCombo;
-    
     OwnedArray<Component> components;
-    
     template <typename ComponentType> ComponentType* addToList (ComponentType* newComp){
         components.add (newComp);
         addAndMakeVisible (newComp);
@@ -278,13 +272,9 @@ public:
     }
     
     ToggleButton* getLeapButton() {return m_pEnableLeap;}
-    
     ToggleButton* getJoystickButton() {return m_pEnableJoystick;};
-    
     Label* getLeapState(){return m_pLeapState;};
-    
     Label* getJoystickState(){return m_pJoystickState;};
-    
     ComboBox* getLeapSourceComboBox(){return m_pLeapSourceCombo;};
     
 };
@@ -637,7 +627,8 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pResetEndTrajectoryButton ->setVisible(false);
     }
     
-    if (iSelectedTrajectory == Spiral || iSelectedTrajectory == Circle || iSelectedTrajectory == Ellipse){
+    if (iSelectedTrajectory == Spiral || iSelectedTrajectory == Circle || iSelectedTrajectory == Ellipse ||
+        iSelectedTrajectory == Pendulum || iSelectedTrajectory == DampedPendulum ){
         m_pTrajectoryTurnsLabel->setVisible(true);
         m_pTrajectoryTurnsTextEditor->setVisible(true);
     } else {
@@ -725,7 +716,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     setSliderAndLabelPosition(m_iL_M, m_iT_M+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
     
     //------------ TRAJECTORIES TAB------------
-    int iCol1w = 100, iCol2w = 130;
+    int iCol1w = 100, iCol2w = 150;
     int iCol3w = iCol1w + iCol2w;
     int iCol4w = iCol3w + 100;
     //row 1
@@ -742,7 +733,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+iCol1w+50,     m_iT_M+50, 50,      25);
     m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol1w+100,    m_iT_M+50, 50,      25);
     m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+iCol3w,        m_iT_M+50, 50,      25);
-    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol3w+50,     m_iT_M+50, 75,      25);
+    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol3w+50,     m_iT_M+50, 80,      25);
     //end location line
     m_pSetEndTrajectoryButton->         setBounds(m_iL_M,               m_iT_M+75, 100,     25);
     m_pEndAzimTextEditor->              setBounds(m_iL_M+100,           m_iT_M+75, 65,      25);
@@ -761,7 +752,7 @@ void ZirkOscAudioProcessorEditor::resized() {
 }
 
 void ZirkOscAudioProcessorEditor::updateTrajTypeAndDirection(){
-    int iFstRowW = 100, iSndRow = 130;
+    int iFstRowW = 100, iSndRow = 150;
     int dw = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? 40: 0;
     m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,               m_iT_M,    iFstRowW + dw,   25);
     m_pTrajectoryDirectionComboBox->    setBounds(m_iL_M+iFstRowW+dw,   m_iT_M,    iSndRow-dw,      25);
