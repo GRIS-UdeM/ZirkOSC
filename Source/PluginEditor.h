@@ -86,10 +86,8 @@ private:
     ZirkOscAudioProcessor* ourProcessor;
     
     void updateSliders();
-    
     void updateEndLocationTextEditors();
-    
-    void updateTrajTypeDir();
+    void updateTrajTypeAndDirection();
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
