@@ -754,7 +754,7 @@ void ZirkOscAudioProcessorEditor::resized() {
 
 void ZirkOscAudioProcessorEditor::updateTrajTypeAndDirection(){
     int iCol1w = 100, iCol2w = 150;
-    int dw = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? iCol2w/2: 0;
+    int dw = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? iCol2w/4: 0;
     m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,             m_iT_M,    iCol1w + dw,   25);
     m_pTrajectoryDirectionComboBox->    setBounds(m_iL_M+iCol1w+dw,   m_iT_M,    iCol2w - dw,   25);
 }
