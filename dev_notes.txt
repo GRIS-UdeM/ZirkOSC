@@ -51,3 +51,6 @@ working: 10998caede09acf1dbf1549a5654110325ac8011
 ___________________________________________________
 NOT SURE WHERE ELSE TO WRITE THIS, BUT THE PROBLEM WITH REAPER AND TOUCH MODE IS THAT IT IS CONSTANTLY SETTING THE PARAMETERS IN THE PLUGIN. SO IT IS CONSTANLY CALLING SET PARAMETER. DP, FOR INSTANCE, ONLY SETS VALUES WHEN THERE IS A CHANGE. 
 _______________________________________________
+MEETING
+* logic is fine, continue as usual
+* send version asap

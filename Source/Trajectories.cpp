@@ -159,9 +159,10 @@ public:
 protected:
 	void spProcess(float duration, float seconds){
         float newAzimuth, integralPart;
-        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
+        newAzimuth = mDone / mDurationSingleTrajectory;
+        newAzimuth = modf(newAzimuth, &integralPart);
         if (!mCCW) newAzimuth = - newAzimuth;
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + m_fTurns * newAzimuth, &integralPart);
         move(newAzimuth, m_fTrajectoryInitialElevation01);
 	}
 private:
@@ -178,12 +179,11 @@ public:
     , mCCW(ccw)
     , m_bRT(rt)
     , m_fEndPair(endPoint)
-    , m_fNumberOfTurns(fTurns)
+    , m_fTurns(fTurns)
     { }
     
 protected:
-    void spInit()
-    {
+    void spInit(){
         //convert m_fTrajectoryInitialAzimuth01 + Elevation01 to m_fTransposedStartAzim01 + Elev01
         float fStartX, fStartY;
         SoundSource::azimElev01toXY(m_fTrajectoryInitialAzimuth01, m_fTrajectoryInitialElevation01, fStartX, fStartY);
@@ -192,9 +192,7 @@ protected:
         m_fTransposedStartAzim01 = SoundSource::XYtoAzim01(fTransposedStartX, fTransposedStartY);
         m_fTransposedStartElev01 = SoundSource::XYtoElev01(fTransposedStartX, fTransposedStartY);
     }
-    
-    void spProcess(float duration, float seconds)
-    {
+    void spProcess(float duration, float seconds){
         float newAzimuth01, theta, integralPart; //integralPart is only a temp buffer
         float newElevation01 = mDone / mDurationSingleTrajectory;
         theta = modf(newElevation01, &integralPart);                                          //result from this modf is theta [0,1]
@@ -207,29 +205,22 @@ protected:
                 JUCE_COMPILER_WARNING("mIn is always true; so either delete this or create another trajectory/mode for it")
                 newElevation01 = abs( m_fTransposedStartElev01 * cos(newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
-            
             if (!mCCW) theta = -theta;
             theta *= 2;
-            
         } else {
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-            newElevation01 = theta * (1 - m_fTransposedStartElev01) + m_fTransposedStartElev01;         //newElevation is a mapping of theta[0,1] to [m_fTransposedStartElev01, 1]
-            
-            if (!mIn)
-                newElevation01 = m_fTransposedStartElev01 * (1 - newElevation01) / (1-m_fTransposedStartElev01);  //map newElevation from [m_fTransposedStartElev01, 1] to [m_fTransposedStartElev01, 0]
-            
+            newElevation01 = theta * (1 - m_fTransposedStartElev01) + m_fTransposedStartElev01;                     //newElevation is a mapping of theta[0,1] to [m_fTransposedStartElev01, 1]
+            if (!mIn){
+                newElevation01 = m_fTransposedStartElev01 * (1 - newElevation01) / (1-m_fTransposedStartElev01);    //map newElevation from [m_fTransposedStartElev01, 1] to [m_fTransposedStartElev01, 0]
+            }
             if (!mCCW) theta = -theta;
         }
-        newAzimuth01 = modf(m_fTransposedStartAzim01 + m_fNumberOfTurns * theta, &integralPart);                        //this is like adding a to theta
-
-//        move(newAzimuth, newElevation);
-        
+        newAzimuth01 = modf(m_fTransposedStartAzim01 + m_fTurns * theta, &integralPart);                    //this is like adding a to theta
         //convert newAzim+Elev to XY
         float fNewX, fNewY;
         SoundSource::azimElev01toXY(newAzimuth01, newElevation01, fNewX, fNewY);
         fNewX += m_fEndPair.first;
         fNewY += m_fEndPair.second;
-
         moveXY(fNewX, fNewY);
     }
     
@@ -238,7 +229,7 @@ private:
     bool m_bRT = false;
     std::pair<float, float> m_fEndPair;
     float m_fTransposedStartAzim01, m_fTransposedStartElev01;
-    float m_fNumberOfTurns;
+    float m_fTurns;
 };
 // ==============================================================================
 class PendulumTrajectory : public Trajectory
