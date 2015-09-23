@@ -272,11 +272,12 @@ protected:
         float fPendulumElev = SoundSource::XYtoElev01(newX, newY);
         //circle part
         float newAzimuth, integralPart;
-        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
+        newAzimuth = mDone / mDurationSingleTrajectory;
+        newAzimuth = modf(newAzimuth, &integralPart);
         if (!mCCW) {
             newAzimuth = - newAzimuth;
         }
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + m_fTurns * newAzimuth, &integralPart);
         //move using both parts
         move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
     }
@@ -348,11 +349,12 @@ protected:
         float fPendulumElev = SoundSource::XYtoElev01(fPendulumX, fPendulumY);
         //circle part
         float newAzimuth, integralPart;
-        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
+        newAzimuth = mDone / mDurationSingleTrajectory;
+        newAzimuth = modf(newAzimuth, &integralPart);
         if (!mCCW) {
             newAzimuth = - newAzimuth;
         }
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + m_fTurns * newAzimuth, &integralPart);
         //move using both parts
         move(fPendulumAzim + (newAzimuth - m_fTrajectoryInitialAzimuth01), fPendulumElev);
     }
