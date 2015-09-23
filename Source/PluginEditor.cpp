@@ -437,28 +437,28 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     //TRAJECTORY DURATION EDITOR
     m_pTrajectoryDurationTextEditor = m_oTrajectoryTab->getDurationTextEditor();
-    m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+    m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     m_pTrajectoryDurationTextEditor->addListener(this);
     m_pTrajectoryDurationLabel = m_oTrajectoryTab->getDurationLabel();
     m_pTrajectoryDurationLabel->setText("per cycle",  dontSendNotification);
     
     //NBR TRAJECTORY TEXT EDITOR
     m_pTrajectoryCountTextEditor = m_oTrajectoryTab->getCountTextEditor();
-    m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
+    m_pTrajectoryCountTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
     m_pTrajectoryCountTextEditor->addListener(this);
     m_pTrajectoryCountLabel = m_oTrajectoryTab->getCountLabel();
     m_pTrajectoryCountLabel->setText("cycle(s)",  dontSendNotification);
     
     //TURNS
     m_pTrajectoryTurnsTextEditor = m_oTrajectoryTab->getTurnsTextEditor();
-    m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getTurns()));
+    m_pTrajectoryTurnsTextEditor->setText("     " + String(ourProcessor->getTurns()));
     m_pTrajectoryTurnsTextEditor->addListener(this);
     m_pTrajectoryTurnsLabel = m_oTrajectoryTab->getTurnsLabel();
     m_pTrajectoryTurnsLabel->setText("turn(s)",  dontSendNotification);
 
     //Nbr Oscillations
     m_pTrajectoryNbrOscilTextEditor = m_oTrajectoryTab->getNbrOscilTextEditor();
-    m_pTrajectoryNbrOscilTextEditor->setText(String(ourProcessor->getNbrOscil()));
+    m_pTrajectoryNbrOscilTextEditor->setText("      " + String(ourProcessor->getNbrOscil()));
     m_pTrajectoryNbrOscilTextEditor->addListener(this);
     m_pTrajectoryNbrOscilLabel = m_oTrajectoryTab->getNbrOscilLabel();
     m_pTrajectoryNbrOscilLabel->setText("Oscillation(s)",  dontSendNotification);
@@ -1026,8 +1026,8 @@ void ZirkOscAudioProcessorEditor::refreshGui(){
     }
     
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
-    m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
-    m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+    m_pTrajectoryCountTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
+    m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     
 //    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
 //    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
@@ -1408,12 +1408,12 @@ void ZirkOscAudioProcessorEditor::updateEndLocationTextEditors(){
 
     {
         ostringstream oss;
-        oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fAzim;
+        oss << std::fixed << std::right << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << "         " <<  fAzim;
         m_pEndAzimTextEditor->setText(oss.str());
     }
     {
         ostringstream oss;
-        oss << std::fixed << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << fElev;
+        oss << std::fixed << std::right << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << "         " << fElev;
         m_pEndElevTextEditor->setText(oss.str());
     }
 }
@@ -1506,7 +1506,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             ourProcessor->setParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId, doubleValue);
 
         }
-        m_pTrajectoryCountTextEditor->setText(String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
+        m_pTrajectoryCountTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
     }
     
     else if(m_pTrajectoryDurationTextEditor == &textEditor){
@@ -1514,19 +1514,19 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         if (doubleValue >= 0 && doubleValue < 10000){
             ourProcessor->setParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
         }
-        m_pTrajectoryDurationTextEditor->setText(String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+        m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     } else if (m_pTrajectoryTurnsTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue > 0 && doubleValue <= 10){
             ourProcessor->setTurns(doubleValue);
         }
-        m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getTurns()));
+        m_pTrajectoryTurnsTextEditor->setText("     " + String(ourProcessor->getTurns()));
     } else if (m_pTrajectoryNbrOscilTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue > 0 && doubleValue <= 10){
             ourProcessor->setNbrOscil(doubleValue);
         }
-        m_pTrajectoryNbrOscilTextEditor->setText(String(ourProcessor->getNbrOscil()));
+        m_pTrajectoryNbrOscilTextEditor->setText("      " + String(ourProcessor->getNbrOscil()));
     }
     
 //    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
