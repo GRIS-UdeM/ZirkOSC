@@ -722,8 +722,8 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryReturnComboBox->       setBounds(m_iL_M+iCol1w + iCol2w,   m_iT_M,    iCol3w,  25);
     //row 2
     m_pTrajectoryDurationTextEditor->   setBounds(m_iL_M,                   m_iT_M+25, iCol1w,  25);
-    m_pSyncWTempoComboBox->             setBounds(m_iL_M+iCol1w,            m_iT_M+25, iCol2w,  25);
-    m_pTrajectoryDurationLabel->        setBounds(m_iL_M+iCol1w + iCol2w,   m_iT_M+25, iCol3w,  25);
+    m_pSyncWTempoComboBox->             setBounds(m_iL_M+iCol1w,            m_iT_M+25, iCol2w/2,  25);
+    m_pTrajectoryDurationLabel->        setBounds(m_iL_M+iCol1w + iCol2w/2, m_iT_M+25, iCol3w,  25);
     //row3
     m_pTrajectoryCountTextEditor->      setBounds(m_iL_M,                   m_iT_M+50, iCol1w,  25);
     m_pTrajectoryCountLabel->           setBounds(m_iL_M+iCol1w,            m_iT_M+50, iCol2w/2,25);
@@ -1517,7 +1517,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     } else if (m_pTrajectoryTurnsTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
-        if (doubleValue > 0 && doubleValue <= 10){
+        if (doubleValue >= 0 && doubleValue <= 10){
             ourProcessor->setTurns(doubleValue);
         }
         m_pTrajectoryTurnsTextEditor->setText("     " + String(ourProcessor->getTurns()));

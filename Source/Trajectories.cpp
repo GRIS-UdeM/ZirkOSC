@@ -705,11 +705,8 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
 }
 
 unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSelectedTrajectory, int p_iSelectedDirection){
-    
     unique_ptr<AllTrajectoryDirections> pDirection (new AllTrajectoryDirections);
-    
     switch (p_iSelectedTrajectory) {
-
 //        case Circle:
 //        case Ellipse:
 //            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
@@ -737,7 +734,6 @@ unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSe
         default:
             break;
     }
-    
     return pDirection;
 }
 
