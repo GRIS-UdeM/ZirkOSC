@@ -86,8 +86,6 @@ void Trajectory::start()
     m_dTrajectoriesDurationBuffer *= m_dTrajectoryCount;
     m_dTrajectorySingleLength = m_dTrajectoriesDurationBuffer / m_dTrajectoryCount;
     
-
-    
     ourProcessor->setIsRecordingAutomation(true);
     ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + m_iSelectedSourceForTrajectory*5);
     ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + m_iSelectedSourceForTrajectory*5);
@@ -301,122 +299,6 @@ private:
 };
 
 
-//THIS VERSION IS KINDOF LIKE A CORKSCREW
-//class SpiralTrajectory : public Trajectory
-//{
-//public:
-//    SpiralTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt, const std::pair<int, int> &endPoint)
-//    : Trajectory(filter, duration, beats, times, source)
-//    , mCCW(ccw)
-//    , m_bRT(rt)
-//    , m_fEndPair(endPoint)
-//    { }
-//    
-//protected:
-//    void spInit()
-//    {
-//        //calculate line equation
-//        if (m_fEndPair.first != m_fStartPair.first){
-//            m_bYisDependent = true;
-//            m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
-//            m_fB = m_fStartPair.second - m_fM * m_fStartPair.first;
-//        } else {
-//            m_bYisDependent = false;
-//            m_fM = 0;
-//            m_fB = m_fStartPair.first;
-//        }
-//        
-//        //buffer initial positions
-//        m_fStartInit.first  = m_fStartPair.first;
-//        m_fStartInit.second = m_fStartPair.second;
-//        m_fEndInit.first    = m_fEndPair  .first;
-//        m_fEndInit.second   = m_fEndPair  .second;
-//        
-//        //calculate far end of spiral
-//        m_fDeltaX = m_fEndPair.first - m_fStartPair.first;
-//        m_fDeltaY = m_fEndPair.second - m_fStartPair.second;
-//        m_fFarEndPair.first  = m_fEndPair.first + m_fDeltaX;
-//        m_fFarEndPair.second = m_fEndPair.second + m_fDeltaY;
-//        
-//        //set current end point to end of spiral
-//        m_fEndPair.first  = m_fFarEndPair.first;
-//        m_fEndPair.second = m_fFarEndPair.second;
-//    }
-//    
-//    void spProcess(float duration, float seconds)
-//    {
-//        //pendulum stuff
-//        float fPendulumX, fPendulumY, temp, fPendulumProgress = modf((mDone / mDurationSingleTrajectory), &temp);
-//        if (m_bYisDependent){
-//            float fNbrOscillations = .5;
-//            fPendulumProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fPendulumProgress *fNbrOscillations * M_PI)) / 2;
-//            fPendulumX = m_fStartPair.first + fPendulumProgress;
-//            fPendulumY = m_fM * fPendulumX + m_fB;
-//            
-//            m_fEndPair.first = m_fFarEndPair.first + ((m_fEndInit.first - m_fFarEndPair.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
-//            m_fStartPair.first  = m_fStartInit.first  + ((m_fEndInit.first - m_fStartInit.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
-//            
-//        } else {
-////TODO
-//
-//        }
-//
-//        
-//        //spiral stuff
-//        float fSpiralAzimuth01, theta;
-//        float fSpiralProgress = mDone / mDurationSingleTrajectory;
-//        float fSpiralElevation01 = fSpiralProgress;
-//
-//        theta = modf(fSpiralProgress, &temp);                                          //result from this modf is theta [0,1]
-//        
-//        JUCE_COMPILER_WARNING("make this a parameter")
-//        float fNumberOfTurns = 3;
-//        
-//        //UP AND DOWN SPIRAL
-//        if (m_bRT){
-//            if (mIn){
-//                fSpiralElevation01 = abs( (1 - m_fTrajectoryInitialElevation01) * sin(fNumberOfTurns*fSpiralElevation01 * M_PI) ) + m_fTrajectoryInitialElevation01;
-//            } else {
-//                fSpiralElevation01 = abs( m_fTrajectoryInitialElevation01 * cos(fNumberOfTurns*fSpiralElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
-//            }
-//            
-//            if (!mCCW) theta = -theta;
-//            theta *= 2;
-//            
-//        } else {
-//            
-//            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-//            fSpiralElevation01 = theta * (1 - m_fTrajectoryInitialElevation01) + m_fTrajectoryInitialElevation01;         //newElevation is a mapping of theta[0,1] to [m_fTrajectoryInitialElevation01, 1]
-//            
-//            if (!mIn)
-//                fSpiralElevation01 = m_fTrajectoryInitialElevation01 * (1 - fSpiralElevation01) / (1-m_fTrajectoryInitialElevation01);  //map newElevation from [m_fTrajectoryInitialElevation01, 1] to [m_fTrajectoryInitialElevation01, 0]
-//            
-//            if (!mCCW) theta = -theta;
-//        }
-//        fSpiralAzimuth01 = modf(m_fTrajectoryInitialAzimuth01 + fNumberOfTurns*theta, &temp);                        //this is like adding a to theta
-//        
-//        //converting everything to a total x and y
-//        float fSpiralX, fSpiralY;
-//        SoundSource::azimElev01toXY(fSpiralAzimuth01, fSpiralElevation01, fSpiralX, fSpiralY);
-//        moveXY(fSpiralX+fPendulumX, fSpiralY+fPendulumY);
-//
-//    }
-//    
-//private:
-//    //	Array<FPoint> mSourcesInitRT;
-//    bool mCCW, mIn = true;
-//    bool m_bRT = false, m_bYisDependent;
-//    std::pair<float, float> m_fEndPair;
-//    std::pair<float, float> m_fFarEndPair;
-//    std::pair<float, float> m_fStartInit;
-//    std::pair<float, float> m_fEndInit;
-//    float m_fM;
-//    float m_fB;
-//    float m_fDeltaX, m_fDeltaY;
-//    //    float m_fDistance;
-//};
-
-
 class DampedPendulumTrajectory : public Trajectory
 {
 public:
@@ -478,7 +360,19 @@ protected:
             m_fEndPair.first   = m_fFarEndPair.first + ((m_fEndInit.first - m_fFarEndPair.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
             m_fStartPair.first = m_fStartInit.first  + ((m_fEndInit.first - m_fStartInit.first ) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
         }
-        moveXY(fPendulumX, fPendulumY);
+        
+        
+        float fPendulumAzim = SoundSource::XYtoAzim01(fPendulumX, fPendulumY);
+        float fPendulumElev = SoundSource::XYtoElev01(fPendulumX, fPendulumY);
+        
+        //circle part
+        float newAzimuth, integralPart;
+        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
+        //if (!mCCW) newAzimuth = - newAzimuth;
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+        move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
+        
+        //moveXY(fPendulumX, fPendulumY);
     }
     
 private:
