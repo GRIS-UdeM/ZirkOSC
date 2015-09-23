@@ -1069,9 +1069,9 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             
             unique_ptr<AllTrajectoryDirections> direction = Trajectory::getTrajectoryDirection(type, m_pTrajectoryDirectionComboBox->getSelectedId()-1);
             
-            bool bReturn    = (m_pTrajectoryReturnComboBox->getSelectedId() == 2);
+            bool  bReturn   = (m_pTrajectoryReturnComboBox->getSelectedId() == 2);
             float repeats   = m_pTrajectoryCountTextEditor->getText().getFloatValue();
-            int    source   = ourProcessor->getSelectedSource();
+            int   source    = ourProcessor->getSelectedSource();
             float fTurns    = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
             float fNbrOscil = m_pTrajectoryNbrOscilTextEditor->getText().getFloatValue();
             

@@ -170,63 +170,6 @@ private:
 };
 
 // ==============================================================================
-class PendulumTrajectory : public Trajectory
-{
-public:
-    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool rt,  const std::pair<float, float> &endPoint, float fTurns)
-    : Trajectory(filter, duration, beats, times, source)
-    , m_bRT(rt)
-    , m_fEndPair(endPoint)
-    , m_fTurns(fTurns)
-    { }
-    
-protected:
-    void spInit() {
-        if (m_fEndPair.first != m_fStartPair.first){
-            m_bYisDependent = true;
-            m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
-            m_fB = m_fStartPair.second - m_fM * m_fStartPair.first;
-        } else {
-            m_bYisDependent = false;
-            m_fM = 0;
-            m_fB = m_fStartPair.first;
-        }
-    }
-    void spProcess(float duration, float seconds) {
-        
-        
-        float newX, newY, temp, fCurrentProgress = modf((mDone / mDurationSingleTrajectory), &temp);
-        int iReturn = m_bRT ? 2:1;
-        if (m_bYisDependent){
-            fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
-            newX = m_fStartPair.first + fCurrentProgress;
-            newY = m_fM * newX + m_fB;
-        } else {
-            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
-            newX = m_fStartPair.first;
-            newY = m_fStartPair.second + fCurrentProgress;
-        }
-        
-        float fPendulumAzim = SoundSource::XYtoAzim01(newX, newY);
-        float fPendulumElev = SoundSource::XYtoElev01(newX, newY);
-        
-        //circle part
-        float newAzimuth, integralPart;
-        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
-        //if (!mCCW) newAzimuth = - newAzimuth;
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
-        move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
-    }
-    
-private:
-    bool m_bRT, m_bYisDependent;
-    std::pair<float, float> m_fEndPair;
-    float m_fM;
-    float m_fB;
-    float m_fTurns;
-};
-
-// ==============================================================================
 class SpiralTrajectory : public Trajectory
 {
 public:
@@ -297,8 +240,63 @@ private:
     float m_fTransposedStartAzim01, m_fTransposedStartElev01;
     float m_fNumberOfTurns;
 };
-
-
+// ==============================================================================
+class PendulumTrajectory : public Trajectory
+{
+public:
+    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt,  const std::pair<float, float> &endPoint, float fTurns)
+    :Trajectory(filter, duration, beats, times, source)
+    ,mCCW(ccw)
+    ,m_bRT(rt)
+    ,m_fEndPair(endPoint)
+    ,m_fTurns(fTurns)
+    { }
+    
+protected:
+    void spInit() {
+        if (m_fEndPair.first != m_fStartPair.first){
+            m_bYisDependent = true;
+            m_fM = (m_fEndPair.second - m_fStartPair.second) / (m_fEndPair.first - m_fStartPair.first);
+            m_fB = m_fStartPair.second - m_fM * m_fStartPair.first;
+        } else {
+            m_bYisDependent = false;
+            m_fM = 0;
+            m_fB = m_fStartPair.first;
+        }
+    }
+    void spProcess(float duration, float seconds) {
+        //pendulum part
+        float newX, newY, temp, fCurrentProgress = modf((mDone / mDurationSingleTrajectory), &temp);
+        int iReturn = m_bRT ? 2:1;
+        if (m_bYisDependent){
+            fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
+            newX = m_fStartPair.first + fCurrentProgress;
+            newY = m_fM * newX + m_fB;
+        } else {
+            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
+            newX = m_fStartPair.first;
+            newY = m_fStartPair.second + fCurrentProgress;
+        }
+        float fPendulumAzim = SoundSource::XYtoAzim01(newX, newY);
+        float fPendulumElev = SoundSource::XYtoElev01(newX, newY);
+        //circle part
+        float newAzimuth, integralPart;
+        newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
+        if (!mCCW) {
+            newAzimuth = - newAzimuth;
+        }
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+        //move using both parts
+        move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
+    }
+private:
+    bool mCCW, m_bRT, m_bYisDependent;
+    std::pair<float, float> m_fEndPair;
+    float m_fM;
+    float m_fB;
+    float m_fTurns;
+};
+// ==============================================================================
 class DampedPendulumTrajectory : public Trajectory
 {
 public:
@@ -309,9 +307,8 @@ public:
     ,m_bRT(rt)
     ,m_fEndPair(endPoint)
     ,m_fNumberOfOscillations(p_fNumberOscillations)
-    ,m_fTurns(p_fTurns/2)   //not sure why it has to be divided by 2 for damped but not normal pendulum?
+    ,m_fTurns(p_fTurns/2)   //somehow, because of interaction with number of oscillations, this has to be /2 to make more sense
     { }
-    
 protected:
     void spInit()
     {
@@ -325,60 +322,53 @@ protected:
             m_fM = 0;
             m_fB = m_fStartPair.first;
         }
-        
         //buffer initial positions
         m_fStartInit.first  = m_fStartPair.first;
         m_fStartInit.second = m_fStartPair.second;
         m_fEndInit.first    = m_fEndPair  .first;
         m_fEndInit.second   = m_fEndPair  .second;
-        
         //calculate far end of pendulum
         float fDeltaX = m_fEndPair.first - m_fStartPair.first;
         float fDeltaY = m_fEndPair.second - m_fStartPair.second;
         m_fFarEndPair.first  = m_fEndPair.first + fDeltaX;
         m_fFarEndPair.second = m_fEndPair.second + fDeltaY;
-        
         //set current end point to end of pendulum
         m_fEndPair.first  = m_fFarEndPair.first;
         m_fEndPair.second = m_fFarEndPair.second;
     }
     
     void spProcess(float duration, float seconds){
+        //pendulum part
         float fPendulumX, fPendulumY, temp, fPendulumProgress = modf((mDone / mDurationSingleTrajectory), &temp);
-        
         if (m_bYisDependent){
             fPendulumProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fPendulumProgress * m_fNumberOfOscillations * M_PI)) / 2;
             fPendulumX = m_fStartPair.first + fPendulumProgress;
             fPendulumY = m_fM * fPendulumX + m_fB;
-            
             m_fEndPair.first   = m_fFarEndPair.first + ((m_fEndInit.first - m_fFarEndPair.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
             m_fStartPair.first = m_fStartInit.first  + ((m_fEndInit.first - m_fStartInit.first ) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
         } else {
             fPendulumProgress = (m_fEndPair.second - m_fStartPair.second) * (1-cos(fPendulumProgress * m_fNumberOfOscillations * M_PI)) / 2;
             fPendulumX = m_fStartPair.first + fPendulumProgress;
             fPendulumY = m_fM * fPendulumX + m_fB;
-            
             m_fEndPair.first   = m_fFarEndPair.first + ((m_fEndInit.first - m_fFarEndPair.first) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
             m_fStartPair.first = m_fStartInit.first  + ((m_fEndInit.first - m_fStartInit.first ) * mDone) / (mDurationSingleTrajectory * m_dTrajectoryCount);
         }
-        
-        
         float fPendulumAzim = SoundSource::XYtoAzim01(fPendulumX, fPendulumY);
         float fPendulumElev = SoundSource::XYtoElev01(fPendulumX, fPendulumY);
-        
         //circle part
         float newAzimuth, integralPart;
         newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
-        //if (!mCCW) newAzimuth = - newAzimuth;
+        if (!mCCW) {
+            newAzimuth = - newAzimuth;
+        }
         newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
+        //move using both parts
         move(fPendulumAzim + (newAzimuth - m_fTrajectoryInitialAzimuth01), fPendulumElev);
-        
-        //moveXY(fPendulumX, fPendulumY);
     }
     
 private:
     //	Array<FPoint> mSourcesInitRT;
-    bool mCCW, mIn = true;
+    bool mCCW;
     bool m_bRT = false, m_bYisDependent;
     std::pair<float, float> m_fEndPair;
     std::pair<float, float> m_fFarEndPair;
@@ -679,10 +669,8 @@ protected:
 // ==============================================================================
 int Trajectory::NumberOfTrajectories() { return TotalNumberTrajectories-1; }
 
-String Trajectory::GetTrajectoryName(int i)
-{
-	switch(i)
-	{
+String Trajectory::GetTrajectoryName(int i){
+	switch(i){
         case Circle: return "Circle";
         case Ellipse: return "Ellipse";
         case Spiral: return "Spiral";
@@ -696,26 +684,14 @@ String Trajectory::GetTrajectoryName(int i)
 
 std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int p_iTrajectory){
     unique_ptr<vector<String>> vDirections (new vector<String>);
-    
     switch(p_iTrajectory) {
         case Circle:
         case Ellipse:
-            vDirections->push_back("Clockwise");
-            vDirections->push_back("Counter Clockwise");
-            break;
         case Spiral:
-//            vDirections->push_back("In, Clockwise");
-//            vDirections->push_back("In, Counter Clockwise");
-//            vDirections->push_back("Out, Clockwise");
-//            vDirections->push_back("Out, Counter Clockwise");
-            vDirections->push_back("Clockwise");
-            vDirections->push_back("Counter Clockwise");
-            break;
         case Pendulum:
         case DampedPendulum:
-//            vDirections->push_back("In");
-//            vDirections->push_back("Out");
-//            vDirections->push_back("Crossover");
+            vDirections->push_back("Clockwise");
+            vDirections->push_back("Counter Clockwise");
             break;
         case AllTrajectoryTypes::Random:
             vDirections->push_back("Slow");
@@ -725,7 +701,6 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
         default:
             jassert(0);
     }
-
     return vDirections;
 }
 
@@ -735,21 +710,30 @@ unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSe
     
     switch (p_iSelectedTrajectory) {
 
+//        case Circle:
+//        case Ellipse:
+//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
+//            break;
+//        case Spiral:
+//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+5);
+//            break;
+//        case Pendulum:
+//        case DampedPendulum:
+//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+2);
+//            break;
+//        case AllTrajectoryTypes::Random:
+//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+9);
+//            break;
         case Circle:
         case Ellipse:
-            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
-            break;
         case Spiral:
-            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+5);
-            break;
         case Pendulum:
         case DampedPendulum:
-            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+2);
+            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
             break;
         case AllTrajectoryTypes::Random:
             *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+9);
             break;
-            
         default:
             break;
     }
@@ -836,12 +820,12 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
     }
 
     switch(type) {
-        case Circle:                     return new CircleTrajectory(filter, duration, beats, times, source, ccw, fTurns);
-        case Ellipse:                    return new EllipseTrajectory(filter, duration, beats, times, source, ccw, fTurns);
-        case Spiral:                     return new SpiralTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
+        case Circle:                     return new CircleTrajectory        (filter, duration, beats, times, source, ccw, fTurns);
+        case Ellipse:                    return new EllipseTrajectory       (filter, duration, beats, times, source, ccw, fTurns);
+        case Spiral:                     return new SpiralTrajectory        (filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
         case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns, fNbrOscil);
-        case Pendulum:                   return new PendulumTrajectory(filter, duration, beats, times, source, bReturn, endPair, fTurns);
-        case AllTrajectoryTypes::Random: return new RandomTrajectory(filter, duration, beats, times, source, speed);
+        case Pendulum:                   return new PendulumTrajectory      (filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
+        case AllTrajectoryTypes::Random: return new RandomTrajectory        (filter, duration, beats, times, source, speed);
             
             //      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
             //		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);
