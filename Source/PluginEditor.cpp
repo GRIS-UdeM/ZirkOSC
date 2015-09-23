@@ -714,9 +714,9 @@ void ZirkOscAudioProcessorEditor::resized() {
     setSliderAndLabelPosition(m_iL_M, m_iT_M+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
     
     //------------ TRAJECTORIES TAB------------
-    int iCol1w = 100, iCol2w = 150;
-    int iCol3w = 100;
-    int dw = 20;
+    int iCol1w = 100, iCol2w = 200;
+    int iCol3w = 90;
+    int dw = 40;
     //row 1
     updateTrajTypeAndDirection();
     m_pTrajectoryReturnComboBox->       setBounds(m_iL_M+iCol1w + iCol2w,   m_iT_M,    iCol3w,  25);
@@ -729,10 +729,10 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryCountLabel->           setBounds(m_iL_M+iCol1w,            m_iT_M+50, iCol2w/2,25);
     
     //row 3 col 3.5 and 4 are either of these things
-    m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4,    25);
-    m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw,      m_iT_M+50, iCol2w/4+dw, 25);
-    m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+50, iCol3w/2,    25);
-    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol1w + iCol2w + iCol3w/2,    m_iT_M+50, iCol3w,    25);
+    m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4-10,    25);
+    m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
+    m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+iCol1w + iCol2w - iCol3w/2,    m_iT_M+50, iCol3w/2,    25);
+    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+50, iCol3w,    25);
     
     //row 4: end location
     m_pSetEndTrajectoryButton->         setBounds(m_iL_M,                               m_iT_M+75, iCol1w,   25);
@@ -753,8 +753,8 @@ void ZirkOscAudioProcessorEditor::resized() {
 }
 
 void ZirkOscAudioProcessorEditor::updateTrajTypeAndDirection(){
-    int iCol1w = 100, iCol2w = 150;
-    int dw = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? iCol2w/4: 0;
+    int iCol1w = 100, iCol2w = 200;
+    int dw = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? iCol2w/2-40: 0;
     m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,             m_iT_M,    iCol1w + dw,   25);
     m_pTrajectoryDirectionComboBox->    setBounds(m_iL_M+iCol1w+dw,   m_iT_M,    iCol2w - dw,   25);
 }
