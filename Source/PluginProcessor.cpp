@@ -126,14 +126,22 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 
 void ZirkOscAudioProcessor::initSources(){
     int i = 0, iId = 0;
-    m_oAllSources[i++] = SoundSource(.5 + 1*.125/2,0, ++iId);
-    m_oAllSources[i++] = SoundSource(.5 - 1*.125/2,0, ++iId);
-    m_oAllSources[i++] = SoundSource(.5 + 3*.125/2,0, ++iId);
-    m_oAllSources[i++] = SoundSource(.5 - 3*.125/2,0, ++iId);
-    m_oAllSources[i++] = SoundSource(.5 + 5*.125/2,0, ++iId);
-    m_oAllSources[i++] = SoundSource(.5 - 5*.125/2,0, ++iId);
-    m_oAllSources[i++] = SoundSource(.5 + 7*.125/2,0, ++iId);
-    m_oAllSources[i++] = SoundSource(.5 - 7*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 + 1*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 - 1*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 + 3*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 - 3*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 + 5*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 - 5*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 + 7*.125/2,0, ++iId);
+//    m_oAllSources[i++] = SoundSource(.5 - 7*.125/2,0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent(  22.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent( -22.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent(  67.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent( -67.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent( 112.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent(-112.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent( 157.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
+    m_oAllSources[i++] = SoundSource(HRToPercent(-157.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
     
     for(i = 0; i < 8; ++i){
         //m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
