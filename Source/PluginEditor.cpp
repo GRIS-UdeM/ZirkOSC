@@ -1526,7 +1526,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         if (doubleValue > 0 && doubleValue <= 10){
             ourProcessor->setNbrOscil(doubleValue);
         }
-        m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getNbrOscil()));
+        m_pTrajectoryNbrOscilTextEditor->setText(String(ourProcessor->getNbrOscil()));
     }
     
 //    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {

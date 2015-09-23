@@ -304,11 +304,12 @@ class DampedPendulumTrajectory : public Trajectory
 public:
     DampedPendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source,
                              bool ccw, bool rt, const std::pair<int, int> &endPoint, float p_fTurns, float p_fNumberOscillations)
-    : Trajectory(filter, duration, beats, times, source)
-    , mCCW(ccw)
-    , m_bRT(rt)
-    , m_fEndPair(endPoint)
-    , m_fNumberOfOscillations(p_fNumberOscillations)
+    :Trajectory(filter, duration, beats, times, source)
+    ,mCCW(ccw)
+    ,m_bRT(rt)
+    ,m_fEndPair(endPoint)
+    ,m_fNumberOfOscillations(p_fNumberOscillations)
+    ,m_fTurns(p_fTurns/2)   //not sure why it has to be divided by 2 for damped but not normal pendulum?
     { }
     
 protected:
@@ -370,7 +371,7 @@ protected:
         newAzimuth = m_fTurns*mDone / mDurationSingleTrajectory;
         //if (!mCCW) newAzimuth = - newAzimuth;
         newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth, &integralPart);
-        move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
+        move(fPendulumAzim + (newAzimuth - m_fTrajectoryInitialAzimuth01), fPendulumElev);
         
         //moveXY(fPendulumX, fPendulumY);
     }
@@ -386,7 +387,7 @@ private:
     float m_fM;
     float m_fB;
     float m_fNumberOfOscillations;
-    
+    float m_fTurns;
 };
 
 // ==============================================================================
