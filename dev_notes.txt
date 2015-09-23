@@ -54,3 +54,5 @@ _______________________________________________
 MEETING
 * logic is fine, continue as usual
 * send version asap
+________________________________________________
+NOW HERE: damped pendulum cycles and oscillations interact, they need to be independent, check for fix #60 and do something similar

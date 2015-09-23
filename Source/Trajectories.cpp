@@ -302,8 +302,7 @@ public:
     ,m_fTurns(p_fTurns/2)   //somehow, because of interaction with number of oscillations, this has to be /2 to make more sense
     { }
 protected:
-    void spInit()
-    {
+    void spInit(){
         //calculate line equation
         if (m_fEndPair.first != m_fStartPair.first){
             m_bYisDependent = true;
