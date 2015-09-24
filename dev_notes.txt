@@ -56,3 +56,5 @@ MEETING
 * send version asap
 ________________________________________________
 NOW HERE: damped pendulum cycles and oscillations interact, they need to be independent, check for fix #60 and do something similar
+
+the problem is the nbr osc parameter, which isn't accurate
