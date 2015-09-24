@@ -135,8 +135,11 @@ public:
     int getNbrSources() { return m_iNbrSources; }
     //! Set the number of sources.
     void setNbrSources(int newValue) {
-        if ( newValue >-1 && newValue < 9){
-            m_iNbrSources= newValue;
+        if ( newValue >0 && newValue < 9){
+            if (newValue < m_iNbrSources &&  newValue < getSelectedSource()+1){
+                setSelectedSource(0);
+            }
+            m_iNbrSources = newValue;
             m_bNeedToRefreshGui = true;
         }
     }
