@@ -307,7 +307,7 @@ private:
     int m_iL_M; //left margin
     int m_iT_M; //top margin
 
-    
+    float m_fHueOffset;
 };
 
 

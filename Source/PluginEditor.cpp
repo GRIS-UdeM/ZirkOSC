@@ -310,6 +310,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,m_oMovementConstraintComboBox("MovementConstraint")
 ,m_iL_M(15)
 ,m_iT_M(15)
+,m_fHueOffset(0.125)//(0.577251)
 {
     ourProcessor = getProcessor();
     
@@ -795,8 +796,7 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     }
     //draw line and circle for selected source
     int iSelectedSrc = ourProcessor->getSelectedSource();
-    //float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
-    float hue = (float)iSelectedSrc / 8 + 0.577251;
+    float hue = (float)iSelectedSrc / 8 + m_fHueOffset;
     if (hue > 1) hue -= 1;
     g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     float fX, fY;
@@ -856,8 +856,7 @@ void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g, int iSrc){
     myPath.addCentredArc(_ZirkOSC_Center_X, _ZirkOSC_Center_Y, minRadius, minRadius, 0.0, degreeToRadian(-HRAzim-HRAzimSpan/2), degreeToRadian(-HRAzim));
     myPath.closeSubPath();
     
-    //float hue = (float)iSrc / ourProcessor->getNbrSources() + 0.577251;
-    float hue = (float)iSrc / 8 + 0.577251;
+    float hue = (float)iSrc / 8 + m_fHueOffset;
     if (hue > 1) hue -= 1;
     g.setColour(Colour::fromHSV(hue, 1, 1, 0.1));
     g.fillPath(myPath);
@@ -874,9 +873,7 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         //----------------------------------------------------------------------------------------------
         
         const float radius = 10, diameter = 20;
-        
-        //float hue = (float)i / ourProcessor->getNbrSources() + 0.577251;
-        float hue = (float)i / 8 + 0.577251;
+        float hue = (float)i / 8 + m_fHueOffset;
 
         if (hue > 1) hue -= 1;
         
@@ -922,8 +919,7 @@ void ZirkOscAudioProcessorEditor::paintWallCircle (Graphics& g){
 
 void ZirkOscAudioProcessorEditor::paintCenterDot (Graphics& g){
     int iSelectedSrc = ourProcessor->getSelectedSource();
-    //float hue = (float)iSelectedSrc / ourProcessor->getNbrSources() + 0.577251;
-    float hue = (float)iSelectedSrc / 8 + 0.577251;
+    float hue = (float)iSelectedSrc / 8 + m_fHueOffset;
     if (hue > 1) hue -= 1;
     g.setColour(Colour::fromHSV(hue, 1, 1, 0.8f));
     g.fillEllipse(_ZirkOSC_Center_X - 3.0f, _ZirkOSC_Center_Y - 3.0f, 6.0f, 6.0f );
