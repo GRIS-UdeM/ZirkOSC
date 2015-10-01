@@ -173,7 +173,14 @@ public:
     //! Set the selected source 
     void setSelectedSource(int selected){
         if ( selected >-1 && selected < 8){
-            m_iSelectedSource= selected;
+            m_iSelectedSource = selected;
+            if(m_iMovementConstraint == EqualAzim){
+                setEqualAzimForAllSrc();
+            } else if (m_iMovementConstraint == EqualAzimElev){
+                setEqualAzimElevForAllSrc();
+            } else if (m_iMovementConstraint == EqualElev){
+                setEqualElevForAllSrc();
+            }
             m_bNeedToRefreshGui = true;
         }
     }

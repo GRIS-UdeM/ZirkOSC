@@ -709,12 +709,10 @@ float ZirkOscAudioProcessor::getParameter (int index)
 // it's absolutely time-critical. Don't use critical sections or anything
 // UI-related, or anything at all that may block in any way!
 void ZirkOscAudioProcessor::setParameter (int index, float newValue){
-    
-    
     if (!setPositionParameters(index, newValue) && !setOtherParameters(index, newValue)){
         m_bNeedToRefreshGui = false;
-        setPositionParameters(index, newValue);
-        setOtherParameters(index, newValue);
+//        setPositionParameters(index, newValue);
+//        setOtherParameters(index, newValue);
         DBG("wrong parameter id: " << index << " in ZirkOscAudioProcessor::setParameter\n");
     }
 }
