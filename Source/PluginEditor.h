@@ -297,6 +297,8 @@ private:
     
     ReferenceCountedObjectPtr<ZirkLeap>  mleap;
     
+    Label m_oEndPointLabel;
+    
     enum
     {
         kTrReady = 0,
