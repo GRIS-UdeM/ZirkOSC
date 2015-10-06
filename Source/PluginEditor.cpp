@@ -487,9 +487,16 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     //END TRAJECTORY TextEditors
     float fBrightness = .6;
     m_pEndAzimTextEditor = m_oTrajectoryTab->getEndAzimTextEditor();
-    m_pEndAzimTextEditor->setTextToShowWhenEmpty("Azimuth", juce::Colour::greyLevel(fBrightness));
+    m_pEndAzimTextEditor->setTextToShowWhenEmpty("     Azimuth", juce::Colour::greyLevel(fBrightness));
+    m_pEndAzimTextEditor->setColour(TextEditor::textColourId, juce::Colour::greyLevel(fBrightness));
+    m_pEndAzimTextEditor->setReadOnly(true);
+    m_pEndAzimTextEditor->setCaretVisible(false);
+
     m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
-    m_pEndElevTextEditor->setTextToShowWhenEmpty("Elevation", juce::Colour::greyLevel(fBrightness));
+    m_pEndElevTextEditor->setTextToShowWhenEmpty("    Elevation", juce::Colour::greyLevel(fBrightness));
+    m_pEndElevTextEditor->setColour(TextEditor::textColourId, juce::Colour::greyLevel(fBrightness));
+    m_pEndElevTextEditor->setReadOnly(true);
+    m_pEndElevTextEditor->setCaretVisible(false);
     updateEndLocationTextEditors();
     
     //RESET END TRAJECTORY BUTTON
