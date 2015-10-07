@@ -122,6 +122,8 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
     _LastUiHeight = ZirkOSC_Window_Default_Height;
     
     m_pSourceUpdateThread = new SourceUpdateThread(this);
+    
+    m_fEndLocationXY = make_pair(0, 0);
 }
 
 void ZirkOscAudioProcessor::initSources(){
@@ -909,8 +911,8 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("selectedTrajectoryDirection", m_fSelectedTrajectoryDirection);
     xml.setAttribute("selectedTrajectoryReturn", m_fSelectedTrajectoryReturn);
     xml.setAttribute("presetDataVersion", s_kiDataVersion);
-    xml.setAttribute("endLocationAzim", m_fEndLocationPair.first);
-    xml.setAttribute("endLocationElev", m_fEndLocationPair.second);
+    xml.setAttribute("endLocationAzim", m_fEndLocationXY.first);
+    xml.setAttribute("endLocationElev", m_fEndLocationXY.second);
     xml.setAttribute("turns", m_dTrajectoryTurns);
     xml.setAttribute("oscil", m_dTrajectoryNbrOscil);
     
@@ -982,8 +984,8 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         m_dTrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
         m_bIsSyncWTempo                 = xmlState->getBoolAttribute("isSyncWTempo", false);
         m_bIsWriteTrajectory            = xmlState->getBoolAttribute("isWriteTrajectory", false);
-        m_fEndLocationPair.first        = xmlState->getDoubleAttribute("endLocationAzim", 180.0);
-        m_fEndLocationPair.second       = xmlState->getDoubleAttribute("endLocationElev", 90.0);
+        m_fEndLocationXY.first        = xmlState->getDoubleAttribute("endLocationAzim", 180.0);
+        m_fEndLocationXY.second       = xmlState->getDoubleAttribute("endLocationElev", 90.0);
         m_dTrajectoryTurns              = xmlState->getDoubleAttribute("turns", 1);
         m_dTrajectoryNbrOscil           = xmlState->getDoubleAttribute("oscil", m_dTrajectoryNbrOscil);
         

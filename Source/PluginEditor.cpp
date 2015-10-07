@@ -633,6 +633,12 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pEndAzimTextEditor        ->setVisible(true);
         m_pEndElevTextEditor        ->setVisible(true);
         m_pResetEndTrajectoryButton ->setVisible(true);
+        
+        if (iSelectedTrajectory == Pendulum){
+            setDefaultPendulumEndpoint();
+            updateEndLocationTextEditors();
+        }
+        
     } else {
         m_pSetEndTrajectoryButton   ->setVisible(false);
         m_pEndAzimTextEditor        ->setVisible(false);
@@ -656,6 +662,21 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pTrajectoryNbrOscilTextEditor->setVisible(false);
         m_pTrajectoryNbrOscilLabel->setVisible(false);
     }
+}
+
+void ZirkOscAudioProcessorEditor::setDefaultPendulumEndpoint(){
+    int iSelectedSrc = ourProcessor->getSelectedSource();
+    float fCurAzim01 = ourProcessor->getSources()[iSelectedSrc].getAzimuth01();
+    float fCurElev01 = ourProcessor->getSources()[iSelectedSrc].getElevation01();
+
+    float fCurAzim = 180 + PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    if (fCurAzim > 180){
+        fCurAzim -= 360;
+    }
+    fCurAzim01 = HRToPercent(fCurAzim, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    float fEndX, fEndY;
+    SoundSource::azimElev01toXY(fCurAzim01, fCurElev01, fEndX, fEndY);
+    ourProcessor->setEndLocationXY(make_pair(fEndX, fEndY));
 }
 
 void ZirkOscAudioProcessorEditor::resized() {
@@ -1087,7 +1108,7 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             float fTurns    = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
             float fNbrOscil = m_pTrajectoryNbrOscilTextEditor->getText().getFloatValue();
             
-            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocation(), fTurns, fNbrOscil));
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocationXY(), fTurns, fNbrOscil));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
             mTrState = kTrWriting;
@@ -1174,8 +1195,12 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
         }
     }
     else if (button == m_pResetEndTrajectoryButton){
-        std::pair<float, float> pair = std::make_pair(0, 0);
-        ourProcessor->setEndLocation(pair);
+        if (ourProcessor->getSelectedTrajectory() == Pendulum){
+            setDefaultPendulumEndpoint();
+        } else {
+            pair<float, float> pair = make_pair(0, 0);
+            ourProcessor->setEndLocationXY(pair);
+        }
         updateEndLocationTextEditors();
     }
 }
@@ -1405,7 +1430,7 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         //get point of current event
         float fCenteredX = event.x-_ZirkOSC_Center_X;
         float fCenteredY = event.y-_ZirkOSC_Center_Y;
-        ourProcessor->setEndLocation(make_pair (fCenteredX, fCenteredY));
+        ourProcessor->setEndLocationXY(make_pair (fCenteredX, fCenteredY));
         updateEndLocationTextEditors();
         m_pSetEndTrajectoryButton->setToggleState(false, dontSendNotification);
         m_pSetEndTrajectoryButton->setButtonText("Set end point");
@@ -1416,11 +1441,10 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
 }
 
 void ZirkOscAudioProcessorEditor::updateEndLocationTextEditors(){
-    
-    std::pair<float, float> endLocation = ourProcessor->getEndLocation();
+    std::pair<float, float> endLocation = ourProcessor->getEndLocationXY();
     float fAzim = PercentToHR(SoundSource::XYtoAzim01(endLocation.first, endLocation.second), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    float fElev = PercentToHR(SoundSource::XYtoElev01(endLocation.first, endLocation.second), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-
+    float fElev01 = SoundSource::XYtoElev01(endLocation.first, endLocation.second);
+    float fElev = PercentToHR(fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     {
         ostringstream oss;
         oss << std::fixed << std::right << std::setw( 4 ) << setprecision(1) << std::setfill( ' ' ) << "         " <<  fAzim;

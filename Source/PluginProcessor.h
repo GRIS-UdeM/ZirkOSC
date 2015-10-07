@@ -313,11 +313,11 @@ public:
     bool isCurrentlyPlaying(){
         return m_bCurrentlyPlaying;
     }
-    std::pair<float, float> getEndLocation(){
-        return m_fEndLocationPair;
+    std::pair<float, float> getEndLocationXY(){
+        return m_fEndLocationXY;
     }
-    void setEndLocation(std::pair<float, float> pair){
-        m_fEndLocationPair = pair;
+    void setEndLocationXY(std::pair<float, float> pair){
+        m_fEndLocationXY = pair;
     }
     double getTurns(){
         return m_dTrajectoryTurns;
@@ -408,7 +408,7 @@ private:
     bool m_bIsRecordingAutomation;
     int m_iNeedToResetToActualConstraint;
     SourceUpdateThread* m_pSourceUpdateThread;
-    std::pair <float, float> m_fEndLocationPair;
+    std::pair <float, float> m_fEndLocationXY;
 };
 
 #endif  // __PLUGINPROCESSOR_H_F70DA35D__

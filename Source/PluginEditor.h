@@ -89,6 +89,7 @@ private:
     void updateEndLocationTextEditors();
     void updateTrajTypeAndDirection();
     void updateTurnsTextEditor();
+    void setDefaultPendulumEndpoint();
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
