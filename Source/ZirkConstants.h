@@ -80,7 +80,9 @@ const int ZirkOSC_SlidersGroupHeight = 220;
 
 const int ZirkOSC_ConstraintComboBoxHeight = 25;
 
-const int ZirkOSC_Window_Default_Width  = 430;
+const float kiSrcRadius   = 10;
+const float kiSrcDiameter  = 2 * kiSrcRadius;
+const int ZirkOSC_Window_Default_Width  = 430 + kiSrcRadius;
 const int ZirkOSC_Window_Default_Height = 350 + ZirkOSC_ConstraintComboBoxHeight + ZirkOSC_SlidersGroupHeight;
 
 const float ZirkOSC_MarksAngles[] =

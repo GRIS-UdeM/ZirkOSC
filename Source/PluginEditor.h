@@ -297,10 +297,7 @@ private:
     
     ReferenceCountedObjectPtr<ZirkLeap>  mleap;
     
-    Label m_oEndPointLabel;
-    
-    enum
-    {
+    enum {
         kTrReady = 0,
         kTrWriting
     };
@@ -310,6 +307,8 @@ private:
     int m_iT_M; //top margin
 
     float m_fHueOffset;
+    Label m_oEndPointLabel;
+    
 };
 
 

@@ -315,6 +315,10 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 {
     ourProcessor = getProcessor();
     
+    m_oEndPointLabel.setText("Click anywhere on circle to set end point",  dontSendNotification);
+    addAndMakeVisible(&m_oEndPointLabel);
+
+    
     //---------- RIGHT SIDE LABELS ----------
     _NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
     
@@ -674,21 +678,19 @@ void ZirkOscAudioProcessorEditor::resized() {
     
     //------------ LABELS ON RIGHT SIDE +version label------------
     m_logoImage.setBounds(5,5,55,55);
-    m_VersionLabel.setBounds(iCurWidth-180,5,100,30);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
-    setLabelAndTextEditorPosition(iCurWidth-80 , 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
-//    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
-//    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
-//    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
+    m_VersionLabel.setBounds        (iCurWidth-180,5,100,30);
+    setLabelAndTextEditorPosition   (iCurWidth-80, 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
+    setLabelAndTextEditorPosition   (iCurWidth-80, 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
+    setLabelAndTextEditorPosition   (iCurWidth-80, 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
+    _OscActiveButton.setBounds      (iCurWidth-80, 155, 80, 25);
+    _LinkSpanButton.setBounds       (iCurWidth-80, 180, 80, 25);
+    _LinkSpanButton.toBack();
+    _OscActiveButton.toBack();
 
-    // OSC button
-    //_OscActiveButton.setBounds(iCurWidth-80, 300, 80, 25);
-    _OscActiveButton.setBounds(iCurWidth-80, 155, 80, 25);
+    //    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
+    //    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
+    //    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
-    // link button
-    //_LinkSpanButton.setBounds(iCurWidth-80, 325, 80, 25);
-    _LinkSpanButton.setBounds(iCurWidth-80, 180, 80, 25);
     
     //------------ SAVE SOURCE ELEVATION ---------------
     float fAllElev01[8];
@@ -697,12 +699,14 @@ void ZirkOscAudioProcessorEditor::resized() {
     }
     
     //------------ WALLCIRCLE ------------
-    _ZirkOSC_Center_X = (iCurWidth -80)/2;
+    _ZirkOSC_Center_X = (iCurWidth - 80)/2;
     _ZirkOSC_Center_Y = (iCurHeight-ZirkOSC_SlidersGroupHeight)/2;
     //assign smallest possible radius
-    int iXRadius = (iCurWidth -85)/2;
+    int iXRadius = (iCurWidth -85 -kiSrcDiameter)/2;
     int iYRadius = (iCurHeight-ZirkOSC_SlidersGroupHeight-10)/2;
     ZirkOscAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
+    int w = 150;
+    m_oEndPointLabel.setBounds(_ZirkOSC_Center_X-w/2, _ZirkOSC_Center_Y+ZirkOscAudioProcessor::s_iDomeRadius+25, w, 25);
     
     //------------ RESTORE SOURCE ELEVATION ---------------
     for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
@@ -879,8 +883,6 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
         
         ourProcessor->getSources()[i].getXY(fX, fY);
         //----------------------------------------------------------------------------------------------
-        
-        const float radius = 10, diameter = 20;
         float hue = (float)i / 8 + m_fHueOffset;
 
         if (hue > 1) hue -= 1;
@@ -903,19 +905,19 @@ void ZirkOscAudioProcessorEditor::paintSourcePoint (Graphics& g){
             fY *= fExtraRatio;
         }
 
-        g.fillEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter);
+        g.fillEllipse(_ZirkOSC_Center_X + fX-kiSrcRadius, _ZirkOSC_Center_Y + fY-kiSrcRadius, kiSrcDiameter, kiSrcDiameter);
         //draw outside of source point
         g.setColour(Colours::red);
-        g.drawEllipse(_ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, 1);
+        g.drawEllipse(_ZirkOSC_Center_X + fX-kiSrcRadius, _ZirkOSC_Center_Y + fY-kiSrcRadius, kiSrcDiameter, kiSrcDiameter, 1);
         
         //---- draw source label
         //draw it in black
         g.setColour(Colours::black);
-        g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius+1, _ZirkOSC_Center_Y + fY-radius+1, diameter, diameter, Justification(Justification::centred), false);
+        g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-kiSrcRadius+1, _ZirkOSC_Center_Y + fY-kiSrcRadius+1, kiSrcDiameter, kiSrcDiameter, Justification(Justification::centred), false);
         
         //then in white, to create 3d effect
         g.setColour(Colours::white);
-        g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-radius, _ZirkOSC_Center_Y + fY-radius, diameter, diameter, Justification(Justification::centred), false);
+        g.drawText(String(ourProcessor->getSources()[i].getSourceId()), _ZirkOSC_Center_X + fX-kiSrcRadius, _ZirkOSC_Center_Y + fY-kiSrcRadius, kiSrcDiameter, kiSrcDiameter, Justification(Justification::centred), false);
     }
 }
 
