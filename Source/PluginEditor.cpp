@@ -477,7 +477,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pTrajectoryDeviationTextEditor->setText("     " + String(ourProcessor->getDeviation()));
     m_pTrajectoryDeviationTextEditor->addListener(this);
     m_pTrajectoryDeviationLabel = m_oTrajectoryTab->getDeviationLabel();
-    m_pTrajectoryDeviationLabel->setText("° deviation",  dontSendNotification);
+    m_pTrajectoryDeviationLabel->setText("deviation",  dontSendNotification);
     
     //Nbr Oscillations
     m_pTrajectoryNbrOscilTextEditor = m_oTrajectoryTab->getNbrOscilTextEditor();

@@ -235,12 +235,12 @@ private:
 class PendulumTrajectory : public Trajectory
 {
 public:
-    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt,  const std::pair<float, float> &endPoint, float fTurns)
+    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt,  const std::pair<float, float> &endPoint, float fDeviation)
     :Trajectory(filter, duration, beats, times, source)
     ,mCCW(ccw)
     ,m_bRT(rt)
     ,m_fEndPair(endPoint)
-    ,m_fTurns(fTurns)
+    ,m_fDeviation(fDeviation)
     { }
     
 protected:
@@ -277,7 +277,7 @@ protected:
         if (!mCCW) {
             newAzimuth = - newAzimuth;
         }
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + m_fTurns * newAzimuth, &integralPart);
+        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth + m_fDeviation, &integralPart);
         //move using both parts
         move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
     }
@@ -286,7 +286,7 @@ private:
     std::pair<float, float> m_fEndPair;
     float m_fM;
     float m_fB;
-    float m_fTurns;
+    float m_fDeviation;
 };
 // ==============================================================================
 class DampedPendulumTrajectory : public Trajectory
@@ -753,9 +753,7 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_i
 
 
 Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction,
-                                             bool bReturn, float times, int source, const std::pair<float, float> &endPair, float fTurns, float fNbrOscil)
-{
-    
+                                             bool bReturn, float times, int source, const std::pair<float, float> &endPair, float fTurns, float fNbrOscil, float fDeviation){
     bool ccw, in, cross;
     float speed;
     
@@ -812,7 +810,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
         case Ellipse:                    return new EllipseTrajectory       (filter, duration, beats, times, source, ccw, fTurns);
         case Spiral:                     return new SpiralTrajectory        (filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
         case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns, fNbrOscil);
-        case Pendulum:                   return new PendulumTrajectory      (filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
+        case Pendulum:                   return new PendulumTrajectory      (filter, duration, beats, times, source, ccw, bReturn, endPair, fDeviation);
         case AllTrajectoryTypes::Random: return new RandomTrajectory        (filter, duration, beats, times, source, speed);
             
             //      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
