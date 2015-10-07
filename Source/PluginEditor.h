@@ -88,6 +88,7 @@ private:
     void updateSliders();
     void updateEndLocationTextEditors();
     void updateTrajTypeAndDirection();
+    void updateTurnsTextEditor();
     
     //! Called when a comboBox's value has changed
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);

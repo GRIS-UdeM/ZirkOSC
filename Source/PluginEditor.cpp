@@ -1531,11 +1531,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         }
         m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     } else if (m_pTrajectoryTurnsTextEditor == &textEditor){
-        double doubleValue = textEditor.getText().getDoubleValue();
-        if (doubleValue >= 0 && doubleValue <= 10){
-            ourProcessor->setTurns(doubleValue);
-        }
-        m_pTrajectoryTurnsTextEditor->setText("     " + String(ourProcessor->getTurns()));
+        updateTurnsTextEditor();
     } else if (m_pTrajectoryNbrOscilTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue > 0 && doubleValue <= 10){
@@ -1558,6 +1554,22 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
     }
 }
 
+void ZirkOscAudioProcessorEditor::updateTurnsTextEditor(){
+    double doubleValue = m_pTrajectoryTurnsTextEditor->getText().getDoubleValue();
+    double dUpperLimit = 10.0;
+    if (ourProcessor->getSelectedTrajectory() == Circle){
+        dUpperLimit = 1.0;
+    }
+    if (doubleValue < 0 ){
+        doubleValue = 0;
+    } else if (doubleValue > dUpperLimit){
+        doubleValue = dUpperLimit;
+    }
+    ourProcessor->setTurns(doubleValue);
+    m_pTrajectoryTurnsTextEditor->setText("     " + String(ourProcessor->getTurns()));
+
+}
+
 void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
 
     if (comboBoxThatHasChanged == &m_oMovementConstraintComboBox){
@@ -1578,6 +1590,7 @@ void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChan
         float fSelectedTraj = IntToPercentStartsAtOne(iSelectedTraj, TotalNumberTrajectories);
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, fSelectedTraj);
         updateTrajectoryComponents();
+        updateTurnsTextEditor();
     }
     
     else if(comboBoxThatHasChanged == m_pSyncWTempoComboBox){
