@@ -293,17 +293,17 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,_OscActiveButton("OSC active")
 ,_TabComponent(TabbedButtonBar::TabsAtTop)
 //strings in parameters are all used as juce::component names
-,_FirstSourceIdLabel("channelNbr")
-,_ZkmOscPortLabel("OscPort")
-,_NbrSourceLabel("NbrSources")
-,m_VersionLabel("version")
+,_FirstSourceIdLabel()
+,_ZkmOscPortLabel()
+,_NbrSourceLabel()
+,m_VersionLabel()
 ,m_logoImage()
 //,_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad")
 //,_IpadIncomingOscPortLabel("OSCIpadInco")
 //,_IpadIpAddressLabel("ipadadressLabel")
-,_FirstSourceIdTextEditor("channelNbr")
-,_ZkmOscPortTextEditor("OscPort")
-,_NbrSourceTextEditor("NbrSource")
+,_FirstSourceIdTextEditor()
+,_ZkmOscPortTextEditor()
+,_NbrSourceTextEditor()
 //,_IpadOutgoingOscPortTextEditor("OSCPortOutgoingIPadTE")
 //,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
 //,_IpadIpAddressTextEditor("ipaddress")
@@ -311,6 +311,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,m_iL_M(15)
 ,m_iT_M(15)
 ,m_fHueOffset(0.125)//(0.577251)
+,m_oEndPointLabel()
 {
     ourProcessor = getProcessor();
     
