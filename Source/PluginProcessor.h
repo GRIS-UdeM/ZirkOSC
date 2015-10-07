@@ -325,6 +325,12 @@ public:
     void setTurns(double turns){
         m_dTrajectoryTurns = turns;
     }
+    double getDeviation(){
+        return m_dTrajectoryDeviation;
+    }
+    void setDeviation(double dev){
+        m_dTrajectoryDeviation = dev;
+    }
     double getNbrOscil(){
         return m_dTrajectoryNbrOscil;
     }
@@ -389,6 +395,7 @@ private:
     double m_dTrajectoryCount;
     double m_dTrajectoriesDuration;
     double m_dTrajectoryTurns;
+    double m_dTrajectoryDeviation;
     double m_dTrajectoryNbrOscil;
     bool   m_bIsSyncWTempo;
     bool   m_bIsWriteTrajectory;

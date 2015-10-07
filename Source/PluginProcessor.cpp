@@ -92,9 +92,10 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 ,m_iOscPortZirkonium(18032)
 ,m_bIsOscActive(true)
 ,m_bIsSpanLinked(true)
-,m_dTrajectoryCount(1)
-,m_dTrajectoriesDuration(5)
-,m_dTrajectoryTurns(1)
+,m_dTrajectoryCount(1.)
+,m_dTrajectoriesDuration(5.)
+,m_dTrajectoryTurns(1.)
+,m_dTrajectoryDeviation(0.)
 ,m_dTrajectoryNbrOscil(2)
 //,_TrajectoriesPhiAsin(0)
 //,_TrajectoriesPhiAcos(0)
@@ -914,6 +915,7 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("endLocationAzim", m_fEndLocationXY.first);
     xml.setAttribute("endLocationElev", m_fEndLocationXY.second);
     xml.setAttribute("turns", m_dTrajectoryTurns);
+    xml.setAttribute("deviation", m_dTrajectoryDeviation);
     xml.setAttribute("oscil", m_dTrajectoryNbrOscil);
     
     for(int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
@@ -973,20 +975,21 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         JUCE_COMPILER_WARNING("we don't even use those values to load the editor, why store them?")
         _LastUiWidth                    = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
         _LastUiHeight                   = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
-        m_iOscPortZirkonium               = xmlState->getIntAttribute("PortOSC", 18032);
-        m_iNbrSources                     = xmlState->getIntAttribute("NombreSources", 1);
+        m_iOscPortZirkonium             = xmlState->getIntAttribute("PortOSC", 18032);
+        m_iNbrSources                   = xmlState->getIntAttribute("NombreSources", 1);
         float fMovementConstraint       = xmlState->getDoubleAttribute("MovementConstraint", .0f);
         setMovementConstraint(fMovementConstraint >= 0 ? fMovementConstraint : 0);
-        m_bIsOscActive                    = xmlState->getBoolAttribute("isOscActive", true);
-        m_bIsSpanLinked                   = xmlState->getBoolAttribute("isSpanLinked", false);
-        m_fSelectedTrajectory             = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
-        m_dTrajectoryCount                = xmlState->getIntAttribute("nbrTrajectory", 0);
-        m_dTrajectoriesDuration           = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
+        m_bIsOscActive                  = xmlState->getBoolAttribute("isOscActive", true);
+        m_bIsSpanLinked                 = xmlState->getBoolAttribute("isSpanLinked", false);
+        m_fSelectedTrajectory           = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectory", .0f));
+        m_dTrajectoryCount              = xmlState->getIntAttribute("nbrTrajectory", 0);
+        m_dTrajectoriesDuration         = static_cast<float>(xmlState->getDoubleAttribute("durationTrajectory", .0f));
         m_bIsSyncWTempo                 = xmlState->getBoolAttribute("isSyncWTempo", false);
         m_bIsWriteTrajectory            = xmlState->getBoolAttribute("isWriteTrajectory", false);
-        m_fEndLocationXY.first        = xmlState->getDoubleAttribute("endLocationAzim", 180.0);
-        m_fEndLocationXY.second       = xmlState->getDoubleAttribute("endLocationElev", 90.0);
-        m_dTrajectoryTurns              = xmlState->getDoubleAttribute("turns", 1);
+        m_fEndLocationXY.first          = xmlState->getDoubleAttribute("endLocationAzim", 180.0);
+        m_fEndLocationXY.second         = xmlState->getDoubleAttribute("endLocationElev", 90.0);
+        m_dTrajectoryTurns              = xmlState->getDoubleAttribute("turns", m_dTrajectoryTurns);
+        m_dTrajectoryDeviation          = xmlState->getDoubleAttribute("deviation", m_dTrajectoryDeviation);
         m_dTrajectoryNbrOscil           = xmlState->getDoubleAttribute("oscil", m_dTrajectoryNbrOscil);
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){

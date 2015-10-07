@@ -167,6 +167,10 @@ class TrajectoryTab : public Component{
     Label*      m_pTurnsLabel;
     TextEditor* m_pTurnsTextEditor;
 
+    Label*      m_pDeviationLabel;
+    TextEditor* m_pDeviationTextEditor;
+
+    
     Label*      m_pNbrOscilLabel;
     TextEditor* m_pNbrOscilTextEditor;
     
@@ -210,6 +214,9 @@ public:
         m_pTurnsLabel           = addToList (new Label());
         m_pTurnsTextEditor      = addToList (new TextEditor());
 
+        m_pDeviationLabel           = addToList (new Label());
+        m_pDeviationTextEditor      = addToList (new TextEditor());
+        
         m_pNbrOscilLabel           = addToList (new Label());
         m_pNbrOscilTextEditor      = addToList (new TextEditor());
         
@@ -239,6 +246,9 @@ public:
     
     Label*          getTurnsLabel(){        return m_pTurnsLabel;}
     TextEditor*     getTurnsTextEditor(){   return m_pTurnsTextEditor;}
+
+    Label*          getDeviationLabel(){        return m_pDeviationLabel;}
+    TextEditor*     getDeviationTextEditor(){   return m_pDeviationTextEditor;}
     
     Label*          getNbrOscilLabel(){        return m_pNbrOscilLabel;}
     TextEditor*     getNbrOscilTextEditor(){   return m_pNbrOscilTextEditor;}
@@ -462,6 +472,13 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pTrajectoryTurnsLabel = m_oTrajectoryTab->getTurnsLabel();
     m_pTrajectoryTurnsLabel->setText("turn(s)",  dontSendNotification);
 
+    //DEVIATION
+    m_pTrajectoryDeviationTextEditor = m_oTrajectoryTab->getDeviationTextEditor();
+    m_pTrajectoryDeviationTextEditor->setText("     " + String(ourProcessor->getDeviation()));
+    m_pTrajectoryDeviationTextEditor->addListener(this);
+    m_pTrajectoryDeviationLabel = m_oTrajectoryTab->getDeviationLabel();
+    m_pTrajectoryDeviationLabel->setText("° deviation",  dontSendNotification);
+    
     //Nbr Oscillations
     m_pTrajectoryNbrOscilTextEditor = m_oTrajectoryTab->getNbrOscilTextEditor();
     m_pTrajectoryNbrOscilTextEditor->setText("      " + String(ourProcessor->getNbrOscil()));
@@ -646,8 +663,7 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pResetEndTrajectoryButton ->setVisible(false);
     }
     
-    if (iSelectedTrajectory == Spiral || iSelectedTrajectory == Circle || iSelectedTrajectory == Ellipse ||
-        iSelectedTrajectory == Pendulum || iSelectedTrajectory == DampedPendulum ){
+    if (iSelectedTrajectory == Spiral || iSelectedTrajectory == Circle || iSelectedTrajectory == Ellipse){
         m_pTrajectoryTurnsLabel->setVisible(true);
         m_pTrajectoryTurnsTextEditor->setVisible(true);
     } else {
@@ -655,12 +671,16 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pTrajectoryTurnsTextEditor->setVisible(false);
     }
     
-    if (iSelectedTrajectory == DampedPendulum){
+    if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == DampedPendulum ){
         m_pTrajectoryNbrOscilTextEditor->setVisible(true);
         m_pTrajectoryNbrOscilLabel->setVisible(true);
+        m_pTrajectoryDeviationLabel->setVisible(true);
+        m_pTrajectoryDeviationTextEditor->setVisible(true);
     } else {
         m_pTrajectoryNbrOscilTextEditor->setVisible(false);
         m_pTrajectoryNbrOscilLabel->setVisible(false);
+        m_pTrajectoryDeviationLabel->setVisible(false);
+        m_pTrajectoryDeviationTextEditor->setVisible(false);
     }
 }
 
@@ -766,6 +786,9 @@ void ZirkOscAudioProcessorEditor::resized() {
     //row 3 col 3.5 and 4 are either of these things
     m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4-10,    25);
     m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
+    m_pTrajectoryDeviationTextEditor->  setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4-10,    25);
+    m_pTrajectoryDeviationLabel->       setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
+
     m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+iCol1w + iCol2w - iCol3w/2,    m_iT_M+50, iCol3w/2,    25);
     m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+50, iCol3w,    25);
     
@@ -1106,9 +1129,10 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             float repeats   = m_pTrajectoryCountTextEditor->getText().getFloatValue();
             int   source    = ourProcessor->getSelectedSource();
             float fTurns    = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
+            float fDeviation= m_pTrajectoryDeviationTextEditor->getText().getFloatValue();
             float fNbrOscil = m_pTrajectoryNbrOscilTextEditor->getText().getFloatValue();
             
-            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocationXY(), fTurns, fNbrOscil));
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocationXY(), fTurns, fNbrOscil, fDeviation));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
             mTrState = kTrWriting;
@@ -1556,6 +1580,12 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     } else if (m_pTrajectoryTurnsTextEditor == &textEditor){
         updateTurnsTextEditor();
+    } else if (m_pTrajectoryDeviationTextEditor == &textEditor){
+        double doubleValue = textEditor.getText().getDoubleValue();
+        if (doubleValue > 0 && doubleValue <= 360){
+            ourProcessor->setDeviation(doubleValue);
+        }
+        m_pTrajectoryNbrOscilTextEditor->setText("      " + String(ourProcessor->getDeviation()));
     } else if (m_pTrajectoryNbrOscilTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue > 0 && doubleValue <= 10){
