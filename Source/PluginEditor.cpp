@@ -705,8 +705,9 @@ void ZirkOscAudioProcessorEditor::resized() {
     int iXRadius = (iCurWidth -85 -kiSrcDiameter)/2;
     int iYRadius = (iCurHeight-ZirkOSC_SlidersGroupHeight-10)/2;
     ZirkOscAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
-    int w = 150;
-    m_oEndPointLabel.setBounds(_ZirkOSC_Center_X-w/2, _ZirkOSC_Center_Y+ZirkOscAudioProcessor::s_iDomeRadius+25, w, 25);
+    int w = 250;
+    m_oEndPointLabel.setBounds(_ZirkOSC_Center_X-w/2, _ZirkOSC_Center_Y+ZirkOscAudioProcessor::s_iDomeRadius, w, 15);
+    m_oEndPointLabel.setVisible(false);
     
     //------------ RESTORE SOURCE ELEVATION ---------------
     for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
@@ -1162,11 +1163,13 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
     else if (button == m_pSetEndTrajectoryButton){
         if (m_pSetEndTrajectoryButton->getToggleState()){
             m_pSetEndTrajectoryButton->setButtonText("Cancel");
+            m_oEndPointLabel.setVisible(true);
                         
             m_pEndAzimTextEditor->setText("");
             m_pEndElevTextEditor->setText("");
         } else {
             m_pSetEndTrajectoryButton->setButtonText("Set end point");
+            m_oEndPointLabel.setVisible(false);
             updateEndLocationTextEditors();
         }
     }
@@ -1406,6 +1409,7 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         updateEndLocationTextEditors();
         m_pSetEndTrajectoryButton->setToggleState(false, dontSendNotification);
         m_pSetEndTrajectoryButton->setButtonText("Set end point");
+        m_oEndPointLabel.setVisible(false);
     }
 
     m_oMovementConstraintComboBox.grabKeyboardFocus();
