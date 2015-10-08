@@ -240,7 +240,7 @@ public:
     ,mCCW(ccw)
     ,m_bRT(rt)
     ,m_fEndPair(endPoint)
-    ,m_fDeviation(fDeviation)
+    ,m_fDeviation(fDeviation/360)
     { }
     
 protected:
@@ -277,9 +277,12 @@ protected:
         if (!mCCW) {
             newAzimuth = - newAzimuth;
         }
-        newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth + m_fDeviation, &integralPart);
+        //newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth*m_fDeviation, &integralPart);
+
+        newAzimuth = m_fTrajectoryInitialAzimuth01 + newAzimuth * m_fDeviation;
         //move using both parts
         move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
+        
     }
 private:
     bool mCCW, m_bRT, m_bYisDependent;

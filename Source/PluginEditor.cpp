@@ -1585,7 +1585,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         if (doubleValue > 0 && doubleValue <= 360){
             ourProcessor->setDeviation(doubleValue);
         }
-        m_pTrajectoryNbrOscilTextEditor->setText("      " + String(ourProcessor->getDeviation()));
+        m_pTrajectoryDeviationTextEditor->setText("      " + String(ourProcessor->getDeviation()));
     } else if (m_pTrajectoryNbrOscilTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue > 0 && doubleValue <= 10){
