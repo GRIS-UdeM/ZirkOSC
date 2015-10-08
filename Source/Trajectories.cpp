@@ -228,13 +228,14 @@ private:
 class PendulumTrajectory : public Trajectory
 {
 public:
-    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt,  const std::pair<float, float> &endPoint, float fDeviation)
+    PendulumTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw,
+                       bool rt,  const std::pair<float, float> &endPoint, float fDeviation, float p_fDampening)
     :Trajectory(filter, duration, beats, times, source)
     ,mCCW(ccw)
     ,m_bRT(rt)
     ,m_fEndPair(endPoint)
     ,m_fDeviation(fDeviation/360)
-    ,m_fDeviatedAzim(0.)
+    ,m_fTotalDampening(p_fDampening)
     { }
     
 protected:
@@ -250,18 +251,23 @@ protected:
         }
     }
     void spProcess(float duration, float seconds) {
+
+        int iReturn = m_bRT ? 2:1;
+        float fCurDampening = m_fTotalDampening * mDone / (mDurationSingleTrajectory * m_dTrajectoryCount);
         //pendulum part
         float newX, newY, temp, fCurrentProgress = modf((mDone / mDurationSingleTrajectory), &temp);
-        int iReturn = m_bRT ? 2:1;
+
         if (m_bYisDependent){
             fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
             newX = m_fStartPair.first + fCurrentProgress;
             newY = m_fM * newX + m_fB;
         } else {
-            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
+            fCurrentProgress = fCurDampening * (m_fEndPair.second - m_fStartPair.second) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
             newX = m_fStartPair.first;
             newY = m_fStartPair.second + fCurrentProgress;
         }
+        newX = newX - newX*fCurDampening;
+        newY = newY - newY*fCurDampening;
         float fPendulumAzim = SoundSource::XYtoAzim01(newX, newY);
         float fPendulumElev = SoundSource::XYtoElev01(newX, newY);
         
@@ -282,8 +288,7 @@ private:
     float m_fM;
     float m_fB;
     float m_fDeviation;
-    float m_fDeviatedAzim;
-    
+    float m_fTotalDampening;
 };
 // ==============================================================================
 class DampedPendulumTrajectory : public Trajectory
@@ -807,7 +812,7 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
         case Ellipse:                    return new EllipseTrajectory       (filter, duration, beats, times, source, ccw, fTurns);
         case Spiral:                     return new SpiralTrajectory        (filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
         case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns, fNbrOscil);
-        case Pendulum:                   return new PendulumTrajectory      (filter, duration, beats, times, source, ccw, bReturn, endPair, fDeviation);
+        case Pendulum:                   return new PendulumTrajectory      (filter, duration, beats, times, source, ccw, bReturn, endPair, fDeviation, fNbrOscil);
         case AllTrajectoryTypes::Random: return new RandomTrajectory        (filter, duration, beats, times, source, speed);
             
             //      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
