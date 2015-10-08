@@ -85,6 +85,8 @@ const float kiSrcDiameter  = 2 * kiSrcRadius;
 const int ZirkOSC_Window_Default_Width  = 430 + kiSrcRadius;
 const int ZirkOSC_Window_Default_Height = 350 + ZirkOSC_ConstraintComboBoxHeight + ZirkOSC_SlidersGroupHeight;
 
+const String kFirstRowSpacing = "          ";
+
 const float ZirkOSC_MarksAngles[] =
 {
 	22.5, 90 - 22.5, 90 + 22.5, 180 - 22.5, 180 + 22.5, 270 - 22.5, 270 + 22.5, 360 - 22.5

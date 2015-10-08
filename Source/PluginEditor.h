@@ -64,6 +64,9 @@ public:
     //! called when window is resized
     void resized() override;
     
+    void updateWallCircleSize(int iCurWidth, int iCurHeight);
+    void updateTrajectoryTabSize(int iCurw, int iCurHeight);
+    
     void move (int, float, float);
     
     //! Function to set the combination of Slider and Label.

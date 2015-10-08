@@ -453,14 +453,14 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     //TRAJECTORY DURATION EDITOR
     m_pTrajectoryDurationTextEditor = m_oTrajectoryTab->getDurationTextEditor();
-    m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+    m_pTrajectoryDurationTextEditor->setText(kFirstRowSpacing + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     m_pTrajectoryDurationTextEditor->addListener(this);
     m_pTrajectoryDurationLabel = m_oTrajectoryTab->getDurationLabel();
     m_pTrajectoryDurationLabel->setText("per cycle",  dontSendNotification);
     
     //NBR TRAJECTORY TEXT EDITOR
     m_pTrajectoryCountTextEditor = m_oTrajectoryTab->getCountTextEditor();
-    m_pTrajectoryCountTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
+    m_pTrajectoryCountTextEditor->setText(kFirstRowSpacing + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
     m_pTrajectoryCountTextEditor->addListener(this);
     m_pTrajectoryCountLabel = m_oTrajectoryTab->getCountLabel();
     m_pTrajectoryCountLabel->setText("cycle(s)",  dontSendNotification);
@@ -725,37 +725,14 @@ void ZirkOscAudioProcessorEditor::resized() {
     _LinkSpanButton.setBounds       (iCurWidth-80, 180, 80, 25);
     _LinkSpanButton.toBack();
     _OscActiveButton.toBack();
-
     //    setLabelAndTextEditorPosition(iCurWidth-80 , 155, 80, 25, &_IpadIncomingOscPortLabel, &_IpadIncomingOscPortTextEditor);
     //    setLabelAndTextEditorPosition(iCurWidth-80 , 205, 80, 25, &_IpadOutgoingOscPortLabel, &_IpadOutgoingOscPortTextEditor);
     //    setLabelAndTextEditorPosition(iCurWidth-80 , 255, 80, 25, &_IpadIpAddressLabel, &_IpadIpAddressTextEditor);
 
-    
-    //------------ SAVE SOURCE ELEVATION ---------------
-    float fAllElev01[8];
-    for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
-        fAllElev01[iCurSrc] = ourProcessor->getSources()[iCurSrc].getElevation01();
-    }
-    
     //------------ WALLCIRCLE ------------
-    _ZirkOSC_Center_X = (iCurWidth - 80)/2;
-    _ZirkOSC_Center_Y = (iCurHeight-ZirkOSC_SlidersGroupHeight)/2;
-    //assign smallest possible radius
-    int iXRadius = (iCurWidth -85 -kiSrcDiameter)/2;
-    int iYRadius = (iCurHeight-ZirkOSC_SlidersGroupHeight-10)/2;
-    ZirkOscAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
-    int w = 250;
-    m_oEndPointLabel.setBounds(_ZirkOSC_Center_X-w/2, _ZirkOSC_Center_Y+ZirkOscAudioProcessor::s_iDomeRadius, w, 15);
-    m_oEndPointLabel.setVisible(false);
-    
-    //------------ RESTORE SOURCE ELEVATION ---------------
-    for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
-        ourProcessor->getSources()[iCurSrc].setElevation01(fAllElev01[iCurSrc]);
-    }
-    
+    updateWallCircleSize(iCurWidth, iCurHeight);
     //------------ CONSTRAINT COMBO BOX ------------
     m_oMovementConstraintComboBox.setBounds(iCurWidth/2 - 220/2, iCurHeight - ZirkOSC_SlidersGroupHeight - ZirkOSC_ConstraintComboBoxHeight+20, 220, ZirkOSC_ConstraintComboBoxHeight);
-    
     //------------ TABS ------------
     _TabComponent.setBounds(0, iCurHeight - ZirkOSC_SlidersGroupHeight + ZirkOSC_ConstraintComboBoxHeight, iCurWidth, ZirkOSC_SlidersGroupHeight);
 
@@ -767,7 +744,33 @@ void ZirkOscAudioProcessorEditor::resized() {
     setSliderAndLabelPosition(m_iL_M, m_iT_M+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
     
     //------------ TRAJECTORIES TAB------------
-    int iCol1w = 100, iCol2w = 200;
+    updateTrajectoryTabSize(iCurWidth, iCurHeight);
+}
+
+void ZirkOscAudioProcessorEditor::updateWallCircleSize(int iCurWidth, int iCurHeight){
+    //------------ SAVE SOURCE ELEVATION ---------------
+    float fAllElev01[8];
+    for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
+        fAllElev01[iCurSrc] = ourProcessor->getSources()[iCurSrc].getElevation01();
+    }
+    //------------ WALLCIRCLE ------------
+    _ZirkOSC_Center_X = (iCurWidth - 80)/2;
+    _ZirkOSC_Center_Y = (iCurHeight-ZirkOSC_SlidersGroupHeight)/2;
+    //assign smallest possible radius
+    int iXRadius = (iCurWidth -85 -kiSrcDiameter)/2;
+    int iYRadius = (iCurHeight-ZirkOSC_SlidersGroupHeight-10)/2;
+    ZirkOscAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
+    int w = 250;
+    m_oEndPointLabel.setBounds(_ZirkOSC_Center_X-w/2, _ZirkOSC_Center_Y+ZirkOscAudioProcessor::s_iDomeRadius, w, 15);
+    m_oEndPointLabel.setVisible(false);
+    //------------ RESTORE SOURCE ELEVATION ---------------
+    for (int iCurSrc = 0; iCurSrc < ourProcessor->getNbrSources(); ++iCurSrc){
+        ourProcessor->getSources()[iCurSrc].setElevation01(fAllElev01[iCurSrc]);
+    }
+}
+
+void ZirkOscAudioProcessorEditor::updateTrajectoryTabSize(int iCurWidth, int iCurHeight){
+    int iCol1w = 90, iCol2w = 200;
     int iCol3w = 90;
     int dw = 40;
     //row 1
@@ -787,7 +790,7 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
     m_pTrajectoryDeviationTextEditor->  setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4-10,    25);
     m_pTrajectoryDeviationLabel->       setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
-
+    
     m_pTrajectoryDampeningTextEditor->   setBounds(m_iL_M+iCol1w + iCol2w - iCol3w/2,    m_iT_M+50, iCol3w/2,    25);
     m_pTrajectoryDampeningLabel->        setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+50, iCol3w,    25);
     
@@ -1075,8 +1078,8 @@ void ZirkOscAudioProcessorEditor::refreshGui(){
     }
     
     ourProcessor->getIsSyncWTempo() ? m_pSyncWTempoComboBox->setSelectedId(SyncWTempo) : m_pSyncWTempoComboBox->setSelectedId(SyncWTime);
-    m_pTrajectoryCountTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
-    m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+    m_pTrajectoryCountTextEditor->setText(kFirstRowSpacing + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
+    m_pTrajectoryDurationTextEditor->setText(kFirstRowSpacing + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     
 //    _IpadIncomingOscPortTextEditor.setText(ourProcessor->getOscPortIpadIncoming());
 //    _IpadOutgoingOscPortTextEditor.setText(ourProcessor->getOscPortIpadOutgoing());
@@ -1553,7 +1556,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             ourProcessor->setParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId, doubleValue);
 
         }
-        m_pTrajectoryCountTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
+        m_pTrajectoryCountTextEditor->setText(kFirstRowSpacing + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSCm_dTrajectoryCount_ParamId)));
     }
     
     else if(m_pTrajectoryDurationTextEditor == &textEditor){
@@ -1561,7 +1564,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         if (doubleValue >= 0 && doubleValue < 10000){
             ourProcessor->setParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId, doubleValue);
         }
-        m_pTrajectoryDurationTextEditor->setText("            " + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
+        m_pTrajectoryDurationTextEditor->setText(kFirstRowSpacing + String(ourProcessor->getParameter(ZirkOscAudioProcessor::ZirkOSC_TrajectoriesDuration_ParamId)));
     } else if (m_pTrajectoryTurnsTextEditor == &textEditor){
         updateTurnsTextEditor();
     } else if (m_pTrajectoryDeviationTextEditor == &textEditor){
