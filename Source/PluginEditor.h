@@ -38,14 +38,12 @@ class TrajectoryTab;
 class InterfaceTab;
 class HIDDelegate;
 class ZirkLeap;
-
-
 class ZirkOscAudioProcessor;
+
 class ZirkOscAudioProcessorEditor  : public AudioProcessorEditor,
 public ButtonListener,
 public SliderListener,
 public Timer,
-public MouseListener,
 public TextEditorListener,
 public ComboBoxListener
 {
@@ -58,7 +56,7 @@ public:
     ~ZirkOscAudioProcessorEditor();
 
     //! This is just a standard Juce paint method...
-    void paint (Graphics& g);
+    void paint (Graphics& g) override;
     
     //! when you want to refresh the TextEditors.
     void refreshGui();
@@ -87,14 +85,13 @@ private:
     
     void updateSliders();
     void updateEndLocationTextEditors();
-    void updateTrajTypeAndDirection();
     void updateTurnsTextEditor();
     void setDefaultPendulumEndpoint();
     
     //! Called when a comboBox's value has changed
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override;
     //! Called when a button is clicked
-    void buttonClicked (Button* button);
+    void buttonClicked (Button* button) override;
 
     int getNumSelectedTrajectoryDirections();
     
@@ -102,45 +99,30 @@ private:
     
     //METHODS FOR DEALING WITH DIRECT WALLCIRCLE INTERACTIONS
     //! Called when a mouse is clicked, if mouse is clicked on source, make this source the selected source
-    void mouseDown (const MouseEvent &event);
+    void mouseDown (const MouseEvent &event) override;
     //! Called when there is a draggin event
- 	void mouseDrag (const MouseEvent &event);
+ 	void mouseDrag (const MouseEvent &event) override;
     //! Called when the mouse is up
- 	void mouseUp (const MouseEvent &event);
+ 	void mouseUp (const MouseEvent &event) override;
     
     void setTrajectorySource();
-    
-    //! Called when a value of a slider has changed
-    void sliderValueChanged (Slider* slider);
-    
-    //! Called when slider drag initiated
-    void sliderDragStarted (Slider* slider);
-    
-    //! Called when slider drag ended
-    void sliderDragEnded (Slider* slider);
-    
-    //! Called every laps of time
-    void timerCallback();
-    //! Called when enter is pressed in a TextEditor
-    void textEditorReturnKeyPressed (TextEditor &editor);
-    //! Called when text is changed in a TextEditor
-    void textEditorFocusLost (TextEditor &editor);
-    //! Function to set the position of one Slider and associated Label.
-    void setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label);
-    //! Function to set the position of one label and associated text editor.   
-    void setLabelAndTextEditorPosition(int x, int y, int width, int height, Label* p_label, TextEditor* p_textEditor);
-    //! Return the position of the source at the position p if no source returns -1
-    int getSourceFromPosition(Point<float> p);
 
+    void sliderValueChanged (Slider* slider) override;
+    void sliderDragStarted (Slider* slider) override;
+    void sliderDragEnded (Slider* slider) override;
+    
+    void timerCallback() override;
+    void textEditorReturnKeyPressed (TextEditor &editor) override;
+    void textEditorFocusLost (TextEditor &editor) override;
+    void setSliderAndLabelPosition(int x, int y, int width, int height, Slider* slider, Label* label);
+    void setLabelAndTextEditorPosition(int x, int y, int width, int height, Label* p_label, TextEditor* p_textEditor);
+    int getSourceFromPosition(Point<float> p);
     //! Resizable corner to allow plugin window to be resized
     ScopedPointer<ResizableCornerComponent> _Resizer;
-    
     //! Bounds of the resizable window
     ComponentBoundsConstrainer _ResizeLimits;
-    
     //! Toggle Button to link the span
     ToggleButton _LinkSpanButton;
-    
     //! Toggle Button to de/activate osc messages to Zirkonium
     ToggleButton _OscActiveButton;
 
@@ -151,17 +133,12 @@ private:
     
     //-------------TRAJECTORIES------------------
     ComboBox* m_pTrajectoryTypeComboBox;
-    
     ComboBox* m_pTrajectoryDirectionComboBox;
-    
     ComboBox* m_pTrajectoryReturnComboBox;
-    
     ComboBox* m_pSyncWTempoComboBox;
     
     TextButton* m_pWriteTrajectoryButton;
-    
     TextButton* m_pSetEndTrajectoryButton;
-    
     TextEditor* m_pEndAzimTextEditor;
     TextEditor* m_pEndElevTextEditor;
     TextButton* m_pResetEndTrajectoryButton;
@@ -170,7 +147,6 @@ private:
     Label* m_pTrajectoryTurnsLabel;
     Label* m_pTrajectoryDeviationLabel;
     Label* m_pTrajectoryDampeningLabel;
-    
     Label* m_pTrajectoryDurationLabel;
     
     TextEditor* m_pTrajectoryCountTextEditor;
@@ -182,58 +158,37 @@ private:
   	MiniProgressBar *mTrProgressBar;
     
     void updateTrajectoryComponents();
-    
-    //---------------- SLIDERS ------------------
-    
-    //! Slider to change the Azimuth
+
     Slider* m_pAzimuthSlider;
-    //! Slider to change the Azimuth Span
     Slider* m_pAzimuthSpanSlider;
-    //! Slider to change the Elevation
     Slider* m_pElevationSlider;
-    //! Slider to change the Elevation Span
     Slider* m_pElevationSpanSlider;
-    //! Slider to change the gain
     Slider* m_pGainSlider;
 
-    //---------------- LABELS ------------------
-    
-    //! Azimuth's Label
     Label* m_pAzimuthLabel;
-    //! Azimuth span's Label
     Label* m_pAzimuthSpanLabel;
-    //! Elevation's Label
     Label* m_pElevationLabel;
-    //! Elevation span's Label
     Label* m_pElevationSpanLabel;
-    //! Gain's Label
     Label* m_pGainLabel;
-    
-    //! Label of the channel number of the selectedSource
-    Label _FirstSourceIdLabel;
-    //! Label of the ZKM port
-    Label _ZkmOscPortLabel;
-    //! Label of the number of sources
-    Label _NbrSourceLabel;
-    
+    Label m_oFirstSourceIdLabel;
+    Label m_oZkmOscPortLabel;
+    Label m_oNbrSourceLabel;
     Label m_VersionLabel;
     
     ImageComponent m_logoImage;
     
+
+
+    TextEditor _FirstSourceIdTextEditor;
+    TextEditor _ZkmOscPortTextEditor;
+    TextEditor _NbrSourceTextEditor;
+
 //    //! Label of the outgoing port to the iPad
 //    Label _IpadOutgoingOscPortLabel;
 //    //! Label of the incoming port
 //    Label _IpadIncomingOscPortLabel;
 //    //! Label of the iPad address
 //    Label _IpadIpAddressLabel;
-
-
-    //! TextEditor for the channel number of the selected source
-    TextEditor _FirstSourceIdTextEditor;
-    //! TextEditor for the ZKM port
-    TextEditor _ZkmOscPortTextEditor;
-    //! TextEditor for the Number of sources
-    TextEditor _NbrSourceTextEditor;
 //    //! TextEditor for the iPad Port outgoing (from the plug-in to the iPad)
 //    TextEditor _IpadOutgoingOscPortTextEditor;
 //    //! TextEditor for the iPad incoming port  (from the ipad to the plugin)
@@ -242,11 +197,8 @@ private:
 //    TextEditor _IpadIpAddressTextEditor;
     
 
-
-    //! Combobox to choose constrain type
     ComboBox m_oMovementConstraintComboBox;
-    
-    //! If there is a source beeing drag
+
     bool m_bIsSourceBeingDragged = false;
 
     //-------------INTERFACES------------------

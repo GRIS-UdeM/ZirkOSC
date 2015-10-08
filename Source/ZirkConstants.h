@@ -107,7 +107,6 @@ enum AllTrajectoryTypes {
     Ellipse,
     Spiral,
     Pendulum,
-    DampedPendulum,
     Random,
     TotalNumberTrajectories    
 };

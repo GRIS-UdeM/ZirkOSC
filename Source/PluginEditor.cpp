@@ -303,9 +303,9 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,_OscActiveButton("OSC active")
 ,_TabComponent(TabbedButtonBar::TabsAtTop)
 //strings in parameters are all used as juce::component names
-,_FirstSourceIdLabel()
-,_ZkmOscPortLabel()
-,_NbrSourceLabel()
+,m_oFirstSourceIdLabel()
+,m_oZkmOscPortLabel()
+,m_oNbrSourceLabel()
 ,m_VersionLabel()
 ,m_logoImage()
 //,_IpadOutgoingOscPortLabel("OSCPortOutgoingIPad")
@@ -330,7 +330,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 
     
     //---------- RIGHT SIDE LABELS ----------
-    _NbrSourceLabel.setText("Nbr sources",  dontSendNotification);
+    m_oNbrSourceLabel.setText("Nbr sources",  dontSendNotification);
     
     String version = STRING(JUCE_APP_VERSION);
 #ifdef JUCE_DEBUG
@@ -343,20 +343,20 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
    	m_logoImage.setImage(ImageFileFormat::loadFrom (BinaryData::logoGris_png, (size_t) BinaryData::logoGris_pngSize));
     
     _NbrSourceTextEditor.setText(String(ourProcessor->getNbrSources()));
-    addAndMakeVisible(&_NbrSourceLabel);
+    addAndMakeVisible(&m_oNbrSourceLabel);
     addAndMakeVisible(&_NbrSourceTextEditor);
     
     addAndMakeVisible(&m_VersionLabel);
     addAndMakeVisible(&m_logoImage);
     
-    _FirstSourceIdLabel.setText("1st source ID",  dontSendNotification);
+    m_oFirstSourceIdLabel.setText("1st source ID",  dontSendNotification);
     _FirstSourceIdTextEditor.setText(String(ourProcessor->getSources()[0].getSourceId()));
-    addAndMakeVisible(&_FirstSourceIdLabel);
+    addAndMakeVisible(&m_oFirstSourceIdLabel);
     addAndMakeVisible(&_FirstSourceIdTextEditor);
     
-    _ZkmOscPortLabel.setText("ZKM OSC port",  dontSendNotification);
+    m_oZkmOscPortLabel.setText("ZKM OSC port",  dontSendNotification);
     _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
-    addAndMakeVisible(&_ZkmOscPortLabel);
+    addAndMakeVisible(&m_oZkmOscPortLabel);
     addAndMakeVisible(&_ZkmOscPortTextEditor);
     
 //    _IpadIncomingOscPortLabel.setText("Inc. port",  dontSendNotification);
@@ -627,8 +627,6 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         }
         m_pTrajectoryDirectionComboBox->setVisible(true);
         m_pTrajectoryDirectionComboBox->setSelectedId(PercentToIntStartsAtOne(ourProcessor->getSelectedTrajectoryDirection(), getNumSelectedTrajectoryDirections()));
-        
-        updateTrajTypeAndDirection();
     } else {
         m_pTrajectoryDirectionComboBox->setVisible(false);
     }
@@ -645,7 +643,7 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pTrajectoryReturnComboBox->setVisible(false);
     }
     
-    if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == Spiral || iSelectedTrajectory == DampedPendulum){
+    if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == Spiral){
         m_pSetEndTrajectoryButton   ->setVisible(true);
         m_pEndAzimTextEditor        ->setVisible(true);
         m_pEndElevTextEditor        ->setVisible(true);
@@ -671,7 +669,7 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pTrajectoryTurnsTextEditor->setVisible(false);
     }
     
-    if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == DampedPendulum ){
+    if (iSelectedTrajectory == Pendulum){
         m_pTrajectoryDampeningTextEditor->setVisible(true);
         m_pTrajectoryDampeningLabel->setVisible(true);
         m_pTrajectoryDeviationLabel->setVisible(true);
@@ -720,9 +718,9 @@ void ZirkOscAudioProcessorEditor::resized() {
     //------------ LABELS ON RIGHT SIDE +version label------------
     m_logoImage.setBounds(5,5,55,55);
     m_VersionLabel.setBounds        (iCurWidth-180,5,100,30);
-    setLabelAndTextEditorPosition   (iCurWidth-80, 5,   80, 25, &_NbrSourceLabel, &_NbrSourceTextEditor);
-    setLabelAndTextEditorPosition   (iCurWidth-80, 55,  80, 25, &_FirstSourceIdLabel, &_FirstSourceIdTextEditor);
-    setLabelAndTextEditorPosition   (iCurWidth-80, 105, 80, 25, &_ZkmOscPortLabel, &_ZkmOscPortTextEditor);
+    setLabelAndTextEditorPosition   (iCurWidth-80, 5,   80, 25, &m_oNbrSourceLabel, &_NbrSourceTextEditor);
+    setLabelAndTextEditorPosition   (iCurWidth-80, 55,  80, 25, &m_oFirstSourceIdLabel, &_FirstSourceIdTextEditor);
+    setLabelAndTextEditorPosition   (iCurWidth-80, 105, 80, 25, &m_oZkmOscPortLabel, &_ZkmOscPortTextEditor);
     _OscActiveButton.setBounds      (iCurWidth-80, 155, 80, 25);
     _LinkSpanButton.setBounds       (iCurWidth-80, 180, 80, 25);
     _LinkSpanButton.toBack();
@@ -773,11 +771,12 @@ void ZirkOscAudioProcessorEditor::resized() {
     int iCol3w = 90;
     int dw = 40;
     //row 1
-    updateTrajTypeAndDirection();
+    m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,                   m_iT_M,    iCol1w,  25);
+    m_pTrajectoryDirectionComboBox->    setBounds(m_iL_M+iCol1w,            m_iT_M,    iCol2w,  25);
     m_pTrajectoryReturnComboBox->       setBounds(m_iL_M+iCol1w + iCol2w,   m_iT_M,    iCol3w,  25);
     //row 2
     m_pTrajectoryDurationTextEditor->   setBounds(m_iL_M,                   m_iT_M+25, iCol1w,  25);
-    m_pSyncWTempoComboBox->             setBounds(m_iL_M+iCol1w,            m_iT_M+25, iCol2w/2,  25);
+    m_pSyncWTempoComboBox->             setBounds(m_iL_M+iCol1w,            m_iT_M+25, iCol2w/2,25);
     m_pTrajectoryDurationLabel->        setBounds(m_iL_M+iCol1w + iCol2w/2, m_iT_M+25, iCol3w,  25);
     //row3
     m_pTrajectoryCountTextEditor->      setBounds(m_iL_M,                   m_iT_M+50, iCol1w,  25);
@@ -810,12 +809,6 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pLBJoystickState->                setBounds(m_iL_M+100,   m_iT_M+50,  200, 25);
 }
 
-void ZirkOscAudioProcessorEditor::updateTrajTypeAndDirection(){
-    int iCol1w = 100, iCol2w = 200;
-    int dw = (ourProcessor->getSelectedTrajectory() == DampedPendulum) ? iCol2w/2-40: 0;
-    m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,             m_iT_M,    iCol1w + dw,   25);
-    m_pTrajectoryDirectionComboBox->    setBounds(m_iL_M+iCol1w+dw,   m_iT_M,    iCol2w - dw,   25);
-}
 
 //Automatic function to set label and Slider
 

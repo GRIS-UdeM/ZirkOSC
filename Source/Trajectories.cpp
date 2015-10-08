@@ -669,7 +669,6 @@ String Trajectory::GetTrajectoryName(int i){
         case Ellipse: return "Ellipse";
         case Spiral: return "Spiral";
         case Pendulum: return "Pendulum";
-        case DampedPendulum: return "Damped Pendulum";
         case AllTrajectoryTypes::Random: return "Random";
 	}
 	jassert(0);
@@ -683,7 +682,6 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
         case Ellipse:
         case Spiral:
         case Pendulum:
-        case DampedPendulum:
             vDirections->push_back("Clockwise");
             vDirections->push_back("Counter Clockwise");
             break;
@@ -697,29 +695,13 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleDirections(int 
     }
     return vDirections;
 }
-
 unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSelectedTrajectory, int p_iSelectedDirection){
     unique_ptr<AllTrajectoryDirections> pDirection (new AllTrajectoryDirections);
     switch (p_iSelectedTrajectory) {
-//        case Circle:
-//        case Ellipse:
-//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
-//            break;
-//        case Spiral:
-//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+5);
-//            break;
-//        case Pendulum:
-//        case DampedPendulum:
-//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+2);
-//            break;
-//        case AllTrajectoryTypes::Random:
-//            *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection+9);
-//            break;
         case Circle:
         case Ellipse:
         case Spiral:
         case Pendulum:
-        case DampedPendulum:
             *pDirection = static_cast<AllTrajectoryDirections>(p_iSelectedDirection);
             break;
         case AllTrajectoryTypes::Random:
@@ -730,11 +712,8 @@ unique_ptr<AllTrajectoryDirections> Trajectory::getTrajectoryDirection(int p_iSe
     }
     return pDirection;
 }
-
 std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_iTrajectory){
-
     unique_ptr<vector<String>> vReturns (new vector<String>);
-
     switch(p_iTrajectory) {
         case Circle:
         case Ellipse:
@@ -742,23 +721,18 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_i
             return nullptr;
         case Spiral:
         case Pendulum:
-        case DampedPendulum:
             vReturns->push_back("One Way");
             vReturns->push_back("Return");
             break;
         default:
             jassert(0);
     }
-    
     return vReturns;
 }
-
-
 Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction,
                                              bool bReturn, float times, int source, const std::pair<float, float> &endPair, float fTurns, float fDeviation, float fDampening){
     bool ccw, in, cross;
     float speed;
-    
     switch (direction) {
         case CW:
             ccw = false;
@@ -822,6 +796,3 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
     jassert(0);
     return NULL;
 }
-
-
-
