@@ -225,10 +225,8 @@ private:
     {
         return static_cast <ZirkOscAudioProcessor*> (getAudioProcessor());
     }
-    
    
     /*Painting functions*/
-
     //! Paint the center dot
     void paintCenterDot (Graphics& g);
     //! Paint the cross coord labels
@@ -262,9 +260,6 @@ private:
     };
     int mTrState;
     
-    int m_iL_M; //left margin
-    int m_iT_M; //top margin
-
     float m_fHueOffset;
     Label m_oEndPointLabel;
     

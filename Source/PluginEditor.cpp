@@ -318,8 +318,6 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 //,_IpadIncomingOscPortTextEditor("OSCIpadIncoTE")
 //,_IpadIpAddressTextEditor("ipaddress")
 ,m_oMovementConstraintComboBox("MovementConstraint")
-,m_iL_M(15)
-,m_iT_M(15)
 ,m_fHueOffset(0.125)//(0.577251)
 ,m_oEndPointLabel()
 {
@@ -737,11 +735,11 @@ void ZirkOscAudioProcessorEditor::resized() {
     _TabComponent.setBounds(0, iCurHeight - ZirkOSC_SlidersGroupHeight + ZirkOSC_ConstraintComboBoxHeight, iCurWidth, ZirkOSC_SlidersGroupHeight);
 
     //------------ LABELS + SLIDERS TAB ------------
-    setSliderAndLabelPosition(m_iL_M, m_iT_M,     iCurWidth-40, 20, m_pGainSlider,          m_pGainLabel);
-    setSliderAndLabelPosition(m_iL_M, m_iT_M+30,  iCurWidth-40, 20, m_pAzimuthSlider,       m_pAzimuthLabel);
-    setSliderAndLabelPosition(m_iL_M, m_iT_M+60,  iCurWidth-40, 20, m_pElevationSlider,     m_pElevationLabel);
-    setSliderAndLabelPosition(m_iL_M, m_iT_M+90,  iCurWidth-40, 20, m_pAzimuthSpanSlider,   m_pAzimuthSpanLabel);
-    setSliderAndLabelPosition(m_iL_M, m_iT_M+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
+    setSliderAndLabelPosition(kiLM, kiTM,     iCurWidth-40, 20, m_pGainSlider,          m_pGainLabel);
+    setSliderAndLabelPosition(kiLM, kiTM+30,  iCurWidth-40, 20, m_pAzimuthSlider,       m_pAzimuthLabel);
+    setSliderAndLabelPosition(kiLM, kiTM+60,  iCurWidth-40, 20, m_pElevationSlider,     m_pElevationLabel);
+    setSliderAndLabelPosition(kiLM, kiTM+90,  iCurWidth-40, 20, m_pAzimuthSpanSlider,   m_pAzimuthSpanLabel);
+    setSliderAndLabelPosition(kiLM, kiTM+120, iCurWidth-40, 20, m_pElevationSpanSlider, m_pElevationSpanLabel);
     
     //------------ TRAJECTORIES TAB------------
     updateTrajectoryTabSize(iCurWidth, iCurHeight);
@@ -770,45 +768,48 @@ void ZirkOscAudioProcessorEditor::updateWallCircleSize(int iCurWidth, int iCurHe
 }
 
 void ZirkOscAudioProcessorEditor::updateTrajectoryTabSize(int iCurWidth, int iCurHeight){
-    int iCol1w = 90, iCol2w = 140, iCol3w = 80;
+    int iCol1w = 90, iCol2w = 140, iCol3w = 80, iCol4w = 100;
     int dw = 40;
     //row 1
-    m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,                   m_iT_M,    iCol1w,  25);
-    m_pTrajectoryDirectionComboBox->    setBounds(m_iL_M+iCol1w,            m_iT_M,    iCol2w,  25);
-    m_pTrajectoryReturnComboBox->       setBounds(m_iL_M+iCol1w + iCol2w,   m_iT_M,    iCol3w,  25);
+    m_pTrajectoryTypeComboBox->         setBounds(kiLM,                   kiTM,    iCol1w,  25);
+    m_pTrajectoryDirectionComboBox->    setBounds(kiLM+iCol1w,            kiTM,    iCol2w,  25);
+    m_pTrajectoryReturnComboBox->       setBounds(kiLM+iCol1w + iCol2w,   kiTM,    iCol3w,  25);
+    
+    //row 1 col 3.5 and 4 are either of these things
+    m_pTrajectoryTurnsTextEditor->      setBounds(kiLM+iCol1w + iCol2w/2-dw,          kiTM+50, iCol2w/4-10, 25);
+    m_pTrajectoryTurnsLabel->           setBounds(kiLM+iCol1w + 3 * iCol2w/4-dw-10,   kiTM+50, iCol2w/4+dw, 25);
+    m_pTrajectoryDeviationTextEditor->  setBounds(kiLM+iCol1w + iCol2w/2-dw,          kiTM+50, iCol2w/4-10, 25);
+    m_pTrajectoryDeviationLabel->       setBounds(kiLM+iCol1w + 3 * iCol2w/4-dw-10,   kiTM+50, iCol2w/4+dw, 25);
+
+    
     //row 2
-    m_pTrajectoryDurationTextEditor->   setBounds(m_iL_M,                   m_iT_M+25, iCol1w,  25);
-    m_pSyncWTempoComboBox->             setBounds(m_iL_M+iCol1w,            m_iT_M+25, iCol2w/2,25);
-    m_pTrajectoryDurationLabel->        setBounds(m_iL_M+iCol1w + iCol2w/2, m_iT_M+25, iCol3w,  25);
+    m_pTrajectoryDurationTextEditor->   setBounds(kiLM,                   kiTM+25, iCol1w,  25);
+    m_pSyncWTempoComboBox->             setBounds(kiLM+iCol1w,            kiTM+25, iCol2w/2,25);
+    m_pTrajectoryDurationLabel->        setBounds(kiLM+iCol1w + iCol2w/2, kiTM+25, iCol3w,  25);
     //row3
-    m_pTrajectoryCountTextEditor->      setBounds(m_iL_M,                   m_iT_M+50, iCol1w,  25);
-    m_pTrajectoryCountLabel->           setBounds(m_iL_M+iCol1w,            m_iT_M+50, iCol2w/2,25);
+    m_pTrajectoryCountTextEditor->      setBounds(kiLM,                   kiTM+50, iCol1w,  25);
+    m_pTrajectoryCountLabel->           setBounds(kiLM+iCol1w,            kiTM+50, iCol2w/2,25);
     
-    //row 3 col 3.5 and 4 are either of these things
-    m_pTrajectoryTurnsTextEditor->      setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4-10,    25);
-    m_pTrajectoryTurnsLabel->           setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
-    m_pTrajectoryDeviationTextEditor->  setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4-10,    25);
-    m_pTrajectoryDeviationLabel->       setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
     
-    m_pTrajectoryDampeningTextEditor->   setBounds(m_iL_M+iCol1w + iCol2w - iCol3w/2,    m_iT_M+50, iCol3w/2,    25);
-    m_pTrajectoryDampeningLabel->        setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+50, iCol3w,    25);
+    m_pTrajectoryDampeningTextEditor->  setBounds(kiLM+iCol1w + iCol2w - iCol3w/2,    kiTM+50, iCol3w/2,    25);
+    m_pTrajectoryDampeningLabel->       setBounds(kiLM+iCol1w + iCol2w,               kiTM+50, iCol3w,      25);
     
     //row 4: end location
-    m_pSetEndTrajectoryButton->         setBounds(m_iL_M,                               m_iT_M+75, iCol1w,   25);
-    m_pEndAzimTextEditor->              setBounds(m_iL_M+iCol1w,                        m_iT_M+75, iCol2w/2, 25);
-    m_pEndElevTextEditor->              setBounds(m_iL_M+iCol1w + iCol2w/2,             m_iT_M+75, iCol2w/2, 25);
-    m_pResetEndTrajectoryButton->       setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+75, iCol3w,   25);
+    m_pSetEndTrajectoryButton->         setBounds(kiLM,                               kiTM+75, iCol1w,   25);
+    m_pEndAzimTextEditor->              setBounds(kiLM+iCol1w,                        kiTM+75, iCol2w/2, 25);
+    m_pEndElevTextEditor->              setBounds(kiLM+iCol1w + iCol2w/2,             kiTM+75, iCol2w/2, 25);
+    m_pResetEndTrajectoryButton->       setBounds(kiLM+iCol1w + iCol2w,               kiTM+75, iCol3w,   25);
     
     //row 5: write and progress bar line
     m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
     mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
     
     //------------ INTERFACES TAB ------------
-    m_pTBEnableLeap->                   setBounds(m_iL_M,       m_iT_M,     100, 25);
-    m_pCBLeapSource->                   setBounds(m_iL_M,       m_iT_M+25,  100, 25);
-    m_pTBEnableJoystick->               setBounds(m_iL_M,       m_iT_M+50,  100, 25);
-    m_pLBLeapState->                    setBounds(m_iL_M+100,   m_iT_M,     200, 25);
-    m_pLBJoystickState->                setBounds(m_iL_M+100,   m_iT_M+50,  200, 25);
+    m_pTBEnableLeap->                   setBounds(kiLM,       kiTM,     100, 25);
+    m_pCBLeapSource->                   setBounds(kiLM,       kiTM+25,  100, 25);
+    m_pTBEnableJoystick->               setBounds(kiLM,       kiTM+50,  100, 25);
+    m_pLBLeapState->                    setBounds(kiLM+100,   kiTM,     200, 25);
+    m_pLBJoystickState->                setBounds(kiLM+100,   kiTM+50,  200, 25);
 }
 
 
