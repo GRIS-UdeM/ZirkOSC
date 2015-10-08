@@ -64,8 +64,7 @@ Trajectory::Trajectory(ZirkOscAudioProcessor *filter, float duration, bool syncW
     ourProcessor->storeCurrentLocations();
 }
 
-void Trajectory::start()
-{
+void Trajectory::start() {
 	spInit();
 	mStarted = true;
     
@@ -92,36 +91,30 @@ void Trajectory::start()
 }
 
 bool Trajectory::process(float seconds, float beats){
-	if (mStopped) return true;
-	if (!mStarted) start();
-	if (mDone == m_TotalTrajectoriesDuration) {
+    if (mStopped) {
+        return true;
+    } else if (!mStarted){
+        start();
+    }
+    if (mDone == m_TotalTrajectoriesDuration) {
 		spProcess(0, 0);
 		stop();
 		return true;
 	}
-
 	float duration = m_bIsSyncWTempo ? beats : seconds;
-//    if (m_iSkip == 10){
-        spProcess(duration, seconds);
-//        m_iSkip = 0;
-//    } else {
-//        ++m_iSkip;
-//    }
-	
+    spProcess(duration, seconds);
 	mDone += duration;
-	if (mDone > m_TotalTrajectoriesDuration)
+    if (mDone > m_TotalTrajectoriesDuration){
 		mDone = m_TotalTrajectoriesDuration;
-	
+    }
 	return false;
 }
 
-float Trajectory::progress()
-{
+float Trajectory::progress(){
 	return mDone / m_TotalTrajectoriesDuration;
 }
 
-void Trajectory::stop()
-{
+void Trajectory::stop(){
 	if (!mStarted || mStopped) return;
 	mStopped = true;
 
@@ -241,6 +234,7 @@ public:
     ,m_bRT(rt)
     ,m_fEndPair(endPoint)
     ,m_fDeviation(fDeviation/360)
+    ,m_fDeviatedAzim(0.)
     { }
     
 protected:
@@ -270,19 +264,17 @@ protected:
         }
         float fPendulumAzim = SoundSource::XYtoAzim01(newX, newY);
         float fPendulumElev = SoundSource::XYtoElev01(newX, newY);
+        
         //circle part
         float newAzimuth, integralPart;
-        newAzimuth = mDone / mDurationSingleTrajectory;
+        newAzimuth = mDone / (mDurationSingleTrajectory * m_dTrajectoryCount);
         newAzimuth = modf(newAzimuth, &integralPart);
         if (!mCCW) {
             newAzimuth = - newAzimuth;
         }
-        //newAzimuth = modf(m_fTrajectoryInitialAzimuth01 + newAzimuth*m_fDeviation, &integralPart);
-
-        newAzimuth = m_fTrajectoryInitialAzimuth01 + newAzimuth * m_fDeviation;
-        //move using both parts
-        move(fPendulumAzim+(newAzimuth-m_fTrajectoryInitialAzimuth01), fPendulumElev);
         
+        newAzimuth *= m_fDeviation;
+        move(fPendulumAzim + newAzimuth, fPendulumElev);
     }
 private:
     bool mCCW, m_bRT, m_bYisDependent;
@@ -290,6 +282,8 @@ private:
     float m_fM;
     float m_fB;
     float m_fDeviation;
+    float m_fDeviatedAzim;
+    
 };
 // ==============================================================================
 class DampedPendulumTrajectory : public Trajectory
