@@ -66,7 +66,7 @@ public:
     
     void updateWallCircleSize(int iCurWidth, int iCurHeight);
     void updateTrajectoryTabSize(int iCurw, int iCurHeight);
-    
+    void updateTurnsWidgetLocation();
     void move (int, float, float);
     
     //! Function to set the combination of Slider and Label.

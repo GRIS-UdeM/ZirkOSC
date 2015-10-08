@@ -465,24 +465,24 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     //TURNS
     m_pTrajectoryTurnsTextEditor = m_oTrajectoryTab->getTurnsTextEditor();
-    m_pTrajectoryTurnsTextEditor->setText("     " + String(ourProcessor->getTurns()));
+    m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getTurns()));
     m_pTrajectoryTurnsTextEditor->addListener(this);
     m_pTrajectoryTurnsLabel = m_oTrajectoryTab->getTurnsLabel();
     m_pTrajectoryTurnsLabel->setText("turn(s)",  dontSendNotification);
 
     //DEVIATION
     m_pTrajectoryDeviationTextEditor = m_oTrajectoryTab->getDeviationTextEditor();
-    m_pTrajectoryDeviationTextEditor->setText("     " + String(ourProcessor->getDeviation()));
+    m_pTrajectoryDeviationTextEditor->setText(String(ourProcessor->getDeviation()));
     m_pTrajectoryDeviationTextEditor->addListener(this);
     m_pTrajectoryDeviationLabel = m_oTrajectoryTab->getDeviationLabel();
     m_pTrajectoryDeviationLabel->setText("deviation",  dontSendNotification);
     
-    //Nbr Oscillations
+    //DAMPENING
     m_pTrajectoryDampeningTextEditor = m_oTrajectoryTab->getDampeningTextEditor();
-    m_pTrajectoryDampeningTextEditor->setText("      " + String(ourProcessor->getDampening()));
+    m_pTrajectoryDampeningTextEditor->setText(String(ourProcessor->getDampening()));
     m_pTrajectoryDampeningTextEditor->addListener(this);
     m_pTrajectoryDampeningLabel = m_oTrajectoryTab->getDampeningLabel();
-    m_pTrajectoryDampeningLabel->setText("Dampening",  dontSendNotification);
+    m_pTrajectoryDampeningLabel->setText("dampening",  dontSendNotification);
     
     //SYNC W TEMPO TOGGLE BUTTON
     m_pSyncWTempoComboBox = m_oTrajectoryTab->getSyncWTempoComboBox();
@@ -507,13 +507,13 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     //END TRAJECTORY TextEditors
     float fBrightness = .6;
     m_pEndAzimTextEditor = m_oTrajectoryTab->getEndAzimTextEditor();
-    m_pEndAzimTextEditor->setTextToShowWhenEmpty("     Azimuth", juce::Colour::greyLevel(fBrightness));
+    m_pEndAzimTextEditor->setTextToShowWhenEmpty("  Azimuth", juce::Colour::greyLevel(fBrightness));
     m_pEndAzimTextEditor->setColour(TextEditor::textColourId, juce::Colour::greyLevel(fBrightness));
     m_pEndAzimTextEditor->setReadOnly(true);
     m_pEndAzimTextEditor->setCaretVisible(false);
 
     m_pEndElevTextEditor = m_oTrajectoryTab->getEndElevTextEditor();
-    m_pEndElevTextEditor->setTextToShowWhenEmpty("    Elevation", juce::Colour::greyLevel(fBrightness));
+    m_pEndElevTextEditor->setTextToShowWhenEmpty(" Elevation", juce::Colour::greyLevel(fBrightness));
     m_pEndElevTextEditor->setColour(TextEditor::textColourId, juce::Colour::greyLevel(fBrightness));
     m_pEndElevTextEditor->setReadOnly(true);
     m_pEndElevTextEditor->setCaretVisible(false);
@@ -552,8 +552,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     int firstSource =_FirstSourceIdTextEditor.getText().getIntValue();
     int j=1;
-    for(int i = firstSource; i<ourProcessor->getNbrSources()+firstSource; i++)
-    {
+    for(int i = firstSource; i<ourProcessor->getNbrSources()+firstSource; i++){
         m_pCBLeapSource->addItem((String)i, j);
         j++;
     }
@@ -583,10 +582,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 //    }
 
     this->setFocusContainer(true);
-    
-    
-    startEditorTimer(ZirkOSC_reg_timerDelay);
-    
+    startEditorTimer(ZirkOSC_reg_timerDelay);    
 }
 
 void ZirkOscAudioProcessorEditor::startEditorTimer(int intervalInMilliseconds){
@@ -743,6 +739,13 @@ void ZirkOscAudioProcessorEditor::resized() {
     
     //------------ TRAJECTORIES TAB------------
     updateTrajectoryTabSize(iCurWidth, iCurHeight);
+    
+    //------------ INTERFACES TAB ------------
+    m_pTBEnableLeap->                   setBounds(kiLM,       kiTM,     100, 25);
+    m_pCBLeapSource->                   setBounds(kiLM,       kiTM+25,  100, 25);
+    m_pTBEnableJoystick->               setBounds(kiLM,       kiTM+50,  100, 25);
+    m_pLBLeapState->                    setBounds(kiLM+100,   kiTM,     200, 25);
+    m_pLBJoystickState->                setBounds(kiLM+100,   kiTM+50,  200, 25);
 }
 
 void ZirkOscAudioProcessorEditor::updateWallCircleSize(int iCurWidth, int iCurHeight){
@@ -766,55 +769,47 @@ void ZirkOscAudioProcessorEditor::updateWallCircleSize(int iCurWidth, int iCurHe
         ourProcessor->getSources()[iCurSrc].setElevation01(fAllElev01[iCurSrc]);
     }
 }
-
 void ZirkOscAudioProcessorEditor::updateTrajectoryTabSize(int iCurWidth, int iCurHeight){
-    int iCol1w = 90, iCol2w = 140, iCol3w = 80, iCol4w = 100;
-    int dw = 40;
-    //row 1
-    m_pTrajectoryTypeComboBox->         setBounds(kiLM,                   kiTM,    iCol1w,  25);
-    m_pTrajectoryDirectionComboBox->    setBounds(kiLM+iCol1w,            kiTM,    iCol2w,  25);
-    m_pTrajectoryReturnComboBox->       setBounds(kiLM+iCol1w + iCol2w,   kiTM,    iCol3w,  25);
-    
+    int iCol1w = 90, iCol2w = 140, iCol3w = 80, iCol4w = 110, iRowH = 25;
+    //row 1                                       x                                 y               width           height
+    m_pTrajectoryTypeComboBox->         setBounds(kiLM,                             kiTM,           iCol1w,         iRowH);
+    m_pTrajectoryDirectionComboBox->    setBounds(kiLM+iCol1w,                      kiTM,           iCol2w,         iRowH);
+    m_pTrajectoryReturnComboBox->       setBounds(kiLM+iCol1w + iCol2w,             kiTM,           iCol3w,         iRowH);
     //row 1 col 3.5 and 4 are either of these things
-    m_pTrajectoryTurnsTextEditor->      setBounds(kiLM+iCol1w + iCol2w/2-dw,          kiTM+50, iCol2w/4-10, 25);
-    m_pTrajectoryTurnsLabel->           setBounds(kiLM+iCol1w + 3 * iCol2w/4-dw-10,   kiTM+50, iCol2w/4+dw, 25);
-    m_pTrajectoryDeviationTextEditor->  setBounds(kiLM+iCol1w + iCol2w/2-dw,          kiTM+50, iCol2w/4-10, 25);
-    m_pTrajectoryDeviationLabel->       setBounds(kiLM+iCol1w + 3 * iCol2w/4-dw-10,   kiTM+50, iCol2w/4+dw, 25);
-
-    
+    m_pTrajectoryDeviationTextEditor->  setBounds(kiLM+iCol1w+iCol2w + iCol3w,      kiTM,           30,             iRowH);
+    m_pTrajectoryDeviationLabel->       setBounds(kiLM+iCol1w+iCol2w + iCol3w+30,   kiTM,           iCol4w-30,      iRowH);
+    updateTurnsWidgetLocation();
     //row 2
-    m_pTrajectoryDurationTextEditor->   setBounds(kiLM,                   kiTM+25, iCol1w,  25);
-    m_pSyncWTempoComboBox->             setBounds(kiLM+iCol1w,            kiTM+25, iCol2w/2,25);
-    m_pTrajectoryDurationLabel->        setBounds(kiLM+iCol1w + iCol2w/2, kiTM+25, iCol3w,  25);
+    m_pTrajectoryDurationTextEditor->   setBounds(kiLM,                             kiTM+iRowH,     iCol1w,         iRowH);
+    m_pSyncWTempoComboBox->             setBounds(kiLM+iCol1w,                      kiTM+iRowH,     3*iCol2w/4,     iRowH);
+    m_pTrajectoryDurationLabel->        setBounds(kiLM+iCol1w + 3*iCol2w/4,         kiTM+iRowH,     iCol3w,         iRowH);
+    m_pTrajectoryDampeningTextEditor->  setBounds(kiLM+iCol1w+iCol2w + iCol3w,      kiTM+iRowH,     30,             iRowH);
+    m_pTrajectoryDampeningLabel->       setBounds(kiLM+iCol1w+iCol2w + iCol3w+30,   kiTM+iRowH,     iCol4w-30,      iRowH);
     //row3
-    m_pTrajectoryCountTextEditor->      setBounds(kiLM,                   kiTM+50, iCol1w,  25);
-    m_pTrajectoryCountLabel->           setBounds(kiLM+iCol1w,            kiTM+50, iCol2w/2,25);
-    
-    
-    m_pTrajectoryDampeningTextEditor->  setBounds(kiLM+iCol1w + iCol2w - iCol3w/2,    kiTM+50, iCol3w/2,    25);
-    m_pTrajectoryDampeningLabel->       setBounds(kiLM+iCol1w + iCol2w,               kiTM+50, iCol3w,      25);
-    
+    m_pTrajectoryCountTextEditor->      setBounds(kiLM,                             kiTM+2*iRowH,   iCol1w,         iRowH);
+    m_pTrajectoryCountLabel->           setBounds(kiLM+iCol1w,                      kiTM+2*iRowH,   iCol2w/2,       iRowH);
     //row 4: end location
-    m_pSetEndTrajectoryButton->         setBounds(kiLM,                               kiTM+75, iCol1w,   25);
-    m_pEndAzimTextEditor->              setBounds(kiLM+iCol1w,                        kiTM+75, iCol2w/2, 25);
-    m_pEndElevTextEditor->              setBounds(kiLM+iCol1w + iCol2w/2,             kiTM+75, iCol2w/2, 25);
-    m_pResetEndTrajectoryButton->       setBounds(kiLM+iCol1w + iCol2w,               kiTM+75, iCol3w,   25);
-    
+    m_pSetEndTrajectoryButton->         setBounds(kiLM,                             kiTM+3*iRowH,   iCol1w,         iRowH);
+    m_pEndAzimTextEditor->              setBounds(kiLM+iCol1w,                      kiTM+3*iRowH,   iCol2w/2,       iRowH);
+    m_pEndElevTextEditor->              setBounds(kiLM+iCol1w + iCol2w/2,           kiTM+3*iRowH,   iCol2w/2,       iRowH);
+    m_pResetEndTrajectoryButton->       setBounds(kiLM+iCol1w + iCol2w,             kiTM+3*iRowH,   iCol3w,         iRowH);
     //row 5: write and progress bar line
-    m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, 25);
-    mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, 25);
-    
-    //------------ INTERFACES TAB ------------
-    m_pTBEnableLeap->                   setBounds(kiLM,       kiTM,     100, 25);
-    m_pCBLeapSource->                   setBounds(kiLM,       kiTM+25,  100, 25);
-    m_pTBEnableJoystick->               setBounds(kiLM,       kiTM+50,  100, 25);
-    m_pLBLeapState->                    setBounds(kiLM+100,   kiTM,     200, 25);
-    m_pLBJoystickState->                setBounds(kiLM+100,   kiTM+50,  200, 25);
+    m_pWriteTrajectoryButton->          setBounds(iCurWidth-105, 125, 100, iRowH);
+    mTrProgressBar->                    setBounds(iCurWidth-210, 125, 100, iRowH);
 }
 
+void ZirkOscAudioProcessorEditor::updateTurnsWidgetLocation(){
+    int iCol1w = 90, iCol2w = 140, iCol3w = 80, iCol4w = 110, iRowH = 25;
+    if (ourProcessor->getSelectedTrajectory() == Circle || ourProcessor->getSelectedTrajectory() == Ellipse){
+        m_pTrajectoryTurnsTextEditor->  setBounds(kiLM+iCol1w+iCol2w,      kiTM,           30,             iRowH);
+        m_pTrajectoryTurnsLabel->       setBounds(kiLM+iCol1w+iCol2w+30,   kiTM,           iCol4w-30,      iRowH);
+    } else {
+        m_pTrajectoryTurnsTextEditor->  setBounds(kiLM+iCol1w+iCol2w + iCol3w,      kiTM,           30,             iRowH);
+        m_pTrajectoryTurnsLabel->       setBounds(kiLM+iCol1w+iCol2w + iCol3w+30,   kiTM,           iCol4w-30,      iRowH);
+    }
+}
 
 //Automatic function to set label and Slider
-
 /*!
 * \param labelText : label's text
 * \param slider : slider
@@ -1572,24 +1567,17 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         if (doubleValue >= 0 && doubleValue <= 360){
             ourProcessor->setDeviation(doubleValue);
         }
-        m_pTrajectoryDeviationTextEditor->setText("      " + String(ourProcessor->getDeviation()));
+        m_pTrajectoryDeviationTextEditor->setText(String(ourProcessor->getDeviation()));
     } else if (m_pTrajectoryDampeningTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
         if (doubleValue >= 0 && doubleValue <= 1){
             ourProcessor->setDampening(doubleValue);
         }
-        m_pTrajectoryDampeningTextEditor->setText("      " + String(ourProcessor->getDampening()));
+        m_pTrajectoryDampeningTextEditor->setText(String(ourProcessor->getDampening()));
     }
-    
-//    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {
-//    }
-//    
-//    else if (&_IpadIpAddressTextEditor == &textEditor) {
-//    }
-//    
-//    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {
-//        
-//    }
+//    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) { }
+//    else if (&_IpadIpAddressTextEditor == &textEditor) { }
+//    else if (&_IpadIncomingOscPortTextEditor == &textEditor) {   }
     if (!_isReturnKeyPressedCalledFromFocusLost){
         m_oMovementConstraintComboBox.grabKeyboardFocus();
     }
@@ -1607,12 +1595,10 @@ void ZirkOscAudioProcessorEditor::updateTurnsTextEditor(){
         doubleValue = dUpperLimit;
     }
     ourProcessor->setTurns(doubleValue);
-    m_pTrajectoryTurnsTextEditor->setText("     " + String(ourProcessor->getTurns()));
-
+    m_pTrajectoryTurnsTextEditor->setText(String(ourProcessor->getTurns()));
 }
 
 void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged){
-
     if (comboBoxThatHasChanged == &m_oMovementConstraintComboBox){
         int selectedConstraint = comboBoxThatHasChanged->getSelectedId();
         float fSelectedConstraint = IntToPercentStartsAtOne(selectedConstraint, TotalNumberConstraints);
@@ -1624,39 +1610,29 @@ void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChan
         } else if (selectedConstraint == EqualElev){
             ourProcessor->setEqualElevForAllSrc();
         }
-    }
-    
-    else if (comboBoxThatHasChanged == m_pTrajectoryTypeComboBox){
+    } else if (comboBoxThatHasChanged == m_pTrajectoryTypeComboBox){
         int iSelectedTraj = comboBoxThatHasChanged->getSelectedId();
         float fSelectedTraj = IntToPercentStartsAtOne(iSelectedTraj, TotalNumberTrajectories);
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_SelectedTrajectory_ParamId, fSelectedTraj);
         updateTrajectoryComponents();
         updateTurnsTextEditor();
-    }
-    
-    else if(comboBoxThatHasChanged == m_pSyncWTempoComboBox){
+        updateTurnsWidgetLocation();
+    } else if(comboBoxThatHasChanged == m_pSyncWTempoComboBox){
         if (comboBoxThatHasChanged->getSelectedId() == SyncWTempo){
             ourProcessor->setIsSyncWTempo(true);
         } else {
             ourProcessor->setIsSyncWTempo(false);
         }
-    }
-    else if (comboBoxThatHasChanged == m_pCBLeapSource)
-    {
+    } else if (comboBoxThatHasChanged == m_pCBLeapSource) {
         ourProcessor->setSelectedSource(comboBoxThatHasChanged->getSelectedId()-1);
-    }
-    
-    else if (comboBoxThatHasChanged == m_pTrajectoryDirectionComboBox){
+    } else if (comboBoxThatHasChanged == m_pTrajectoryDirectionComboBox){
         float fSelectedDirection = IntToPercentStartsAtOne(comboBoxThatHasChanged->getSelectedId(), getNumSelectedTrajectoryDirections());
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_SelectedTrajectoryDirection_ParamId, fSelectedDirection);
-    }
-    
-    else if (comboBoxThatHasChanged == m_pTrajectoryReturnComboBox){
+    } else if (comboBoxThatHasChanged == m_pTrajectoryReturnComboBox){
         float fSelectedReturn = IntToPercentStartsAtOne(comboBoxThatHasChanged->getSelectedId(), getNumSelectedTrajectoryReturns());
         ourProcessor->setParameterNotifyingHost(ZirkOscAudioProcessor::ZirkOSC_SelectedTrajectoryReturn_ParamId, fSelectedReturn);
     }
 }
-
 int ZirkOscAudioProcessorEditor::getNumSelectedTrajectoryDirections(){
     int iSelectedTraj = m_pTrajectoryTypeComboBox->getSelectedId();
     auto allDirections = Trajectory::getTrajectoryPossibleDirections(iSelectedTraj);
@@ -1667,7 +1643,6 @@ int ZirkOscAudioProcessorEditor::getNumSelectedTrajectoryDirections(){
     }
     
 }
-
 int ZirkOscAudioProcessorEditor::getNumSelectedTrajectoryReturns(){
     int iSelectedTraj = m_pTrajectoryTypeComboBox->getSelectedId();
     auto allReturns = Trajectory::getTrajectoryPossibleReturns(iSelectedTraj);
@@ -1677,23 +1652,13 @@ int ZirkOscAudioProcessorEditor::getNumSelectedTrajectoryReturns(){
         return -1;
     }
 }
-
-int ZirkOscAudioProcessorEditor::getNbSources()
-{
+int ZirkOscAudioProcessorEditor::getNbSources(){
     return getProcessor()->getNbrSources();
 }
-void ZirkOscAudioProcessorEditor::uncheckJoystickButton()
-{
+void ZirkOscAudioProcessorEditor::uncheckJoystickButton(){
     m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
     buttonClicked(m_pTBEnableJoystick);
 }
-int ZirkOscAudioProcessorEditor::getCBSelectedSource()
-{
+int ZirkOscAudioProcessorEditor::getCBSelectedSource(){
     return m_pCBLeapSource->getSelectedId();
 }
-
-
-
-
-
-
