@@ -770,8 +770,7 @@ void ZirkOscAudioProcessorEditor::updateWallCircleSize(int iCurWidth, int iCurHe
 }
 
 void ZirkOscAudioProcessorEditor::updateTrajectoryTabSize(int iCurWidth, int iCurHeight){
-    int iCol1w = 90, iCol2w = 200;
-    int iCol3w = 90;
+    int iCol1w = 90, iCol2w = 140, iCol3w = 80;
     int dw = 40;
     //row 1
     m_pTrajectoryTypeComboBox->         setBounds(m_iL_M,                   m_iT_M,    iCol1w,  25);
