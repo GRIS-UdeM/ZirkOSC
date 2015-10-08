@@ -755,7 +755,7 @@ std::unique_ptr<vector<String>> Trajectory::getTrajectoryPossibleReturns(int p_i
 
 
 Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *filter, float duration, bool beats, AllTrajectoryDirections direction,
-                                             bool bReturn, float times, int source, const std::pair<float, float> &endPair, float fTurns, float fNbrOscil, float fDeviation){
+                                             bool bReturn, float times, int source, const std::pair<float, float> &endPair, float fTurns, float fDeviation, float fDampening){
     bool ccw, in, cross;
     float speed;
     
@@ -808,12 +808,11 @@ Trajectory::Ptr Trajectory::CreateTrajectory(int type, ZirkOscAudioProcessor *fi
     }
 
     switch(type) {
-        case Circle:                     return new CircleTrajectory        (filter, duration, beats, times, source, ccw, fTurns);
-        case Ellipse:                    return new EllipseTrajectory       (filter, duration, beats, times, source, ccw, fTurns);
-        case Spiral:                     return new SpiralTrajectory        (filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
-        case DampedPendulum:             return new DampedPendulumTrajectory(filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns, fNbrOscil);
-        case Pendulum:                   return new PendulumTrajectory      (filter, duration, beats, times, source, ccw, bReturn, endPair, fDeviation, fNbrOscil);
-        case AllTrajectoryTypes::Random: return new RandomTrajectory        (filter, duration, beats, times, source, speed);
+        case Circle:                     return new CircleTrajectory    (filter, duration, beats, times, source, ccw, fTurns);
+        case Ellipse:                    return new EllipseTrajectory   (filter, duration, beats, times, source, ccw, fTurns);
+        case Spiral:                     return new SpiralTrajectory    (filter, duration, beats, times, source, ccw, bReturn, endPair, fTurns);
+        case Pendulum:                   return new PendulumTrajectory  (filter, duration, beats, times, source, ccw, bReturn, endPair, fDeviation, fDampening);
+        case AllTrajectoryTypes::Random: return new RandomTrajectory    (filter, duration, beats, times, source, speed);
             
             //      case 19: return new RandomTargetTrajectory(filter, duration, beats, times, source);
             //		case 20: return new SymXTargetTrajectory(filter, duration, beats, times, source);

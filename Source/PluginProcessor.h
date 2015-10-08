@@ -331,11 +331,11 @@ public:
     void setDeviation(double dev){
         m_dTrajectoryDeviation = dev;
     }
-    double getNbrOscil(){
-        return m_dTrajectoryNbrOscil;
+    double getDampening(){
+        return m_dTrajectoryDampening;
     }
-    void setNbrOscil(double nbrOscil){
-        m_dTrajectoryNbrOscil = nbrOscil;
+    void setDampening(double Dampening){
+        m_dTrajectoryDampening = Dampening;
     }
     
     
@@ -396,7 +396,7 @@ private:
     double m_dTrajectoriesDuration;
     double m_dTrajectoryTurns;
     double m_dTrajectoryDeviation;
-    double m_dTrajectoryNbrOscil;
+    double m_dTrajectoryDampening;
     bool   m_bIsSyncWTempo;
     bool   m_bIsWriteTrajectory;
     

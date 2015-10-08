@@ -171,8 +171,8 @@ class TrajectoryTab : public Component{
     TextEditor* m_pDeviationTextEditor;
 
     
-    Label*      m_pNbrOscilLabel;
-    TextEditor* m_pNbrOscilTextEditor;
+    Label*      m_pDampeningLabel;
+    TextEditor* m_pDampeningTextEditor;
     
     MiniProgressBar* mTrProgressBarTab;
     
@@ -217,8 +217,8 @@ public:
         m_pDeviationLabel           = addToList (new Label());
         m_pDeviationTextEditor      = addToList (new TextEditor());
         
-        m_pNbrOscilLabel           = addToList (new Label());
-        m_pNbrOscilTextEditor      = addToList (new TextEditor());
+        m_pDampeningLabel           = addToList (new Label());
+        m_pDampeningTextEditor      = addToList (new TextEditor());
         
         
         mTrProgressBarTab       = addToList(new MiniProgressBar());
@@ -250,8 +250,8 @@ public:
     Label*          getDeviationLabel(){        return m_pDeviationLabel;}
     TextEditor*     getDeviationTextEditor(){   return m_pDeviationTextEditor;}
     
-    Label*          getNbrOscilLabel(){        return m_pNbrOscilLabel;}
-    TextEditor*     getNbrOscilTextEditor(){   return m_pNbrOscilTextEditor;}
+    Label*          getDampeningLabel(){        return m_pDampeningLabel;}
+    TextEditor*     getDampeningTextEditor(){   return m_pDampeningTextEditor;}
     
     MiniProgressBar* getProgressBar(){      return mTrProgressBarTab;}
     
@@ -480,11 +480,11 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_pTrajectoryDeviationLabel->setText("deviation",  dontSendNotification);
     
     //Nbr Oscillations
-    m_pTrajectoryNbrOscilTextEditor = m_oTrajectoryTab->getNbrOscilTextEditor();
-    m_pTrajectoryNbrOscilTextEditor->setText("      " + String(ourProcessor->getNbrOscil()));
-    m_pTrajectoryNbrOscilTextEditor->addListener(this);
-    m_pTrajectoryNbrOscilLabel = m_oTrajectoryTab->getNbrOscilLabel();
-    m_pTrajectoryNbrOscilLabel->setText("Oscillation(s)",  dontSendNotification);
+    m_pTrajectoryDampeningTextEditor = m_oTrajectoryTab->getDampeningTextEditor();
+    m_pTrajectoryDampeningTextEditor->setText("      " + String(ourProcessor->getDampening()));
+    m_pTrajectoryDampeningTextEditor->addListener(this);
+    m_pTrajectoryDampeningLabel = m_oTrajectoryTab->getDampeningLabel();
+    m_pTrajectoryDampeningLabel->setText("Dampening",  dontSendNotification);
     
     //SYNC W TEMPO TOGGLE BUTTON
     m_pSyncWTempoComboBox = m_oTrajectoryTab->getSyncWTempoComboBox();
@@ -672,13 +672,13 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
     }
     
     if (iSelectedTrajectory == Pendulum || iSelectedTrajectory == DampedPendulum ){
-        m_pTrajectoryNbrOscilTextEditor->setVisible(true);
-        m_pTrajectoryNbrOscilLabel->setVisible(true);
+        m_pTrajectoryDampeningTextEditor->setVisible(true);
+        m_pTrajectoryDampeningLabel->setVisible(true);
         m_pTrajectoryDeviationLabel->setVisible(true);
         m_pTrajectoryDeviationTextEditor->setVisible(true);
     } else {
-        m_pTrajectoryNbrOscilTextEditor->setVisible(false);
-        m_pTrajectoryNbrOscilLabel->setVisible(false);
+        m_pTrajectoryDampeningTextEditor->setVisible(false);
+        m_pTrajectoryDampeningLabel->setVisible(false);
         m_pTrajectoryDeviationLabel->setVisible(false);
         m_pTrajectoryDeviationTextEditor->setVisible(false);
     }
@@ -789,8 +789,8 @@ void ZirkOscAudioProcessorEditor::resized() {
     m_pTrajectoryDeviationTextEditor->  setBounds(m_iL_M+iCol1w + iCol2w/2-dw,          m_iT_M+50, iCol2w/4-10,    25);
     m_pTrajectoryDeviationLabel->       setBounds(m_iL_M+iCol1w + 3 * iCol2w/4-dw-10,   m_iT_M+50, iCol2w/4+dw, 25);
 
-    m_pTrajectoryNbrOscilTextEditor->   setBounds(m_iL_M+iCol1w + iCol2w - iCol3w/2,    m_iT_M+50, iCol3w/2,    25);
-    m_pTrajectoryNbrOscilLabel->        setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+50, iCol3w,    25);
+    m_pTrajectoryDampeningTextEditor->   setBounds(m_iL_M+iCol1w + iCol2w - iCol3w/2,    m_iT_M+50, iCol3w/2,    25);
+    m_pTrajectoryDampeningLabel->        setBounds(m_iL_M+iCol1w + iCol2w,               m_iT_M+50, iCol3w,    25);
     
     //row 4: end location
     m_pSetEndTrajectoryButton->         setBounds(m_iL_M,                               m_iT_M+75, iCol1w,   25);
@@ -1125,14 +1125,14 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             
             unique_ptr<AllTrajectoryDirections> direction = Trajectory::getTrajectoryDirection(type, m_pTrajectoryDirectionComboBox->getSelectedId()-1);
             
-            bool  bReturn   = (m_pTrajectoryReturnComboBox->getSelectedId() == 2);
-            float repeats   = m_pTrajectoryCountTextEditor->getText().getFloatValue();
-            int   source    = ourProcessor->getSelectedSource();
-            float fTurns    = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
-            float fDeviation= m_pTrajectoryDeviationTextEditor->getText().getFloatValue();
-            float fNbrOscil = m_pTrajectoryNbrOscilTextEditor->getText().getFloatValue();
+            bool  bReturn    = (m_pTrajectoryReturnComboBox->getSelectedId() == 2);
+            float repeats    = m_pTrajectoryCountTextEditor->getText().getFloatValue();
+            int   source     = ourProcessor->getSelectedSource();
+            float fTurns     = m_pTrajectoryTurnsTextEditor->getText().getFloatValue();
+            float fDeviation = m_pTrajectoryDeviationTextEditor->getText().getFloatValue();
+            float fDampening = m_pTrajectoryDampeningTextEditor->getText().getFloatValue();
             
-            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocationXY(), fTurns, fNbrOscil, fDeviation));
+            ourProcessor->setTrajectory(Trajectory::CreateTrajectory(type, ourProcessor, duration, beats, *direction, bReturn, repeats, source, ourProcessor->getEndLocationXY(), fTurns, fDeviation, fDampening));
             m_pWriteTrajectoryButton->setButtonText("Cancel");
             
             mTrState = kTrWriting;
@@ -1330,38 +1330,32 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     
     if (slider == m_pGainSlider) {
         ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) m_pGainSlider->getValue());
-    }
-    else if (slider == m_pAzimuthSlider ){
+    } else if (slider == m_pAzimuthSlider ){
         //figure out where the slider should move the point
         percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
         SoundSource::azimElev01toXY(percentValue, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
         move(selectedSource, fX, fY);
-    }
-    else if (slider == m_pElevationSlider){
+    } else if (slider == m_pElevationSlider){
         percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         //if (percentValue > .99) percentValue = .99;
         SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
         move(selectedSource, fX, fY);
-    }
-    else if (slider == m_pElevationSpanSlider) {
+    } else if (slider == m_pElevationSpanSlider) {
         percentValue = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5), percentValue);
             }
-        }
-        else{
+        } else {
             ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_ElevSpan_ParamId + (selectedSource*5), percentValue);
         }
-    }
-    else if (slider == m_pAzimuthSpanSlider) {
+    } else if (slider == m_pAzimuthSpanSlider) {
         percentValue = HRToPercent((float) m_pAzimuthSpanSlider->getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
                 ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5), percentValue);
             }
-        }
-        else{
+        } else {
             ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_AzimSpan_ParamId + (selectedSource*5), percentValue);
         }
     }
@@ -1382,9 +1376,6 @@ void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
     
     //if a source is clicked on, flag m_bIsSourceBeingDragged to true
     m_bIsSourceBeingDragged = (source!=-1);
-
-
-    
     if(m_bIsSourceBeingDragged){
         //if sources are being dragged, tell host that their parameters are about to change.
         ourProcessor->setIsRecordingAutomation(true);
@@ -1582,16 +1573,16 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
         updateTurnsTextEditor();
     } else if (m_pTrajectoryDeviationTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
-        if (doubleValue > 0 && doubleValue <= 360){
+        if (doubleValue >= 0 && doubleValue <= 360){
             ourProcessor->setDeviation(doubleValue);
         }
         m_pTrajectoryDeviationTextEditor->setText("      " + String(ourProcessor->getDeviation()));
-    } else if (m_pTrajectoryNbrOscilTextEditor == &textEditor){
+    } else if (m_pTrajectoryDampeningTextEditor == &textEditor){
         double doubleValue = textEditor.getText().getDoubleValue();
-        if (doubleValue > 0 && doubleValue <= 10){
-            ourProcessor->setNbrOscil(doubleValue);
+        if (doubleValue >= 0 && doubleValue <= 1){
+            ourProcessor->setDampening(doubleValue);
         }
-        m_pTrajectoryNbrOscilTextEditor->setText("      " + String(ourProcessor->getNbrOscil()));
+        m_pTrajectoryDampeningTextEditor->setText("      " + String(ourProcessor->getDampening()));
     }
     
 //    else if (&_IpadOutgoingOscPortTextEditor == &textEditor) {

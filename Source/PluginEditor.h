@@ -169,7 +169,7 @@ private:
     Label* m_pTrajectoryCountLabel;
     Label* m_pTrajectoryTurnsLabel;
     Label* m_pTrajectoryDeviationLabel;
-    Label* m_pTrajectoryNbrOscilLabel;
+    Label* m_pTrajectoryDampeningLabel;
     
     Label* m_pTrajectoryDurationLabel;
     
@@ -177,7 +177,7 @@ private:
     TextEditor* m_pTrajectoryTurnsTextEditor;
     TextEditor* m_pTrajectoryDeviationTextEditor;
     TextEditor* m_pTrajectoryDurationTextEditor;
-    TextEditor* m_pTrajectoryNbrOscilTextEditor;
+    TextEditor* m_pTrajectoryDampeningTextEditor;
     
   	MiniProgressBar *mTrProgressBar;
     
