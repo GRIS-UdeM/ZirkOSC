@@ -258,11 +258,11 @@ protected:
         float newX, newY, temp, fCurrentProgress = modf((mDone / mDurationSingleTrajectory), &temp);
 
         if (m_bYisDependent){
-            fCurrentProgress = fCurDampening * (m_fEndPair.first - m_fStartPair.first) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
+            fCurrentProgress = (m_fEndPair.first - m_fStartPair.first) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
             newX = m_fStartPair.first + fCurrentProgress;
             newY = m_fM * newX + m_fB;
         } else {
-            fCurrentProgress = fCurDampening * (m_fEndPair.second - m_fStartPair.second) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
+            fCurrentProgress = (m_fEndPair.second - m_fStartPair.second) * (1-cos(fCurrentProgress * iReturn * M_PI)) / 2;
             newX = m_fStartPair.first;
             newY = m_fStartPair.second + fCurrentProgress;
         }

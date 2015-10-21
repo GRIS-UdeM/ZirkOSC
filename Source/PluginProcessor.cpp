@@ -96,7 +96,7 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 ,m_dTrajectoriesDuration(5.)
 ,m_dTrajectoryTurns(1.)
 ,m_dTrajectoryDeviation(0.)
-,m_dTrajectoryDampening(2)
+,m_dTrajectoryDampening(0.)
 //,_TrajectoriesPhiAsin(0)
 //,_TrajectoriesPhiAcos(0)
 ,m_bIsSyncWTempo(false)
@@ -916,7 +916,7 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     xml.setAttribute("endLocationElev", m_fEndLocationXY.second);
     xml.setAttribute("turns", m_dTrajectoryTurns);
     xml.setAttribute("deviation", m_dTrajectoryDeviation);
-    xml.setAttribute("oscil", m_dTrajectoryDampening);
+    xml.setAttribute("dampening", m_dTrajectoryDampening);
     
     for(int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
         String channel      = "Channel"         + to_string(iCurSrc);
@@ -990,7 +990,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         m_fEndLocationXY.second         = xmlState->getDoubleAttribute("endLocationElev", 90.0);
         m_dTrajectoryTurns              = xmlState->getDoubleAttribute("turns", m_dTrajectoryTurns);
         m_dTrajectoryDeviation          = xmlState->getDoubleAttribute("deviation", m_dTrajectoryDeviation);
-        m_dTrajectoryDampening           = xmlState->getDoubleAttribute("oscil", m_dTrajectoryDampening);
+        m_dTrajectoryDampening          = xmlState->getDoubleAttribute("dampening", m_dTrajectoryDampening);
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
             String channel      = "Channel" + to_string(iCurSrc);
