@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>7C23E6FD-3000-41EC-A9A0-4A7482C1A488</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>ZirkOSC</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>E140C8D3D39EB9E2DF404438F78369D56D204062</key>
 		<string>https://github.com/GRIS-UdeM/ZirkOSC.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Builds/MacOSX/ZirkOSC.xcodeproj/project.xcworkspace</string>
+	<string>Builds/MacOSX/ZirkOSC.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>E140C8D3D39EB9E2DF404438F78369D56D204062</key>
