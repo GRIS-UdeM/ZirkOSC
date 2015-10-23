@@ -62,4 +62,12 @@ _________________________________________________
 #75 and #76
 I think these problems are related. why int the hell are azimuth and elevation being changed together?!
     * doesn't happen with circle trajectory. elevation is unchanged. at least as reported by the sliders
-ok, changing ZirkOSC_Azim_Min and ZirkOSC_Elev_Max to .9999999 helped with this. so there are definitely some floating point issues at play here. Should I convert everything to double?
+ok, changing ZirkOSC_Azim_Min and ZirkOSC_Elev_Max to .9999999 fixed #75. so there are definitely some floating point issues at play here. Should I convert everything to double?
+
+#76: desolidarisation: so it seems worse when writing a trajectory. why? When is the thread running again? Not when recording automations. So this is a problem with the trajectory method. Why would it work differently for selected vs non-selected sources?
+
+The trajectories call processor->move, which moves sources according to the constraints. non-selected sources are moved using the deltas
+so somehow the azimuth delta is blocked at 180?
+
+i got some breakpoints at processor.cpp line 281 that work with current state of reaper project
+

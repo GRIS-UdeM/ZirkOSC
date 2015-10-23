@@ -188,7 +188,6 @@ void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
 
 
 void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
-    
     //calculate delta for selected source, which was already moved in ::move()
     float fSelectedOldX01, fSelectedOldY01;
     m_oAllSources[p_iSource].getOldXY01(fSelectedOldX01, fSelectedOldY01);
@@ -278,6 +277,11 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         else {  //normal range
             m_oAllSources[iCurSource].setElevationStatus(normalRange);
             SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
+            if (iCurSource == 7 && fNewAzim01 < .001){
+                cout << fNewAzim01 << newLine;
+                int i = 0;
+                ++i;
+            }
             m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
             m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time
         }
@@ -407,10 +411,7 @@ void ZirkOscAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     }
 }
 
-bool bRandom = false;
-
-void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
-{
+void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages){
 
     AudioPlayHead::CurrentPositionInfo cpi;
     getPlayHead()->getCurrentPosition(cpi);
@@ -440,10 +441,8 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
 
     
     Trajectory::Ptr trajectory = mTrajectory;
-    if (trajectory)
-    {
-        if (cpi.isPlaying && cpi.timeInSamples != mLastTimeInSamples)
-        {
+    if (trajectory) {
+        if (cpi.isPlaying && cpi.timeInSamples != mLastTimeInSamples) {
             // we're playing!
             mLastTimeInSamples = cpi.timeInSamples;
             
