@@ -61,3 +61,5 @@ the problem is the nbr osc parameter, which isn't accurate
 _________________________________________________
 #75 and #76
 I think these problems are related. why int the hell are azimuth and elevation being changed together?!
+    * doesn't happen with circle trajectory. elevation is unchanged. at least as reported by the sliders
+ok, changing ZirkOSC_Azim_Min and ZirkOSC_Elev_Max to .9999999 helped with this. so there are definitely some floating point issues at play here. Should I convert everything to double?

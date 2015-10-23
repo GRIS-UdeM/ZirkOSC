@@ -32,7 +32,7 @@ const String ZirkOSC_X_name [ZirkOSC_Max_Sources] = {"1 X", "2 X","3 X","4 X","5
 
 //const String ZirkOSC_X_name    [ZirkOSC_Max_Sources] = {"1 X", "2 X","3 X","4 X","5 X","6 X","7 X","8 X"};
 //const String ZirkOSC_X_name = " X";
-const float  ZirkOSC_Azim_Min = -179.99f;
+const float  ZirkOSC_Azim_Min = -179.9999999f;
 const float  ZirkOSC_Azim_Max = 180.0f;
 const float  ZirkOSC_Azim_Def = 0.0f;
 
@@ -40,7 +40,7 @@ const String ZirkOSC_Elev_name [ZirkOSC_Max_Sources] = {"1 Elevation", "2 Elevat
 const String ZirkOSC_Y_name [ZirkOSC_Max_Sources] = {"1 Y", "2 Y","3 Y","4 Y","5 Y","6 Y","7 Y","8 Y"};
 //const String ZirkOSC_Y_name = " Y";
 const float  ZirkOSC_Elev_Min = 0.0f;
-const float  ZirkOSC_Elev_Max = 89.99f;
+const float  ZirkOSC_Elev_Max = 89.999999999f;
 const float  ZirkOSC_Elev_Def = 0.0f;
 
 const String ZirkOSC_AzimSpan_name[ZirkOSC_Max_Sources] = {"1 Azimuth Span", "2 Azimuth Span","3 Azimuth Span","4 Azimuth Span","5 Azimuth Span","6 Azimuth Span","7 Azimuth Span","8 Azimuth Span"};
