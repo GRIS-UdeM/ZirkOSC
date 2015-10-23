@@ -1513,7 +1513,6 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
     }
     
     else if(&_FirstSourceIdTextEditor == &textEditor ){
-        
         //we only have room for 2, positive digits, so limit that field to 3 digits
         if (intValue > 99 - 8 || intValue < 0 ){
             return;
@@ -1586,7 +1585,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
 void ZirkOscAudioProcessorEditor::updateTurnsTextEditor(){
     double doubleValue = m_pTrajectoryTurnsTextEditor->getText().getDoubleValue();
     double dUpperLimit = 10.0;
-    if (ourProcessor->getSelectedTrajectory() == Circle){
+    if (ourProcessor->getSelectedTrajectory() == Circle || ourProcessor->getSelectedTrajectory() == Ellipse){
         dUpperLimit = 1.0;
     }
     if (doubleValue < 0 ){
