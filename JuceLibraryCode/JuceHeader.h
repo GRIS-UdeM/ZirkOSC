@@ -40,8 +40,8 @@
 namespace ProjectInfo
 {
     const char* const  projectName    = "ZirkOSC";
-    const char* const  versionString  = "3.0.9";
-    const int          versionNumber  = 0x30009;
+    const char* const  versionString  = "3.0.10";
+    const int          versionNumber  = 0x3000a;
 }
 #endif
 
