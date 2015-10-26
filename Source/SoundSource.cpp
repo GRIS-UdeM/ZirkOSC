@@ -292,19 +292,19 @@ float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
         azim = atan2f(-p_fX, p_fY);
         azim = 2*M_PI-azim;
     }
-    if(azim < .002){
-        if (azim > .00001){
-            //in this range, we mean 0
-            return 0;
-        } else {
-            //and in this range, we mean 1 ;)
-            return 1;
-        }
-    } else {
+//    if(azim < .002){
+//        if (azim > .00001){
+//            //in this range, we mean 0
+//            return 0;
+//        } else {
+//            //and in this range, we mean 1 ;)
+//            return 1;
+//        }
+//    } else {
         azim *= 180/M_PI;
         azim /= 360;
         return azim;
-    }
+//    }
 }
 
 float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){

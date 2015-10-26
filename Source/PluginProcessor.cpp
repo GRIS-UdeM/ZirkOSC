@@ -256,6 +256,9 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         }
         else {    //normalRange
             fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
+            if (iCurSource == 7 && fCurAzim01 < 0){
+                fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
+            }
             fCurElev01 = SoundSource::XYtoElev01(fCurX, fCurY);
         }
         //---------------------- CALCULATE NEW VALUES ---------------------
@@ -277,7 +280,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         else {  //normal range
             m_oAllSources[iCurSource].setElevationStatus(normalRange);
             SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-            if (iCurSource == 7 && fNewAzim01 < .001){
+            if (iCurSource == 7 && fNewAzim01 < 0){
                 cout << fNewAzim01 << newLine;
                 int i = 0;
                 ++i;
