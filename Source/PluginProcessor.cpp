@@ -263,6 +263,16 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         }
         //---------------------- CALCULATE NEW VALUES ---------------------
         float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
+
+        
+        if (fNewAzim01 > 1){
+            fNewAzim01 -= 1;
+        } else if (fNewAzim01 < 0){
+            cout << "old " << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << newLine;
+            fNewAzim01 = 1 + fNewAzim01;
+            cout << "new " << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << newLine;
+        }
+        
         if (fNewElev01 > 1){
             m_oAllSources[iCurSource].setElevationStatus(over1);
             float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));

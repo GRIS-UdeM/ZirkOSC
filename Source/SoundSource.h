@@ -142,8 +142,14 @@ public:
     float getElevOverflow(){
         return m_fElevOverflow;
     }
+    
+    //store azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
+    void setLastAzim(float p_fLastAzim){
+        m_bPositionWas00 = true;
+        m_fLastAzim = p_fLastAzim;
+    }
 
-        
+    
 private:
 
     float m_fX;
@@ -164,7 +170,7 @@ private:
     float _AzimuthSpan=0;
     //! Elevation Span parameter stored in percent (see HRToPercent function).
     float _ElevationSpan=0;
-
+    
     bool m_bElevationWasMaxed;
     
     float m_fOldX01;
@@ -175,9 +181,10 @@ private:
     float m_fElevOverflow;
 
     
-//    bool m_bPositionWas00;
-//    
-//    float m_fLastAzim;
+    bool m_bPositionWas00;
+    float m_fLastAzim;
+
+
     
 };
 
