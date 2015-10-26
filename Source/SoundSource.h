@@ -144,9 +144,9 @@ public:
     }
     
     //store azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
-    void setLastAzim(float p_fLastAzim){
+    void setLastAzim01(float p_fLastAzim01){
         m_bPositionWas00 = true;
-        m_fLastAzim = p_fLastAzim;
+        m_fLastAzim01 = p_fLastAzim01;
     }
 
     
@@ -182,7 +182,7 @@ private:
 
     
     bool m_bPositionWas00;
-    float m_fLastAzim;
+    float m_fLastAzim01;
 
 
     

@@ -1039,15 +1039,9 @@ void ZirkOscAudioProcessorEditor::updateSliders(){
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
 
     float elevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    //if(HRValue > 89.99) HRValue = 89.99;
     m_pElevationSlider->setValue(elevation,dontSendNotification);
     
-    if(elevation > 89.9999){
-        cout << elevation << newLine;
-    }
-    
     float azimuth = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    //if(HRValue < -179.99) HRValue = -179.99;
     m_pAzimuthSlider->setValue(azimuth,dontSendNotification);
 
     float azimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
@@ -1319,25 +1313,28 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     }
     
     int selectedSource = ourProcessor->getSelectedSource();
-    bool isSpanLinked = ourProcessor->getIsSpanLinked();
-    float percentValue=0;
+    bool isSpanLinked  = ourProcessor->getIsSpanLinked();
+    float percentValue = 0;
     float fX, fY;
     
     if (slider == m_pGainSlider) {
         ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) m_pGainSlider->getValue());
     } else if (slider == m_pAzimuthSlider ){
         //figure out where the slider should move the point
-        percentValue = HRToPercent((float) m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-        SoundSource::azimElev01toXY(percentValue, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
+        float newAzim01 = HRToPercent(m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+        SoundSource::azimElev01toXY(newAzim01, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
         move(selectedSource, fX, fY);
+        //if elevation is maxed out, we need to set the azimuth explicitely, otherwise using x and y it will always be 180
+        if (m_pElevationSlider->getValue() == 90){
+            ourProcessor->getSources()[selectedSource].setLastAzim01(newAzim01);
+        }
     } else if (slider == m_pElevationSlider){
         percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        float oldAzim = ourProcessor->getSources()[selectedSource].getAzimuth01();
+        float oldAzim01 = ourProcessor->getSources()[selectedSource].getAzimuth01();
         SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
         move(selectedSource, fX, fY);
         if (percentValue == 1){
-            ourProcessor->getSources()[selectedSource].setLastAzim(oldAzim);
-            cout << "slider elev 90\n";
+            ourProcessor->getSources()[selectedSource].setLastAzim01(oldAzim01);
         }
     } else if (slider == m_pElevationSpanSlider) {
         percentValue = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
