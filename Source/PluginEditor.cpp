@@ -1032,7 +1032,7 @@ void ZirkOscAudioProcessorEditor::updateSliders(){
     int selectedSource = ourProcessor->getSelectedSource();
     
     //based on selected source, update all sliders
-    m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain(), dontSendNotification);
+    m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain01(), dontSendNotification);
 
     float elevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_pElevationSlider->setValue(elevation,dontSendNotification);

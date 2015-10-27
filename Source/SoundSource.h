@@ -31,118 +31,92 @@ class SoundSource{
 public:
     SoundSource();
     SoundSource(float,float, int p_iSrcId);
-    ~SoundSource();
-    
-    void getXY(float &fX, float &fY);
-    //! returns the channel (id in the Zirkonium)
-    int     getSourceId();
-    //! sets the channel (id in the Zirkonium)
-    void    setSourceId(int);
-    //! returns the X position, range [-r,r]
-    float   getX();
-    //! retunrs the Y position, range [-r,r]
-    float   getY();
-    
-    //set x and y, both are [-r,r]
-    void    setXY(Point <float>);
-    
-    //set X (range [-r,r]) using parameter x in percent, ie,  [0,1]
-    void setX01(float x);
-    
-    void setY01(float y);
-    
-    void setXY01(float x, float y);
-    
-    float getX01();
-    
-    float getY01();
-    
-    static float XYtoAzim01(const float &x, const float &y);
-
-    static float XYtoElev01(const float &x, const float &y);
-    
-    static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
-    
-    static void azimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
-    
-    static void azimElev01toXY01(const float &p_fAzimuth01, const float &p_fElevation01, float &p_fX, float &p_fY, const float& fNewR);
-
-    static void azimElev01toXY(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
-    
-    static void azimElevToXy (const float &p_fAzimuth, const float &p_fElevation, float &p_fX, float &p_fY);
-
-    static void clampXY(float &x, float &y);
-    
     void    initAzimuthAndElevation(float p_fAzim, float p_fElev);
-    //! returns the gain [0,1]
-    float   getGain();
-    //! sets the gain 
-    void    setGain(float);
-    //! gets the Azimuth [0,1]
+    ~SoundSource();
+    //POSITION FUNCTIONS
+    void    setXY(Point <float>);       //set x and y, both are [-r,r]
+    void    setX01(float x);
+    void    setY01(float y);
+    float   getX01();
+    float   getY01();
+    void    setXY01(float x, float y);
+    void    setLastAzim01(float p_fLastAzim01);
     float   getAzimuth01();
-    //! sets the azimuth
     void    setAzimuth01(float);
-    //! returns the azimuth span
-    float   getAzimuthSpan();
-    //! sets the azimuth span
-    void    setAzimuthSpan(float);
-    //! returns the elevation span
-    float   getElevationSpan();
-    //! sets the elevation span
-    void    setElevationSpan(float);
-    //! returns the elevation [0,1]
     float   getElevation01();
-    //! returns the elevation [-1,1] from memory.
-    float   getElevationRawValue();
-    //! set the elevation 
     void    setElevation01(float);
-    //! returns true if the point is inside the source. Point is relative to the center of the dome
-    bool    contains(Point<float>);
-    //! Check if the movement lets the source in the dome
-    bool isStillInTheDome( Point<float> move);
-   
-    void setOldLoc01(const float &p_fX01, const float &p_fY01, const float &p_fOldAzim01 = -1){
-        m_fOldX01 = p_fX01;
-        m_fOldY01 = p_fY01;
-        if (p_fOldAzim01 == -1){
-            XY01toAzimElev01(m_fOldX01, m_fOldY01, m_fOldAzim01, m_fOldElev01);
-        } else {
-            m_fOldAzim01 = p_fOldAzim01;
-        }
+    //TRIVIAL SETTERS AND GETTERS
+    float getGain01(){
+        return m_fGain;
     }
-    
-    void getOldXY01(float &p_fX01, float &p_fY01){
-        p_fX01 = m_fOldX01;
-        p_fY01 = m_fOldY01;
+    void setGain01(float gain){
+        m_fGain=gain;
     }
-    
+    int getSourceId(){
+        return m_iSourceId;
+    }
+    void setSourceId(int iSourceId){
+        m_iSourceId = iSourceId;
+    }
+    void setOldLoc01(const float &p_fX01, const float &p_fY01, const float &p_fOldAzim01 = -1);
+    void getOldXY01(float &p_fX01, float &p_fY01);
     float getOldAzim01(){
         return m_fOldAzim01;
     }
-    
     void setElevationStatus(ElevationStatus status){
         m_iElevationStatus = status;
     }
-    
     ElevationStatus getElevationStatus(){
         return m_iElevationStatus;
     }
-    
     void setElevOverflow(const float &p_fElevOverflow){
         m_fElevOverflow = p_fElevOverflow;
     }
-    
     float getElevOverflow(){
         return m_fElevOverflow;
     }
-    
-    //store azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
-    void setLastAzim01(float p_fLastAzim01){
-        m_bPositionWas00 = true;
-        m_fAzim01 = p_fLastAzim01;
+    //range for both fX and fY is [-r,r]
+    void getXY(float &fX, float &fY){
+        fX = getX();
+        fY = getY();
     }
-
+    float getAzimuthSpan(){
+        return m_fAzimuthSpan;
+    }
     
+    float getElevationSpan(){
+        return m_fElevationSpan;
+    }
+    
+    void setAzimuthSpan(float azimuth_span){
+        m_fAzimuthSpan=azimuth_span;
+    }
+    
+    void setElevationSpan(float elevation_span){
+        m_fElevationSpan = elevation_span;
+    }
+    bool contains(Point <float> p){
+        return (p.getX()< getX()+10 && p.getX()> getX()-10 && p.getY()< getY()+10 && p.getY()> getY()-10 );
+    }
+    //returned x is [-r,r]
+    float getX(){
+        return m_fX;
+    }
+    //returned y is [-r,r]
+    float getY(){
+        return m_fY;
+    }
+    
+
+    //STATIC CONVERTION FONCTIONS
+    static float XYtoAzim01(const float &x, const float &y);
+    static float XYtoElev01(const float &x, const float &y);
+    static void XY01toAzimElev01(const float &x, const float &y, float  &azim, float &elev);
+    static void azimElev01toXY01(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+    static void azimElev01toXY01(const float &p_fAzimuth01, const float &p_fElevation01, float &p_fX, float &p_fY, const float& fNewR);
+    static void azimElev01toXY(const float &p_fAzim, const float &p_fElev, float &p_fX, float &p_fY);
+    static void azimElevToXy (const float &p_fAzimuth, const float &p_fElevation, float &p_fX, float &p_fY);
+    static void clampXY(float &x, float &y);
 private:
     int   m_iSourceId;         //! Source id sent to Zirkonium
     float m_fGain;

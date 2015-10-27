@@ -712,7 +712,7 @@ float ZirkOscAudioProcessor::getParameter (int index)
             return m_oAllSources[iCurSrc].getElevationSpan();
         }
         else if (ZirkOSC_Gain_ParamId + (iCurSrc*5) == index){
-            return m_oAllSources[iCurSrc].getGain();
+            return m_oAllSources[iCurSrc].getGain01();
         }
     }
     DBG("wrong parameter id: " << index << "in ZirkOscAudioProcessor::getParameter" << "\n");
@@ -839,8 +839,8 @@ bool ZirkOscAudioProcessor::setPositionParameters(int index, float newValue){
             return true;
         }
         else if (ZirkOSC_Gain_ParamId + (iCurSource*5) == index){
-            if (newValue != m_oAllSources[iCurSource].getGain()){
-                m_oAllSources[iCurSource].setGain(newValue);
+            if (newValue != m_oAllSources[iCurSource].getGain01()){
+                m_oAllSources[iCurSource].setGain01(newValue);
                 m_bNeedToRefreshGui = true;
             }
             return true;
@@ -940,7 +940,7 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
         xml.setAttribute(channel,       m_oAllSources[iCurSrc].getSourceId());
         xml.setAttribute(azimuthSpan,   m_oAllSources[iCurSrc].getAzimuthSpan());
         xml.setAttribute(elevationSpan, m_oAllSources[iCurSrc].getElevationSpan());
-        xml.setAttribute(gain,          m_oAllSources[iCurSrc].getGain());
+        xml.setAttribute(gain,          m_oAllSources[iCurSrc].getGain01());
         xml.setAttribute(strX,          m_oAllSources[iCurSrc].getX01());
         xml.setAttribute(strY,          m_oAllSources[iCurSrc].getY01());
     }
@@ -1014,7 +1014,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
             m_oAllSources[iCurSrc].setSourceId(xmlState->getIntAttribute(channel , 0));
             m_oAllSources[iCurSrc].setAzimuthSpan(    static_cast<float>(xmlState->getDoubleAttribute(azimuthSpan,0)));
             m_oAllSources[iCurSrc].setElevationSpan(  static_cast<float>(xmlState->getDoubleAttribute(elevationSpan,0)));
-            m_oAllSources[iCurSrc].setGain(           static_cast<float>(xmlState->getDoubleAttribute(gain, 1)));
+            m_oAllSources[iCurSrc].setGain01(           static_cast<float>(xmlState->getDoubleAttribute(gain, 1)));
             
             //calculate default value, in case we cannot find the actual values
             float fDefaultX, fDefaultY;
@@ -1044,7 +1044,7 @@ void ZirkOscAudioProcessor::sendOSCValues(){
         float azimspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
         float elevspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
         int   channel_osc   = m_oAllSources[iCurSrc].getSourceId()-1;
-        float gain_osc      = m_oAllSources[iCurSrc].getGain();
+        float gain_osc      = m_oAllSources[iCurSrc].getGain01();
         
         lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
         

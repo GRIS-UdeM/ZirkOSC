@@ -44,105 +44,27 @@ SoundSource::SoundSource(float azimuth, float elevation, int p_iSrcId)
     initAzimuthAndElevation(azimuth,elevation);
     m_iSourceId = p_iSrcId;
 }
+void SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
+    if (p_fAzim>1)
+        p_fAzim = p_fAzim - 1.0f;
+    else if (p_fAzim<0.0f){
+        p_fAzim += 1;
+    }
+    setXYUsingAzimElev(p_fAzim, p_fElev);
+}
 
 SoundSource::~SoundSource(){
-    
 }
 
-float   SoundSource::getGain(){
-    return m_fGain;
-}
-
-void    SoundSource::setGain(float gain){
-    m_fGain=gain;
-}
-
-int   SoundSource::getSourceId(){
-    return m_iSourceId;
-}
-
-void    SoundSource::setSourceId(int iSourceId){
-    this->m_iSourceId = iSourceId;
-}
-
-bool    SoundSource::contains(Point <float> p){
-    return (p.getX()< getX()+10 && p.getX()> getX()-10 && p.getY()< getY()+10 && p.getY()> getY()-10 );
-}
-
-//range for both fX and fY is [-r,r]
-void SoundSource::getXY(float &fX, float &fY){
-    fX = getX();
-    fY = getY();
-}
-
-
-bool    SoundSource::isStillInTheDome(Point<float> move){
-    Point<float> p = Point<float>(this->getX() + move.getX(), this->getY() + move.getY());
-    float dist= sqrt(p.getX()* p.getX() + p.getY()*p.getY());
-    return (fabs(dist)< ZirkOscAudioProcessor::s_iDomeRadius);
-}
-
-float   SoundSource::getAzimuthSpan(){
-    return m_fAzimuthSpan;
-}
-
-float   SoundSource::getElevationSpan(){
-    return m_fElevationSpan;
-}
-
-void    SoundSource::setAzimuthSpan(float azimuth_span){
-    
-    this->m_fAzimuthSpan=azimuth_span;
-}
-
-void    SoundSource::setElevationSpan(float elevation_span){
-    
-    this->m_fElevationSpan = elevation_span;
-}
-
-
-
-//------------------------------------------------
-//returned x is [-r,r]
-float SoundSource::getX(){
-    
-    
-    return m_fX;
-    
-}
-
-//returned y is [-r,r]
-float SoundSource::getY(){
-    
-    return m_fY;
-    
-}
-
-float SoundSource::getX01(){
-    return HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-}
-
-float SoundSource::getY01(){
-    return HRToPercent(m_fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-}
-
-//------------------------------------------------
-//x and y are [-r,r]
-void    SoundSource::setXY(Point <float> p){
-    
+//------------------------------------------ SETTERS -------------------------------------------------
+void SoundSource::setXY(Point <float> p){    //x and y are [-r,r]
     m_fX = p.x;
     m_fY = p.y;
-    
 }
-
-void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
-    float HRAzimuth = PercentToHR(p_fAzim01, ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
-    float HRElevation = PercentToHR(p_fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    
-    m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
-    m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+void SoundSource::setXY01(float x01, float y01){
+    setX01(x01);
+    setY01(y01);
 }
-
 void SoundSource::setX01(float p_x01){
     if (m_fX == 0 && m_fY ==0){
         m_fAzim01 = getAzimuth01();
@@ -150,9 +72,8 @@ void SoundSource::setX01(float p_x01){
         m_bPositionWas00 = false;
     }
     m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-
+    
 }
-
 void SoundSource::setY01(float p_y01){
     if (m_fX == 0 && m_fY ==0){
         m_bPositionWas00 = true;
@@ -162,48 +83,13 @@ void SoundSource::setY01(float p_y01){
     }
     m_fY = PercentToHR(p_y01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
 }
-
-void SoundSource::setXY01(float x01, float y01){
-    setX01(x01);
-    setY01(y01);
+void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
+    float HRAzimuth = PercentToHR(p_fAzim01, ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
+    float HRElevation = PercentToHR(p_fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+    m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
-
-//------------------------------------------------
-//azimuth range [0,1]
-float   SoundSource::getAzimuth01(){
-    if (m_bPositionWas00){
-        return m_fAzim01;
-    } else {
-        return XYtoAzim01(m_fX, m_fY);
-    }
-}
-
-//elevation range [0,1]
-float   SoundSource::getElevation01(){
-    return XYtoElev01(m_fX, m_fY);
-}
-
-float   SoundSource::getElevationRawValue(){
-    
-    double dArg = sqrt( m_fX*m_fX + m_fY*m_fY) / ZirkOscAudioProcessor::s_iDomeRadius;
-    if (dArg > 1) {
-        dArg =  1.;
-    }
-    float ret = static_cast<float>( acos(dArg));
-    return ret;
-}
-
-
-//----------------------------
-void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
-    if (p_fAzim>1)
-        p_fAzim = p_fAzim - 1.0f;
-    else if (p_fAzim<0.0f){
-        p_fAzim += 1;
-    }
-    setXYUsingAzimElev(p_fAzim, p_fElev);
-}
-
+//----------------------- AZIM + ELEV
 void  SoundSource::setAzimuth01(float azimuth01){
     if (azimuth01>1)
         azimuth01 = azimuth01 - 1.0f;
@@ -212,15 +98,63 @@ void  SoundSource::setAzimuth01(float azimuth01){
     }
     setXYUsingAzimElev(azimuth01, getElevation01());
 }
-
 void SoundSource::setElevation01(float elevation01){
     setXYUsingAzimElev(getAzimuth01(), elevation01);
 }
 
-//--------------------------
-//STATIC CONVERSION FUNCTIONS
+//store azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
+void SoundSource::setLastAzim01(float p_fLastAzim01){
+    JUCE_COMPILER_WARNING("THIS NEEDS TO BE IN OTHER SETTER FUNCTION")
+    m_fAzim01 = p_fLastAzim01;
+}
+//-----------------------
+void SoundSource::setOldLoc01(const float &p_fX01, const float &p_fY01, const float &p_fOldAzim01){
+    m_fOldX01 = p_fX01;
+    m_fOldY01 = p_fY01;
+    if (p_fOldAzim01 == -1){
+        XY01toAzimElev01(m_fOldX01, m_fOldY01, m_fOldAzim01, m_fOldElev01);
+    } else {
+        m_fOldAzim01 = p_fOldAzim01;
+    }
+}
+
+//------------------------------------------ GETTERS -------------------------------------------------
+float SoundSource::getX01(){
+    return HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+}
+float SoundSource::getY01(){
+    return HRToPercent(m_fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+}
+float   SoundSource::getAzimuth01(){
+    if (m_bPositionWas00){
+        return m_fAzim01;
+    } else {
+        return XYtoAzim01(m_fX, m_fY);
+    }
+}
+float   SoundSource::getElevation01(){
+    return XYtoElev01(m_fX, m_fY);
+}
+
+void SoundSource::getOldXY01(float &p_fX01, float &p_fY01){
+    p_fX01 = m_fOldX01;
+    p_fY01 = m_fOldY01;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//-------------------------- STATIC CONVERSION FUNCTIONS --------------------------
 void SoundSource::azimElev01toXY01(const float &p_fAzimuth01, const float &p_fElevation01, float &p_fX, float &p_fY){
-    
     float HRAzimuth   = PercentToHR(p_fAzimuth01,   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(p_fElevation01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     
@@ -231,7 +165,6 @@ void SoundSource::azimElev01toXY01(const float &p_fAzimuth01, const float &p_fEl
 }
 
 void SoundSource::azimElev01toXY01(const float &p_fAzimuth01, const float &p_fElevation01, float &p_fX, float &p_fY, const float& fNewR){
-    
     float HRAzimuth   = PercentToHR(p_fAzimuth01,   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(p_fElevation01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     
@@ -240,7 +173,6 @@ void SoundSource::azimElev01toXY01(const float &p_fAzimuth01, const float &p_fEl
     p_fY = -fNewR * cos(degreeToRadian(HRAzimuth)) * cos(degreeToRadian(HRElevation));
     p_fY = (p_fY + ZirkOscAudioProcessor::s_iDomeRadius) / (2.f*ZirkOscAudioProcessor::s_iDomeRadius);
 }
-
 void SoundSource::azimElev01toXY(const float &p_fAzimuth01, const float &p_fElevation01, float &p_fX, float &p_fY){
     float HRAzimuth   = PercentToHR(p_fAzimuth01,   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     float HRElevation = PercentToHR(p_fElevation01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
@@ -248,7 +180,6 @@ void SoundSource::azimElev01toXY(const float &p_fAzimuth01, const float &p_fElev
     p_fX = -ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
     p_fY = -ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation));
 }
-
 //XY are [0,1] and azim+elev are [0,1]
 void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &p_fAzim, float &p_fElev){
     float fX = p_fX * 2 * ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
@@ -256,14 +187,11 @@ void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &
     p_fAzim = XYtoAzim01(fX, fY);
     p_fElev = XYtoElev01(fX, fY);
 }
-
 // azim elev in degrees and xy in range [-r, r]
 void SoundSource::azimElevToXy (const float &p_fAzimuth, const float &p_fElevation, float &p_fX, float &p_fY){
     p_fX = -ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(p_fAzimuth)) * cosf(degreeToRadian(p_fElevation));
     p_fY = -ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(p_fAzimuth)) * cosf(degreeToRadian(p_fElevation));
 }
-
-
 //XY are [-r,r] and azim is [0,1]
 float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
     float azim;
@@ -287,16 +215,13 @@ float SoundSource::XYtoAzim01(const float &p_fX, const float &p_fY){
         return azim;
 //    }
 }
-
 float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
     double dArg = sqrt(p_fX*p_fX + p_fY*p_fY) / ZirkOscAudioProcessor::s_iDomeRadius;
-    
     if (dArg > 1) {
         dArg =  1.;
     } else if (dArg < .001){
         dArg = 0.;
     }
-    
     float fElevation = static_cast<float>(acos(dArg)) ;
     if (fElevation < 0.001){
         return 0.f;
@@ -304,8 +229,6 @@ float SoundSource::XYtoElev01(const float &p_fX, const float &p_fY){
         return (fElevation) / M_PI_2;
     }
 }
-
-
 //clamp x and y to [-r. r]
 void SoundSource::clampXY(float &p_fx, float &p_fy){
     p_fx = clamp(p_fx, -static_cast<float>(ZirkOscAudioProcessor::s_iDomeRadius), static_cast<float>(ZirkOscAudioProcessor::s_iDomeRadius));
