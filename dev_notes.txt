@@ -71,3 +71,6 @@ so somehow the azimuth delta is blocked at 180?
 
 i got some breakpoints at processor.cpp line 281 that work with current state of reaper project
 
+ON THE SIDE, DEALING WITH #81
+the problem with XYtoAzim01 is that atan2f required to transform x,y into azim, will give invalid values when x = 0. so for those we need to use the last azim value, or something. Problem is that this is a conversion function, so cannot always use a stored, independent azimuth value. But as a matter of fact, in those cases, getAzimuth1 should work. OK, i really need to have a redundant azimuth value. 
+

@@ -148,8 +148,7 @@ void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
 
 void SoundSource::setX01(float p_x01){
     if (m_fX == 0 && m_fY ==0){
-        m_bPositionWas00 = true;
-        m_fLastAzim01 = getAzimuth01();
+        m_fAzim01 = getAzimuth01();
     } else {
         m_bPositionWas00 = false;
     }
@@ -160,7 +159,7 @@ void SoundSource::setX01(float p_x01){
 void SoundSource::setY01(float p_y01){
     if (m_fX == 0 && m_fY ==0){
         m_bPositionWas00 = true;
-        m_fLastAzim01 = getAzimuth01();
+        m_fAzim01 = getAzimuth01();
     } else {
         m_bPositionWas00 = false;
     }
@@ -176,7 +175,7 @@ void SoundSource::setXY01(float x01, float y01){
 //azimuth range [0,1]
 float   SoundSource::getAzimuth01(){
     if (m_bPositionWas00){
-        return m_fLastAzim01;
+        return m_fAzim01;
     } else {
         return XYtoAzim01(m_fX, m_fY);
     }

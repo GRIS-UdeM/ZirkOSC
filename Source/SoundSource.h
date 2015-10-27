@@ -46,8 +46,6 @@ public:
     //set x and y, both are [-r,r]
     void    setXY(Point <float>);
     
-    void setXYUsingAzimElev(float azim01, float elev01);
-    
     //set X (range [-r,r]) using parameter x in percent, ie,  [0,1]
     void setX01(float x);
     
@@ -74,7 +72,6 @@ public:
     static void azimElevToXy (const float &p_fAzimuth, const float &p_fElevation, float &p_fX, float &p_fY);
 
     static void clampXY(float &x, float &y);
-    
     
     void    initAzimuthAndElevation(float p_fAzim, float p_fElev);
     //! returns the gain [0,1]
@@ -146,7 +143,7 @@ public:
     //store azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
     void setLastAzim01(float p_fLastAzim01){
         m_bPositionWas00 = true;
-        m_fLastAzim01 = p_fLastAzim01;
+        m_fAzim01 = p_fLastAzim01;
     }
 
     
@@ -171,6 +168,8 @@ private:
     //! Elevation Span parameter stored in percent (see HRToPercent function).
     float _ElevationSpan=0;
     
+    void setXYUsingAzimElev(float azim01, float elev01);
+    
     bool m_bElevationWasMaxed;
     
     float m_fOldX01;
@@ -182,7 +181,7 @@ private:
 
     
     bool m_bPositionWas00;
-    float m_fLastAzim01;
+    float m_fAzim01;
 
 
     
