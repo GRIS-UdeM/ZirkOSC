@@ -28,8 +28,7 @@
 
 
 SoundSource::SoundSource()
-:m_bIsAzimReversed(false)
-,m_bElevationWasMaxed(false){
+:   m_bElevationWasMaxed(false){
     m_iElevationStatus = normalRange;
     m_fElevOverflow = ZirkOscAudioProcessor::s_iDomeRadius;
 }
@@ -58,14 +57,6 @@ int   SoundSource::getSourceId(){
 
 void    SoundSource::setSourceId(int iSourceId){
     this->m_iSourceId = iSourceId;
-}
-
-bool    SoundSource::isAzimReverse(){
-    return m_bIsAzimReversed;
-}
-
-void    SoundSource::setAzimReverse(bool azimr){
-    m_bIsAzimReversed = azimr;
 }
 
 bool    SoundSource::contains(Point <float> p){
@@ -199,7 +190,7 @@ float   SoundSource::getElevationRawValue(){
 
 //----------------------------
 void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
-    if (p_fAzim>1 && !m_bIsAzimReversed)
+    if (p_fAzim>1)
         p_fAzim = p_fAzim - 1.0f;
     else if (p_fAzim<0.0f){
         p_fAzim += 1;
@@ -209,7 +200,7 @@ void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
 
 
 void  SoundSource::setAzimuth01(float azimuth01){
-    if (azimuth01>1 && !m_bIsAzimReversed)
+    if (azimuth01>1)
         azimuth01 = azimuth01 - 1.0f;
     else if (azimuth01<0.0f){
         azimuth01 += 1;
@@ -218,18 +209,10 @@ void  SoundSource::setAzimuth01(float azimuth01){
 }
 
 void SoundSource::setElevation01(float elevation01){
-    //check if we need to reverse the azimuth
-    if (elevation01>1 && !m_bIsAzimReversed){
+    if (elevation01>1){
         elevation01 = (1-(elevation01-1));
         setAzimuth01(_Azimuth - 0.5f);
-        m_bIsAzimReversed=true;
     }
-    else if (elevation01>1 && m_bIsAzimReversed){
-        elevation01 = (1-(elevation01-1));
-        setAzimuth01(_Azimuth - 0.5f);
-        m_bIsAzimReversed=false;
-    }
-    
     setXYUsingAzimElev(getAzimuth01(), elevation01);
 }
 

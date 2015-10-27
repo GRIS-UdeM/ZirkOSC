@@ -98,10 +98,6 @@ public:
     void    setElevation01(float);
     //! returns true if the point is inside the source. Point is relative to the center of the dome
     bool    contains(Point<float>);
-    //! returns true if the azimuth has been reversed (elevation >1)
-    bool    isAzimReverse();
-    //! set true if the azimuth will be reversed
-    void    setAzimReverse(bool);
     //! Check if the movement lets the source in the dome
     bool isStillInTheDome( Point<float> move);
    
@@ -148,37 +144,30 @@ public:
 
     
 private:
+    int   m_iSourceId =1;         //! Source channel id id send to Zirkonium
+    float _Gain=1;
+    float _Azimuth=0;
+    float _Elevation=0;
+    float _AzimuthSpan=0;
+    float _ElevationSpan=0;
 
+    //position parameters (they are redundant)
     float m_fX;
     float m_fY;
-    
-    bool m_bIsAzimReversed;
-    //! Source channel id id send to Zirkonium
-    int m_iSourceId =1;
-    //! Gain parameter stored in percent (see HRToPercent function).
-    float _Gain=1;
-    //! Azimuth parameter stored in percent (see HRToPercent function).
-    float _Azimuth=0;
-    //! Elevation parameter stored in percent (see HRToPercent function).
-    float _Elevation=0;
-    //! Azimuth Span parameter stored in percent (see HRToPercent function).
-    float _AzimuthSpan=0;
-    //! Elevation Span parameter stored in percent (see HRToPercent function).
-    float _ElevationSpan=0;
-    
-    void setXYUsingAzimElev(float azim01, float elev01);
-    
-    bool m_bElevationWasMaxed;
-    
+    float m_fAzim01;
+    float m_fElev01;
+    //old position parameters, for calculating deltas
     float m_fOldX01;
     float m_fOldY01;
     float m_fOldAzim01;
     float m_fOldElev01;
+    
     ElevationStatus  m_iElevationStatus;
-    float m_fElevOverflow;
-
-    float m_fAzim01;
-    float m_fElev01;
+    float   m_fElevOverflow;
+    bool    m_bElevationWasMaxed;
+    bool    m_bPositionWas00;
+    
+    void setXYUsingAzimElev(float azim01, float elev01);
 };
 
 
