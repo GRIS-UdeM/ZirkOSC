@@ -28,12 +28,18 @@
 
 
 SoundSource::SoundSource()
-:   m_bElevationWasMaxed(false){
+: m_iSourceId(1)
+, m_fGain(1.f)
+, m_fAzimuthSpan(0.f)
+, m_fElevationSpan(0.f)
+, m_bElevationWasMaxed(false)
+{
     m_iElevationStatus = normalRange;
     m_fElevOverflow = ZirkOscAudioProcessor::s_iDomeRadius;
 }
 
-SoundSource::SoundSource(float azimuth, float elevation, int p_iSrcId) : SoundSource()
+SoundSource::SoundSource(float azimuth, float elevation, int p_iSrcId)
+: SoundSource()
 {
     initAzimuthAndElevation(azimuth,elevation);
     m_iSourceId = p_iSrcId;
@@ -44,11 +50,11 @@ SoundSource::~SoundSource(){
 }
 
 float   SoundSource::getGain(){
-    return _Gain;
+    return m_fGain;
 }
 
 void    SoundSource::setGain(float gain){
-    _Gain=gain;
+    m_fGain=gain;
 }
 
 int   SoundSource::getSourceId(){
@@ -77,21 +83,21 @@ bool    SoundSource::isStillInTheDome(Point<float> move){
 }
 
 float   SoundSource::getAzimuthSpan(){
-    return _AzimuthSpan;
+    return m_fAzimuthSpan;
 }
 
 float   SoundSource::getElevationSpan(){
-    return _ElevationSpan;
+    return m_fElevationSpan;
 }
 
 void    SoundSource::setAzimuthSpan(float azimuth_span){
     
-    this->_AzimuthSpan=azimuth_span;
+    this->m_fAzimuthSpan=azimuth_span;
 }
 
 void    SoundSource::setElevationSpan(float elevation_span){
     
-    this->_ElevationSpan = elevation_span;
+    this->m_fElevationSpan = elevation_span;
 }
 
 
@@ -198,7 +204,6 @@ void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
     setXYUsingAzimElev(p_fAzim, p_fElev);
 }
 
-
 void  SoundSource::setAzimuth01(float azimuth01){
     if (azimuth01>1)
         azimuth01 = azimuth01 - 1.0f;
@@ -209,10 +214,6 @@ void  SoundSource::setAzimuth01(float azimuth01){
 }
 
 void SoundSource::setElevation01(float elevation01){
-    if (elevation01>1){
-        elevation01 = (1-(elevation01-1));
-        setAzimuth01(_Azimuth - 0.5f);
-    }
     setXYUsingAzimElev(getAzimuth01(), elevation01);
 }
 

@@ -144,14 +144,11 @@ public:
 
     
 private:
-    int   m_iSourceId =1;         //! Source channel id id send to Zirkonium
-    float _Gain=1;
-    float _Azimuth=0;
-    float _Elevation=0;
-    float _AzimuthSpan=0;
-    float _ElevationSpan=0;
-
-    //position parameters (they are redundant)
+    int   m_iSourceId;         //! Source id sent to Zirkonium
+    float m_fGain;
+    float m_fAzimuthSpan;
+    float m_fElevationSpan;
+    //position parameters (x,y and azim,elev are redundant with each other)
     float m_fX;
     float m_fY;
     float m_fAzim01;
