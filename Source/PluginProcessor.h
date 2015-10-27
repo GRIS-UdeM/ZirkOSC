@@ -392,6 +392,8 @@ private:
     
     std::pair<float, float> getDeltasForSelectedSource(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY);
     std::pair<float, float> getCurrentSourcePosition(int iCurSource);
+    std::pair<float, float> getNewSourcePosition(const int &p_iSource, const float &fSelectedDeltaAzim01, const float &fSelectedDeltaElev01,
+                                            const int &iCurSource, const float &fCurAzim01, const float &fCurElev01);
     int m_iActualConstraint;
     
     double m_dTrajectoryCount;

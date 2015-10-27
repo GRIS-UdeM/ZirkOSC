@@ -248,62 +248,69 @@ pair<float, float> ZirkOscAudioProcessor::getCurrentSourcePosition(int iCurSourc
     return make_pair(fCurAzim01, fCurElev01);
 }
 
-void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01){
+pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSelSource, const float &fSelectedDeltaAzim01, const float &fSelectedDeltaElev01,
+                                                               const int &iCurSource, const float &fCurAzim01, const float &fCurElev01){
+    float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
+    if (fNewAzim01 > 1){
+        fNewAzim01 -= 1;
+    } else if (fNewAzim01 < 0){
+        fNewAzim01 = 1 + fNewAzim01;
+    }
+    
+    if (fNewElev01 > 1){
+        m_oAllSources[iCurSource].setElevationStatus(over1);
+        float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+        SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
+        m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+        m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01, fNewAzim01);
+    }
+    else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
+        m_oAllSources[iCurSource].setElevationStatus(under0);
+        float fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+        SoundSource::azimElev01toXY01(fNewAzim01, 0, fNewX01, fNewY01, fCurElevOverflow);
+        m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+        m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
+    }
+    else {  //normal range
+        m_oAllSources[iCurSource].setElevationStatus(normalRange);
+        SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
+        if (iCurSource == 7 && fNewAzim01 < 0){
+            cout << fNewAzim01 << newLine;
+            int i = 0;
+            ++i;
+        }
+        //if elevation is maxed, we need to set the azimuth manually, because with x,y == 0,0 the azimuth is always = 180
+        if (fNewElev01 == 1){
+            m_oAllSources[p_iSelSource].setOnlyAzim01(fNewAzim01);
+        }
+        m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
+        m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
+    }
+    return make_pair(fNewX01, fNewY01);
+}
+
+void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01){
     //calculate delta azim+elev coordinates for selected source
     float fSelectedDeltaAzim01, fSelectedDeltaElev01;
-    tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSource, p_fSelectedNewX, p_fSelectedNewY);
+    tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSelSource, p_fSelectedNewX, p_fSelectedNewY);
     //return if no delta
     if (fSelectedDeltaAzim01 == 0 && fSelectedDeltaElev01 == 0){
         return;
     }
     //move non-selected sources using the deltas
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
-        if (iCurSource == p_iSource){
+        if (iCurSource == p_iSelSource){
             //save new values as old values for next time
-            m_oAllSources[p_iSource].setPrevLoc01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius));
+            m_oAllSources[p_iSelSource].setPrevLoc01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius));
             continue;
         }
-        //---------------------- GET CURRENT VALUES ---------------------
+        //get current, non-selected source position
         float fCurAzim01, fCurElev01;
         tie(fCurAzim01, fCurElev01) = getCurrentSourcePosition(iCurSource);
-
-        //---------------------- CALCULATE NEW VALUES ---------------------
-        float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
-        if (fNewAzim01 > 1){
-            fNewAzim01 -= 1;
-        } else if (fNewAzim01 < 0){
-            fNewAzim01 = 1 + fNewAzim01;
-        }
-        
-        if (fNewElev01 > 1){
-            m_oAllSources[iCurSource].setElevationStatus(over1);
-            float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-            SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
-            m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-            m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01, fNewAzim01);
-        }
-        else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
-            m_oAllSources[iCurSource].setElevationStatus(under0);
-            float fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-            SoundSource::azimElev01toXY01(fNewAzim01, 0, fNewX01, fNewY01, fCurElevOverflow);
-            m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-            m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
-        }
-        else {  //normal range
-            m_oAllSources[iCurSource].setElevationStatus(normalRange);
-            SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-            if (iCurSource == 7 && fNewAzim01 < 0){
-                cout << fNewAzim01 << newLine;
-                int i = 0;
-                ++i;
-            }
-            //if elevation is maxed, we need to set the azimuth manually, because with x,y == 0,0 the azimuth is always = 180
-            if (fNewElev01 == 1){
-                m_oAllSources[p_iSource].setOnlyAzim01(fNewAzim01);
-            }
-            m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
-            m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
-        }
+        //calculate new position
+        float fNewX01, fNewY01;
+        tie(fNewX01, fNewY01) = getNewSourcePosition(p_iSelSource, fSelectedDeltaAzim01, fSelectedDeltaElev01, iCurSource, fCurAzim01, fCurElev01);
+        //move source
         m_oAllSources[iCurSource].setXY01(fNewX01, fNewY01);
     }
 }
