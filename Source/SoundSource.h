@@ -150,10 +150,8 @@ public:
 private:
 
     float m_fX;
-    
     float m_fY;
     
-    //! If source Elevation is over 90° you have to reverse the azim
     bool m_bIsAzimReversed;
     //! Source channel id id send to Zirkonium
     int m_iSourceId =1;
@@ -179,12 +177,8 @@ private:
     ElevationStatus  m_iElevationStatus;
     float m_fElevOverflow;
 
-    
-    bool m_bPositionWas00;
     float m_fAzim01;
-
-
-    
+    float m_fElev01;
 };
 
 

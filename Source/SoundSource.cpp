@@ -209,13 +209,11 @@ void    SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
 
 
 void  SoundSource::setAzimuth01(float azimuth01){
-    
     if (azimuth01>1 && !m_bIsAzimReversed)
         azimuth01 = azimuth01 - 1.0f;
     else if (azimuth01<0.0f){
         azimuth01 += 1;
     }
-    
     setXYUsingAzimElev(azimuth01, getElevation01());
 }
 
