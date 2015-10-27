@@ -56,6 +56,17 @@ void SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
 SoundSource::~SoundSource(){
 }
 
+//----------------------------------------- PRIVATE UTILITY FUNCTIONS ------------------------------
+void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
+    float HRAzimuth     = PercentToHR(p_fAzim01, ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
+    float HRElevation   = PercentToHR(p_fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+    m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+    m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+}
+void SoundSource::updateAzimElev(){
+    m_fAzim01 = XYtoAzim01(m_fX, m_fY);
+    m_fElev01 = XYtoElev01(m_fX, m_fY);
+}
 //------------------------------------------ SETTERS -------------------------------------------------
 void SoundSource::setXY(Point <float> p){    //x and y are [-r,r]
     m_fX = p.x;
@@ -64,6 +75,7 @@ void SoundSource::setXY(Point <float> p){    //x and y are [-r,r]
 void SoundSource::setXY01(float x01, float y01){
     setX01(x01);
     setY01(y01);
+    updateAzimElev();
 }
 void SoundSource::setX01(float p_x01){
     if (m_fX == 0 && m_fY ==0){
@@ -72,7 +84,7 @@ void SoundSource::setX01(float p_x01){
         m_bPositionWas00 = false;
     }
     m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-    
+    updateAzimElev();
 }
 void SoundSource::setY01(float p_y01){
     if (m_fX == 0 && m_fY ==0){
@@ -82,30 +94,28 @@ void SoundSource::setY01(float p_y01){
         m_bPositionWas00 = false;
     }
     m_fY = PercentToHR(p_y01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-}
-void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
-    float HRAzimuth = PercentToHR(p_fAzim01, ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
-    float HRElevation = PercentToHR(p_fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-    m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
-    m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+    updateAzimElev();
 }
 //----------------------- AZIM + ELEV
+JUCE_COMPILER_WARNING("we should probably use the built-in check for this, instead of in other move functions")
 void  SoundSource::setAzimuth01(float azimuth01){
     if (azimuth01>1)
         azimuth01 = azimuth01 - 1.0f;
     else if (azimuth01<0.0f){
         azimuth01 += 1;
     }
+    m_fAzim01 = azimuth01;
     setXYUsingAzimElev(azimuth01, getElevation01());
 }
+JUCE_COMPILER_WARNING("probably same for this?")
 void SoundSource::setElevation01(float elevation01){
+    m_fElev01 = elevation01;
     setXYUsingAzimElev(getAzimuth01(), elevation01);
 }
 
-//store azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
-void SoundSource::setLastAzim01(float p_fLastAzim01){
-    JUCE_COMPILER_WARNING("THIS NEEDS TO BE IN OTHER SETTER FUNCTION")
-    m_fAzim01 = p_fLastAzim01;
+//store ONLY azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
+void SoundSource::setOnlyAzim01(float p_fAzim01){
+    m_fAzim01 = p_fAzim01;
 }
 
 //-----------------------
@@ -128,20 +138,16 @@ float SoundSource::getY01(){
     return HRToPercent(m_fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
 }
 float   SoundSource::getAzimuth01(){
-    if (m_bPositionWas00){
-        return m_fAzim01;
-    } else {
-        return XYtoAzim01(m_fX, m_fY);
-    }
+    return m_fAzim01;
 }
 float   SoundSource::getElevation01(){
-    return XYtoElev01(m_fX, m_fY);
+    return m_fElev01;
 }
-void SoundSource::getOldXY01(float &p_fX01, float &p_fY01){
+void SoundSource::getPrevXY01(float &p_fX01, float &p_fY01){
     p_fX01 = m_fPrevX01;
     p_fY01 = m_fPrevY01;
 }
-float SoundSource::getOldAzim01(){
+float SoundSource::getPrevAzim01(){
     return m_fPrevAzim01;
 }
 //range for both fX and fY is [-r,r]

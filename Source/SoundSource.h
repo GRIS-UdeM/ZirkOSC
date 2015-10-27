@@ -41,14 +41,15 @@ public:
     float   getX01();
     float   getY01();
     void    setXY01(float x, float y);
-    void    setLastAzim01(float p_fLastAzim01);
+    void    setOnlyAzim01(float p_fLastAzim01);
     float   getAzimuth01();
     void    setAzimuth01(float);
     float   getElevation01();
     void    setElevation01(float);
     void    setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01 = -1);
-    void    getOldXY01(float &p_fX01, float &p_fY01);
-    float   getOldAzim01();
+    void    getPrevXY01(float &p_fX01, float &p_fY01);
+    float   getPrevAzim01();
+    void    updateAzimElev();
     
     //TRIVIAL SETTERS AND GETTERS
     float getGain01(){

@@ -1325,7 +1325,7 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         SoundSource::azimElev01toXY(newAzim01, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
         //if elevation is maxed out, we need to set the azimuth explicitely, otherwise using x and y it will always be 180
         if (m_pElevationSlider->getValue() == 90){
-//            ourProcessor->getSources()[selectedSource].setLastAzim01(newAzim01);
+//            ourProcessor->getSources()[selectedSource].setOnlyAzim01(newAzim01);
             move(selectedSource, fX, fY, newAzim01);
         } else {
             move(selectedSource, fX, fY);
@@ -1336,7 +1336,7 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), newElev01, fX, fY);
 
         if (newElev01 == 1){
-//            ourProcessor->getSources()[selectedSource].setLastAzim01(oldAzim01);
+//            ourProcessor->getSources()[selectedSource].setOnlyAzim01(oldAzim01);
             move(selectedSource, fX, fY, oldAzim01);
         } else {
             move(selectedSource, fX, fY);
