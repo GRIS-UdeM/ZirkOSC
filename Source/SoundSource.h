@@ -35,6 +35,7 @@ public:
     ~SoundSource();
     //POSITION FUNCTIONS
     void    setXY(Point <float>);       //set x and y, both are [-r,r]
+    void    getXY(float &fX, float &fY);
     void    setX01(float x);
     void    setY01(float y);
     float   getX01();
@@ -45,6 +46,10 @@ public:
     void    setAzimuth01(float);
     float   getElevation01();
     void    setElevation01(float);
+    void    setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01 = -1);
+    void    getOldXY01(float &p_fX01, float &p_fY01);
+    float   getOldAzim01();
+    
     //TRIVIAL SETTERS AND GETTERS
     float getGain01(){
         return m_fGain;
@@ -58,11 +63,6 @@ public:
     void setSourceId(int iSourceId){
         m_iSourceId = iSourceId;
     }
-    void setOldLoc01(const float &p_fX01, const float &p_fY01, const float &p_fOldAzim01 = -1);
-    void getOldXY01(float &p_fX01, float &p_fY01);
-    float getOldAzim01(){
-        return m_fOldAzim01;
-    }
     void setElevationStatus(ElevationStatus status){
         m_iElevationStatus = status;
     }
@@ -75,11 +75,6 @@ public:
     float getElevOverflow(){
         return m_fElevOverflow;
     }
-    //range for both fX and fY is [-r,r]
-    void getXY(float &fX, float &fY){
-        fX = getX();
-        fY = getY();
-    }
     float getAzimuthSpan(){
         return m_fAzimuthSpan;
     }
@@ -87,11 +82,9 @@ public:
     float getElevationSpan(){
         return m_fElevationSpan;
     }
-    
     void setAzimuthSpan(float azimuth_span){
         m_fAzimuthSpan=azimuth_span;
     }
-    
     void setElevationSpan(float elevation_span){
         m_fElevationSpan = elevation_span;
     }
@@ -106,7 +99,6 @@ public:
     float getY(){
         return m_fY;
     }
-    
 
     //STATIC CONVERTION FONCTIONS
     static float XYtoAzim01(const float &x, const float &y);
@@ -128,9 +120,9 @@ private:
     float m_fAzim01;
     float m_fElev01;
     //old position parameters, for calculating deltas
-    float m_fOldX01;
-    float m_fOldY01;
-    float m_fOldAzim01;
+    float m_fPrevX01;
+    float m_fPrevY01;
+    float m_fPrevAzim01;
     float m_fOldElev01;
     
     ElevationStatus  m_iElevationStatus;

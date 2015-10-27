@@ -129,14 +129,6 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 
 void ZirkOscAudioProcessor::initSources(){
     int i = 0, iId = 0;
-//    m_oAllSources[i++] = SoundSource(.5 + 1*.125/2,0, ++iId);
-//    m_oAllSources[i++] = SoundSource(.5 - 1*.125/2,0, ++iId);
-//    m_oAllSources[i++] = SoundSource(.5 + 3*.125/2,0, ++iId);
-//    m_oAllSources[i++] = SoundSource(.5 - 3*.125/2,0, ++iId);
-//    m_oAllSources[i++] = SoundSource(.5 + 5*.125/2,0, ++iId);
-//    m_oAllSources[i++] = SoundSource(.5 - 5*.125/2,0, ++iId);
-//    m_oAllSources[i++] = SoundSource(.5 + 7*.125/2,0, ++iId);
-//    m_oAllSources[i++] = SoundSource(.5 - 7*.125/2,0, ++iId);
     m_oAllSources[i++] = SoundSource(HRToPercent(  22.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
     m_oAllSources[i++] = SoundSource(HRToPercent( -22.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
     m_oAllSources[i++] = SoundSource(HRToPercent(  67.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
@@ -147,8 +139,7 @@ void ZirkOscAudioProcessor::initSources(){
     m_oAllSources[i++] = SoundSource(HRToPercent(-157.5, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max), 0, ++iId);
     
     for(i = 0; i < 8; ++i){
-        //m_oAllSources[i] = SoundSource(0.0+((float)i/8.0),0.0);
-        m_oAllSources[i].setOldLoc01(m_oAllSources[i].getX01(), m_oAllSources[i].getY01());
+        m_oAllSources[i].setPrevLoc01(m_oAllSources[i].getX01(), m_oAllSources[i].getY01());
     }
 }
 
@@ -181,7 +172,7 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
     }
     //if non-independent, move non-selected sources
     if(m_iMovementConstraint == Independent || getNbrSources() == 1){
-        m_oAllSources[p_iSource].setOldLoc01(fX01, fY01);
+        m_oAllSources[p_iSource].setPrevLoc01(fX01, fY01);
     } else if (m_iMovementConstraint == DeltaLocked){
         moveSourcesWithDelta(p_iSource, p_fX, p_fY);
     } else {
@@ -202,7 +193,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
         
         if (iCurSrc == p_iSource){
             //save old values for selected source
-            m_oAllSources[p_iSource].setOldLoc01(HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius));
+            m_oAllSources[p_iSource].setPrevLoc01(HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius));
             continue;
         }
         
@@ -210,7 +201,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
         float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
         
         m_oAllSources[iCurSrc].setXY01(newX01, newY01);
-        m_oAllSources[iCurSrc].setOldLoc01(newX01, newY01);
+        m_oAllSources[iCurSrc].setPrevLoc01(newX01, newY01);
     }
 }
 
@@ -231,7 +222,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
         if (iCurSource == p_iSource){
             //save new values as old values for next time
-            m_oAllSources[p_iSource].setOldLoc01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius));
+            m_oAllSources[p_iSource].setPrevLoc01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius));
             continue;
         }
         //---------------------- GET CURRENT VALUES ---------------------
@@ -277,14 +268,14 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
             float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
             SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
             m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01, fNewAzim01);
+            m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01, fNewAzim01);
         }
         else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
             m_oAllSources[iCurSource].setElevationStatus(under0);
             float fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
             SoundSource::azimElev01toXY01(fNewAzim01, 0, fNewX01, fNewY01, fCurElevOverflow);
             m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time
+            m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
         }
         else {  //normal range
             m_oAllSources[iCurSource].setElevationStatus(normalRange);
@@ -299,7 +290,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
                 m_oAllSources[p_iSource].setLastAzim01(fNewAzim01);
             }
             m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
-            m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time
+            m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
         }
         m_oAllSources[iCurSource].setXY01(fNewX01, fNewY01);
     }
@@ -375,7 +366,7 @@ void ZirkOscAudioProcessor::setEqualElevForAllSrc(){
 void ZirkOscAudioProcessor::setCurrentAndOldLocation(const int &p_iSrc, const float &p_fX01, const float &p_fY01){
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (p_iSrc*5), p_fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (p_iSrc*5), p_fY01);
-    m_oAllSources[p_iSrc].setOldLoc01(p_fX01, p_fY01);
+    m_oAllSources[p_iSrc].setPrevLoc01(p_fX01, p_fY01);
 }
 
 
@@ -1026,7 +1017,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
 
             setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, fActualX01);
             setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, fActualY01);
-            m_oAllSources[iCurSrc].setOldLoc01(fActualX01, fActualY01);
+            m_oAllSources[iCurSrc].setPrevLoc01(fActualX01, fActualY01);
         }
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));

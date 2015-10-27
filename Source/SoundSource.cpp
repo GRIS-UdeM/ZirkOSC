@@ -107,14 +107,16 @@ void SoundSource::setLastAzim01(float p_fLastAzim01){
     JUCE_COMPILER_WARNING("THIS NEEDS TO BE IN OTHER SETTER FUNCTION")
     m_fAzim01 = p_fLastAzim01;
 }
+
 //-----------------------
-void SoundSource::setOldLoc01(const float &p_fX01, const float &p_fY01, const float &p_fOldAzim01){
-    m_fOldX01 = p_fX01;
-    m_fOldY01 = p_fY01;
-    if (p_fOldAzim01 == -1){
-        XY01toAzimElev01(m_fOldX01, m_fOldY01, m_fOldAzim01, m_fOldElev01);
+//this is used when we need to recall the previous location, when we fall off the dome
+void SoundSource::setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01){
+    m_fPrevX01 = p_fX01;
+    m_fPrevY01 = p_fY01;
+    if (p_fPrevAzim01 == -1){
+        XY01toAzimElev01(m_fPrevX01, m_fPrevY01, m_fPrevAzim01, m_fOldElev01);
     } else {
-        m_fOldAzim01 = p_fOldAzim01;
+        m_fPrevAzim01 = p_fPrevAzim01;
     }
 }
 
@@ -135,12 +137,18 @@ float   SoundSource::getAzimuth01(){
 float   SoundSource::getElevation01(){
     return XYtoElev01(m_fX, m_fY);
 }
-
 void SoundSource::getOldXY01(float &p_fX01, float &p_fY01){
-    p_fX01 = m_fOldX01;
-    p_fY01 = m_fOldY01;
+    p_fX01 = m_fPrevX01;
+    p_fY01 = m_fPrevY01;
 }
-
+float SoundSource::getOldAzim01(){
+    return m_fPrevAzim01;
+}
+//range for both fX and fY is [-r,r]
+void SoundSource::getXY(float &fX, float &fY){
+    fX = getX();
+    fY = getY();
+}
 
 
 
