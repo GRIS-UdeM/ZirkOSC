@@ -205,15 +205,53 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
     }
 }
 
-void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01){
-    //calculate old, new, and delta azim elev coordinates for selected source
+pair<float, float> ZirkOscAudioProcessor::getDeltasForSelectedSource(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY){
+    //calculate old, new, and delta azim+elev coordinates for selected source
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01, fSelectedOldX01, fSelectedOldY01;
     m_oAllSources[p_iSource].getPrevXY01(fSelectedOldX01, fSelectedOldY01);
     SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
     fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
     fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
-    float fSelectedDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
-    float fSelectedDeltaElev01 = fSelectedNewElev01 - fSelectedOldElev01;
+    return make_pair(fSelectedNewAzim01 - fSelectedOldAzim01, fSelectedNewElev01 - fSelectedOldElev01);
+}
+
+pair<float, float> ZirkOscAudioProcessor::getCurrentSourcePosition(int iCurSource){
+    float fCurAzim01, fCurElev01;
+    float fCurX = getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
+    float fCurY = getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
+    if (m_oAllSources[iCurSource].getElevationStatus() == over1){
+        fCurAzim01 = m_oAllSources[iCurSource].getPrevAzim01();
+        
+        // convert extended R back to normal elevation
+        fCurElev01 = SoundSource::XYtoElev01(fCurX, fCurY);
+        float fCurElevOverflow = (m_oAllSources[iCurSource].getElevOverflow() - s_iDomeRadius) / s_iDomeRadius;
+        m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+        fCurElev01 = radianToDegree(acos(fCurElevOverflow));                        //need to convert output of acos which is is radians, to degree
+        fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
+    }
+    else if (m_oAllSources[iCurSource].getElevationStatus() == under0){
+        fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
+        
+        // convert extended R back to normal elevation
+        float fCurElevOverflow = (m_oAllSources[iCurSource].getElevOverflow() - s_iDomeRadius) / s_iDomeRadius;
+        m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+        fCurElev01 = radianToDegree(-asin(fCurElevOverflow));                       //need to convert output of asin which is is radians, to degree
+        fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
+    }
+    else {    //normalRange
+        fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
+        if (iCurSource == 7 && fCurAzim01 < 0){
+            fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
+        }
+        fCurElev01 = SoundSource::XYtoElev01(fCurX, fCurY);
+    }
+    return make_pair(fCurAzim01, fCurElev01);
+}
+
+void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01){
+    //calculate delta azim+elev coordinates for selected source
+    float fSelectedDeltaAzim01, fSelectedDeltaElev01;
+    tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSource, p_fSelectedNewX, p_fSelectedNewY);
     //return if no delta
     if (fSelectedDeltaAzim01 == 0 && fSelectedDeltaElev01 == 0){
         return;
@@ -226,35 +264,9 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
             continue;
         }
         //---------------------- GET CURRENT VALUES ---------------------
-        float fCurX = getParameter(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
-        float fCurY = getParameter(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSource*5)) * 2 * s_iDomeRadius - s_iDomeRadius;
         float fCurAzim01, fCurElev01;
-        if (m_oAllSources[iCurSource].getElevationStatus() == over1){
-            fCurAzim01 = m_oAllSources[iCurSource].getPrevAzim01();
-            
-            // convert extended R back to normal elevation
-            fCurElev01 = SoundSource::XYtoElev01(fCurX, fCurY);
-            float fCurElevOverflow = (m_oAllSources[iCurSource].getElevOverflow() - s_iDomeRadius) / s_iDomeRadius;
-            m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-            fCurElev01 = radianToDegree(acos(fCurElevOverflow));                        //need to convert output of acos which is is radians, to degree
-            fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
-        }
-        else if (m_oAllSources[iCurSource].getElevationStatus() == under0){
-            fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
-        
-            // convert extended R back to normal elevation
-            float fCurElevOverflow = (m_oAllSources[iCurSource].getElevOverflow() - s_iDomeRadius) / s_iDomeRadius;
-            m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-            fCurElev01 = radianToDegree(-asin(fCurElevOverflow));                       //need to convert output of asin which is is radians, to degree
-            fCurElev01 = HRToPercent(fCurElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);   //then to percent
-        }
-        else {    //normalRange
-            fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
-            if (iCurSource == 7 && fCurAzim01 < 0){
-                fCurAzim01 = SoundSource::XYtoAzim01(fCurX, fCurY);
-            }
-            fCurElev01 = SoundSource::XYtoElev01(fCurX, fCurY);
-        }
+        tie(fCurAzim01, fCurElev01) = getCurrentSourcePosition(iCurSource);
+
         //---------------------- CALCULATE NEW VALUES ---------------------
         float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
         if (fNewAzim01 > 1){

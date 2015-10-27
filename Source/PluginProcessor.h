@@ -390,6 +390,8 @@ private:
     
     PluginHostType host;
     
+    std::pair<float, float> getDeltasForSelectedSource(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY);
+    std::pair<float, float> getCurrentSourcePosition(int iCurSource);
     int m_iActualConstraint;
     
     double m_dTrajectoryCount;
