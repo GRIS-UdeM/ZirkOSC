@@ -1043,6 +1043,11 @@ void ZirkOscAudioProcessorEditor::updateSliders(){
     
     float azimuth = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->setValue(azimuth,dontSendNotification);
+    cout << "azimuth: " << azimuth << newLine;
+    if (azimuth > 179){
+        float azim = ourProcessor->getSources()[selectedSource].getAzimuth01();
+        float azimuth = PercentToHR(azim, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+    }
 
     float azimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
     m_pAzimuthSpanSlider->setValue(azimSpan,dontSendNotification);
@@ -1314,7 +1319,6 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     
     int selectedSource = ourProcessor->getSelectedSource();
     bool isSpanLinked  = ourProcessor->getIsSpanLinked();
-    float percentValue = 0;
     float fX, fY;
     
     if (slider == m_pGainSlider) {
@@ -1323,36 +1327,41 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
         //figure out where the slider should move the point
         float newAzim01 = HRToPercent(m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
         SoundSource::azimElev01toXY(newAzim01, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
-        move(selectedSource, fX, fY);
         //if elevation is maxed out, we need to set the azimuth explicitely, otherwise using x and y it will always be 180
         if (m_pElevationSlider->getValue() == 90){
-            ourProcessor->getSources()[selectedSource].setLastAzim01(newAzim01);
+//            ourProcessor->getSources()[selectedSource].setLastAzim01(newAzim01);
+            move(selectedSource, fX, fY, newAzim01);
+        } else {
+            move(selectedSource, fX, fY);
         }
     } else if (slider == m_pElevationSlider){
-        percentValue = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+        float newElev01 = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         float oldAzim01 = ourProcessor->getSources()[selectedSource].getAzimuth01();
-        SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), percentValue, fX, fY);
-        move(selectedSource, fX, fY);
-        if (percentValue == 1){
-            ourProcessor->getSources()[selectedSource].setLastAzim01(oldAzim01);
+        SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), newElev01, fX, fY);
+
+        if (newElev01 == 1){
+//            ourProcessor->getSources()[selectedSource].setLastAzim01(oldAzim01);
+            move(selectedSource, fX, fY, oldAzim01);
+        } else {
+            move(selectedSource, fX, fY);
         }
     } else if (slider == m_pElevationSpanSlider) {
-        percentValue = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
+        float fElevSpan01 = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5), percentValue);
+                ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_ElevSpan_ParamId + (i*5), fElevSpan01);
             }
         } else {
-            ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_ElevSpan_ParamId + (selectedSource*5), percentValue);
+            ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_ElevSpan_ParamId + (selectedSource*5), fElevSpan01);
         }
     } else if (slider == m_pAzimuthSpanSlider) {
-        percentValue = HRToPercent((float) m_pAzimuthSpanSlider->getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
+        float fAzimSpan01 = HRToPercent((float) m_pAzimuthSpanSlider->getValue(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
         if(isSpanLinked){
             for(int i=0 ; i<ourProcessor->getNbrSources(); ++i){
-                ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5), percentValue);
+                ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_AzimSpan_ParamId + (i*5), fAzimSpan01);
             }
         } else {
-            ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_AzimSpan_ParamId + (selectedSource*5), percentValue);
+            ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_AzimSpan_ParamId + (selectedSource*5), fAzimSpan01);
         }
     }
 }
@@ -1362,9 +1371,7 @@ void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
     if (ourProcessor->getIsWriteTrajectory()){
         return;
     }
-    
-    int source=-1;
-
+    int source = -1;
     //if event is within the wall circle, select source that is clicked on (if any)
     if (event.x>5 && event.x <20+ZirkOscAudioProcessor::s_iDomeRadius*2 && event.y>5 && event.y< 40+ZirkOscAudioProcessor::s_iDomeRadius*2) {
         source = getSourceFromPosition(Point<float>(event.x-_ZirkOSC_Center_X, event.y-_ZirkOSC_Center_Y));
@@ -1418,8 +1425,8 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
     m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
-void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY){
-    ourProcessor->move(p_iSource, p_fX, p_fY);
+void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01){
+    ourProcessor->move(p_iSource, p_fX, p_fY, p_fAzim01);
 }
 
 void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){

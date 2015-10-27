@@ -166,23 +166,26 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
     }
 }
 
-void ZirkOscAudioProcessor::move(int p_iSource, float p_fX, float p_fY){
+void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_fAzim01){
     if (p_iSource > getNbrSources()){
         return;
     }
-    
+    //move selected source
     float fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
     float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
-    
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
-
+    //if elevation is maxed, we need to set the azimuth manually, because with x,y == 0,0 the azimuth is always = 180
+    if (p_fAzim01 != -1){
+        m_oAllSources[p_iSource].setLastAzim01(p_fAzim01);
+    }
+    //if non-independent, move non-selected sources
     if(m_iMovementConstraint == Independent || getNbrSources() == 1){
         m_oAllSources[p_iSource].setOldLoc01(fX01, fY01);
     } else if (m_iMovementConstraint == DeltaLocked){
         moveSourcesWithDelta(p_iSource, p_fX, p_fY);
     } else {
-        moveCircular(p_iSource, p_fX, p_fY);
+        moveCircular(p_iSource, p_fX, p_fY, p_fAzim01);
     }
 }
 
@@ -211,7 +214,7 @@ void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const flo
     }
 }
 
-void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY){
+void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01){
     //calculate old, new, and delta azim elev coordinates for selected source
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01, fSelectedOldX01, fSelectedOldY01;
     m_oAllSources[p_iSource].getOldXY01(fSelectedOldX01, fSelectedOldY01);
@@ -263,14 +266,10 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
         }
         //---------------------- CALCULATE NEW VALUES ---------------------
         float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
-
-        
         if (fNewAzim01 > 1){
             fNewAzim01 -= 1;
         } else if (fNewAzim01 < 0){
-            cout << "old " << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << newLine;
             fNewAzim01 = 1 + fNewAzim01;
-            cout << "new " << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << newLine;
         }
         
         if (fNewElev01 > 1){
@@ -294,6 +293,10 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSource, const float &p_fS
                 cout << fNewAzim01 << newLine;
                 int i = 0;
                 ++i;
+            }
+            //if elevation is maxed, we need to set the azimuth manually, because with x,y == 0,0 the azimuth is always = 180
+            if (fNewElev01 == 1){
+                m_oAllSources[p_iSource].setLastAzim01(fNewAzim01);
             }
             m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
             m_oAllSources[iCurSource].setOldLoc01(fNewX01, fNewY01);          //save new values as old values for next time

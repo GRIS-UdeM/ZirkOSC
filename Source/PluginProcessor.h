@@ -55,7 +55,7 @@ public:
     ~ZirkOscAudioProcessor();
 
     
-    void move(int p_iSource, float p_fX, float p_fY);
+    void move(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_azim01 = -1);
     
     //==============================================================================
     //! Called before playback starts, to let the filter prepare itself. 
@@ -344,7 +344,7 @@ private:
     void initSources();
     void processTrajectories();
     void stopTrajectory();
-    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY);
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_fAzim01 = -1);
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     bool setPositionParameters(int index, float newValue);
     bool setOtherParameters(int index, float newValue);
