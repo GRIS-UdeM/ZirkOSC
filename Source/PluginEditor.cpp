@@ -1039,7 +1039,7 @@ void ZirkOscAudioProcessorEditor::updateSliders(){
     
     float azimuth = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->setValue(azimuth,dontSendNotification);
-    cout << "azimuth: " << azimuth << newLine;
+    //cout << "azimuth: " << azimuth << newLine;
     if (azimuth > 179){
         float azim1 = ourProcessor->getSources()[selectedSource].getAzimuth01();
         float azimuth1 = PercentToHR(azim1, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);

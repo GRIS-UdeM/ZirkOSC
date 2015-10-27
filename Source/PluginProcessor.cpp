@@ -250,13 +250,24 @@ pair<float, float> ZirkOscAudioProcessor::getCurrentSourcePosition(int iCurSourc
 
 pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSelSource, const float &fSelectedDeltaAzim01, const float &fSelectedDeltaElev01,
                                                                const int &iCurSource, const float &fCurAzim01, const float &fCurElev01){
-    float fNewX01, fNewY01, fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01, fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
+    float fNewX01, fNewY01;
+    
+    //figure azim
+    float fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01;
     if (fNewAzim01 > 1){
         fNewAzim01 -= 1;
+        cout << iCurSource << " fNewAzim01 > 1; prev azim " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\t\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
     } else if (fNewAzim01 < 0){
         fNewAzim01 = 1 + fNewAzim01;
+        cout << iCurSource << " fNewAzim01 < 0; prev azim " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
+    }
+    else if (fSelectedDeltaAzim01 > 0.0003 ||  fSelectedDeltaAzim01 < 0.00029){
+        float asdf = fSelectedDeltaAzim01;
+        cout << iCurSource << " normal                    " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\t\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
     }
     
+    //figure elevation
+    float fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
     if (fNewElev01 > 1){
         m_oAllSources[iCurSource].setElevationStatus(over1);
         float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
@@ -274,11 +285,7 @@ pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSel
     else {  //normal range
         m_oAllSources[iCurSource].setElevationStatus(normalRange);
         SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-        if (iCurSource == 7 && fNewAzim01 < 0){
-            cout << fNewAzim01 << newLine;
-            int i = 0;
-            ++i;
-        }
+
         //if elevation is maxed, we need to set the azimuth manually, because with x,y == 0,0 the azimuth is always = 180
         if (fNewElev01 == 1){
             m_oAllSources[p_iSelSource].setOnlyAzim01(fNewAzim01);
