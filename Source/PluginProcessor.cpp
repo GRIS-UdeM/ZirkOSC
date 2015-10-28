@@ -1065,7 +1065,6 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
 }
 
 void ZirkOscAudioProcessor::sendOSCValues(){
-    
     for(int iCurSrc = 0; iCurSrc <m_iNbrSources; ++iCurSrc){
         float azim_osc      = PercentToHR(m_oAllSources[iCurSrc].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
         float elev_osc      = PercentToHR(m_oAllSources[iCurSrc].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
@@ -1073,10 +1072,7 @@ void ZirkOscAudioProcessor::sendOSCValues(){
         float elevspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
         int   channel_osc   = m_oAllSources[iCurSrc].getSourceId()-1;
         float gain_osc      = m_oAllSources[iCurSrc].getGain01();
-        
         lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
-        
-        //cout << channel_osc << ", " <<  azim_osc << ", " <<  elev_osc << newLine;
     }
 }
 

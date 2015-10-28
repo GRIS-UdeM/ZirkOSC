@@ -127,14 +127,8 @@ void SoundSource::setPrevLoc01(const float &p_fX01, const float &p_fY01, const f
     m_fPrevY01 = p_fY01;
     if (p_fPrevAzim01 == -1){
         XY01toAzimElev01(m_fPrevX01, m_fPrevY01, m_fPrevAzim01, m_fPrevElev01);
-//        std::cout << "m_fPrevAzim01 1 " << m_fPrevAzim01 << newLine;
-        if (m_fPrevAzim01 == 1){
-            int i = 0;
-            ++i;
-        }
     } else {
         m_fPrevAzim01 = p_fPrevAzim01;
-//        std::cout << "m_fPrevAzim01 2 " << m_fPrevAzim01 << newLine;
     }
 }
 

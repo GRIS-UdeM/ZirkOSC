@@ -1030,24 +1030,14 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
 
 void ZirkOscAudioProcessorEditor::updateSliders(){
     int selectedSource = ourProcessor->getSelectedSource();
-    
     //based on selected source, update all sliders
     m_pGainSlider->setValue (ourProcessor->getSources()[selectedSource].getGain01(), dontSendNotification);
-
     float elevation = PercentToHR(ourProcessor->getSources()[selectedSource].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_pElevationSlider->setValue(elevation,dontSendNotification);
-    
     float azimuth = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
     m_pAzimuthSlider->setValue(azimuth,dontSendNotification);
-    //cout << "azimuth: " << azimuth << newLine;
-    if (azimuth > 179){
-        float azim1 = ourProcessor->getSources()[selectedSource].getAzimuth01();
-        float azimuth1 = PercentToHR(azim1, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-    }
-
     float azimSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getAzimuthSpan(), ZirkOSC_AzimSpan_Min, ZirkOSC_AzimSpan_Max);
     m_pAzimuthSpanSlider->setValue(azimSpan,dontSendNotification);
-    
     float elevSpan = PercentToHR(ourProcessor->getSources()[selectedSource].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
     m_pElevationSpanSlider->setValue(elevSpan,dontSendNotification);
 }
