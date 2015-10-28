@@ -131,7 +131,7 @@ private:
     bool    m_bElevationWasMaxed;
     bool    m_bPositionWas00;
     
-    void setXYUsingAzimElev(float azim01, float elev01);
+    void setXYUsingAzimElev01(float azim01, float elev01);
 };
 
 

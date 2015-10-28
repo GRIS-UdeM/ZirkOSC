@@ -38,10 +38,10 @@ SoundSource::SoundSource()
     m_fElevOverflow = ZirkOscAudioProcessor::s_iDomeRadius;
 }
 
-SoundSource::SoundSource(float azimuth, float elevation, int p_iSrcId)
+SoundSource::SoundSource(float p_fAzim01, float elevation, int p_iSrcId)
 : SoundSource()
 {
-    initAzimuthAndElevation(azimuth,elevation);
+    initAzimuthAndElevation(p_fAzim01,elevation);
     m_iSourceId = p_iSrcId;
 }
 void SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
@@ -50,14 +50,16 @@ void SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
     else if (p_fAzim<0.0f){
         p_fAzim += 1;
     }
-    setXYUsingAzimElev(p_fAzim, p_fElev);
+    m_fAzim01 = p_fAzim;
+    m_fElev01 = p_fElev;
+    setXYUsingAzimElev01(p_fAzim, p_fElev);
 }
 
 SoundSource::~SoundSource(){
 }
 
 //----------------------------------------- PRIVATE UTILITY FUNCTIONS ------------------------------
-void SoundSource::setXYUsingAzimElev(float p_fAzim01, float p_fElev01){
+void SoundSource::setXYUsingAzimElev01(float p_fAzim01, float p_fElev01){
     float HRAzimuth     = PercentToHR(p_fAzim01, ZirkOSC_Azim_Min,ZirkOSC_Azim_Max);
     float HRElevation   = PercentToHR(p_fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
@@ -105,12 +107,12 @@ void  SoundSource::setAzimuth01(float azimuth01){
         azimuth01 += 1;
     }
     m_fAzim01 = azimuth01;
-    setXYUsingAzimElev(azimuth01, getElevation01());
+    setXYUsingAzimElev01(azimuth01, getElevation01());
 }
 JUCE_COMPILER_WARNING("probably same for this?")
 void SoundSource::setElevation01(float elevation01){
     m_fElev01 = elevation01;
-    setXYUsingAzimElev(getAzimuth01(), elevation01);
+    setXYUsingAzimElev01(getAzimuth01(), elevation01);
 }
 
 //store ONLY azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
