@@ -126,9 +126,15 @@ void SoundSource::setPrevLoc01(const float &p_fX01, const float &p_fY01, const f
     m_fPrevX01 = p_fX01;
     m_fPrevY01 = p_fY01;
     if (p_fPrevAzim01 == -1){
-        XY01toAzimElev01(m_fPrevX01, m_fPrevY01, m_fPrevAzim01, m_fOldElev01);
+        XY01toAzimElev01(m_fPrevX01, m_fPrevY01, m_fPrevAzim01, m_fPrevElev01);
+//        std::cout << "m_fPrevAzim01 1 " << m_fPrevAzim01 << newLine;
+        if (m_fPrevAzim01 == 1){
+            int i = 0;
+            ++i;
+        }
     } else {
         m_fPrevAzim01 = p_fPrevAzim01;
+//        std::cout << "m_fPrevAzim01 2 " << m_fPrevAzim01 << newLine;
     }
 }
 
@@ -145,6 +151,7 @@ float   SoundSource::getAzimuth01(){
 float   SoundSource::getElevation01(){
     return m_fElev01;
 }
+JUCE_COMPILER_WARNING("use a pair for this")
 void SoundSource::getPrevXY01(float &p_fX01, float &p_fY01){
     p_fX01 = m_fPrevX01;
     p_fY01 = m_fPrevY01;
@@ -200,6 +207,9 @@ void SoundSource::azimElev01toXY(const float &p_fAzimuth01, const float &p_fElev
 void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &p_fAzim, float &p_fElev){
     float fX = p_fX * 2 * ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
     float fY = p_fY * 2 * ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
+    
+    jassert(p_fX != 0);
+    
     p_fAzim = XYtoAzim01(fX, fY);
     p_fElev = XYtoElev01(fX, fY);
 }

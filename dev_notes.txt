@@ -80,3 +80,11 @@ ne pas envoyer sur les addresses de l'u
 10.50.x.x
 226.x.x.x
 _________________________
+
+deltas
+.5 ok
+-.87558 not ok
+-.5 ok
+1 ok
+
+bad when going form 50 to about -150

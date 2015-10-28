@@ -180,39 +180,55 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
     }
 }
 
-
-void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
-    //calculate delta for selected source, which was already moved in ::move()
-    float fSelectedOldX01, fSelectedOldY01;
-    m_oAllSources[p_iSource].getPrevXY01(fSelectedOldX01, fSelectedOldY01);
-    float fSelectedDeltaX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldX01;
-    float fSelectedDeltaY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldY01;
-    
-    //move unselected sources to their current position + deltamove
-    for(int iCurSrc=0; iCurSrc<getNbrSources(); ++iCurSrc){
-        
-        if (iCurSrc == p_iSource){
-            //save old values for selected source
-            m_oAllSources[p_iSource].setPrevLoc01(HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius));
+void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01){
+    //calculate delta azim+elev coordinates for selected source
+    float fSelectedDeltaAzim01, fSelectedDeltaElev01;
+    JUCE_COMPILER_WARNING("fSelectedDeltaAzim01 may be wrong if selected azimuth = 1 because selected x = 0 ")
+    tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSelSource, p_fSelectedNewX, p_fSelectedNewY);
+    //return if no delta
+    if (fSelectedDeltaAzim01 == 0 && fSelectedDeltaElev01 == 0){
+        return;
+    }
+    //move non-selected sources using the deltas
+    for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
+        if (iCurSource == p_iSelSource){
+            //save new values as old values for next time
+            JUCE_COMPILER_WARNING("if this is the fix, do it in all other places")
+            m_oAllSources[p_iSelSource].setPrevLoc01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius), p_fAzim01);
             continue;
         }
-        
-        float newX01 = getSources()[iCurSrc].getX01() + fSelectedDeltaX01;
-        float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
-        
-        m_oAllSources[iCurSrc].setXY01(newX01, newY01);
-        m_oAllSources[iCurSrc].setPrevLoc01(newX01, newY01);
+        //get current, non-selected source position
+        float fCurAzim01, fCurElev01;
+        tie(fCurAzim01, fCurElev01) = getCurrentSourcePosition(iCurSource);
+        //calculate new position
+        float fNewX01, fNewY01;
+        tie(fNewX01, fNewY01) = getNewSourcePosition(p_iSelSource, fSelectedDeltaAzim01, fSelectedDeltaElev01, iCurSource, fCurAzim01, fCurElev01);
+        //move source
+        m_oAllSources[iCurSource].setXY01(fNewX01, fNewY01);
     }
 }
 
 pair<float, float> ZirkOscAudioProcessor::getDeltasForSelectedSource(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY){
     //calculate old, new, and delta azim+elev coordinates for selected source
     float fSelectedOldAzim01, fSelectedOldElev01, fSelectedNewAzim01, fSelectedNewElev01, fSelectedOldX01, fSelectedOldY01;
+    
     m_oAllSources[p_iSource].getPrevXY01(fSelectedOldX01, fSelectedOldY01);
     SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
+    //if the previous location of the selected source was at .5,.5, the corresponding azimuth would be 1, which is wrong. so get the azimuth that was stored manually
+    if(fSelectedOldX01 == .5f && fSelectedOldY01 == .5f){
+        fSelectedOldAzim01 = m_oAllSources[p_iSource].getPrevAzim01();
+    }
+    
     fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
     fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
-    return make_pair(fSelectedNewAzim01 - fSelectedOldAzim01, fSelectedNewElev01 - fSelectedOldElev01);
+    
+    float fDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
+    if (abs(fDeltaAzim01) < 0.875785 && abs(fDeltaAzim01) > 0.871585){
+        int i=0;
+        SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
+    }
+    
+    return make_pair(fDeltaAzim01, fSelectedNewElev01 - fSelectedOldElev01);
 }
 
 pair<float, float> ZirkOscAudioProcessor::getCurrentSourcePosition(int iCurSource){
@@ -248,10 +264,8 @@ pair<float, float> ZirkOscAudioProcessor::getCurrentSourcePosition(int iCurSourc
     return make_pair(fCurAzim01, fCurElev01);
 }
 
-pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSelSource, const float &fSelectedDeltaAzim01, const float &fSelectedDeltaElev01,
-                                                               const int &iCurSource, const float &fCurAzim01, const float &fCurElev01){
+pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSelSource, const float &fSelectedDeltaAzim01, const float &fSelectedDeltaElev01, const int &iCurSource, const float &fCurAzim01, const float &fCurElev01){
     float fNewX01, fNewY01;
-    
     //figure azim
     float fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01;
     if (fNewAzim01 > 1){
@@ -261,11 +275,10 @@ pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSel
         fNewAzim01 = 1 + fNewAzim01;
         cout << iCurSource << " fNewAzim01 < 0; prev azim " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
     }
-    else if (fSelectedDeltaAzim01 > 0.0003 ||  fSelectedDeltaAzim01 < 0.00029){
+    else {//if (fSelectedDeltaAzim01 > 0.001 ||  fSelectedDeltaAzim01 < -0.001){
         float asdf = fSelectedDeltaAzim01;
         cout << iCurSource << " normal                    " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\t\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
     }
-    
     //figure elevation
     float fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
     if (fNewElev01 > 1){
@@ -296,29 +309,27 @@ pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSel
     return make_pair(fNewX01, fNewY01);
 }
 
-void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01){
-    //calculate delta azim+elev coordinates for selected source
-    float fSelectedDeltaAzim01, fSelectedDeltaElev01;
-    tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSelSource, p_fSelectedNewX, p_fSelectedNewY);
-    //return if no delta
-    if (fSelectedDeltaAzim01 == 0 && fSelectedDeltaElev01 == 0){
-        return;
-    }
-    //move non-selected sources using the deltas
-    for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
-        if (iCurSource == p_iSelSource){
-            //save new values as old values for next time
-            m_oAllSources[p_iSelSource].setPrevLoc01(HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius));
+void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
+    //calculate delta for selected source, which was already moved in ::move()
+    float fSelectedOldX01, fSelectedOldY01;
+    m_oAllSources[p_iSource].getPrevXY01(fSelectedOldX01, fSelectedOldY01);
+    float fSelectedDeltaX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldX01;
+    float fSelectedDeltaY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius) - fSelectedOldY01;
+    
+    //move unselected sources to their current position + deltamove
+    for(int iCurSrc=0; iCurSrc<getNbrSources(); ++iCurSrc){
+        
+        if (iCurSrc == p_iSource){
+            //save old values for selected source
+            m_oAllSources[p_iSource].setPrevLoc01(HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius));
             continue;
         }
-        //get current, non-selected source position
-        float fCurAzim01, fCurElev01;
-        tie(fCurAzim01, fCurElev01) = getCurrentSourcePosition(iCurSource);
-        //calculate new position
-        float fNewX01, fNewY01;
-        tie(fNewX01, fNewY01) = getNewSourcePosition(p_iSelSource, fSelectedDeltaAzim01, fSelectedDeltaElev01, iCurSource, fCurAzim01, fCurElev01);
-        //move source
-        m_oAllSources[iCurSource].setXY01(fNewX01, fNewY01);
+        
+        float newX01 = getSources()[iCurSrc].getX01() + fSelectedDeltaX01;
+        float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
+        
+        m_oAllSources[iCurSrc].setXY01(newX01, newY01);
+        m_oAllSources[iCurSrc].setPrevLoc01(newX01, newY01);
     }
 }
 

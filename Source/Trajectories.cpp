@@ -133,7 +133,7 @@ void Trajectory::stop(){
 void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
     float fX, fY;
     SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, fX, fY);
-    ourProcessor->move(m_iSelectedSourceForTrajectory, fX, fY);
+    ourProcessor->move(m_iSelectedSourceForTrajectory, fX, fY, p_fNewAzimuth);
 }
 
 void Trajectory::moveXY (const float &p_fNewX, const float &p_fNewY){

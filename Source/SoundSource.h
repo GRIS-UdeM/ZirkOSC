@@ -124,7 +124,7 @@ private:
     float m_fPrevX01;
     float m_fPrevY01;
     float m_fPrevAzim01;
-    float m_fOldElev01;
+    float m_fPrevElev01;
     
     ElevationStatus  m_iElevationStatus;
     float   m_fElevOverflow;
