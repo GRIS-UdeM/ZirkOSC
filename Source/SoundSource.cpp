@@ -115,11 +115,6 @@ void SoundSource::setElevation01(float elevation01){
     setXYUsingAzimElev01(getAzimuth01(), elevation01);
 }
 
-//store ONLY azimuth value, before it is overwritten by a setXY of (0,0), which will always give an azim of +180
-void SoundSource::setOnlyAzim01(float p_fAzim01){
-    m_fAzim01 = p_fAzim01;
-}
-
 //-----------------------
 //this is used when we need to recall the previous location, when we fall off the dome
 void SoundSource::setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01){

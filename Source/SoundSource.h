@@ -41,7 +41,6 @@ public:
     float   getX01();
     float   getY01();
     void    setXY01(float x, float y);
-    void    setOnlyAzim01(float p_fLastAzim01);
     float   getAzimuth01();
     void    setAzimuth01(float);
     float   getElevation01();

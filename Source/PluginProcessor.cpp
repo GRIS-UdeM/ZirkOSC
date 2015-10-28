@@ -166,10 +166,7 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
     float fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
-    //if elevation is maxed, we need to set the azimuth independently, because with x,y == 0,0 the azimuth is always = 180
-    if (p_fAzim01 != -1){
-        m_oAllSources[p_iSource].setOnlyAzim01(p_fAzim01);
-    }
+    
     //if non-independent, move non-selected sources
     if(m_iMovementConstraint == Independent || getNbrSources() == 1){
         m_oAllSources[p_iSource].setPrevLoc01(fX01, fY01);
@@ -298,11 +295,7 @@ pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSel
     else {  //normal range
         m_oAllSources[iCurSource].setElevationStatus(normalRange);
         SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-
-        //if elevation is maxed, we need to set the azimuth manually, because with x,y == 0,0 the azimuth is always = 180
-        if (fNewElev01 == 1){
-            m_oAllSources[p_iSelSource].setOnlyAzim01(fNewAzim01);
-        }
+        
         m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
         m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
     }
