@@ -168,11 +168,7 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
         fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
         fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
     } else {
-        
-        cout << "p_fX " << HRToPercent(p_fX, -s_iDomeRadius,s_iDomeRadius) << "\tfX01 " << fX01
-        << "\tp_fY " << HRToPercent(p_fY, -s_iDomeRadius,s_iDomeRadius) << "\tfY01 " << fY01 << newLine;
-        
-        SoundSource::azimElev01toXY01(p_fAzim01, p_fElev01, fX01, fY01);
+        SoundSource::azimElev01toXY01(p_fAzim01, p_fElev01, fX01, fY01);        
         m_oAllSources[p_iSource].setAzimuth01(p_fAzim01);
         m_oAllSources[p_iSource].setElevation01(p_fElev01);
         m_bNeedToRefreshGui = true;

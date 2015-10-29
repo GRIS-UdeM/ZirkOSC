@@ -1313,6 +1313,12 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     } else if (slider == m_pAzimuthSlider || slider == m_pElevationSlider){
         //figure out where the slider should move the point
         float newAzim01 = HRToPercent(m_pAzimuthSlider->getValue(),   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+        
+        if (m_pAzimuthSlider->getValue() == -180){
+            cout << m_pAzimuthSlider->getValue() << newLine;
+        }
+        
+        
         float newElev01 = HRToPercent(m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
         SoundSource::azimElev01toXY(newAzim01, newElev01, fX, fY);
         move(selectedSource, fX, fY, newAzim01, newElev01);
