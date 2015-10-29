@@ -88,3 +88,7 @@ deltas
 1 ok
 
 bad when going form 50 to about -150
+___________________________
+ok, il faut que je sois intelligent. le problème est que je ne calcule pas les deltas de la bonne façon.
+
+the problem is basically that at some random point, the selected source does a 180 change in azimuth, while the non-selected source does no drastic change.

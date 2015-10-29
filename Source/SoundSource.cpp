@@ -197,7 +197,7 @@ void SoundSource::XY01toAzimElev01(const float &p_fX, const float &p_fY, float &
     float fX = p_fX * 2 * ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
     float fY = p_fY * 2 * ZirkOscAudioProcessor::s_iDomeRadius - ZirkOscAudioProcessor::s_iDomeRadius;
     
-    jassert(p_fX != 0);
+//    jassert(p_fX != 0);
     
     p_fAzim = XYtoAzim01(fX, fY);
     p_fElev = XYtoElev01(fX, fY);

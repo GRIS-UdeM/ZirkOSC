@@ -218,12 +218,20 @@ pair<float, float> ZirkOscAudioProcessor::getDeltasForSelectedSource(const int &
     
     fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
     fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
+
     
     float fDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
-    if (abs(fDeltaAzim01) < 0.875785 && abs(fDeltaAzim01) > 0.871585){
-        int i=0;
-        SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
+    
+//    if (fSelectedNewElev01 > .9){
+////        cout << fSelectedNewElev01 << "\t\t" << fDeltaAzim01 << newLine;
+//                cout << "fDeltaAzim01 " << fDeltaAzim01 << newLine;
+//    }
+    if (abs(fDeltaAzim01) > .1){
+        cout << "fDeltaAzim01 " << fDeltaAzim01 << newLine;
     }
+    
+
+
     
     return make_pair(fDeltaAzim01, fSelectedNewElev01 - fSelectedOldElev01);
 }
@@ -267,15 +275,15 @@ pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSel
     float fNewAzim01 = fCurAzim01 + fSelectedDeltaAzim01;
     if (fNewAzim01 > 1){
         fNewAzim01 -= 1;
-        cout << iCurSource << " fNewAzim01 > 1; prev azim " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\t\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
+//        cout << iCurSource << " fNewAzim01 > 1; prev azim " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\t\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
     } else if (fNewAzim01 < 0){
         fNewAzim01 = 1 + fNewAzim01;
-        cout << iCurSource << " fNewAzim01 < 0; prev azim " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
+//        cout << iCurSource << " fNewAzim01 < 0; prev azim " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
     }
-    else {//if (fSelectedDeltaAzim01 > 0.001 ||  fSelectedDeltaAzim01 < -0.001){
-        float asdf = fSelectedDeltaAzim01;
-        cout << iCurSource << " normal                    " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\t\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
-    }
+//    else {//if (fSelectedDeltaAzim01 > 0.001 ||  fSelectedDeltaAzim01 < -0.001){
+//        float asdf = fSelectedDeltaAzim01;
+//        cout << iCurSource << " normal                    " << fCurAzim01 << "(" << PercentToHR(fCurAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\t\tdelta " << fSelectedDeltaAzim01 << "(" << PercentToHR(abs(fSelectedDeltaAzim01), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\tnew " << fNewAzim01 << "(" << PercentToHR(fNewAzim01, ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) << ")\n";
+//    }
     //figure elevation
     float fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
     if (fNewElev01 > 1){

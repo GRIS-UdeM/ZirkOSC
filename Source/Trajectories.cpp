@@ -130,10 +130,17 @@ void Trajectory::stop(){
     ourProcessor->askForGuiRefresh();
 }
 
-void Trajectory::move (const float &p_fNewAzimuth, const float &p_fNewElevation){
+void Trajectory::move (float p_fNewAzimuth01, float p_fNewElevation01){
+    
+    if (p_fNewAzimuth01>1)
+        p_fNewAzimuth01 = p_fNewAzimuth01 - 1.0f;
+    else if (p_fNewAzimuth01<0.0f){
+        p_fNewAzimuth01 += 1;
+    }
+    
     float fX, fY;
-    SoundSource::azimElev01toXY(p_fNewAzimuth, p_fNewElevation, fX, fY);
-    ourProcessor->move(m_iSelectedSourceForTrajectory, fX, fY, p_fNewAzimuth);
+    SoundSource::azimElev01toXY(p_fNewAzimuth01, p_fNewElevation01, fX, fY);
+    ourProcessor->move(m_iSelectedSourceForTrajectory, fX, fY, p_fNewAzimuth01);
 }
 
 void Trajectory::moveXY (const float &p_fNewX, const float &p_fNewY){

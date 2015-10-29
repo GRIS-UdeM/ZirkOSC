@@ -58,7 +58,7 @@ public:
 protected:
 	virtual void spInit() {}
 	virtual void spProcess(float duration, float seconds) = 0;
-    void move (const float &newAzimuth, const float &newElevation);
+    void move (float newAzimuth, float newElevation);
     void moveXY (const float &p_fNewX, const float &p_fNewY);
 	
 private:
