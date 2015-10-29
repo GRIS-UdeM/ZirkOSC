@@ -168,8 +168,16 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
         fX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
         fY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
     } else {
+        
+        cout << "p_fX " << HRToPercent(p_fX, -s_iDomeRadius,s_iDomeRadius) << "\tfX01 " << fX01
+        << "\tp_fY " << HRToPercent(p_fY, -s_iDomeRadius,s_iDomeRadius) << "\tfY01 " << fY01 << newLine;
+        
         SoundSource::azimElev01toXY01(p_fAzim01, p_fElev01, fX01, fY01);
+        m_oAllSources[p_iSource].setAzimuth01(p_fAzim01);
+        m_oAllSources[p_iSource].setElevation01(p_fElev01);
+        m_bNeedToRefreshGui = true;
     }
+    
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + p_iSource*5, fX01);
     setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + p_iSource*5, fY01);
     
@@ -207,6 +215,9 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p
         tie(fNewX01, fNewY01) = getNewSourcePosition(p_iSelSource, fSelectedDeltaAzim01, fSelectedDeltaElev01, iCurSource, fCurAzim01, fCurElev01);
         //move source
         m_oAllSources[iCurSource].setXY01(fNewX01, fNewY01);
+        JUCE_COMPILER_WARNING("there needs to be a way to do those 2 lines")
+//        m_oAllSources[iCurSource].setAzimuth01(p_fAzim01);
+//        m_oAllSources[iCurSource].setElevation01(p_fElev01);
     }
 }
 

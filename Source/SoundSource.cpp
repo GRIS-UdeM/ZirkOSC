@@ -61,6 +61,7 @@ void SoundSource::setXYUsingAzimElev01(float p_fAzim01, float p_fElev01){
     m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
 void SoundSource::updateAzimElev(){
+    JUCE_COMPILER_WARNING("this is not guaranteed to work, we can't always go from x,y toa zim,elev")
     m_fAzim01 = XYtoAzim01(m_fX, m_fY);
     m_fElev01 = XYtoElev01(m_fX, m_fY);
 }
@@ -69,6 +70,7 @@ void SoundSource::setXY(Point <float> p){    //x and y are [-r,r]
     m_fX = p.x;
     m_fY = p.y;
 }
+
 void SoundSource::setXY01(float x01, float y01){
     setX01(x01);
     setY01(y01);
