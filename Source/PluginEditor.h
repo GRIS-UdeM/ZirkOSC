@@ -67,7 +67,7 @@ public:
     void updateWallCircleSize(int iCurWidth, int iCurHeight);
     void updateTrajectoryTabSize(int iCurw, int iCurHeight);
     void updateTurnsWidgetLocation();
-    void move (int, float, float, float p_fAzim01 = -1);
+    void move (int, float, float, float p_fAzim01 = -1, float p_fElev01 = -1);
     
     //! Function to set the combination of Slider and Label.
     static void setSliderAndLabel(String labelText, Slider* slider, Label* label, float min, float max);

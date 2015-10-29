@@ -1309,26 +1309,13 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
     
     if (slider == m_pGainSlider) {
         ourProcessor->setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Gain_ParamId + (selectedSource*5), (float) m_pGainSlider->getValue());
-    } else if (slider == m_pAzimuthSlider ){
+    
+    } else if (slider == m_pAzimuthSlider || slider == m_pElevationSlider){
         //figure out where the slider should move the point
-        float newAzim01 = HRToPercent(m_pAzimuthSlider->getValue(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
-        SoundSource::azimElev01toXY(newAzim01, ourProcessor->getSources()[selectedSource].getElevation01(), fX, fY);
-        //if elevation is maxed out, we need to set the azimuth explicitely, otherwise using x and y it will always be 180
-//        if (m_pElevationSlider->getValue() == 90){
-            move(selectedSource, fX, fY, newAzim01);
-//        } else {
-//            move(selectedSource, fX, fY);
-//        }
-    } else if (slider == m_pElevationSlider){
-        float newElev01 = HRToPercent((float) m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
-        float oldAzim01 = ourProcessor->getSources()[selectedSource].getAzimuth01();
-        SoundSource::azimElev01toXY(ourProcessor->getSources()[selectedSource].getAzimuth01(), newElev01, fX, fY);
-
-//        if (newElev01 == 1){
-            move(selectedSource, fX, fY, oldAzim01);
-//        } else {
-//            move(selectedSource, fX, fY);
-//        }
+        float newAzim01 = HRToPercent(m_pAzimuthSlider->getValue(),   ZirkOSC_Azim_Min, ZirkOSC_Azim_Max);
+        float newElev01 = HRToPercent(m_pElevationSlider->getValue(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
+        SoundSource::azimElev01toXY(newAzim01, newElev01, fX, fY);
+        move(selectedSource, fX, fY, newAzim01, newElev01);
     } else if (slider == m_pElevationSpanSlider) {
         float fElevSpan01 = HRToPercent((float) m_pElevationSpanSlider->getValue(), ZirkOSC_ElevSpan_Min, ZirkOSC_ElevSpan_Max);
         if(isSpanLinked){
@@ -1409,16 +1396,14 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
     m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
-void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01){
-    ourProcessor->move(p_iSource, p_fX, p_fY, p_fAzim01);
+void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01, float p_fElev01){
+    ourProcessor->move(p_iSource, p_fX, p_fY, p_fAzim01, p_fElev01);
 }
 
 void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
-    
     if (ourProcessor->getIsWriteTrajectory()){
         return;
     }
-    
     else if(m_bIsSourceBeingDragged){
         int selectedSource = ourProcessor->getSelectedSource();
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId+ selectedSource*5);
