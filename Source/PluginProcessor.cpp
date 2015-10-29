@@ -225,8 +225,8 @@ pair<float, float> ZirkOscAudioProcessor::getDeltasForSelectedSource(const int &
     
     float fDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
     
-//    if (fSelectedNewElev01 > .9){
-    if (abs(fDeltaAzim01) > .1){
+    if (fSelectedNewElev01 > .95){
+//    if (abs(fDeltaAzim01) > .1){
         cout << "OldX " << fSelectedOldX01 << "\tOldY " << fSelectedOldY01
         << "\tNewX " << HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius) << "\tNewY " << HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius)
         << "\toldAzim " << fSelectedOldAzim01 << "\tnewAzim " << fSelectedNewAzim01 << newLine;
