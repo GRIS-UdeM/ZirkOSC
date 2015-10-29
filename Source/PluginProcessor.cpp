@@ -264,22 +264,20 @@ pair<float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSel
         float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
         SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
         m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-        m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01, fNewAzim01);
     }
     else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
         m_oAllSources[iCurSource].setElevationStatus(under0);
         float fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
         SoundSource::azimElev01toXY01(fNewAzim01, 0, fNewX01, fNewY01, fCurElevOverflow);
         m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
-        m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
     }
     else {  //normal range
         m_oAllSources[iCurSource].setElevationStatus(normalRange);
         SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-        
         m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
-        m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01);          //save new values as old values for next time
     }
+    
+    m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01, fNewAzim01, fCurElev01);
     return make_pair(fNewX01, fNewY01);
 }
 
