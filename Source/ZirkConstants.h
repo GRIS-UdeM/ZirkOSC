@@ -185,5 +185,14 @@ static bool areSame(double a, double b)
     return fabs(a - b) < .00001;
 }
 
+static float checkAndFixAzim01Bounds(float fNewAzim01){
+    if (fNewAzim01 > 1){
+        fNewAzim01 -= 1;
+    } else if (fNewAzim01 < 0){
+        fNewAzim01 = 1 + fNewAzim01;
+    }
+    return fNewAzim01;
+}
+
 #endif
 

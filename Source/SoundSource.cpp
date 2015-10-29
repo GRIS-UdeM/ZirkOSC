@@ -45,12 +45,7 @@ SoundSource::SoundSource(float p_fAzim01, float elevation, int p_iSrcId)
     m_iSourceId = p_iSrcId;
 }
 void SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
-    if (p_fAzim>1)
-        p_fAzim = p_fAzim - 1.0f;
-    else if (p_fAzim<0.0f){
-        p_fAzim += 1;
-    }
-    m_fAzim01 = p_fAzim;
+    m_fAzim01 = checkAndFixAzim01Bounds(p_fAzim);
     m_fElev01 = p_fElev;
     setXYUsingAzimElev01(p_fAzim, p_fElev);
 }
@@ -101,12 +96,7 @@ void SoundSource::setY01(float p_y01){
 //----------------------- AZIM + ELEV
 JUCE_COMPILER_WARNING("we should probably use the built-in check for this, instead of in other move functions")
 void  SoundSource::setAzimuth01(float azimuth01){
-    if (azimuth01>1)
-        azimuth01 = azimuth01 - 1.0f;
-    else if (azimuth01<0.0f){
-        azimuth01 += 1;
-    }
-    m_fAzim01 = azimuth01;
+    m_fAzim01 = checkAndFixAzim01Bounds(azimuth01);
     setXYUsingAzimElev01(azimuth01, getElevation01());
 }
 JUCE_COMPILER_WARNING("probably same for this?")
@@ -117,13 +107,15 @@ void SoundSource::setElevation01(float elevation01){
 
 //-----------------------
 //this is used when we need to recall the previous location, when we fall off the dome
-void SoundSource::setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01){
+JUCE_COMPILER_WARNING("should assert that if prevAzim and prevElev != 1, then xy should be redundant with them")
+void SoundSource::setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01, const float &p_fPrevElev01){
     m_fPrevX01 = p_fX01;
     m_fPrevY01 = p_fY01;
     if (p_fPrevAzim01 == -1){
         XY01toAzimElev01(m_fPrevX01, m_fPrevY01, m_fPrevAzim01, m_fPrevElev01);
     } else {
         m_fPrevAzim01 = p_fPrevAzim01;
+        m_fPrevElev01 = p_fPrevElev01;
     }
 }
 
@@ -148,21 +140,14 @@ void SoundSource::getPrevXY01(float &p_fX01, float &p_fY01){
 float SoundSource::getPrevAzim01(){
     return m_fPrevAzim01;
 }
+float SoundSource::getPrevElev01(){
+    return m_fPrevElev01;
+}
 //range for both fX and fY is [-r,r]
 void SoundSource::getXY(float &fX, float &fY){
     fX = getX();
     fY = getY();
 }
-
-
-
-
-
-
-
-
-
-
 
 
 //-------------------------- STATIC CONVERSION FUNCTIONS --------------------------

@@ -55,7 +55,7 @@ public:
     ~ZirkOscAudioProcessor();
 
     
-    void move(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_azim01 = -1);
+    void move(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_azim01 = -1, const float &p_elev01 = -1);
     
     //==============================================================================
     //! Called before playback starts, to let the filter prepare itself. 
@@ -344,10 +344,12 @@ private:
     void initSources();
     void processTrajectories();
     void stopTrajectory();
-    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_fAzim01 = -1);
+    void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_fAzim01 = -1, const float &p_fElev01 = -1);
     void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     bool setPositionParameters(int index, float newValue);
     bool setOtherParameters(int index, float newValue);
+
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ZirkOscAudioProcessor)
     //! Whether the editor has to refresh the GUI
@@ -390,7 +392,7 @@ private:
     
     PluginHostType host;
     
-    std::pair<float, float> getDeltasForSelectedSource(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY);
+    std::pair<float, float> getDeltasForSelectedSource(const int &p_iSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01, const float &p_fElev01);
     std::pair<float, float> getCurrentSourcePosition(int iCurSource);
     std::pair<float, float> getNewSourcePosition(const int &p_iSource, const float &fSelectedDeltaAzim01, const float &fSelectedDeltaElev01,
                                             const int &iCurSource, const float &fCurAzim01, const float &fCurElev01);

@@ -132,15 +132,10 @@ void Trajectory::stop(){
 
 void Trajectory::move (float p_fNewAzimuth01, float p_fNewElevation01){
     
-    if (p_fNewAzimuth01>1)
-        p_fNewAzimuth01 = p_fNewAzimuth01 - 1.0f;
-    else if (p_fNewAzimuth01<0.0f){
-        p_fNewAzimuth01 += 1;
-    }
-    
     float fX, fY;
-    SoundSource::azimElev01toXY(p_fNewAzimuth01, p_fNewElevation01, fX, fY);
-    ourProcessor->move(m_iSelectedSourceForTrajectory, fX, fY, p_fNewAzimuth01);
+    SoundSource::azimElev01toXY(checkAndFixAzim01Bounds(p_fNewAzimuth01), p_fNewElevation01, fX, fY);
+    JUCE_COMPILER_WARNING("add jassert to to make sure that at this point, x,y and azim, elev are fully redundant")
+    ourProcessor->move(m_iSelectedSourceForTrajectory, fX, fY, p_fNewAzimuth01, p_fNewElevation01);
 }
 
 void Trajectory::moveXY (const float &p_fNewX, const float &p_fNewY){

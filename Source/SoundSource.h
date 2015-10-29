@@ -45,9 +45,10 @@ public:
     void    setAzimuth01(float);
     float   getElevation01();
     void    setElevation01(float);
-    void    setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01 = -1);
+    void    setPrevLoc01(const float &p_fX01, const float &p_fY01, const float &p_fPrevAzim01 = -1, const float &p_fPrevElev01 = -1);
     void    getPrevXY01(float &p_fX01, float &p_fY01);
     float   getPrevAzim01();
+    float   getPrevElev01();
     void    updateAzimElev();
     
     //TRIVIAL SETTERS AND GETTERS
