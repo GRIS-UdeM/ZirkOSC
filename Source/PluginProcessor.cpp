@@ -211,23 +211,25 @@ pair<float, float> ZirkOscAudioProcessor::getDeltasForSelectedSource(const int &
     
     m_oAllSources[p_iSource].getPrevXY01(fSelectedOldX01, fSelectedOldY01);
     SoundSource::XY01toAzimElev01(fSelectedOldX01, fSelectedOldY01, fSelectedOldAzim01, fSelectedOldElev01);
-    //if the previous location of the selected source was at .5,.5, the corresponding azimuth would be 1, which is wrong. so get the azimuth that was stored manually
-    if(fSelectedOldX01 == .5f && fSelectedOldY01 == .5f){
-        fSelectedOldAzim01 = m_oAllSources[p_iSource].getPrevAzim01();
-    }
+
     
     fSelectedNewAzim01 = SoundSource::XYtoAzim01(p_fSelectedNewX, p_fSelectedNewY);
     fSelectedNewElev01 = SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY);
+    
+    //if the previous location of the selected source was at .5,.5, the corresponding azimuth would be 1, which is wrong. so get the azimuth that was stored manually
+    if(fSelectedOldX01 == .5f && fSelectedOldY01 == .5f){
+//        fSelectedOldAzim01 = m_oAllSources[p_iSource].getPrevAzim01();
+        fSelectedOldAzim01 = fSelectedNewAzim01;
+    }
 
     
     float fDeltaAzim01 = fSelectedNewAzim01 - fSelectedOldAzim01;
     
 //    if (fSelectedNewElev01 > .9){
-////        cout << fSelectedNewElev01 << "\t\t" << fDeltaAzim01 << newLine;
-//                cout << "fDeltaAzim01 " << fDeltaAzim01 << newLine;
-//    }
     if (abs(fDeltaAzim01) > .1){
-        cout << "fDeltaAzim01 " << fDeltaAzim01 << newLine;
+        cout << "OldX " << fSelectedOldX01 << "\tOldY " << fSelectedOldY01
+        << "\tNewX " << HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius) << "\tNewY " << HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius)
+        << "\toldAzim " << fSelectedOldAzim01 << "\tnewAzim " << fSelectedNewAzim01 << newLine;
     }
     
 
