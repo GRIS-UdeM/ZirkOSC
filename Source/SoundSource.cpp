@@ -60,6 +60,7 @@ void SoundSource::setXYUsingAzimElev01(float p_fAzim01, float p_fElev01){
     m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
     m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
+    JUCE_COMPILER_WARNING("in theory this updateAzimElev() should never be used, since it can be invalid when x,y == 0,0. In case of delta lock though (and probably other cases, we can't avoid it")
 void SoundSource::updateAzimElev(){
     JUCE_COMPILER_WARNING("this is not guaranteed to work, we can't always go from x,y toa zim,elev")
     m_fAzim01 = XYtoAzim01(m_fX, m_fY);
@@ -71,10 +72,15 @@ void SoundSource::setXY(Point <float> p){    //x and y are [-r,r]
     m_fY = p.y;
 }
 
-void SoundSource::setXY01(float x01, float y01){
-    setX01(x01);
-    setY01(y01);
-    updateAzimElev();
+void SoundSource::setXYAzimElev01(const float &p_x01, const float &p_y01, const float &p_fAzim01, const float &p_fElev01){
+    m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+    m_fY = PercentToHR(p_y01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+    if (p_fAzim01 != -1 && p_fElev01 != -1){
+        m_fAzim01 = p_fAzim01;
+        m_fElev01 = p_fElev01;
+    } else {
+        updateAzimElev();
+    }
 }
 void SoundSource::setX01(float p_x01){
     if (m_fX == 0 && m_fY ==0){

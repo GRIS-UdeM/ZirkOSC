@@ -40,7 +40,7 @@ public:
     void    setY01(float y);
     float   getX01();
     float   getY01();
-    void    setXY01(float x, float y);
+    void    setXYAzimElev01(const float &x01, const float &y01, const float &p_fAzim01 = -1, const float &p_fElev01 = -1);
     float   getAzimuth01();
     void    setAzimuth01(float);
     float   getElevation01();
