@@ -129,7 +129,6 @@ private:
     ElevationStatus  m_iElevationStatus;
     float   m_fElevOverflow;
     bool    m_bElevationWasMaxed;
-    bool    m_bPositionWas00;
     
     void setXYUsingAzimElev01(float azim01, float elev01);
 };

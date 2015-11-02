@@ -83,21 +83,10 @@ void SoundSource::setXYAzimElev01(const float &p_x01, const float &p_y01, const 
     }
 }
 void SoundSource::setX01(float p_x01){
-    if (m_fX == 0 && m_fY ==0){
-        m_fAzim01 = getAzimuth01();
-    } else {
-        m_bPositionWas00 = false;
-    }
     m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
     updateAzimElev();
 }
 void SoundSource::setY01(float p_y01){
-    if (m_fX == 0 && m_fY ==0){
-        m_bPositionWas00 = true;
-        m_fAzim01 = getAzimuth01();
-    } else {
-        m_bPositionWas00 = false;
-    }
     m_fY = PercentToHR(p_y01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
     updateAzimElev();
 }
