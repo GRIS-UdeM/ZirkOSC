@@ -59,31 +59,54 @@ void SoundSource::setXYUsingAzimElev01(float p_fAzim01, float p_fElev01){
     float HRElevation   = PercentToHR(p_fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
     m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
+    
+    if (m_iSourceId == 8){
+        std::cout << m_fX << newLine;
+//        std::cout << "setXYUsingAzimElev01, id:" << m_iSourceId << " x01:" << HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\ty01:" << HRToPercent(m_fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\telev " << m_fElev01 << newLine;
+    }
 }
     JUCE_COMPILER_WARNING("in theory this updateAzimElev() should never be used, since it can be invalid when x,y == 0,0. In case of delta lock though (and probably other cases, we can't avoid it")
 void SoundSource::updateAzimElev(){
-    JUCE_COMPILER_WARNING("this is not guaranteed to work, we can't always go from x,y toa zim,elev")
     m_fAzim01 = XYtoAzim01(m_fX, m_fY);
     m_fElev01 = XYtoElev01(m_fX, m_fY);
+    if (m_iSourceId == 8){
+        std::cout << "updateAzimElev, id:" << m_iSourceId << " x01:" << HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\ty01:" << HRToPercent(m_fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\telev " << m_fElev01 << newLine;
+    }
 }
 //------------------------------------------ SETTERS -------------------------------------------------
 void SoundSource::setXY(Point <float> p){    //x and y are [-r,r]
     m_fX = p.x;
     m_fY = p.y;
+    
+
+    if (m_iSourceId == 8){
+                std::cout << m_fX << newLine;
+         //std::cout << "setXY, id:" << m_iSourceId << " x01:" << HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\ty01:" << HRToPercent(m_fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\telev " << m_fElev01 << newLine;
+    }
+
 }
 
 void SoundSource::setXYAzimElev01(const float &p_x01, const float &p_y01, const float &p_fAzim01, const float &p_fElev01){
     m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+    if (m_iSourceId == 8){
+        std::cout << m_fX << newLine;
+    }
     m_fY = PercentToHR(p_y01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
     if (p_fAzim01 != -1 && p_fElev01 != -1){
         m_fAzim01 = p_fAzim01;
         m_fElev01 = p_fElev01;
+        if (m_iSourceId == 8){
+            std::cout << "setXYAzimElev01, id:" << m_iSourceId << " x01:" << HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\ty01:" << HRToPercent(m_fY, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << "\telev " << m_fElev01 << newLine;
+        }
     } else {
         updateAzimElev();
     }
 }
 void SoundSource::setX01(float p_x01){
     m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
+    if (m_iSourceId == 8){
+        std::cout << m_fX << newLine;
+    }
     updateAzimElev();
 }
 void SoundSource::setY01(float p_y01){
@@ -99,6 +122,9 @@ void  SoundSource::setAzimuth01(float azimuth01){
 JUCE_COMPILER_WARNING("probably same for this?")
 void SoundSource::setElevation01(float elevation01){
     m_fElev01 = elevation01;
+    if (m_iSourceId == 8){
+        std::cout << "setElevation01 id " << m_iSourceId << "\telev " << m_fElev01 << newLine;
+    }
     setXYUsingAzimElev01(getAzimuth01(), elevation01);
 }
 
@@ -114,6 +140,10 @@ void SoundSource::setPrevLoc01(const float &p_fX01, const float &p_fY01, const f
         m_fPrevAzim01 = p_fPrevAzim01;
         m_fPrevElev01 = p_fPrevElev01;
     }
+    if (m_iSourceId == 8){
+        std::cout << "setPrevLoc01 id " << m_iSourceId << "\tm_fPrevX01 " << m_fPrevX01 << " \tm_fPrevY01 " << m_fPrevY01 << "\telev " << m_fElev01 << newLine;
+        int i =0;
+    }
 }
 
 //------------------------------------------ GETTERS -------------------------------------------------
@@ -127,6 +157,9 @@ float   SoundSource::getAzimuth01(){
     return m_fAzim01;
 }
 float   SoundSource::getElevation01(){
+    if (m_iSourceId == 8){
+        //std::cout << "getElevation01 id " << m_iSourceId << "\telev " << m_fElev01 << newLine;
+    }
     return m_fElev01;
 }
 JUCE_COMPILER_WARNING("use a pair for this")

@@ -200,7 +200,17 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p
     //return if no delta
     if (fSelectedDeltaAzim01 == 0 && fSelectedDeltaElev01 == 0){
         return;
+    } else {
+        float prevX01, prevY01;
+        m_oAllSources[p_iSelSource].getPrevXY01(prevX01, prevY01);
+        cout << "moveCircular " << p_iSelSource << " prevX01:" << prevX01 << "\tprevY01:" << prevY01 << "\tnewX01:" << HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius) << "\tnewY01:" << HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius)
+        << "\tconvertedElev:" << SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY) << "\t paramElev01:" << p_fElev01  << "\t currentElev:" << m_oAllSources[p_iSelSource].getElevation01() << "\t prevElev:" << m_oAllSources[p_iSelSource].getPrevElev01() << newLine;
+        tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSelSource, p_fSelectedNewX, p_fSelectedNewY, p_fAzim01, p_fElev01);
     }
+    
+    
+    
+    
     //move non-selected sources using the deltas
     JUCE_COMPILER_WARNING("instead of applying the delta from the selected source linearly, we could probably do it with relation to the center, so that when going towards center, non-selected sources reach the middle at the same time as the selected source")
     for (int iCurSource = 0; iCurSource < getNbrSources(); ++iCurSource) {
@@ -822,6 +832,9 @@ bool ZirkOscAudioProcessor::setPositionParameters(int index, float newValue){
             if(newValue != m_oAllSources[iCurSource].getX01()) {
                 m_oAllSources[iCurSource].setX01(newValue);
                 m_iSourceLocationChanged = iCurSource;
+                if (m_iSourceLocationChanged == 7){
+                    cout << "setParameter x01 " << newValue << newLine;
+                }
                 m_bNeedToRefreshGui = true;
             }
             return true;
@@ -830,6 +843,10 @@ bool ZirkOscAudioProcessor::setPositionParameters(int index, float newValue){
             if(newValue != m_oAllSources[iCurSource].getY01()) {
                 m_oAllSources[iCurSource].setY01(newValue);
                 m_iSourceLocationChanged = iCurSource;
+                if (m_iSourceLocationChanged == 7){
+                    cout << "setParameter x01 " << newValue << newLine;
+                }
+
                 m_bNeedToRefreshGui = true;
             }
             return true;
@@ -1035,6 +1052,9 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
 
             setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, fActualX01);
             setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, fActualY01);
+            if (iCurSrc == 7){
+                int i=0;
+            }
             m_oAllSources[iCurSrc].setPrevLoc01(fActualX01, fActualY01);
         }
         
