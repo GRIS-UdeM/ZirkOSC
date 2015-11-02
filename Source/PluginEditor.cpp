@@ -909,7 +909,7 @@ void ZirkOscAudioProcessorEditor::paintSpanArc (Graphics& g, int iSrc){
     g.setColour(Colour::fromHSV(hue, 1, 1, 0.1));
     g.fillPath(myPath);
     g.setColour(Colour::fromHSV(hue, 1, 1, 0.5));
-    PathStrokeType strokeType = PathStrokeType(1.0);
+    PathStrokeType strokeType = PathStrokeType(2.5);
     g.strokePath(myPath, strokeType);
 }
 
