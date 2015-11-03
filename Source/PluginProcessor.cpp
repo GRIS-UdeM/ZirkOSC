@@ -275,30 +275,31 @@ pair<float, float> ZirkOscAudioProcessor::getCurrentSourcePosition(int iCurSourc
 }
 
 tuple<float, float, float, float> ZirkOscAudioProcessor::getNewSourcePosition(const int &p_iSelSource, const float &fSelectedDeltaAzim01, const float &fSelectedDeltaElev01, const int &iCurSource, const float &fCurAzim01, const float &fCurElev01){
-    float fNewX01, fNewY01;
+    float fNewX01, fNewY01, fCurElevOverflow;
     //figure azim
     float fNewAzim01 = checkAndFixAzim01Bounds(fCurAzim01 + fSelectedDeltaAzim01);
 
     //figure elevation
     float fNewElev01 = fCurElev01 + fSelectedDeltaElev01;
-    if (fNewElev01 > 1){
+    if (fNewElev01 >= 1 - std::numeric_limits<float>::epsilon()){
         m_oAllSources[iCurSource].setElevationStatus(over1);
-        float fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-        SoundSource::azimElev01toXY01(fNewAzim01, 1, fNewX01, fNewY01, fCurElevOverflow);
-        m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+        fCurElevOverflow = s_iDomeRadius + s_iDomeRadius * cos(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+        fNewElev01 = 1;
+        SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01, fCurElevOverflow);
     }
     else if (fNewElev01 < 0){                   //moving selected source moves this source out of the dome. need to calculate overflow
         m_oAllSources[iCurSource].setElevationStatus(under0);
-        float fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
-        SoundSource::azimElev01toXY01(fNewAzim01, 0, fNewX01, fNewY01, fCurElevOverflow);
-        m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
+        fCurElevOverflow = s_iDomeRadius - s_iDomeRadius * sin(degreeToRadian(PercentToHR(fNewElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)));
+        fNewElev01 = 0;
+        SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01, fCurElevOverflow);
     }
     else {  //normal range
         m_oAllSources[iCurSource].setElevationStatus(normalRange);
         SoundSource::azimElev01toXY01(fNewAzim01, fNewElev01, fNewX01, fNewY01);
-        m_oAllSources[iCurSource].setElevOverflow(s_iDomeRadius);
+        fCurElevOverflow = s_iDomeRadius;
     }
     
+    m_oAllSources[iCurSource].setElevOverflow(fCurElevOverflow);
     m_oAllSources[iCurSource].setPrevLoc01(fNewX01, fNewY01, fNewAzim01, fNewElev01);
     return make_tuple(fNewX01, fNewY01, fNewAzim01, fNewElev01);
 }
