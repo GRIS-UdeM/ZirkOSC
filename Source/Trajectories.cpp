@@ -166,6 +166,71 @@ private:
 };
 
 // ==============================================================================
+//class SpiralTrajectory : public Trajectory
+//{
+//public:
+//    SpiralTrajectory(ZirkOscAudioProcessor *filter, float duration, bool beats, float times, int source, bool ccw, bool rt, const std::pair<int, int> &endPoint, float fTurns)
+//    : Trajectory(filter, duration, beats, times, source)
+//    , mCCW(ccw)
+//    , m_bRT(rt)
+//    , m_fEndPair(endPoint)
+//    , m_fTurns(fTurns)
+//    { }
+//    
+//protected:
+//    void spInit(){
+//        //convert m_fTrajectoryInitialAzimuth01 + Elevation01 to m_fTransposedStartAzim01 + Elev01
+//        float fStartX, fStartY;
+//        SoundSource::azimElev01toXY(m_fTrajectoryInitialAzimuth01, m_fTrajectoryInitialElevation01, fStartX, fStartY);
+//        float fTransposedStartX = fStartX - m_fEndPair.first;
+//        float fTransposedStartY = fStartY - m_fEndPair.second;
+//        m_fTransposedStartAzim01 = SoundSource::XYtoAzim01(fTransposedStartX, fTransposedStartY);
+//        m_fTransposedStartElev01 = SoundSource::XYtoElev01(fTransposedStartX, fTransposedStartY);
+//    }
+//    void spProcess(float duration, float seconds){
+//        float newAzimuth01, theta, integralPart; //integralPart is only a temp buffer
+//        float newElevation01 = mDone / mDurationSingleTrajectory;
+//        theta = modf(newElevation01, &integralPart);                                          //result from this modf is theta [0,1]
+//        
+//        //UP AND DOWN SPIRAL
+//        if (m_bRT){
+//            if (mIn){
+//                newElevation01 = abs( (1 - m_fTransposedStartElev01) * sin(newElevation01 * M_PI) ) + m_fTransposedStartElev01;
+//            } else {
+//                JUCE_COMPILER_WARNING("mIn is always true; so either delete this or create another trajectory/mode for it")
+//                newElevation01 = abs( m_fTransposedStartElev01 * cos(newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
+//            }
+//            if (!mCCW) theta = -theta;
+//            theta *= 2;
+//        } else {
+//            //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
+//            newElevation01 = theta * (1 - m_fTransposedStartElev01) + m_fTransposedStartElev01;                     //newElevation is a mapping of theta[0,1] to [m_fTransposedStartElev01, 1]
+//            if (!mIn){
+//                newElevation01 = m_fTransposedStartElev01 * (1 - newElevation01) / (1-m_fTransposedStartElev01);    //map newElevation from [m_fTransposedStartElev01, 1] to [m_fTransposedStartElev01, 0]
+//            }
+//            if (!mCCW) theta = -theta;
+//        }
+//        newAzimuth01 = modf(m_fTransposedStartAzim01 + m_fTurns * theta, &integralPart);                    //this is like adding a to theta
+//        //convert newAzim+Elev to XY
+//        float fNewX, fNewY;
+//        SoundSource::azimElev01toXY(newAzimuth01, newElevation01, fNewX, fNewY);
+//        fNewX += m_fEndPair.first;
+//        fNewY += m_fEndPair.second;
+//        moveXY(fNewX, fNewY);
+//    }
+//    
+//private:
+//    bool mCCW, mIn = true;
+//    bool m_bRT = false;
+//    std::pair<float, float> m_fEndPair;
+//    float m_fTransposedStartAzim01, m_fTransposedStartElev01;
+//    float m_fTurns;
+//};
+
+
+
+
+
 class SpiralTrajectory : public Trajectory
 {
 public:
@@ -176,56 +241,65 @@ public:
     , m_fEndPair(endPoint)
     , m_fTurns(fTurns)
     { }
-    
+
 protected:
     void spInit(){
-        //convert m_fTrajectoryInitialAzimuth01 + Elevation01 to m_fTransposedStartAzim01 + Elev01
-        float fStartX, fStartY;
-        SoundSource::azimElev01toXY(m_fTrajectoryInitialAzimuth01, m_fTrajectoryInitialElevation01, fStartX, fStartY);
-        float fTransposedStartX = fStartX - m_fEndPair.first;
-        float fTransposedStartY = fStartY - m_fEndPair.second;
-        m_fTransposedStartAzim01 = SoundSource::XYtoAzim01(fTransposedStartX, fTransposedStartY);
-        m_fTransposedStartElev01 = SoundSource::XYtoElev01(fTransposedStartX, fTransposedStartY);
+//        //convert m_fTrajectoryInitialAzimuth01 + Elevation01 to m_fTransposedStartAzim01 + Elev01
+//        float fStartX, fStartY;
+//        SoundSource::azimElev01toXY(m_fTrajectoryInitialAzimuth01, m_fTrajectoryInitialElevation01, fStartX, fStartY);
+//        float fTransposedStartX = fStartX - m_fEndPair.first;
+//        float fTransposedStartY = fStartY - m_fEndPair.second;
+//        m_fTransposedStartAzim01 = SoundSource::XYtoAzim01(fTransposedStartX, fTransposedStartY);
+//        m_fTransposedStartElev01 = SoundSource::XYtoElev01(fTransposedStartX, fTransposedStartY);
     }
     void spProcess(float duration, float seconds){
         float newAzimuth01, theta, integralPart; //integralPart is only a temp buffer
         float newElevation01 = mDone / mDurationSingleTrajectory;
         theta = modf(newElevation01, &integralPart);                                          //result from this modf is theta [0,1]
+
+        
+        //what we need is fCurStartElev01 (and Azim01) to transition from m_fTrajectoryInitialElevation01 to m_fTransposedStartElev01 as we go up the spiral, then back to start values as we go down the spiral
+        float fCurStartAzim01 = m_fTrajectoryInitialAzimuth01   ;//+ theta * (m_fTransposedStartAzim01 - m_fTrajectoryInitialAzimuth01);
+        float fCurStartElev01 = m_fTrajectoryInitialElevation01 ;//+ theta * (m_fTransposedStartElev01 - m_fTrajectoryInitialElevation01);
         
         //UP AND DOWN SPIRAL
         if (m_bRT){
             if (mIn){
-                newElevation01 = abs( (1 - m_fTransposedStartElev01) * sin(newElevation01 * M_PI) ) + m_fTransposedStartElev01;
+                newElevation01 = abs( (1 - fCurStartElev01) * sin(newElevation01 * M_PI) ) + fCurStartElev01;
             } else {
                 JUCE_COMPILER_WARNING("mIn is always true; so either delete this or create another trajectory/mode for it")
-                newElevation01 = abs( m_fTransposedStartElev01 * cos(newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
+                newElevation01 = abs( fCurStartElev01 * cos(newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
             if (!mCCW) theta = -theta;
             theta *= 2;
         } else {
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
-            newElevation01 = theta * (1 - m_fTransposedStartElev01) + m_fTransposedStartElev01;                     //newElevation is a mapping of theta[0,1] to [m_fTransposedStartElev01, 1]
+            newElevation01 = theta * (1 - fCurStartElev01) + fCurStartElev01;                     //newElevation is a mapping of theta[0,1] to [fCurStartElev01, 1]
             if (!mIn){
-                newElevation01 = m_fTransposedStartElev01 * (1 - newElevation01) / (1-m_fTransposedStartElev01);    //map newElevation from [m_fTransposedStartElev01, 1] to [m_fTransposedStartElev01, 0]
+                newElevation01 = fCurStartElev01 * (1 - newElevation01) / (1-fCurStartElev01);    //map newElevation from [fCurStartElev01, 1] to [fCurStartElev01, 0]
             }
             if (!mCCW) theta = -theta;
         }
-        newAzimuth01 = modf(m_fTransposedStartAzim01 + m_fTurns * theta, &integralPart);                    //this is like adding a to theta
+        newAzimuth01 = modf(fCurStartAzim01 + m_fTurns * theta, &integralPart);                    //this is like adding a to theta
         //convert newAzim+Elev to XY
         float fNewX, fNewY;
         SoundSource::azimElev01toXY(newAzimuth01, newElevation01, fNewX, fNewY);
-        fNewX += m_fEndPair.first;
-        fNewY += m_fEndPair.second;
+        cout << "theta " << theta << newLine;
+        
+        //when return, theta goes from 0 to -2. otherwise 0 to -1, and cycles for every trajectory (not the sum of trajectories)
+        fNewX -= modf(theta/2, &integralPart) * 2 * m_fEndPair.first;
+        fNewY -= modf(theta/2, &integralPart) * 2 * m_fEndPair.second;
         moveXY(fNewX, fNewY);
     }
-    
+
 private:
     bool mCCW, mIn = true;
     bool m_bRT = false;
     std::pair<float, float> m_fEndPair;
-    float m_fTransposedStartAzim01, m_fTransposedStartElev01;
+//    float m_fTransposedStartAzim01, m_fTransposedStartElev01;
     float m_fTurns;
 };
+
 // ==============================================================================
 class PendulumTrajectory : public Trajectory
 {

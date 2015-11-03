@@ -161,6 +161,9 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
     if (p_iSource > getNbrSources()){
         return;
     }
+    
+//    cout << "move " << p_iSource << ": (" << p_fX << ", " << p_fY << ")\n";
+    
     //move selected source
     float fX01, fY01;
     JUCE_COMPILER_WARNING("if we have an azim and an elev, we ignore (and overwrite) the provided x and y. That's because we can always retreive valid x,y for any azim,elev")
