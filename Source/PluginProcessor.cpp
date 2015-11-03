@@ -204,7 +204,7 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p
         float prevX01, prevY01;
         m_oAllSources[p_iSelSource].getPrevXY01(prevX01, prevY01);
         cout << "moveCircular " << p_iSelSource << " prevX01:" << prevX01 << "\tprevY01:" << prevY01 << "\tnewX01:" << HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius) << "\tnewY01:" << HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius)
-        << "\tconvertedElev:" << SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY) << "\t paramElev01:" << p_fElev01  << "\t currentElev:" << m_oAllSources[p_iSelSource].getElevation01() << "\t prevElev:" << m_oAllSources[p_iSelSource].getPrevElev01() << newLine;
+        << "\tnewElev:" << SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY)  << "\t currentElev:" << m_oAllSources[p_iSelSource].getElevation01() << "\t prevElev:" << m_oAllSources[p_iSelSource].getPrevElev01() << newLine;
         tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSelSource, p_fSelectedNewX, p_fSelectedNewY, p_fAzim01, p_fElev01);
     }
     
@@ -844,7 +844,7 @@ bool ZirkOscAudioProcessor::setPositionParameters(int index, float newValue){
                 m_oAllSources[iCurSource].setY01(newValue);
                 m_iSourceLocationChanged = iCurSource;
                 if (m_iSourceLocationChanged == 7){
-                    cout << "setParameter x01 " << newValue << newLine;
+                    cout << "setParameter y01 " << newValue << newLine;
                 }
 
                 m_bNeedToRefreshGui = true;
