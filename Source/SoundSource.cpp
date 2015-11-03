@@ -45,8 +45,8 @@ SoundSource::SoundSource(float p_fAzim01, float elevation, int p_iSrcId)
     initAzimuthAndElevation(p_fAzim01,elevation);
 }
 void SoundSource::initAzimuthAndElevation(float p_fAzim, float p_fElev){
-    m_fAzim01 = checkAndFixAzim01Bounds(p_fAzim);
-    m_fElev01 = p_fElev;
+    setAzim01SanityCheck(checkAndFixAzim01Bounds(p_fAzim));
+    setElev01SanityCheck(p_fElev);
     setXYUsingAzimElev01(p_fAzim, p_fElev);
 }
 
@@ -59,45 +59,30 @@ void SoundSource::setXYUsingAzimElev01(float p_fAzim01, float p_fElev01){
     float HRElevation   = PercentToHR(p_fElev01, ZirkOSC_Elev_Min, ZirkOSC_Elev_Max);
     m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
     m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
-//    if(m_iSourceId == 8){
-//        std::cout << "setXYUsingAzimElev01: " << m_iSourceId << ", " << m_fX << newLine;//<< HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << newLine;
-//    }
 }
     JUCE_COMPILER_WARNING("in theory this updateAzimElev() should never be used, since it can be invalid when x,y == 0,0. In case of delta lock though (and probably other cases, we can't avoid it")
 void SoundSource::updateAzimElev(){
-    m_fAzim01 = XYtoAzim01(m_fX, m_fY);
-    m_fElev01 = XYtoElev01(m_fX, m_fY);
-//    std::cout << "updateAzimElev: " << m_iSourceId << ", " << m_fX << newLine;//<< HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << newLine;
+    setAzim01SanityCheck(checkAndFixAzim01Bounds(XYtoAzim01(m_fX, m_fY)));
+    setElev01SanityCheck(XYtoElev01(m_fX, m_fY));
 }
 //------------------------------------------ SETTERS -------------------------------------------------
 void SoundSource::setXY(Point <float> p){    //x and y are [-r,r]
     m_fX = p.x;
     m_fY = p.y;
-    
-    if(m_iSourceId == 8){
-        std::cout << "setXY:" << m_fX << newLine;//<< HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << newLine;
-    }
 }
 
 void SoundSource::setXYAzimElev01(const float &p_x01, const float &p_y01, const float &p_fAzim01, const float &p_fElev01){
     m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
     m_fY = PercentToHR(p_y01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
     if (p_fAzim01 != -1 && p_fElev01 != -1){
-        m_fAzim01 = p_fAzim01;
-        m_fElev01 = p_fElev01;
+        setAzim01SanityCheck(p_fAzim01);
+        setElev01SanityCheck(p_fElev01);
     } else {
         updateAzimElev();
-    }
-    
-    if(m_iSourceId == 8){
-        std::cout << "setXYAzimElev01:" << m_fX << newLine;//<< HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << newLine;
     }
 }
 void SoundSource::setX01(float p_x01){
     m_fX = PercentToHR(p_x01, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius);
-    if(m_iSourceId == 8){
-        std::cout << "setX01 X:" << m_fX << ", X01: "<< HRToPercent(m_fX, -ZirkOscAudioProcessor::s_iDomeRadius, ZirkOscAudioProcessor::s_iDomeRadius) << ", radius: " << ZirkOscAudioProcessor::s_iDomeRadius << newLine;
-    }
     updateAzimElev();
 }
 void SoundSource::setY01(float p_y01){
@@ -106,21 +91,29 @@ void SoundSource::setY01(float p_y01){
 }
 
 void SoundSource::updatePosition(){
-    std::cout << "updatePosition " << m_iSourceId << " before:" << m_fX;
     azimElev01toXY(m_fAzim01, m_fElev01, m_fX, m_fY);
-    std::cout << ", after: " << m_fX << newLine;
 }
 
 //----------------------- AZIM + ELEV
 JUCE_COMPILER_WARNING("we should probably use the built-in check for this, instead of in other move functions")
 void  SoundSource::setAzimuth01(float azimuth01){
-    m_fAzim01 = checkAndFixAzim01Bounds(azimuth01);
-    setXYUsingAzimElev01(azimuth01, getElevation01());
+    setAzim01SanityCheck(checkAndFixAzim01Bounds(azimuth01));
+    setXYUsingAzimElev01(getAzimuth01(), getElevation01());
 }
 JUCE_COMPILER_WARNING("probably same for this?")
 void SoundSource::setElevation01(float elevation01){
     m_fElev01 = elevation01;
     setXYUsingAzimElev01(getAzimuth01(), elevation01);
+}
+
+void SoundSource::setAzim01SanityCheck(float p_fAzim01){
+    jassert(p_fAzim01 <= 1 && p_fAzim01 >= 0);
+    m_fAzim01 = p_fAzim01;
+}
+
+void SoundSource::setElev01SanityCheck(float p_fElev01){
+    jassert(p_fElev01 <= 1 && p_fElev01 >= 0);
+    m_fElev01 = p_fElev01;
 }
 
 //-----------------------

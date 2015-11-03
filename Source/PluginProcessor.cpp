@@ -204,11 +204,6 @@ void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p
     } else {
         float prevX01, prevY01;
         m_oAllSources[p_iSelSource].getPrevXY01(prevX01, prevY01);
-//        cout << "deltas: " << fSelectedDeltaAzim01 << ", " << fSelectedDeltaElev01 << newLine;
-//        cout << "moveCircular " << p_iSelSource << " prevX01:" << prevX01 << "\tprevY01:" << prevY01 << "\tnewX01:" << HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius) << "\tnewY01:" << HRToPercent(p_fSelectedNewY, -s_iDomeRadius, s_iDomeRadius)
-//        << "\tnewElev:" << SoundSource::XYtoElev01(p_fSelectedNewX, p_fSelectedNewY)  << "\t currentElev:" << m_oAllSources[p_iSelSource].getElevation01() << "\t prevElev:" << m_oAllSources[p_iSelSource].getPrevElev01() << newLine;
-        
-        cout << "moveCircular " << p_iSelSource << " newX " << p_fSelectedNewX << ", convertedTo01: " << HRToPercent(p_fSelectedNewX, -s_iDomeRadius, s_iDomeRadius) << ", radius: " << s_iDomeRadius << newLine;
         tie(fSelectedDeltaAzim01,fSelectedDeltaElev01) = getDeltasForSelectedSource(p_iSelSource, p_fSelectedNewX, p_fSelectedNewY, p_fAzim01, p_fElev01);
     }
     

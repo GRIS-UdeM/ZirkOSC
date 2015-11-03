@@ -121,6 +121,8 @@ private:
     float m_fY;
     float m_fAzim01;
     float m_fElev01;
+    void  setAzim01SanityCheck(float p_fAzim01);
+    void  setElev01SanityCheck(float p_fElev01);
     //old position parameters, for calculating deltas
     float m_fPrevX01;
     float m_fPrevY01;

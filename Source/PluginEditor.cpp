@@ -762,10 +762,8 @@ void ZirkOscAudioProcessorEditor::updateWallCircleSize(int iCurWidth, int iCurHe
     int iYRadius = (iCurHeight-ZirkOSC_SlidersGroupHeight-10)/2;
     
     
-    ourProcessor->setIsRecordingAutomation(true);   //not sure if this does anything, but
-    cout << "resize: radius before: " << ZirkOscAudioProcessor::s_iDomeRadius;
+    ourProcessor->setIsRecordingAutomation(true);   //not sure if this does anything, but better safe than sorry
     ZirkOscAudioProcessor::s_iDomeRadius = iXRadius <= iYRadius ? iXRadius: iYRadius;
-    cout << ", after: " << ZirkOscAudioProcessor::s_iDomeRadius << newLine;
     ourProcessor->updatePositions();
     ourProcessor->setIsRecordingAutomation(false);
     
