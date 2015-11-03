@@ -925,15 +925,15 @@ const String ZirkOscAudioProcessor::getParameterName (int index)
     return String::empty;
 }
 
-static const int s_kiDataVersion = 3;
+static const int s_kiDataVersion = 4;
 
 //==============================================================================
 void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     
     XmlElement xml ("ZIRKOSCJUCESETTINGS");
-    xml.setAttribute ("uiWidth", _LastUiWidth);
-    xml.setAttribute ("uiHeight", _LastUiHeight);
+    xml.setAttribute("uiWidth", _LastUiWidth);
+    xml.setAttribute("uiHeight", _LastUiHeight);
     xml.setAttribute("PortOSC", m_iOscPortZirkonium);
     xml.setAttribute("NombreSources", m_iNbrSources);
     xml.setAttribute("MovementConstraint", m_fMovementConstraint);
@@ -958,8 +958,10 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
         String azimuthSpan  = "AzimuthSpan"     + to_string(iCurSrc);
         String elevationSpan= "ElevationSpan"   + to_string(iCurSrc);
         String gain         = "Gain"            + to_string(iCurSrc);
-        String strX = "X" + to_string(iCurSrc);
-        String strY = "Y" + to_string(iCurSrc);
+        String strX         = "X"               + to_string(iCurSrc);
+        String strY         = "Y"               + to_string(iCurSrc);
+        String strAzim01    = "Azim01"          + to_string(iCurSrc);
+        String strElev01    = "Elev01"          + to_string(iCurSrc);
         
         xml.setAttribute(channel,       m_oAllSources[iCurSrc].getSourceId());
         xml.setAttribute(azimuthSpan,   m_oAllSources[iCurSrc].getAzimuthSpan());
@@ -967,10 +969,38 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
         xml.setAttribute(gain,          m_oAllSources[iCurSrc].getGain01());
         xml.setAttribute(strX,          m_oAllSources[iCurSrc].getX01());
         xml.setAttribute(strY,          m_oAllSources[iCurSrc].getY01());
+        xml.setAttribute(strAzim01,     m_oAllSources[iCurSrc].getAzimuth01());
+        xml.setAttribute(strElev01,     m_oAllSources[iCurSrc].getElevation01());
     }
     copyXmlToBinary (xml, destData);
 }
 
+static void DisplayPresetError(){
+    String m;
+    
+    m << "You are attempting to load ZirkOSC with a preset from an older version." << newLine << newLine
+    << "Stored source locations are unreadable by this version, so default values will be used.";
+    
+    DialogWindow::LaunchOptions options;
+    Label* label = new Label();
+    label->setText (m, dontSendNotification);
+    //label->setColour (Label::textColourId, Colours::whitesmoke);
+    options.content.setOwned (label);
+    
+    Rectangle<int> area (0, 0, 300, 100);
+    options.content->setSize (area.getWidth(), area.getHeight());
+    
+    options.dialogTitle                   = "ZirkOSC";
+    //options.dialogBackgroundColour        = Colour (0xff0e345a);
+    options.escapeKeyTriggersCloseButton  = true;
+    options.useNativeTitleBar             = true;
+    options.resizable                     = false;
+    
+    const RectanglePlacement placement (RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
+    
+    DialogWindow* dw = options.launchAsync();
+    dw->centreWithSize (300, 100);
+}
 
 void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
@@ -981,30 +1011,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         int version = xmlState->getIntAttribute("presetDataVersion", 1);
         
         if (version == 1 ){
-            String m;
-            
-            m << "You are attempting to load ZirkOSC with a preset from an older version." << newLine << newLine
-            << "Stored source locations are unreadable by this version, so default values will be used.";
-            
-            DialogWindow::LaunchOptions options;
-            Label* label = new Label();
-            label->setText (m, dontSendNotification);
-            //label->setColour (Label::textColourId, Colours::whitesmoke);
-            options.content.setOwned (label);
-            
-            Rectangle<int> area (0, 0, 300, 100);
-            options.content->setSize (area.getWidth(), area.getHeight());
-            
-            options.dialogTitle                   = "ZirkOSC";
-            //options.dialogBackgroundColour        = Colour (0xff0e345a);
-            options.escapeKeyTriggersCloseButton  = true;
-            options.useNativeTitleBar             = true;
-            options.resizable                     = false;
-            
-            const RectanglePlacement placement (RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
-            
-            DialogWindow* dw = options.launchAsync();
-            dw->centreWithSize (300, 100);
+            DisplayPresetError();
         }
         
         JUCE_COMPILER_WARNING("we don't even use those values to load the editor, why store them?")
@@ -1028,12 +1035,15 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         m_dTrajectoryDampening          = xmlState->getDoubleAttribute("dampening", m_dTrajectoryDampening);
         
         for (int iCurSrc = 0; iCurSrc < 8; ++iCurSrc){
-            String channel      = "Channel" + to_string(iCurSrc);
-            String azimuthSpan  = "AzimuthSpan" + to_string(iCurSrc);
-            String elevationSpan= "ElevationSpan" + to_string(iCurSrc);
-            String gain         = "Gain" + to_string(iCurSrc);
-            String strX         = "X" + to_string(iCurSrc);
-            String strY         = "Y" + to_string(iCurSrc);
+            String channel      = "Channel"         + to_string(iCurSrc);
+            String azimuthSpan  = "AzimuthSpan"     + to_string(iCurSrc);
+            String elevationSpan= "ElevationSpan"   + to_string(iCurSrc);
+            String gain         = "Gain"            + to_string(iCurSrc);
+            String strX         = "X"               + to_string(iCurSrc);
+            String strY         = "Y"               + to_string(iCurSrc);
+            String strAzim01    = "Azim01"          + to_string(iCurSrc);
+            String strElev01    = "Elev01"          + to_string(iCurSrc);
+
 
             m_oAllSources[iCurSrc].setSourceId(xmlState->getIntAttribute(channel , 0));
             m_oAllSources[iCurSrc].setAzimuthSpan(    static_cast<float>(xmlState->getDoubleAttribute(azimuthSpan,0)));
@@ -1047,10 +1057,16 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
             //fetch actual values
             float fActualX01 = static_cast<float>(xmlState->getDoubleAttribute(strX, fDefaultX));
             float fActualY01 = static_cast<float>(xmlState->getDoubleAttribute(strY, fDefaultY));
-
+            float fDefaultAzim01, fDefaultElev01;
+            SoundSource::XY01toAzimElev01(fActualX01, fActualY01, fDefaultAzim01, fDefaultElev01);
+            float fAzim01    = static_cast<float>(xmlState->getDoubleAttribute(strAzim01, fDefaultAzim01));
+            float fElev01    = static_cast<float>(xmlState->getDoubleAttribute(strElev01, fDefaultElev01));
+            
             setParameter (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + iCurSrc*5, fActualX01);
             setParameter (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + iCurSrc*5, fActualY01);
-            m_oAllSources[iCurSrc].setPrevLoc01(fActualX01, fActualY01);
+            m_oAllSources[iCurSrc].setAzimuth01(fAzim01);
+            m_oAllSources[iCurSrc].setElevation01(fElev01);
+            m_oAllSources[iCurSrc].setPrevLoc01(fActualX01, fActualY01, fAzim01, fElev01);
         }
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
