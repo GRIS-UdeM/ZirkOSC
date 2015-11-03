@@ -281,6 +281,9 @@ public:
     
     void restoreCurrentLocations();
     
+    //this is to update positions on resize, based on new radius
+    void updatePositions();
+    
     //radius of the dome
     static int s_iDomeRadius;
     

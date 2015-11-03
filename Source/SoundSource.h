@@ -50,6 +50,7 @@ public:
     float   getPrevAzim01();
     float   getPrevElev01();
     void    updateAzimElev();
+    void    updatePosition();
     
     //TRIVIAL SETTERS AND GETTERS
     float getGain01(){
