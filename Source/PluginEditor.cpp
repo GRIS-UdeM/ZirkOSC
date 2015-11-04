@@ -864,7 +864,7 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     
     m_oTrajectoryPath.startNewSubPath (fStartPathX, fStartPathY);          // move the current position to (10, 10)
     m_oTrajectoryPath.lineTo (fEndPathX, fEndPathY);                 // draw a line from here to (100, 200)
-    g.strokePath (m_oTrajectoryPath, PathStrokeType (5.0f));
+    g.strokePath (m_oTrajectoryPath, PathStrokeType (2.0f));
 }
 
 //Drawing Span Arc
@@ -1354,9 +1354,7 @@ void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
     
     fStartPathX = fEndPathX;
     fStartPathY = fEndPathY;
-    fEndPathX = event.getMouseDownX();
-    fEndPathY = event.getMouseDownY();
-    repaint();
+
     
     if (ourProcessor->getIsWriteTrajectory()){
         return;
@@ -1415,10 +1413,21 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         
         move(ourProcessor->getSelectedSource(), fX, fY);
     }
-    m_oMovementConstraintComboBox.grabKeyboardFocus();
+
     
 //    m_oTrajectoryPath.lineTo(event.getMouseDownX(), event.getMouseDownY());
 //    repaint();
+    
+    fStartPathX = fEndPathX;
+    fStartPathY = fEndPathY;
+    
+    fEndPathX = event.x;
+    fEndPathY = event.y;
+    cout << fEndPathX << newLine;
+    repaint();
+    
+    
+        m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
 void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01, float p_fElev01){
