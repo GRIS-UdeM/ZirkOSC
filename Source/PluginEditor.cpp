@@ -861,10 +861,11 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
     //draw sources
     paintSourcePoint(g);
-    
-    m_oTrajectoryPath.startNewSubPath (fStartPathX, fStartPathY);          // move the current position to (10, 10)
-    m_oTrajectoryPath.lineTo (fEndPathX, fEndPathY);                 // draw a line from here to (100, 200)
-    g.strokePath (m_oTrajectoryPath, PathStrokeType (2.0f));
+    if (fStartPathX != -1 && fEndPathX != -1){
+        m_oTrajectoryPath.startNewSubPath (fStartPathX, fStartPathY);          // move the current position to (10, 10)
+        m_oTrajectoryPath.lineTo (fEndPathX, fEndPathY);                 // draw a line from here to (100, 200)
+        g.strokePath (m_oTrajectoryPath, PathStrokeType (2.0f));
+    }
 }
 
 //Drawing Span Arc
@@ -1388,48 +1389,34 @@ int ZirkOscAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
 
 
 void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
-    
-
-    
     if(m_bIsSourceBeingDragged){
-        
         if (ourProcessor->getIsWriteTrajectory()){
             return;
         }
-        
         //get point of current event
         float fX = event.x-_ZirkOSC_Center_X;
         float fY = event.y-_ZirkOSC_Center_Y;
-        
         //need to clamp the point to the circle
-
             float fCurR = hypotf(fX, fY);
             if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
                 float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
-                
                 fX *= fExtraRatio;
                 fY *= fExtraRatio;
             }
-        
         move(ourProcessor->getSelectedSource(), fX, fY);
+        //draw drag path
+        if (fEndPathX == -1){
+            fStartPathX = event.x;
+            fStartPathY = event.y;
+        } else {
+            fStartPathX = fEndPathX;
+            fStartPathY = fEndPathY;
+        }
+        fEndPathX = event.x;
+        fEndPathY = event.y;
+        repaint();
     }
-
-    
-//    m_oTrajectoryPath.lineTo(event.getMouseDownX(), event.getMouseDownY());
-//    repaint();
-    if (fEndPathX == -1){
-        fStartPathX = event.x;
-        fStartPathY = event.y;
-    } else {
-        fStartPathX = fEndPathX;
-        fStartPathY = fEndPathY;
-    }
-    
-    fEndPathX = event.x;
-    fEndPathY = event.y;
-    repaint();
-    
-    
+    //grab focus
     m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
@@ -1461,7 +1448,9 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         m_pSetEndTrajectoryButton->setButtonText("Set end point");
         m_oEndPointLabel.setVisible(false);
     }
-
+    m_oTrajectoryPath.clear();
+    fStartPathX = -1, fEndPathX = -1, fStartPathY = -1, fEndPathY = -1;
+    repaint();
     m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
