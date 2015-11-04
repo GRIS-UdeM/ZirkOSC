@@ -320,6 +320,10 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,m_oMovementConstraintComboBox("MovementConstraint")
 ,m_fHueOffset(0.125)//(0.577251)
 ,m_oEndPointLabel()
+,fStartPathX(-1)
+,fStartPathY(-1)
+,fEndPathX(-1)
+,fEndPathY(-1)
 {
     ourProcessor = getProcessor();
     
@@ -862,8 +866,8 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     //draw sources
     paintSourcePoint(g);
     if (fStartPathX != -1 && fEndPathX != -1){
-        m_oTrajectoryPath.startNewSubPath (fStartPathX, fStartPathY);          // move the current position to (10, 10)
-        m_oTrajectoryPath.lineTo (fEndPathX, fEndPathY);                 // draw a line from here to (100, 200)
+        m_oTrajectoryPath.startNewSubPath (fStartPathX, fStartPathY);
+        m_oTrajectoryPath.lineTo (fEndPathX, fEndPathY);
         g.strokePath (m_oTrajectoryPath, PathStrokeType (2.0f));
     }
 }
@@ -1350,13 +1354,6 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
 }
 
 void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
-    
-//    m_oTrajectoryPath.startNewSubPath(event.getMouseDownX(), event.getMouseDownY());
-    
-//    fStartPathX = fEndPathX;
-//    fStartPathY = fEndPathY;
-
-    
     if (ourProcessor->getIsWriteTrajectory()){
         return;
     }
@@ -1404,17 +1401,17 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
                 fY *= fExtraRatio;
             }
         move(ourProcessor->getSelectedSource(), fX, fY);
-        //draw drag path
-        if (fEndPathX == -1){
-            fStartPathX = event.x;
-            fStartPathY = event.y;
-        } else {
-            fStartPathX = fEndPathX;
-            fStartPathY = fEndPathY;
-        }
-        fEndPathX = event.x;
-        fEndPathY = event.y;
-        repaint();
+//        //draw drag path
+//        if (fEndPathX == -1){
+//            fStartPathX = event.x;
+//            fStartPathY = event.y;
+//        } else {
+//            fStartPathX = fEndPathX;
+//            fStartPathY = fEndPathY;
+//        }
+//        fEndPathX = event.x;
+//        fEndPathY = event.y;
+//        repaint();
     }
     //grab focus
     m_oMovementConstraintComboBox.grabKeyboardFocus();
@@ -1422,6 +1419,21 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
 
 void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01, float p_fElev01){
     ourProcessor->move(p_iSource, p_fX, p_fY, p_fAzim01, p_fElev01);
+
+    
+    float fAbsoluteX = p_fX + _ZirkOSC_Center_X;
+    float fAbsoluteY = p_fY + _ZirkOSC_Center_Y;
+    //draw drag path
+    if (fEndPathX == -1){
+        fStartPathX = fAbsoluteX;
+        fStartPathY = fAbsoluteY;
+    } else {
+        fStartPathX = fEndPathX;
+        fStartPathY = fEndPathY;
+    }
+    fEndPathX = fAbsoluteX;
+    fEndPathY = fAbsoluteY;
+    repaint();
 }
 
 void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
