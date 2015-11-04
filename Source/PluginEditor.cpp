@@ -1419,8 +1419,9 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
 
 void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01, float p_fElev01){
     ourProcessor->move(p_iSource, p_fX, p_fY, p_fAzim01, p_fElev01);
+}
 
-    
+void ZirkOscAudioProcessorEditor::updatePositionTrace(float p_fX, float p_fY){
     float fAbsoluteX = p_fX + _ZirkOSC_Center_X;
     float fAbsoluteY = p_fY + _ZirkOSC_Center_Y;
     //draw drag path
@@ -1433,7 +1434,7 @@ void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, fl
     }
     fEndPathX = fAbsoluteX;
     fEndPathY = fAbsoluteY;
-    repaint();
+    //repaint();
 }
 
 void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){

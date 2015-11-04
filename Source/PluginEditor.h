@@ -82,6 +82,8 @@ public:
     int getCBSelectedSource();
     
     void startEditorTimer(int ms);
+    
+    void updatePositionTrace(float p_fX, float p_fY);
 private:
     
     ZirkOscAudioProcessor* ourProcessor;

@@ -194,6 +194,8 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
     } else {
         moveCircular(p_iSource, p_fX, p_fY, p_fAzim01, p_fElev01);
     }
+    
+    dynamic_cast<ZirkOscAudioProcessorEditor*>(m_oEditor)->updatePositionTrace(p_fX, p_fY);
 }
 
 void ZirkOscAudioProcessor::moveCircular(const int &p_iSelSource, const float &p_fSelectedNewX, const float &p_fSelectedNewY, const float &p_fAzim01, const float &p_fElev01){
