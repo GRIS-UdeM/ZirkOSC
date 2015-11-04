@@ -270,8 +270,10 @@ protected:
                 JUCE_COMPILER_WARNING("mIn is always true; so either delete this or create another trajectory/mode for it")
                 newElevation01 = abs( fCurStartElev01 * cos(newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
+            if (theta > .5){
+                fTranslationFactor = 1 - theta;
+            }
             theta *= 2;
-            
         } else {
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
             newElevation01 = theta * (1 - fCurStartElev01) + fCurStartElev01;                     //newElevation is a mapping of theta[0,1] to [fCurStartElev01, 1]
@@ -288,8 +290,6 @@ protected:
         //convert newAzim+Elev to XY
         float fNewX, fNewY;
         SoundSource::azimElev01toXY(newAzimuth01, newElevation01, fNewX, fNewY);
-//        cout << "theta " << theta << newLine;
-        
         //when return, theta goes from 0 to -2. otherwise 0 to -1, and cycles for every trajectory (not the sum of trajectories)
         fNewX += modf(fTranslationFactor, &integralPart) * 2 * m_fEndPair.first;
         fNewY += modf(fTranslationFactor, &integralPart) * 2 * m_fEndPair.second;

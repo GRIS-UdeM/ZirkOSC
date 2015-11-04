@@ -95,4 +95,5 @@ the problem is basically that at some random point, the selected source does a 1
 __________________________________________
 #73: spiral jumps
 one way, 1 cycle ok
+return X cycles: not ok, on way back we need to undo the transposition
 
