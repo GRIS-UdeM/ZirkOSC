@@ -1352,8 +1352,8 @@ void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
     
 //    m_oTrajectoryPath.startNewSubPath(event.getMouseDownX(), event.getMouseDownY());
     
-    fStartPathX = fEndPathX;
-    fStartPathY = fEndPathY;
+//    fStartPathX = fEndPathX;
+//    fStartPathY = fEndPathY;
 
     
     if (ourProcessor->getIsWriteTrajectory()){
@@ -1417,17 +1417,20 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
     
 //    m_oTrajectoryPath.lineTo(event.getMouseDownX(), event.getMouseDownY());
 //    repaint();
-    
-    fStartPathX = fEndPathX;
-    fStartPathY = fEndPathY;
+    if (fEndPathX == -1){
+        fStartPathX = event.x;
+        fStartPathY = event.y;
+    } else {
+        fStartPathX = fEndPathX;
+        fStartPathY = fEndPathY;
+    }
     
     fEndPathX = event.x;
     fEndPathY = event.y;
-    cout << fEndPathX << newLine;
     repaint();
     
     
-        m_oMovementConstraintComboBox.grabKeyboardFocus();
+    m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
 
 void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01, float p_fElev01){

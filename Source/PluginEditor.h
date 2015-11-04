@@ -264,8 +264,8 @@ private:
     Label m_oEndPointLabel;
     
     Path m_oTrajectoryPath;
-    float fStartPathX = 10, fStartPathY = 10;
-    float fEndPathX = 100,   fEndPathY = 100;
+    float fStartPathX = -1, fStartPathY = -1;
+    float fEndPathX = -1,   fEndPathY = -1;
 };
 
 
