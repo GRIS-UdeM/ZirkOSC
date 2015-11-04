@@ -256,7 +256,7 @@ protected:
         float newAzimuth01, theta, integralPart; //integralPart is only a temp buffer
         float newElevation01 = mDone / mDurationSingleTrajectory;
         theta = modf(newElevation01, &integralPart);                                          //result from this modf is theta [0,1]
-
+        float fTranslationFactor = theta;
         
         //what we need is fCurStartElev01 (and Azim01) to transition from m_fTrajectoryInitialElevation01 to m_fTransposedStartElev01 as we go up the spiral, then back to start values as we go down the spiral
         float fCurStartAzim01 = m_fTrajectoryInitialAzimuth01   ;//+ theta * (m_fTransposedStartAzim01 - m_fTrajectoryInitialAzimuth01);
@@ -270,25 +270,29 @@ protected:
                 JUCE_COMPILER_WARNING("mIn is always true; so either delete this or create another trajectory/mode for it")
                 newElevation01 = abs( fCurStartElev01 * cos(newElevation01 * M_PI) );  //only positive cos wave with phase _TrajectoriesPhi
             }
-            if (!mCCW) theta = -theta;
             theta *= 2;
+            
         } else {
             //***** kinda like archimedian spiral r = a + b * theta , but azimuth does not reset at the top
             newElevation01 = theta * (1 - fCurStartElev01) + fCurStartElev01;                     //newElevation is a mapping of theta[0,1] to [fCurStartElev01, 1]
             if (!mIn){
                 newElevation01 = fCurStartElev01 * (1 - newElevation01) / (1-fCurStartElev01);    //map newElevation from [fCurStartElev01, 1] to [fCurStartElev01, 0]
             }
-            if (!mCCW) theta = -theta;
         }
+        
+        if (!mCCW){
+            theta = -theta;
+        }
+
         newAzimuth01 = modf(fCurStartAzim01 + m_fTurns * theta, &integralPart);                    //this is like adding a to theta
         //convert newAzim+Elev to XY
         float fNewX, fNewY;
         SoundSource::azimElev01toXY(newAzimuth01, newElevation01, fNewX, fNewY);
-        cout << "theta " << theta << newLine;
+//        cout << "theta " << theta << newLine;
         
         //when return, theta goes from 0 to -2. otherwise 0 to -1, and cycles for every trajectory (not the sum of trajectories)
-        fNewX -= modf(theta/2, &integralPart) * 2 * m_fEndPair.first;
-        fNewY -= modf(theta/2, &integralPart) * 2 * m_fEndPair.second;
+        fNewX += modf(fTranslationFactor, &integralPart) * 2 * m_fEndPair.first;
+        fNewY += modf(fTranslationFactor, &integralPart) * 2 * m_fEndPair.second;
         moveXY(fNewX, fNewY);
     }
 

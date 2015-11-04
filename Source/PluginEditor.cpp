@@ -861,6 +861,10 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
     //draw sources
     paintSourcePoint(g);
+    
+    m_oTrajectoryPath.startNewSubPath (fStartPathX, fStartPathY);          // move the current position to (10, 10)
+    m_oTrajectoryPath.lineTo (fEndPathX, fEndPathY);                 // draw a line from here to (100, 200)
+    g.strokePath (m_oTrajectoryPath, PathStrokeType (5.0f));
 }
 
 //Drawing Span Arc
@@ -1346,6 +1350,14 @@ void ZirkOscAudioProcessorEditor::sliderValueChanged (Slider* slider) {
 
 void ZirkOscAudioProcessorEditor::mouseDown (const MouseEvent &event){
     
+//    m_oTrajectoryPath.startNewSubPath(event.getMouseDownX(), event.getMouseDownY());
+    
+    fStartPathX = fEndPathX;
+    fStartPathY = fEndPathY;
+    fEndPathX = event.getMouseDownX();
+    fEndPathY = event.getMouseDownY();
+    repaint();
+    
     if (ourProcessor->getIsWriteTrajectory()){
         return;
     }
@@ -1378,6 +1390,9 @@ int ZirkOscAudioProcessorEditor::getSourceFromPosition(Point<float> p ){
 
 
 void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
+    
+
+    
     if(m_bIsSourceBeingDragged){
         
         if (ourProcessor->getIsWriteTrajectory()){
@@ -1401,6 +1416,9 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
         move(ourProcessor->getSelectedSource(), fX, fY);
     }
     m_oMovementConstraintComboBox.grabKeyboardFocus();
+    
+//    m_oTrajectoryPath.lineTo(event.getMouseDownX(), event.getMouseDownY());
+//    repaint();
 }
 
 void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, float p_fAzim01, float p_fElev01){
@@ -1408,6 +1426,7 @@ void ZirkOscAudioProcessorEditor::move(int p_iSource, float p_fX, float p_fY, fl
 }
 
 void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
+    
     if (ourProcessor->getIsWriteTrajectory()){
         return;
     }
