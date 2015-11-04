@@ -1016,6 +1016,7 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
             m_pWriteTrajectoryButton->setToggleState(false, dontSendNotification);
             mTrState = kTrReady;
             startEditorTimer(ZirkOSC_reg_timerDelay);
+            clearTrajectoryPath();
         }
     }
     if (ourProcessor->hasToRefreshGui()){
@@ -1086,6 +1087,11 @@ void ZirkOscAudioProcessorEditor::refreshGui(){
 //    _IpadIpAddressTextEditor.setText(ourProcessor->getOscAddressIpad());
 }
 
+void ZirkOscAudioProcessorEditor::clearTrajectoryPath(){
+    fStartPathX = -1, fEndPathX = -1, fStartPathY = -1, fEndPathY = -1;
+    m_oTrajectoryPath.clear();
+}
+
 void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
     
     if(button == &_LinkSpanButton){
@@ -1108,7 +1114,7 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
 
             mTrState = kTrReady;
             startEditorTimer(ZirkOSC_reg_timerDelay);
-            
+            clearTrajectoryPath();
             t->stop();
             refreshGui();
         }
@@ -1461,8 +1467,8 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         m_pSetEndTrajectoryButton->setButtonText("Set end point");
         m_oEndPointLabel.setVisible(false);
     }
-    m_oTrajectoryPath.clear();
-    fStartPathX = -1, fEndPathX = -1, fStartPathY = -1, fEndPathY = -1;
+    clearTrajectoryPath();
+    
     repaint();
     m_oMovementConstraintComboBox.grabKeyboardFocus();
 }

@@ -84,6 +84,8 @@ public:
     void startEditorTimer(int ms);
     
     void updatePositionTrace(float p_fX, float p_fY);
+    
+    void clearTrajectoryPath();
 private:
     
     ZirkOscAudioProcessor* ourProcessor;
