@@ -244,13 +244,7 @@ public:
 
 protected:
     void spInit(){
-//        //convert m_fTrajectoryInitialAzimuth01 + Elevation01 to m_fTransposedStartAzim01 + Elev01
-//        float fStartX, fStartY;
-//        SoundSource::azimElev01toXY(m_fTrajectoryInitialAzimuth01, m_fTrajectoryInitialElevation01, fStartX, fStartY);
-//        float fTransposedStartX = fStartX - m_fEndPair.first;
-//        float fTransposedStartY = fStartY - m_fEndPair.second;
-//        m_fTransposedStartAzim01 = SoundSource::XYtoAzim01(fTransposedStartX, fTransposedStartY);
-//        m_fTransposedStartElev01 = SoundSource::XYtoElev01(fTransposedStartX, fTransposedStartY);
+
     }
     void spProcess(float duration, float seconds){
         float newAzimuth01, theta, integralPart; //integralPart is only a temp buffer
