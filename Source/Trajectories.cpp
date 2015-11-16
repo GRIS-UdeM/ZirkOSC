@@ -285,8 +285,8 @@ protected:
         float fNewX, fNewY;
         SoundSource::azimElev01toXY(newAzimuth01, newElevation01, fNewX, fNewY);
         //when return, theta goes from 0 to -2. otherwise 0 to -1, and cycles for every trajectory (not the sum of trajectories)
-        fNewX += modf(fTranslationFactor, &integralPart) * 2 * m_fEndPair.first;
-        fNewY += modf(fTranslationFactor, &integralPart) * 2 * m_fEndPair.second;
+        fNewX += modf(fTranslationFactor, &integralPart) * m_fEndPair.first;
+        fNewY += modf(fTranslationFactor, &integralPart) * m_fEndPair.second;
         moveXY(fNewX, fNewY);
     }
 
