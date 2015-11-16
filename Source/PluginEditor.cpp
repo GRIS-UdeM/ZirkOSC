@@ -1115,7 +1115,7 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             mTrState = kTrReady;
             startEditorTimer(ZirkOSC_reg_timerDelay);
             clearTrajectoryPath();
-            t->stop();
+            t->stop();  //this calls restoreCurrentLocations
             refreshGui();
         }
         else
