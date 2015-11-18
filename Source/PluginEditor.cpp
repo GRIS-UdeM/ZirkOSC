@@ -646,12 +646,6 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
         m_pEndAzimTextEditor        ->setVisible(true);
         m_pEndElevTextEditor        ->setVisible(true);
         m_pResetEndTrajectoryButton ->setVisible(true);
-        
-        if (iSelectedTrajectory == Pendulum){
-            setDefaultPendulumEndpoint();
-            updateEndLocationTextEditors();
-        }
-        
     } else {
         m_pSetEndTrajectoryButton   ->setVisible(false);
         m_pEndAzimTextEditor        ->setVisible(false);
@@ -668,6 +662,9 @@ void ZirkOscAudioProcessorEditor::updateTrajectoryComponents(){
     }
     
     if (iSelectedTrajectory == Pendulum){
+        setDefaultPendulumEndpoint();
+        updateEndLocationTextEditors();
+        
         m_pTrajectoryDampeningTextEditor->setVisible(true);
         m_pTrajectoryDampeningLabel->setVisible(true);
         m_pTrajectoryDeviationLabel->setVisible(true);
