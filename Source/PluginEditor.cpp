@@ -1646,6 +1646,8 @@ void ZirkOscAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChan
             ourProcessor->setEqualAzimElevForAllSrc();
         } else if (selectedConstraint == EqualElev){
             ourProcessor->setEqualElevForAllSrc();
+        } else if (selectedConstraint == SymmetricX || selectedConstraint == SymmetricY){
+            ourProcessor->setSymmetricForAllSrc();
         }
     } else if (comboBoxThatHasChanged == m_pTrajectoryTypeComboBox){
         int iSelectedTraj = comboBoxThatHasChanged->getSelectedId();

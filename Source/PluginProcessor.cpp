@@ -424,6 +424,25 @@ void ZirkOscAudioProcessor::setEqualElevForAllSrc(){
     }
 }
 
+void ZirkOscAudioProcessor::setSymmetricForAllSrc(){
+    float fX01 = m_oAllSources[m_iSelectedSource].getX01();
+    float fY01 = m_oAllSources[m_iSelectedSource].getY01();
+    for(int iCurSrc = 0; iCurSrc < getNbrSources(); ++iCurSrc){
+        if (iCurSrc != m_iSelectedSource){
+            if (getMovementConstraint() == SymmetricX){
+                fY01 = 1-fY01;
+            } else {
+                fX01 = 1-fX01;
+            }
+            setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iCurSrc*5), fX01);
+            setParameterNotifyingHost (ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iCurSrc*5), fY01);
+            m_oAllSources[iCurSrc].setPrevLoc01(fX01, fY01);
+        }
+    }
+}
+
+
+
 void ZirkOscAudioProcessor::setCurrentAndOldLocation(const int &p_iSrc, const float &p_fAzim01, const float &p_fElev01){
     float fX01, fY01;
     SoundSource::azimElev01toXY01(p_fAzim01, p_fElev01, fX01, fY01);

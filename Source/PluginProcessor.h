@@ -306,6 +306,7 @@ public:
 
     void setEqualAzimForAllSrc();
     void setEqualElevForAllSrc();
+    void setSymmetricForAllSrc();
     
     void setEqualAzimElevForAllSrc();
     
