@@ -146,7 +146,7 @@ void ZirkOscAudioProcessor::initSources(){
 void ZirkOscAudioProcessor::updateSourcesSendOsc(){
     if (/*m_bCurrentlyPlaying && */!m_bIsRecordingAutomation && m_iMovementConstraint != Independent && m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
-            moveSourcesWithDelta(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
+            moveDelta(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         } else {
             moveCircular(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         }        
@@ -187,7 +187,7 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
         m_oAllSources[p_iSource].setPrevLoc01(fX01, fY01, p_fAzim01, p_fElev01);
     } else if (m_iMovementConstraint == DeltaLocked){
         JUCE_COMPILER_WARNING("move with delta should use azim and elev")
-        moveSourcesWithDelta(p_iSource, p_fX, p_fY);
+        moveDelta(p_iSource, p_fX, p_fY);
     } else {
         moveCircular(p_iSource, p_fX, p_fY, p_fAzim01, p_fElev01);
     }
@@ -306,7 +306,7 @@ tuple<float, float, float, float> ZirkOscAudioProcessor::getNewSourcePosition(co
     return make_tuple(fNewX01, fNewY01, fNewAzim01, fNewElev01);
 }
 
-void ZirkOscAudioProcessor::moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
+void ZirkOscAudioProcessor::moveDelta(const int &p_iSource, const float &p_fX, const float &p_fY){
     //calculate delta for selected source, which was already moved in ::move()
     float fSelectedOldX01, fSelectedOldY01;
     m_oAllSources[p_iSource].getPrevXY01(fSelectedOldX01, fSelectedOldY01);
@@ -886,8 +886,7 @@ void ZirkOscAudioProcessor::setMovementConstraint(int p_iConstraint){
     m_fMovementConstraint = IntToPercentStartsAtOne(m_iMovementConstraint, TotalNumberConstraints);
 }
 
-const String ZirkOscAudioProcessor::getParameterName (int index)
-{
+const String ZirkOscAudioProcessor::getParameterName (int index) {
     switch (index){
         case ZirkOSC_MovementConstraint_ParamId:
             return ZirkOSC_Movement_Constraint_name;

@@ -348,7 +348,7 @@ private:
     void processTrajectories();
     void stopTrajectory();
     void moveCircular(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_fAzim01 = -1, const float &p_fElev01 = -1);
-    void moveSourcesWithDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
+    void moveDelta(const int &p_iSource, const float &p_fX, const float &p_fY);
     bool setPositionParameters(int index, float newValue);
     bool setOtherParameters(int index, float newValue);
 
