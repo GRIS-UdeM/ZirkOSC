@@ -1301,11 +1301,15 @@ void ZirkOscAudioProcessorEditor::sliderDragEnded (Slider* slider) {
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
         ourProcessor->setIsRecordingAutomation(false);
+        clearTrajectoryPath();
+        repaint();
     }
     else if (slider == m_pElevationSlider) {
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (selectedSource*5));
         ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (selectedSource*5));
         ourProcessor->setIsRecordingAutomation(false);
+        clearTrajectoryPath();
+        repaint();
     }
     else if (slider == m_pElevationSpanSlider) {
         if(isSpanLinked){
@@ -1478,7 +1482,6 @@ void ZirkOscAudioProcessorEditor::mouseUp (const MouseEvent &event){
         m_oEndPointLabel.setVisible(false);
     }
     clearTrajectoryPath();
-    
     repaint();
     m_oMovementConstraintComboBox.grabKeyboardFocus();
 }
