@@ -103,6 +103,8 @@ enum AllConstraints {
     EqualAzim,      /*!< Angle between sources are fixed */
     EqualAzimElev,  /*!< EqualElev and EqualAzim */
     DeltaLocked,    /*!< Delta lock mode */
+    SymmetricX,
+    SymmetricY,
     TotalNumberConstraints
 };
 

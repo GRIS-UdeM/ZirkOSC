@@ -80,11 +80,9 @@ public:
     JUCE_COMPILER_WARNING("these 2 methods were created because of static issues in hid_delegate and such")
     int getNbSources();
     int getCBSelectedSource();
-    
     void startEditorTimer(int ms);
-    
     void updatePositionTrace(float p_fX, float p_fY);
-    
+    void updateConstraintCombo();
     void clearTrajectoryPath();
 private:
     

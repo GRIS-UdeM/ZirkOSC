@@ -388,17 +388,11 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     _OscActiveButton.setToggleState(ourProcessor->getIsOscActive(), dontSendNotification);
     
     //---------- CONSTRAINT COMBO BOX ----------
-    m_oMovementConstraintComboBox.addItem("Independent",   Independent);
-    m_oMovementConstraintComboBox.addItem("Circular",      Circular);
-    m_oMovementConstraintComboBox.addItem("Equal Elevation",  EqualElev);
-    m_oMovementConstraintComboBox.addItem("Equal Azimuth",   EqualAzim);
-    m_oMovementConstraintComboBox.addItem("Equal Elev+Azim",   EqualAzimElev);
-    m_oMovementConstraintComboBox.addItem("Delta Lock",    DeltaLocked);
     int selected_id = ourProcessor->getMovementConstraint();
     m_oMovementConstraintComboBox.setSelectedId(selected_id);
     m_oMovementConstraintComboBox.addListener(this);
     addAndMakeVisible(&m_oMovementConstraintComboBox);
-    
+    updateConstraintCombo();
     
     //---------- SETTING UP TABS ----------
     m_oSlidersTab = new SlidersTab();
@@ -587,6 +581,20 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 
     this->setFocusContainer(true);
     startEditorTimer(ZirkOSC_reg_timerDelay);    
+}
+
+void ZirkOscAudioProcessorEditor::updateConstraintCombo(){
+    m_oMovementConstraintComboBox.clear();
+    m_oMovementConstraintComboBox.addItem("Independent",        Independent);
+    m_oMovementConstraintComboBox.addItem("Circular",           Circular);
+    m_oMovementConstraintComboBox.addItem("Equal Elevation",    EqualElev);
+    m_oMovementConstraintComboBox.addItem("Equal Azimuth",      EqualAzim);
+    m_oMovementConstraintComboBox.addItem("Equal Elev+Azim",    EqualAzimElev);
+    m_oMovementConstraintComboBox.addItem("Delta Lock",         DeltaLocked);
+    if (ourProcessor->getNbrSources() == 2){
+        m_oMovementConstraintComboBox.addItem("Symmetric X",    SymmetricX);
+        m_oMovementConstraintComboBox.addItem("Symmetric Y",    SymmetricY);
+    }
 }
 
 void ZirkOscAudioProcessorEditor::startEditorTimer(int intervalInMilliseconds){
@@ -1528,7 +1536,8 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
             } else if (selectedConstraint == EqualAzimElev){
                 ourProcessor->setEqualAzimElevForAllSrc();
             }
-
+            
+            updateConstraintCombo();
         }
         //otherwise just ignore new value
         else{
