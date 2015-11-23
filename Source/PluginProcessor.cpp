@@ -147,6 +147,8 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
     if (/*m_bCurrentlyPlaying && */!m_bIsRecordingAutomation && m_iMovementConstraint != Independent && m_iSourceLocationChanged != -1) {
         if (m_iMovementConstraint == DeltaLocked){
             moveDelta(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
+        } else if (m_iMovementConstraint == SymmetricX || m_iMovementConstraint == SymmetricY){
+            moveSymmetric(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         } else {
             moveCircular(m_iSourceLocationChanged, m_oAllSources[m_iSourceLocationChanged].getX(), m_oAllSources[m_iSourceLocationChanged].getY());
         }        
@@ -188,6 +190,9 @@ void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const 
     } else if (m_iMovementConstraint == DeltaLocked){
         JUCE_COMPILER_WARNING("move with delta should use azim and elev")
         moveDelta(p_iSource, p_fX, p_fY);
+    } else if (m_iMovementConstraint == SymmetricX || m_iMovementConstraint == SymmetricY){
+        JUCE_COMPILER_WARNING("this should also use azim and elev?")
+        moveSymmetric(p_iSource, p_fX, p_fY);
     } else {
         moveCircular(p_iSource, p_fX, p_fY, p_fAzim01, p_fElev01);
     }
@@ -325,6 +330,34 @@ void ZirkOscAudioProcessor::moveDelta(const int &p_iSource, const float &p_fX, c
         float newX01 = getSources()[iCurSrc].getX01() + fSelectedDeltaX01;
         float newY01 = getSources()[iCurSrc].getY01() + fSelectedDeltaY01;
 
+        m_oAllSources[iCurSrc].setXYAzimElev01(newX01, newY01);
+        m_oAllSources[iCurSrc].setPrevLoc01(newX01, newY01);
+    }
+}
+//source here is the selected source, p_fX and p_fY is the position that it was already moved to, in ::move()
+void ZirkOscAudioProcessor::moveSymmetric(const int &p_iSource, const float &p_fX, const float &p_fY){
+
+    //selected source position in 01 range
+    float fSelectedX01 = HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius);
+    float fSelectedY01 = HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius);
+    
+    //move the other, unselected source
+    for(int iCurSrc = 0; iCurSrc<getNbrSources(); ++iCurSrc){
+        if (iCurSrc == p_iSource){
+            //save old values for selected source
+            m_oAllSources[p_iSource].setPrevLoc01(HRToPercent(p_fX, -s_iDomeRadius, s_iDomeRadius), HRToPercent(p_fY, -s_iDomeRadius, s_iDomeRadius));
+            continue;
+        }
+
+        float newX01 = fSelectedX01;
+        float newY01 = fSelectedY01;
+        
+        if (getMovementConstraint() == SymmetricX){
+            newY01 = 1-newY01;
+        } else {
+            newX01 = 1-newX01;
+        }
+        
         m_oAllSources[iCurSrc].setXYAzimElev01(newX01, newY01);
         m_oAllSources[iCurSrc].setPrevLoc01(newX01, newY01);
     }
