@@ -60,7 +60,7 @@ void SoundSource::setXYUsingAzimElev01(float p_fAzim01, float p_fElev01){
     m_fX = (- ZirkOscAudioProcessor::s_iDomeRadius * sinf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
     m_fY = (-ZirkOscAudioProcessor::s_iDomeRadius * cosf(degreeToRadian(HRAzimuth)) * cosf(degreeToRadian(HRElevation)));
 }
-    JUCE_COMPILER_WARNING("in theory this updateAzimElev() should never be used, since it can be invalid when x,y == 0,0. In case of delta lock though (and probably other cases, we can't avoid it")
+    //in theory this updateAzimElev() should never be used, since it can be invalid when x,y == 0,0. In case of delta lock though (and probably other cases), we can't avoid it
 void SoundSource::updateAzimElev(){
     setAzim01SanityCheck(checkAndFixAzim01Bounds(XYtoAzim01(m_fX, m_fY)));
     setElev01SanityCheck(XYtoElev01(m_fX, m_fY));
@@ -95,12 +95,10 @@ void SoundSource::updatePosition(){
 }
 
 //----------------------- AZIM + ELEV
-JUCE_COMPILER_WARNING("we should probably use the built-in check for this, instead of in other move functions")
 void  SoundSource::setAzimuth01(float azimuth01){
     setAzim01SanityCheck(checkAndFixAzim01Bounds(azimuth01));
     setXYUsingAzimElev01(getAzimuth01(), getElevation01());
 }
-JUCE_COMPILER_WARNING("probably same for this?")
 void SoundSource::setElevation01(float elevation01){
     m_fElev01 = elevation01;
     setXYUsingAzimElev01(getAzimuth01(), elevation01);
