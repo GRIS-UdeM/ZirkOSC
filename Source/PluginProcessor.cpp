@@ -1029,33 +1029,6 @@ void ZirkOscAudioProcessor::getStateInformation (MemoryBlock& destData)
     copyXmlToBinary (xml, destData);
 }
 
-static void DisplayPresetError(){
-    String m;
-    
-    m << "You are attempting to load ZirkOSC with a preset from an older version." << newLine << newLine
-    << "Stored source locations are unreadable by this version, so default values will be used.";
-    
-    DialogWindow::LaunchOptions options;
-    Label* label = new Label();
-    label->setText (m, dontSendNotification);
-    //label->setColour (Label::textColourId, Colours::whitesmoke);
-    options.content.setOwned (label);
-    
-    Rectangle<int> area (0, 0, 300, 100);
-    options.content->setSize (area.getWidth(), area.getHeight());
-    
-    options.dialogTitle                   = "ZirkOSC";
-    //options.dialogBackgroundColour        = Colour (0xff0e345a);
-    options.escapeKeyTriggersCloseButton  = true;
-    options.useNativeTitleBar             = true;
-    options.resizable                     = false;
-    
-    const RectanglePlacement placement (RectanglePlacement::xRight + RectanglePlacement::yBottom + RectanglePlacement::doNotResize);
-    
-    DialogWindow* dw = options.launchAsync();
-    dw->centreWithSize (300, 100);
-}
-
 void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     ScopedPointer<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
@@ -1065,7 +1038,16 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         int version = xmlState->getIntAttribute("presetDataVersion", 1);
         
         if (version == 1 ){
-            DisplayPresetError();
+            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                              "ZirkOSC - Loading preset/state from an older version",
+                                              "You are attempting to load ZirkOSC with a preset from an older version.\nStored source locations are unreadable by this version, so default values will be used.",
+                                              "OK");
+        } else if (version > s_kiDataVersion){
+            AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
+                                              "ZirkOSC - Loading preset/state from a newer version",
+                                              "You are attempting to load ZirkOSC with a preset from an newer version.\nDefault values will be used for all parameters",
+                                              "OK");
+            return;
         }
         
         _LastUiWidth                    = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
