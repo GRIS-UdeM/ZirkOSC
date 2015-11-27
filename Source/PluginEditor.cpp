@@ -562,9 +562,8 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     _ResizeLimits.setSizeLimits (360, 370, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
     
     // set our component's initial size to be the last one that was stored in the filter's settings
-JUCE_COMPILER_WARNING("enable this")
-    //setSize (ownerFilter->getLastUiWidth(), ownerFilter->getLastUiHeight());
-    setSize (ZirkOSC_Window_Default_Width, ZirkOSC_Window_Default_Height);
+    setSize (ownerFilter->getLastUiWidth(), ownerFilter->getLastUiHeight());
+//    setSize (ZirkOSC_Window_Default_Width, ZirkOSC_Window_Default_Height);
 
     _FirstSourceIdTextEditor.addListener(this);
     _ZkmOscPortTextEditor.addListener(this);

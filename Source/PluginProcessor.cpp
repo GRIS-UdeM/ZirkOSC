@@ -1068,7 +1068,6 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
             DisplayPresetError();
         }
         
-        JUCE_COMPILER_WARNING("we don't even use those values to load the editor, why store them?")
         _LastUiWidth                    = xmlState->getIntAttribute ("uiWidth", _LastUiWidth);
         _LastUiHeight                   = xmlState->getIntAttribute ("uiHeight", _LastUiHeight);
         m_iOscPortZirkonium             = xmlState->getIntAttribute("PortOSC", 18032);
