@@ -559,13 +559,11 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     // add the triangular resizer component for the bottom-right of the UI
     addAndMakeVisible (_Resizer = new ResizableCornerComponent (this, &_ResizeLimits));
     //min dimensions are wallCircle radius (300) + offset in display (10,30) + padding (10)
-    //_ResizeLimits.setSizeLimits (320, 340, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
-    _ResizeLimits.setSizeLimits (350, 350, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
-    //_ResizeLimits.setSizeLimits (ZirkOSC_Window_Default_Width, 600, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
+    _ResizeLimits.setSizeLimits (360, 370, 2*ZirkOSC_Window_Default_Width, 2*ZirkOSC_Window_Default_Height);
     
     // set our component's initial size to be the last one that was stored in the filter's settings
+JUCE_COMPILER_WARNING("enable this")
     //setSize (ownerFilter->getLastUiWidth(), ownerFilter->getLastUiHeight());
-    //not sure that's a good idea, rather, use default size
     setSize (ZirkOSC_Window_Default_Width, ZirkOSC_Window_Default_Height);
 
     _FirstSourceIdTextEditor.addListener(this);
