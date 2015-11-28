@@ -341,6 +341,10 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 #endif
     m_VersionLabel.setText("ZirkOSC" + version,  dontSendNotification);
     m_VersionLabel.setJustificationType(Justification(Justification::right));
+    
+//    Font font("Adobe", 20.f);
+    
+    m_VersionLabel.setFont (Font (Font::getDefaultMonospacedFontName(), 12.0f, Font::plain));
 
    	m_logoImage.setImage(ImageFileFormat::loadFrom (BinaryData::logoGris_png, (size_t) BinaryData::logoGris_pngSize));
     
