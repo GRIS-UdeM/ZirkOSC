@@ -329,7 +329,6 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
     m_oEndPointLabel.setText("Click anywhere on circle to set end point",  dontSendNotification);
     addAndMakeVisible(&m_oEndPointLabel);
-
     
     //---------- RIGHT SIDE LABELS ----------
     m_oNbrSourceLabel.setText("Nbr sources",  dontSendNotification);
