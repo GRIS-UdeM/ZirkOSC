@@ -268,6 +268,7 @@ private:
     Path m_oTrajectoryPath;
     float fStartPathX, fStartPathY;
     float fEndPathX,   fEndPathY;
+    LookAndFeel_V2 mFeel;
 };
 
 

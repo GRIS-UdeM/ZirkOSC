@@ -325,6 +325,8 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,fEndPathX(-1)
 ,fEndPathY(-1)
 {
+    LookAndFeel::setDefaultLookAndFeel(&mFeel);
+    
     ourProcessor = getProcessor();
     
     m_oEndPointLabel.setText("Click anywhere on circle to set end point",  dontSendNotification);
@@ -576,7 +578,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 //        _IpadIncomingOscPortTextEditor.addListener(this);
 //        _IpadIpAddressTextEditor.addListener(this);
 //    }
-
+    
     this->setFocusContainer(true);
     startEditorTimer(ZirkOSC_reg_timerDelay);    
 }
