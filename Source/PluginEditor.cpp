@@ -1723,6 +1723,7 @@ void ZirkOscAudioProcessorEditor::beginJoystickAutomation(int iSelSrc){
 void ZirkOscAudioProcessorEditor::endJoystickAutomation(int iSelSrc){
     ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iSelSrc*5));
     ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iSelSrc*5));
+    clearTrajectoryPath();
     ourProcessor->setIsRecordingAutomation(false);
 }
 int ZirkOscAudioProcessorEditor::getCBSelectedSource(){
