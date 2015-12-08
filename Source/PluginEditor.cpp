@@ -621,7 +621,7 @@ ZirkOscAudioProcessorEditor::~ZirkOscAudioProcessorEditor() {
         gDeviceCFArrayRef = NULL;
         gElementCFArrayRef = NULL;
     }
-    mHIDDel = NULL;
+    mJoystick = NULL;
     if(mController)
     {
         mController->enableGesture(Leap::Gesture::TYPE_INVALID);
@@ -1206,9 +1206,9 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
                 if(!gIOHIDManagerRef) {
                     printf("Could not create IOHIDManager");
                 } else {
-                    mHIDDel = HIDDelegate::CreateHIDDelegate(ourProcessor, this);
-                    mHIDDel->Initialize_HID(this);
-                    if(mHIDDel->getDeviceSetRef()) {
+                    mJoystick = HIDDelegate::CreateHIDDelegate(ourProcessor, this);
+                    mJoystick->Initialize_HID(this);
+                    if(mJoystick->getDeviceSetRef()) {
                         m_pLBJoystickState->setText("Joystick connected", dontSendNotification);
                     } else {
                         m_pLBJoystickState->setText("Joystick not connected", dontSendNotification);
@@ -1227,7 +1227,7 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
             gIOHIDManagerRef = NULL;
             gDeviceCFArrayRef = NULL;
             gElementCFArrayRef = NULL;
-            mHIDDel = NULL;
+            mJoystick = NULL;
             m_pLBJoystickState->setText("", dontSendNotification);
         }
     }
@@ -1715,6 +1715,16 @@ int ZirkOscAudioProcessorEditor::getNbSources(){
 void ZirkOscAudioProcessorEditor::uncheckJoystickButton(){
     m_pTBEnableJoystick->setToggleState(false, dontSendNotification);
     buttonClicked(m_pTBEnableJoystick);
+}
+void ZirkOscAudioProcessorEditor::beginJoystickAutomation(int iSelSrc){
+    ourProcessor->setIsRecordingAutomation(true);
+    ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iSelSrc*5));
+    ourProcessor->beginParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iSelSrc*5));
+}
+void ZirkOscAudioProcessorEditor::endJoystickAutomation(int iSelSrc){
+    ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_X_ParamId + (iSelSrc*5));
+    ourProcessor->endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_Y_ParamId + (iSelSrc*5));
+    ourProcessor->setIsRecordingAutomation(false);
 }
 int ZirkOscAudioProcessorEditor::getCBSelectedSource(){
     return m_pCBLeapSource->getSelectedId();

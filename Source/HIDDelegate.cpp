@@ -100,11 +100,12 @@ void HIDDelegate::Handle_IOHIDDeviceInputValueCallback(void *          inContext
         //pressed
         if(state==1 && usage <= tempEditor ->getNbSources()){  //being pressed
             tempEditor->getHIDDel()->setButtonPressedTab(usage,1);
+            tempEditor->beginJoystickAutomation(usage-1);
         }
         //released
         if(state==0 && usage <= tempEditor->getNbSources()) {
             tempEditor->getHIDDel()->setButtonPressedTab(usage,0);
-            
+            tempEditor->endJoystickAutomation(usage-1);
         }
     }
 }

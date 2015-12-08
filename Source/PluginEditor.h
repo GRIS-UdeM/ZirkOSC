@@ -75,8 +75,11 @@ public:
     //Import from octogris for Leap and Joystick
     
     Label * getmStateLeap() {return m_pLBLeapState;}
-    HIDDelegate * getHIDDel() {return mHIDDel;};
+    HIDDelegate * getHIDDel() {return mJoystick;};
     void uncheckJoystickButton();
+    void beginJoystickAutomation(int iSelSrc);
+    void endJoystickAutomation(int iSelSrc);
+    
     JUCE_COMPILER_WARNING("these 2 methods were created because of static issues in hid_delegate and such")
     int getNbSources();
     int getCBSelectedSource();
@@ -220,7 +223,7 @@ private:
     Label* m_pLBJoystickState;
     
     //joystick
-    ReferenceCountedObjectPtr<HIDDelegate> mHIDDel;
+    ReferenceCountedObjectPtr<HIDDelegate> mJoystick;
 
     //! Auto generated function, to get the processor
     ZirkOscAudioProcessor* getProcessor() const
