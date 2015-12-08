@@ -506,7 +506,6 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
     getPlayHead()->getCurrentPosition(cpi);
     
     if (cpi.isPlaying){
-        
         if (!m_bDetectedPlayingStart){
             m_bCurrentlyPlaying = true;
             m_bDetectedPlayingStart = true;
@@ -521,14 +520,12 @@ void ZirkOscAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer&
             setParameterNotifyingHost((ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId), IntToPercentStartsAtOne(m_iActualConstraint, TotalNumberConstraints));
             m_iNeedToResetToActualConstraint = -1;
         }
-
     } else if (!cpi.isPlaying && !m_bDetectedPlayingEnd){
         m_bCurrentlyPlaying = false;
         m_bDetectedPlayingEnd = true;
         m_bDetectedPlayingStart = false;
     }
 
-    
     Trajectory::Ptr trajectory = mTrajectory;
     if (trajectory) {
         if (cpi.isPlaying && cpi.timeInSamples != mLastTimeInSamples) {

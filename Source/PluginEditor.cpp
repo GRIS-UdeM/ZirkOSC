@@ -1033,7 +1033,6 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
                 clearTrajectoryPath();
                 m_iTrCycleCount = iCurCycle;
             }
-
         } else {
             m_pWriteTrajectoryButton->setButtonText("Ready");
             mTrProgressBar->setVisible(false);

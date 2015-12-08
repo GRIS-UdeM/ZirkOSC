@@ -64,7 +64,7 @@ void HIDDelegate::Handle_DeviceRemovalCallback(void *inContext, IOReturn inResul
 
 /** called when connected joystick is used, the type of use and value of use are recovered from IOHIDValueRef sent by the event. First the method convert the IOHIDValueRef to a IOHIDElementRef which allow us to get the usagePage (type of control), the usage (the id of the control), the PhysicalMin and PhysicalMax which are 0 and 1 for common buttons or the max can vary from 256 to 1024 in our experience for the axis from one joystick to an other. We use the physical maximum to get a normalized value otherwise a less precise joystick would not permit mouvement accross the whole circle.
  Exemple for usagePage, usage and value, if I press the button 5 of my joystick usagePage will be 9(Id of the button type and usage will be 5 (number of the button)and value will be 1 (1 if pressed and 0 if not) */
-void HIDDelegate::Handle_IOHIDDeviceInputValueCallback(void *          inContext,     // context in which the method is called here ZirkOscAudioProcessorEditor
+void HIDDelegate::joystickPositionCallBack(void *          inContext,     // context in which the method is called here ZirkOscAudioProcessorEditor
                                                        IOReturn        inResult,      // completion result for the input value operation
                                                        void *          inSender,      // IOHIDDeviceRef of the device this element is from
                                                        IOHIDValueRef   inIOHIDValueRef){ // the new element value
@@ -182,7 +182,7 @@ OSStatus HIDDelegate::Initialize_HID(void *inContext) {
                 if(CFGetTypeID(array[i])== IOHIDDeviceGetTypeID()) {
                     deviceRef = (IOHIDDeviceRef)array[i];
                 }
-                IOHIDDeviceRegisterInputValueCallback(deviceRef, Handle_IOHIDDeviceInputValueCallback, inContext);
+                IOHIDDeviceRegisterInputValueCallback(deviceRef, joystickPositionCallBack, inContext);
                 uint32_t page = kHIDPage_GenericDesktop;
                 uint32_t joystickUsage = kHIDUsage_GD_Joystick;
                 uint32_t gamepadUsage = kHIDUsage_GD_GamePad;
@@ -191,7 +191,6 @@ OSStatus HIDDelegate::Initialize_HID(void *inContext) {
                 if (! (IOHIDDeviceConformsTo(deviceRef, page, joystickUsage) || IOHIDDeviceConformsTo(deviceRef, page, gamepadUsage))) {
                     continue;
                 }
-                //std::cout << "Joystick number 1 " +  std::to_string(nbJoysticks) + " joysticks connected \n ";
                 
                 CFArrayRef elementRefTab = IOHIDDeviceCopyMatchingElements(deviceRef, NULL, kIOHIDOptionsTypeNone);
                 
@@ -239,8 +238,8 @@ OSStatus HIDDelegate::Initialize_HID(void *inContext) {
     return 0;
 }
 
-/** JoystickUsed is called, to handle the effect of the use of the axis while pressing a button on the joystick, by Handle_IOHIDDeviceInputValueCallback because as a static method it is quite limited.
-    We give JoystickUsed the usage to know which axis is being used, the scaledValue to know how much the joystick is bent. MaxValue is used to know the resolution of the axis. */
+/** this is called, to handle the effect of the use of the axis while pressing a button on the joystick, by joystickPositionCallBack because as a static method it is quite limited.
+    We give  the usage to know which axis is being used, the scaledValue to know how much the joystick is bent. MaxValue is used to know the resolution of the axis. */
 void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValue, double maxValue)
 {
     for(int iCurButton =0; iCurButton < getNbButton(); iCurButton++){    //Sweep accross all the joystick button to check which is being pressed
