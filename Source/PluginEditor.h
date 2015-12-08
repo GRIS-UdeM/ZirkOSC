@@ -270,6 +270,8 @@ private:
     float m_fEndPathX,   m_fEndPathY;
     bool m_bPathJustStarted;
     LookAndFeel_V2 mFeel;
+    
+    int m_iTrCycleCount;
 };
 
 

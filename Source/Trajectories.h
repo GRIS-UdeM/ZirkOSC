@@ -48,6 +48,7 @@ public:
 	
 	bool process(float seconds, float beats);
 	float progress();
+    float progressCycle();
 	void stop();
     
     static std::unique_ptr<std::vector<String>> getTrajectoryPossibleDirections(int p_iTrajectory);

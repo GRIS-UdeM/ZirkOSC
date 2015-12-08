@@ -325,6 +325,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,m_fEndPathX(-1)
 ,m_fEndPathY(-1)
 ,m_bPathJustStarted(false)
+,m_iTrCycleCount(-1)
 {
     LookAndFeel::setDefaultLookAndFeel(&mFeel);
     
@@ -1027,6 +1028,12 @@ void ZirkOscAudioProcessorEditor::timerCallback(){
         Trajectory::Ptr t = ourProcessor->getTrajectory();
         if (t) {
             mTrProgressBar->setValue(t->progress());
+            int iCurCycle = t->progressCycle();
+            if (m_iTrCycleCount != iCurCycle){
+                clearTrajectoryPath();
+                m_iTrCycleCount = iCurCycle;
+            }
+
         } else {
             m_pWriteTrajectoryButton->setButtonText("Ready");
             mTrProgressBar->setVisible(false);
