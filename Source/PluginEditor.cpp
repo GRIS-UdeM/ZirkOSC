@@ -320,10 +320,11 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,m_oMovementConstraintComboBox("MovementConstraint")
 ,m_fHueOffset(0.125)//(0.577251)
 ,m_oEndPointLabel()
-,fStartPathX(-1)
-,fStartPathY(-1)
-,fEndPathX(-1)
-,fEndPathY(-1)
+,m_fStartPathX(-1)
+,m_fStartPathY(-1)
+,m_fEndPathX(-1)
+,m_fEndPathY(-1)
+,m_bPathJustStarted(false)
 {
     LookAndFeel::setDefaultLookAndFeel(&mFeel);
     
@@ -877,9 +878,12 @@ void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     g.drawEllipse(_ZirkOSC_Center_X-radiusZenith, _ZirkOSC_Center_Y-radiusZenith, radiusZenith*2, radiusZenith*2, 1.0);
     //draw sources
     paintSourcePoint(g);
-    if (fStartPathX != -1 && fEndPathX != -1){
-        m_oTrajectoryPath.startNewSubPath (fStartPathX, fStartPathY);
-        m_oTrajectoryPath.lineTo (fEndPathX, fEndPathY);
+    if (m_fStartPathX != -1 && m_fEndPathX != -1){
+        if (m_bPathJustStarted){
+            m_oTrajectoryPath.startNewSubPath (m_fStartPathX, m_fStartPathY);
+            m_bPathJustStarted = false;
+        }
+        m_oTrajectoryPath.lineTo (m_fEndPathX, m_fEndPathY);
         g.strokePath (m_oTrajectoryPath, PathStrokeType (2.0f));
     }
 }
@@ -1100,7 +1104,7 @@ void ZirkOscAudioProcessorEditor::refreshGui(){
 }
 
 void ZirkOscAudioProcessorEditor::clearTrajectoryPath(){
-    fStartPathX = -1, fEndPathX = -1, fStartPathY = -1, fEndPathY = -1;
+    m_fStartPathX = -1, m_fEndPathX = -1, m_fStartPathY = -1, m_fEndPathY = -1;
     m_oTrajectoryPath.clear();
 }
 
@@ -1424,15 +1428,15 @@ void ZirkOscAudioProcessorEditor::mouseDrag (const MouseEvent &event){
             }
         move(ourProcessor->getSelectedSource(), fX, fY);
 //        //draw drag path
-//        if (fEndPathX == -1){
-//            fStartPathX = event.x;
-//            fStartPathY = event.y;
+//        if (m_fEndPathX == -1){
+//            m_fStartPathX = event.x;
+//            m_fStartPathY = event.y;
 //        } else {
-//            fStartPathX = fEndPathX;
-//            fStartPathY = fEndPathY;
+//            m_fStartPathX = m_fEndPathX;
+//            m_fStartPathY = m_fEndPathY;
 //        }
-//        fEndPathX = event.x;
-//        fEndPathY = event.y;
+//        m_fEndPathX = event.x;
+//        m_fEndPathY = event.y;
 //        repaint();
     }
     //grab focus
@@ -1447,15 +1451,16 @@ void ZirkOscAudioProcessorEditor::updatePositionTrace(float p_fX, float p_fY){
     float fAbsoluteX = p_fX + _ZirkOSC_Center_X;
     float fAbsoluteY = p_fY + _ZirkOSC_Center_Y;
     //draw drag path
-    if (fEndPathX == -1){
-        fStartPathX = fAbsoluteX;
-        fStartPathY = fAbsoluteY;
+    if (m_fEndPathX == -1){
+        m_bPathJustStarted = true;
+        m_fStartPathX = fAbsoluteX;
+        m_fStartPathY = fAbsoluteY;
     } else {
-        fStartPathX = fEndPathX;
-        fStartPathY = fEndPathY;
+        m_fStartPathX = m_fEndPathX;
+        m_fStartPathY = m_fEndPathY;
     }
-    fEndPathX = fAbsoluteX;
-    fEndPathY = fAbsoluteY;
+    m_fEndPathX = fAbsoluteX;
+    m_fEndPathY = fAbsoluteY;
     //repaint();
 }
 

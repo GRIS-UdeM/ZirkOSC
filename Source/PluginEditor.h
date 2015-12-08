@@ -266,8 +266,9 @@ private:
     Label m_oEndPointLabel;
     
     Path m_oTrajectoryPath;
-    float fStartPathX, fStartPathY;
-    float fEndPathX,   fEndPathY;
+    float m_fStartPathX, m_fStartPathY;
+    float m_fEndPathX,   m_fEndPathY;
+    bool m_bPathJustStarted;
     LookAndFeel_V2 mFeel;
 };
 
