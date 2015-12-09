@@ -68,7 +68,6 @@ void HIDDelegate::joystickPositionCallback(void *          inContext,     // con
                                                        IOReturn        inResult,      // completion result for the input value operation
                                                        void *          inSender,      // IOHIDDeviceRef of the device this element is from
                                                        IOHIDValueRef   inIOHIDValueRef){ // the new element value
-
     IOHIDElementRef tIOHIDElementRef = IOHIDValueGetElement(inIOHIDValueRef);
     if(!tIOHIDElementRef) {
         printf("tIOHIDElementRef == NULL\n");
@@ -250,20 +249,34 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
             //FPoint newPoint;
             //Switch to detect what part of the device is being used
             switch (usage) {
-                case 48:
-                    vx = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscAudioProcessor::s_iDomeRadius*2;
+                case 48:{
+                    vx = 2*ZirkOscAudioProcessor::s_iDomeRadius * ((scaledValue-minValue)/(maxValue-minValue)) - ZirkOscAudioProcessor::s_iDomeRadius;
+//                    //clamp coordinates to circle
+//                    float fCurR = hypotf(vx, vy);
+//                    if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+//                        break;
+//                        float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
+//                        vx *= fExtraRatio;
+//                    }
+
                     mEditor->move(iCurButton, vx, vy);
                     break;
-                    
-                case 49:
-                    vy = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscAudioProcessor::s_iDomeRadius*2;
+                }
+                case 49:{
+                    vy = 2*ZirkOscAudioProcessor::s_iDomeRadius * ((scaledValue-minValue)/(maxValue-minValue)) - ZirkOscAudioProcessor::s_iDomeRadius;
+//                    //clamp coordinates to circle
+//                    float fCurR = hypotf(vx, vy);
+//                    if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+//                        break;
+//                        float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
+//                        vy *= fExtraRatio;
+//                    }
                     mEditor->move(iCurButton, vx, vy);
                     break;
-                    
+                }
                 default:
                     break;
             }
-            mEditor->repaint();
         }
     }
 }
