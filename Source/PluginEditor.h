@@ -27,6 +27,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "Leap.h"
+#include "../../GrisCommonFiles/GrisLookAndFeel.h"
 
 //==============================================================================
 /**
@@ -272,8 +273,8 @@ private:
     float m_fStartPathX, m_fStartPathY;
     float m_fEndPathX,   m_fEndPathY;
     bool m_bPathJustStarted;
-    LookAndFeel_V2 mFeel;
-    
+//    LookAndFeel_V2 mFeel;
+    CustomLookAndFeel mFeel;
     int m_iTrCycleCount;
 };
 

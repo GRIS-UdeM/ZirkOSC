@@ -25,6 +25,8 @@
 #ifndef ZirkOSCJUCE_ZirkConstants_h
 #define ZirkOSCJUCE_ZirkConstants_h
 
+static const bool s_bUseNewGui = true;
+
 const int ZirkOSC_Max_Sources = 8;
 
 //const String ZirkOSC_Azim_name [ZirkOSC_Max_Sources] = {"1 Azimuth", "2 Azimuth","3 Azimuth","4 Azimuth","5 Azimuth","6 Azimuth","7 Azimuth","8 Azimuth"};

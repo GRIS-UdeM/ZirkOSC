@@ -1697,7 +1697,6 @@ int ZirkOscAudioProcessorEditor::getNumSelectedTrajectoryDirections(){
     } else {
         return -1;
     }
-    
 }
 int ZirkOscAudioProcessorEditor::getNumSelectedTrajectoryReturns(){
     int iSelectedTraj = m_pTrajectoryTypeComboBox->getSelectedId();

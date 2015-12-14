@@ -958,8 +958,6 @@ const String ZirkOscAudioProcessor::getParameterName (int index) {
         case ZirkOSC_WriteTrajectories_ParamId:
             return ZirkOSCm_bIsWriteTrajectory_name;
     }
-    
-    
     for(int i = 0; i<8; ++i){
         if      (ZirkOSC_X_ParamId + (i*5) == index) {
 
