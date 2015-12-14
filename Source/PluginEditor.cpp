@@ -327,7 +327,12 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,m_bPathJustStarted(false)
 ,m_iTrCycleCount(-1)
 {
-    LookAndFeel::setDefaultLookAndFeel(&mFeel);
+    if (s_bUseNewGui){
+        LookAndFeel::setDefaultLookAndFeel(&mV3Feel);
+    } else {
+        LookAndFeel::setDefaultLookAndFeel(&mV2Feel);
+    }
+
     
     ourProcessor = getProcessor();
     
