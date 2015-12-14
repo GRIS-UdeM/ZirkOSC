@@ -410,10 +410,18 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_oSlidersTab = new SlidersTab();
     m_oTrajectoryTab = new TrajectoryTab();
     m_oInterfaceTab = new InterfaceTab();
-    _TabComponent.addTab("Sliders", Colours::lightgrey, m_oSlidersTab, true);
-    _TabComponent.addTab("Trajectories", Colours::lightgrey, m_oTrajectoryTab, true);
-    _TabComponent.addTab("Interfaces", Colours::lightgrey, m_oInterfaceTab, true);
-//    _TabComponent.addTab("Properties", Colours::lightgrey, &m_oPropertyPanel, true);
+    if (s_bUseNewGui){
+        _TabComponent.addTab("Sliders", Colours::lightblue, m_oSlidersTab, true);
+        _TabComponent.addTab("Trajectories", Colours::lightblue, m_oTrajectoryTab, true);
+        _TabComponent.addTab("Interfaces", Colours::lightblue, m_oInterfaceTab, true);
+    
+    } else {
+        _TabComponent.addTab("Sliders", Colours::lightgrey, m_oSlidersTab, true);
+        _TabComponent.addTab("Trajectories", Colours::lightgrey, m_oTrajectoryTab, true);
+        _TabComponent.addTab("Interfaces", Colours::lightgrey, m_oInterfaceTab, true);
+
+    }
+    //    _TabComponent.addTab("Properties", Colours::lightgrey, &m_oPropertyPanel, true);
     addAndMakeVisible(_TabComponent);
     
     
@@ -867,7 +875,11 @@ void ZirkOscAudioProcessorEditor::setLabelAndTextEditorPosition(int x, int y, in
 }
 
 void ZirkOscAudioProcessorEditor::paint (Graphics& g){
-    g.fillAll (Colours::lightgrey);
+    if (s_bUseNewGui){
+        g.fillAll (Colours::lightblue);
+    } else {
+        g.fillAll (Colours::lightgrey);
+    }
     paintWallCircle(g);     //this is the big, main circle in the gui
     paintCoordLabels(g);
     paintCenterDot(g);
