@@ -328,7 +328,9 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 ,m_iTrCycleCount(-1)
 {
     if (s_bUseNewGui){
-        LookAndFeel::setDefaultLookAndFeel(&mV3Feel);
+        //this works, but everything is too small
+        mGrisFeel.setDefaultSansSerifTypefaceName("Shree Devanagari 714");
+        LookAndFeel::setDefaultLookAndFeel(&mGrisFeel);
     } else {
         LookAndFeel::setDefaultLookAndFeel(&mV2Feel);
     }
