@@ -46,7 +46,7 @@ private:
     ZirkOscAudioProcessor *ourProcessor;
     ZirkOscAudioProcessorEditor *mEditor;
     
-    ScopedPointer<Leap::Controller> mController;
+    ScopedPointer<Leap::Controller> mLeapController;
     
     int32_t mPointableId;
     //* Boolean telling if the last frame had a valid position

@@ -64,11 +64,11 @@ void HIDDelegate::Handle_DeviceRemovalCallback(void *inContext, IOReturn inResul
 
 /** called when connected joystick is used, the type of use and value of use are recovered from IOHIDValueRef sent by the event. First the method convert the IOHIDValueRef to a IOHIDElementRef which allow us to get the usagePage (type of control), the usage (the id of the control), the PhysicalMin and PhysicalMax which are 0 and 1 for common buttons or the max can vary from 256 to 1024 in our experience for the axis from one joystick to an other. We use the physical maximum to get a normalized value otherwise a less precise joystick would not permit mouvement accross the whole circle.
  Exemple for usagePage, usage and value, if I press the button 5 of my joystick usagePage will be 9(Id of the button type and usage will be 5 (number of the button)and value will be 1 (1 if pressed and 0 if not) */
+
 void HIDDelegate::joystickPositionCallBack(void *          inContext,     // context in which the method is called here ZirkOscAudioProcessorEditor
                                                        IOReturn        inResult,      // completion result for the input value operation
                                                        void *          inSender,      // IOHIDDeviceRef of the device this element is from
                                                        IOHIDValueRef   inIOHIDValueRef){ // the new element value
-
     IOHIDElementRef tIOHIDElementRef = IOHIDValueGetElement(inIOHIDValueRef);
     if(!tIOHIDElementRef) {
         printf("tIOHIDElementRef == NULL\n");
@@ -106,6 +106,7 @@ void HIDDelegate::joystickPositionCallBack(void *          inContext,     // con
         if(state==0 && usage <= tempEditor->getNbSources()) {
             tempEditor->getHIDDel()->setButtonPressedTab(usage,0);
             tempEditor->endJoystickAutomation(usage-1);
+            tempEditor->clearTrajectoryPath();
         }
     }
 }
@@ -238,6 +239,7 @@ OSStatus HIDDelegate::Initialize_HID(void *inContext) {
     return 0;
 }
 
+
 /** this is called, to handle the effect of the use of the axis while pressing a button on the joystick, by joystickPositionCallBack because as a static method it is quite limited.
     We give  the usage to know which axis is being used, the scaledValue to know how much the joystick is bent. MaxValue is used to know the resolution of the axis. */
 void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValue, double maxValue)
@@ -248,20 +250,34 @@ void HIDDelegate::JoystickUsed(uint32_t usage, float scaledValue, double minValu
             //FPoint newPoint;
             //Switch to detect what part of the device is being used
             switch (usage) {
-                case 48:
-                    vx = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscAudioProcessor::s_iDomeRadius*2;
+                case 48:{
+                    vx = 2*ZirkOscAudioProcessor::s_iDomeRadius * ((scaledValue-minValue)/(maxValue-minValue)) - ZirkOscAudioProcessor::s_iDomeRadius;
+//                    //clamp coordinates to circle
+//                    float fCurR = hypotf(vx, vy);
+//                    if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+//                        break;
+//                        float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
+//                        vx *= fExtraRatio;
+//                    }
+
                     mEditor->move(iCurButton, vx, vy);
                     break;
-                    
-                case 49:
-                    vy = ((scaledValue-(maxValue/2))/maxValue)*ZirkOscAudioProcessor::s_iDomeRadius*2;
+                }
+                case 49:{
+                    vy = 2*ZirkOscAudioProcessor::s_iDomeRadius * ((scaledValue-minValue)/(maxValue-minValue)) - ZirkOscAudioProcessor::s_iDomeRadius;
+//                    //clamp coordinates to circle
+//                    float fCurR = hypotf(vx, vy);
+//                    if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+//                        break;
+//                        float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
+//                        vy *= fExtraRatio;
+//                    }
                     mEditor->move(iCurButton, vx, vy);
                     break;
-                    
+                }
                 default:
                     break;
             }
-            mEditor->repaint();
         }
     }
 }

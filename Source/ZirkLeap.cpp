@@ -29,7 +29,7 @@ Component * CreateLeapComponent(OctogrisAudioProcessor *filter, OctogrisAudioPro
 ZirkLeap::ZirkLeap(ZirkOscAudioProcessor *filter, ZirkOscAudioProcessorEditor *editor):
 ourProcessor(filter),
 mEditor(editor),
-mController(NULL),
+mLeapController(NULL),
 mPointableId(-1),
 mLastPositionValid(0)
 {
@@ -59,38 +59,27 @@ void ZirkLeap::onDisconnect(const Leap::Controller& controller)
 /** onFrame is called for each frame that the Leap Motion capture even if nothing is detected. If a hand is detected
  then it process the coord and move the selected source */
 
-void ZirkLeap::onFrame(const Leap::Controller& controller)
-{
-    if(controller.hasFocus())
-    {
-        
+void ZirkLeap::onFrame(const Leap::Controller& controller) {
+    if(controller.hasFocus()) {
         Leap::Frame frame = controller.frame();
-        if (mPointableId >= 0)
-        {
+        if (mPointableId >= 0) {
             ourProcessor->setSelectedSource(mEditor->getCBSelectedSource()-1);
             Leap::Pointable p = frame.pointable(mPointableId);
-            if (!p.isValid() || !p.isExtended())
-            {
+            if (!p.isValid() || !p.isExtended()) {
                 mPointableId = -1;
                 mLastPositionValid = false;
-            }
-            else
-            {
+            } else {
                 Leap::Vector pos = p.tipPosition();
                 const float zPlane1 = 50;	// 5 cm
                 const float zPlane2 = 100;	// 10 cm
                 
-                if (pos.z < zPlane2)
-                {
-                    if (mLastPositionValid)
-                    {
-                        
+                if (pos.z < zPlane2) {
+                    if (mLastPositionValid) {
                         //Leap Motion mouvement are calculated from the last position in order to have something dynamic and ergonomic
                         Leap::Vector delta = pos- mLastPosition;
                         
                         float scale = 3;
-                        if (pos.z > zPlane1)
-                        {
+                        if (pos.z > zPlane1) {
                             float s = 1 - (pos.z - zPlane1) / (zPlane2 - zPlane1);
                             scale *= s;
                             
@@ -102,31 +91,29 @@ void ZirkLeap::onFrame(const Leap::Controller& controller)
                         fX += delta.x * scale;
                         fY -= delta.y * scale;
                         
+                        //clamp coordinates to circle
+                        float fCurR = hypotf(fX, fY);
+                        if ( fCurR > ZirkOscAudioProcessor::s_iDomeRadius){
+                            float fExtraRatio = ZirkOscAudioProcessor::s_iDomeRadius / fCurR;
+                            fX *= fExtraRatio;
+                            fY *= fExtraRatio;
+                        }
+                        
                         mEditor->move(src, fX, fY);
-                        
-                    }
-                    else
-                    {
+                    } else {
                         //std::cout << "pointable last pos not valid" << std::endl;
-                        
                     }
-                    
                     mLastPosition = pos;
                     mLastPositionValid = true;
-                }
-                else
-                {
+                } else {
                     //std::cout << "pointable not touching plane" << std::endl;
                     mLastPositionValid = false;
-                    
                 }
             }
         }
-        if (mPointableId < 0)
-        {
+        if (mPointableId < 0) {
             Leap::PointableList pl = frame.pointables().extended();
-            if (pl.count() > 0)
-            {
+            if (pl.count() > 0) {
                 mPointableId = pl[0].id();
                 //std::cout << "got new pointable: " << mPointableId << std::endl;
             }

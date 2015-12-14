@@ -255,7 +255,7 @@ private:
     
     InterfaceTab* m_oInterfaceTab;
     
-    ScopedPointer<Leap::Controller> mController;
+    ScopedPointer<Leap::Controller> mLeapController;
     
     ReferenceCountedObjectPtr<ZirkLeap>  mleap;
     

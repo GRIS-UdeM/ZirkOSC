@@ -347,7 +347,7 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     
 //    Font font("Adobe", 20.f);
     
-    m_VersionLabel.setFont (Font (Font::getDefaultMonospacedFontName(), 12.0f, Font::plain));
+//    m_VersionLabel.setFont (Font (Font::getDefaultMonospacedFontName(), 12.0f, Font::plain));
 
    	m_logoImage.setImage(ImageFileFormat::loadFrom (BinaryData::logoGris_png, (size_t) BinaryData::logoGris_pngSize));
     
@@ -622,11 +622,11 @@ ZirkOscAudioProcessorEditor::~ZirkOscAudioProcessorEditor() {
         gElementCFArrayRef = NULL;
     }
     mJoystick = NULL;
-    if(mController)
+    if(mLeapController)
     {
-        mController->enableGesture(Leap::Gesture::TYPE_INVALID);
-        mController->removeListener(*mleap);
-        mController=NULL;
+        mLeapController->enableGesture(Leap::Gesture::TYPE_INVALID);
+        mLeapController->removeListener(*mleap);
+        mLeapController=NULL;
         gIsLeapConnected = 0;
     }
 }
@@ -1171,15 +1171,15 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
         if (m_pTBEnableLeap->getToggleState()) {
             if (!gIsLeapConnected) {
                 m_pLBLeapState->setText("Leap not connected", dontSendNotification);
-                mController = new Leap::Controller();
-                if(!mController) {
+                mLeapController = new Leap::Controller();
+                if(!mLeapController) {
                     printf("Could not create leap controler");
                 } else {
                     mleap = ZirkLeap::CreateLeapComponent(ourProcessor, this);
                     if(mleap) {
                         JUCE_COMPILER_WARNING("gIsLeapConnected was created because no other options of the Leap Motion permitted to know if it was already connected but it's not the good way")
                         gIsLeapConnected = 1;
-                        mController->addListener(*mleap);
+                        mLeapController->addListener(*mleap);
                     } else {
                         m_pLBLeapState->setText("Leap not connected", dontSendNotification);
                     }
@@ -1189,9 +1189,9 @@ void ZirkOscAudioProcessorEditor::buttonClicked (Button* button){
                 m_pTBEnableLeap->setToggleState(false, dontSendNotification); 
             }
         } else if(gIsLeapConnected) {
-            mController->enableGesture(Leap::Gesture::TYPE_INVALID);
-            mController->removeListener(*mleap);
-            mController = NULL;
+            mLeapController->enableGesture(Leap::Gesture::TYPE_INVALID);
+            mLeapController->removeListener(*mleap);
+            mLeapController = NULL;
             gIsLeapConnected = 0;
             m_pLBLeapState->setText("", dontSendNotification);
         }
