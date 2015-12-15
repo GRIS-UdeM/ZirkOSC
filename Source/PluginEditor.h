@@ -277,6 +277,7 @@ private:
     LookAndFeel_V3 mV3Feel;
     GrisLookAndFeel mGrisFeel;
     int m_iTrCycleCount;
+    Colour s_grisBackgroundColour;
 };
 
 
