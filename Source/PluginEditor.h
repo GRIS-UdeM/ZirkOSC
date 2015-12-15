@@ -277,9 +277,8 @@ private:
     LookAndFeel_V3 mV3Feel;
     GrisLookAndFeel mGrisFeel;
     int m_iTrCycleCount;
-    Colour s_grisBackgroundColour;
-};
 
+};
 
 #endif  // __PLUGINEDITOR_H_4624BC76__
 

@@ -329,7 +329,6 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
 {
     if (s_bUseNewGui){
         //this works, but everything is too small
-        s_grisBackgroundColour = Colours::lightblue;
         mGrisFeel.setDefaultSansSerifTypefaceName("Shree Devanagari 714");
         LookAndFeel::setDefaultLookAndFeel(&mGrisFeel);
     } else {
@@ -412,9 +411,9 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_oTrajectoryTab = new TrajectoryTab();
     m_oInterfaceTab = new InterfaceTab();
     if (s_bUseNewGui){
-        _TabComponent.addTab("Sliders", s_grisBackgroundColour, m_oSlidersTab, true);
-        _TabComponent.addTab("Trajectories", s_grisBackgroundColour, m_oTrajectoryTab, true);
-        _TabComponent.addTab("Interfaces", s_grisBackgroundColour, m_oInterfaceTab, true);
+        _TabComponent.addTab("Sliders", mGrisFeel.getGrisBackgroundColor(), m_oSlidersTab, true);
+        _TabComponent.addTab("Trajectories", mGrisFeel.getGrisBackgroundColor(), m_oTrajectoryTab, true);
+        _TabComponent.addTab("Interfaces", mGrisFeel.getGrisBackgroundColor(), m_oInterfaceTab, true);
     
     } else {
         _TabComponent.addTab("Sliders", Colours::lightgrey, m_oSlidersTab, true);
@@ -877,7 +876,7 @@ void ZirkOscAudioProcessorEditor::setLabelAndTextEditorPosition(int x, int y, in
 
 void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     if (s_bUseNewGui){
-        g.fillAll (s_grisBackgroundColour);
+        g.fillAll (mGrisFeel.getGrisBackgroundColor());
     } else {
         g.fillAll (Colours::lightgrey);
     }
