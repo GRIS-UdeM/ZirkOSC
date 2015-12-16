@@ -104,3 +104,11 @@ some useful links:
 * http://hdwallpaperspal.com/black-leather-wallpapers/
 ____________________________________
 joystick: apparently, zirkosc is not using a timer or a thread, but only a callback to retreive positions, while octogris does both things at the same time. is that because that fuckhead implemented that right before leaving? i don't know but my thread stuf is actually useless! so in both octogris and zirkosc, i renamed his fucktwit method Handle_IOHIDDeviceInputValueCallback to joystickPositionCallback. That function is called all the time while the joystick is used, so I don't need to implement an independent thread for that. I think he did that so make his code compatible with the other api (i think it was hidapi: http://www.signal11.us/oss/hidapi/). Anyways, for now I will comment my joystick thread stuff in octogris. 
+
+___________________________________
+NEW ZirkOSC GUI
+* fix font size throughout
+* find right font?
+* change fader circles for flatter ones
+* reorganize side panel
+* reorganize trajectory tab

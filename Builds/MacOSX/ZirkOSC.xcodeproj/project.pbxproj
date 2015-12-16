@@ -77,7 +77,6 @@
 		ADAF4D8E06E80D8DA8E31A84 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51B5D9F7428BB7CD9A94677E /* OpenGL.framework */; };
 		AF2ACDAFF91509E99ECBB26C /* ZirkLeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EE1B863AE4E08B04FFBBD4D0 /* ZirkLeap.cpp */; };
 		AF90E0B0FABDED0716AF989B /* AUBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB3534C75D0BFBE5BB249C /* AUBuffer.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
-		B11FFDAD1C1F5D49008E0261 /* libLeap.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = B11FFDAC1C1F5D49008E0261 /* libLeap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		B2CF11ACAB879226E5251AA3 /* HID_Error_Handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B755C85B0B087E530A7BA68 /* HID_Error_Handler.cpp */; };
 		B2FCA89AD259F0CB9D568911 /* HID_Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AF1CB688A2F18AA12A9142A0 /* HID_Utilities.cpp */; };
 		B3BCB64DEFC14ED9C73AE1D0 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F56DFCBE2E928A0F56D3C75 /* QTKit.framework */; };
@@ -94,19 +93,21 @@
 		E9FB4BA15340124F8CED6197 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5DCE4EBE4C826192639AAA38 /* ComponentBase.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		EB9AF1EF8148A6CEF7145687 /* server_thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 17823789EB41D9D3987D60CD /* server_thread.c */; };
 		EEF1F1FF264973E9A0E0F799 /* bundle.c in Sources */ = {isa = PBXBuildFile; fileRef = 92DDCEFFF6205D6703B3D5C7 /* bundle.c */; };
+		F6046C0C1C21AB67000717CE /* libLeap.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = F6046C0B1C21AB67000717CE /* libLeap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		F7B755A0A93AEBD7614AE4D5 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 883DF696460D914404CCC4AA /* Carbon.framework */; };
 		F8165E71053C582718348E25 /* AUDispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A64F229D2001B0274AB53E0 /* AUDispatch.cpp */; settings = {COMPILER_FLAGS = "-w"; }; };
 		FEA100570230750E15390CCF /* pattern_match.c in Sources */ = {isa = PBXBuildFile; fileRef = BA85D240BA985D37722CE57C /* pattern_match.c */; };
+		FEE73A6B99077AB35C0AA575 /* GrisLookAndFeel.h in Sources */ = {isa = PBXBuildFile; fileRef = 46F01052B7B1CE0EFBC370C3 /* GrisLookAndFeel.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		B11FFDAB1C1F5D33008E0261 /* CopyFiles */ = {
+		F6046C0A1C21AB5A000717CE /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				B11FFDAD1C1F5D49008E0261 /* libLeap.dylib in CopyFiles */,
+				F6046C0C1C21AB67000717CE /* libLeap.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -802,7 +803,6 @@
 		AFF1A8FF06A743D894FAFC33 /* BinaryData.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BinaryData.cpp; path = ../../JuceLibraryCode/BinaryData.cpp; sourceTree = SOURCE_ROOT; };
 		B074823B8FF5D03088E9BD40 /* SoundSource.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SoundSource.cpp; path = ../../Source/SoundSource.cpp; sourceTree = SOURCE_ROOT; };
 		B0DC7F40F9DB07977AEE7FF2 /* juce_RelativePoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_RelativePoint.h; path = ../../JuceLibraryCode/modules/juce_gui_basics/positioning/juce_RelativePoint.h; sourceTree = SOURCE_ROOT; };
-		B11FFDAC1C1F5D49008E0261 /* libLeap.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libLeap.dylib; sourceTree = "<group>"; };
 		B170031E792899D96FE3E438 /* lo_throw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lo_throw.h; path = ../../liblo/lo/lo_throw.h; sourceTree = SOURCE_ROOT; };
 		B176A28B06E66C3350CBF817 /* juce_TextPropertyComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_TextPropertyComponent.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/properties/juce_TextPropertyComponent.cpp; sourceTree = SOURCE_ROOT; };
 		B22C29B514AD21AD2AB8420B /* juce_DirectoryIterator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_DirectoryIterator.h; path = ../../JuceLibraryCode/modules/juce_core/files/juce_DirectoryIterator.h; sourceTree = SOURCE_ROOT; };
@@ -1075,6 +1075,7 @@
 		F46212450C6D2EBC6F2366A0 /* juce_opengl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_opengl.h; path = ../../JuceLibraryCode/modules/juce_opengl/juce_opengl.h; sourceTree = SOURCE_ROOT; };
 		F5098F729DB2B08172BBE063 /* DiscRecording.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DiscRecording.framework; path = System/Library/Frameworks/DiscRecording.framework; sourceTree = SDKROOT; };
 		F5A199DFF6C8E18958B4BAEB /* juce_Line.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = juce_Line.h; path = ../../JuceLibraryCode/modules/juce_graphics/geometry/juce_Line.h; sourceTree = SOURCE_ROOT; };
+		F6046C0B1C21AB67000717CE /* libLeap.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libLeap.dylib; sourceTree = "<group>"; };
 		F60B6619FA0B3945F9C5D095 /* juce_linux_Fonts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_linux_Fonts.cpp; path = ../../JuceLibraryCode/modules/juce_graphics/native/juce_linux_Fonts.cpp; sourceTree = SOURCE_ROOT; };
 		F60BCED8C509B2AA11615B1A /* juce_linux_SystemStats.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_linux_SystemStats.cpp; path = ../../JuceLibraryCode/modules/juce_core/native/juce_linux_SystemStats.cpp; sourceTree = SOURCE_ROOT; };
 		F6104F9863D85EDB56E8DEFE /* juce_DrawablePath.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = juce_DrawablePath.cpp; path = ../../JuceLibraryCode/modules/juce_gui_basics/drawables/juce_DrawablePath.cpp; sourceTree = SOURCE_ROOT; };
@@ -2897,7 +2898,7 @@
 		E1B83B44B1B770D8A9791CF3 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				B11FFDAC1C1F5D49008E0261 /* libLeap.dylib */,
+				F6046C0B1C21AB67000717CE /* libLeap.dylib */,
 				DA8A28B737DDFAC1313A74EC /* ZirkOSC */,
 				CF17D5EB7EF3F2828D087C14 /* Juce Modules */,
 				AC5859AF3102E03F76ECE0B1 /* Juce Library Code */,
@@ -3079,7 +3080,7 @@
 				96DF6391A7BB58699CC5BE63 /* Sources */,
 				44EBF758515C7CAB2926117B /* Frameworks */,
 				5E70BBE3B5A870A974756754 /* Post-build script */,
-				B11FFDAB1C1F5D33008E0261 /* CopyFiles */,
+				F6046C0A1C21AB5A000717CE /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -3097,7 +3098,7 @@
 		53E060E2F423652634CA95A8 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0710;
 			};
 			buildConfigurationList = A521F2C1015CC84B37773B51 /* Build configuration list for PBXProject "ZirkOSC" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -3155,6 +3156,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FEE73A6B99077AB35C0AA575 /* GrisLookAndFeel.h in Sources */,
 				1DEDFF3825D77ACA499ADCB4 /* HID_Config_Utilities.cpp in Sources */,
 				B2CF11ACAB879226E5251AA3 /* HID_Error_Handler.cpp in Sources */,
 				C878F7B508FFEA1C64DBB9D0 /* HID_Name_Lookup.cpp in Sources */,
@@ -3257,6 +3259,7 @@
 		BBB7D5A7AAD46EE1A50317C6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3304,6 +3307,7 @@
 		C300F1942BFE891307DD33B5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				COMBINE_HIDPI_IMAGES = YES;
