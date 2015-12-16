@@ -109,6 +109,7 @@ ___________________________________
 NEW ZirkOSC GUI
 * fix font size throughout
 * find right font?
+    * be able to use custom fonts...
 * change fader circles for flatter ones
 * reorganize side panel
 * reorganize trajectory tab
