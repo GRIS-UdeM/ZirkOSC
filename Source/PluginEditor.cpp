@@ -1614,7 +1614,7 @@ void ZirkOscAudioProcessorEditor::textEditorReturnKeyPressed (TextEditor &textEd
     
     else if(&_ZkmOscPortTextEditor == &textEditor ){
         int newPort = intValue;
-        ourProcessor->changeZirkoniumOSCPort(newPort);
+        ourProcessor->connectOsc(newPort);
         _ZkmOscPortTextEditor.setText(String(ourProcessor->getOscPortZirkonium()));
     }
     

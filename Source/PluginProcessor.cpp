@@ -89,7 +89,6 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
 ,m_fSelectedTrajectoryDirection(.0f)
 ,m_fSelectedTrajectoryReturn(.0f)
 ,m_iSelectedSource(0)
-,m_iOscPortZirkonium(18032)
 ,m_bIsOscActive(true)
 ,m_bIsSpanLinked(true)
 ,m_dTrajectoryCount(1.)
@@ -114,9 +113,12 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
     
     initSources();
 
-    char port[32];
-    snprintf(port, sizeof(port), "%d", m_iOscPortZirkonium);
-    _OscZirkonium = lo_address_new("127.0.0.1", port);
+    //OSC-------------------------------
+//    char port[32];
+//    snprintf(port, sizeof(port), "%d", m_iOscPortZirkonium);
+//    _OscZirkonium = lo_address_new("127.0.0.1", port);
+    connectOsc(18032);
+    //OSC-------------------------------
     
     //default values for ui dimensions
     _LastUiWidth  = ZirkOSC_Window_Default_Width;
@@ -126,6 +128,37 @@ ZirkOscAudioProcessor::ZirkOscAudioProcessor()
     
     m_fEndLocationXY = make_pair(0, 0);
 }
+
+//OSC-----------------------
+void ZirkOscAudioProcessor::connectOsc(int p_iNewPort){
+    if(p_iNewPort<0 || p_iNewPort>100000){
+        p_iNewPort = m_iOscPortZirkonium;//18032;
+    }
+    
+    m_iOscPortZirkonium = p_iNewPort;
+    mOscIpAddress = "127.0.0.1";
+    mOscSender.disconnect();
+    if(!mOscSender.connect(mOscIpAddress, m_iOscPortZirkonium)){
+        DBG("OSC cannot connect to " + mOscIpAddress);
+    }
+}
+//void ZirkOscAudioProcessor::changeZirkoniumOSCPort(int newPort){
+//    
+//    if(newPort<0 || newPort>100000){
+//        newPort = m_iOscPortZirkonium;//18032;
+//    }
+//    
+//    lo_address osc = _OscZirkonium;
+//    m_iOscPortZirkonium = newPort;
+//    _OscZirkonium = NULL;
+//    lo_address_free(osc);
+//    
+//    char port[32];
+//    snprintf(port, sizeof(port), "%d", newPort);
+//    _OscZirkonium = lo_address_new("127.0.0.1", port);
+//    
+//}
+//OSC-----------------------
 
 void ZirkOscAudioProcessor::initSources(){
     int i = 0, iId = 0;
@@ -475,12 +508,15 @@ vector<int> ZirkOscAudioProcessor::getOrderSources(){
 
 ZirkOscAudioProcessor::~ZirkOscAudioProcessor()
 {
-    m_bIsOscActive = false;
-    lo_address osc = _OscZirkonium;
-    if (osc){
-        lo_address_free(osc);
-    }
-    _OscZirkonium = NULL;
+    //OSC------------
+//    m_bIsOscActive = false;
+//    lo_address osc = _OscZirkonium;
+//    if (osc){
+//        lo_address_free(osc);
+//    }
+//    _OscZirkonium = NULL;
+    //OSC------------
+
     if (m_bStartedConstraintAutomation){
         endParameterChangeGesture(ZirkOscAudioProcessor::ZirkOSC_MovementConstraint_ParamId);
     }
@@ -1101,40 +1137,39 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
         
         m_fSelectedTrajectoryDirection = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryDirection", .0f));
         m_fSelectedTrajectoryReturn    = static_cast<float>(xmlState->getDoubleAttribute("selectedTrajectoryReturn", .0f));
-        changeZirkoniumOSCPort(m_iOscPortZirkonium);
+        connectOsc(m_iOscPortZirkonium);
         m_bNeedToRefreshGui=true;
     }
 }
 
 void ZirkOscAudioProcessor::sendOSCValues(){
     for(int iCurSrc = 0; iCurSrc <m_iNbrSources; ++iCurSrc){
+        int   channel_osc   = m_oAllSources[iCurSrc].getSourceId()-1;
         float azim_osc      = PercentToHR(m_oAllSources[iCurSrc].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
         float elev_osc      = PercentToHR(m_oAllSources[iCurSrc].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
         float azimspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
         float elevspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
-        int   channel_osc   = m_oAllSources[iCurSrc].getSourceId()-1;
         float gain_osc      = m_oAllSources[iCurSrc].getGain01();
-        lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+        
+//        lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
+        OSCAddressPattern oscPattern("/pan/az");
+        OSCMessage message(oscPattern);
+        
+        message.addInt32(channel_osc);
+        message.addFloat32(azim_osc);
+        message.addFloat32(elev_osc);
+        message.addFloat32(azimspan_osc);
+        message.addFloat32(elevspan_osc);
+        message.addFloat32(gain_osc);
+        
+        if (!mOscSender.send(message)) {
+            DBG("Error: could not send OSC message.");
+        }
     }
 }
 
 
-void ZirkOscAudioProcessor::changeZirkoniumOSCPort(int newPort){
-    
-    if(newPort<0 || newPort>100000){
-        newPort = m_iOscPortZirkonium;//18032;
-    }
-    
-    lo_address osc = _OscZirkonium;
-    m_iOscPortZirkonium = newPort;
-	_OscZirkonium = NULL;
-    lo_address_free(osc);
-    
-	char port[32];
-	snprintf(port, sizeof(port), "%d", newPort);
-	_OscZirkonium = lo_address_new("127.0.0.1", port);
-    
-}
+
 
 int ZirkOscAudioProcessor::getMovementConstraint() {
     return m_iMovementConstraint;

@@ -27,7 +27,6 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 //#include "ZirkConstants.h"
-#include "lo.h"
 #include "SoundSource.h"
 #include "Trajectories.h"
 
@@ -263,9 +262,12 @@ public:
     bool hasToRefreshGui(){return m_bNeedToRefreshGui;};
     //! If you want to refresh the Gui from the Processor.
     void setRefreshGui(bool gui) { m_bNeedToRefreshGui = gui;};
+    
+    //OSC----------------------------------
     //! Change the sending OSC port of the zirkonium
-    void changeZirkoniumOSCPort(int newPort);
-
+//    void changeZirkoniumOSCPort(int newPort);
+    //OSC--------------------------------
+    
     //! Returns the Editor.
     AudioProcessorEditor* getEditor() {return m_oEditor;};
     //! Set the width that the UI was last set to
@@ -342,6 +344,7 @@ public:
         m_dTrajectoryDampening = Dampening;
     }
     
+    void connectOsc(int p);
     
 private:
     
@@ -374,8 +377,6 @@ private:
     
     //! Tab position of the selected source
     int m_iSelectedSource;
-    //! Osc port to send to the Zirkonium 
-    int m_iOscPortZirkonium;
     //! The editor
     AudioProcessorEditor* m_oEditor;
     //! Sources array
@@ -383,9 +384,19 @@ private:
     //Copy of all sources to be able to save and restore locations before and after a trajectory
     SoundSource m_oAllSourcesBuffer [8];
     
-    //! Zirkonium OSC address (sending)
-    lo_address _OscZirkonium;
 
+    
+    //OSC-----------------------------------------
+    //! Zirkonium OSC address (sending)
+//    lo_address _OscZirkonium;
+    OSCSender mOscSender;
+    String mOscIpAddress;
+    //! Osc port to send to the Zirkonium
+    int m_iOscPortZirkonium;
+    //OSC------------------------
+
+    
+    
     //! last saved ui width
     int _LastUiWidth;
     //! last saved ui height
