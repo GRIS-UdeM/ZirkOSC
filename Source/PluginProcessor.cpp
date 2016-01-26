@@ -187,9 +187,11 @@ void ZirkOscAudioProcessor::updateSourcesSendOsc(){
         }        
         m_iSourceLocationChanged = -1;
     }
+    //OSC---------------------------
     if (m_bIsOscActive){
         sendOSCValues();
     }
+    //OSC---------------------------
 }
 
 void ZirkOscAudioProcessor::move(const int &p_iSource, const float &p_fX, const float &p_fY, const float &p_fAzim01, const float &p_fElev01){
@@ -1142,6 +1144,7 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
     }
 }
 
+//OSC-------------------------
 void ZirkOscAudioProcessor::sendOSCValues(){
     for(int iCurSrc = 0; iCurSrc <m_iNbrSources; ++iCurSrc){
         int   channel_osc   = m_oAllSources[iCurSrc].getSourceId()-1;
@@ -1166,6 +1169,7 @@ void ZirkOscAudioProcessor::sendOSCValues(){
             DBG("Error: could not send OSC message.");
         }
     }
+    //OSC-------------------------
 }
 
 
