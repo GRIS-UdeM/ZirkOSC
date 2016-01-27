@@ -1148,10 +1148,10 @@ void ZirkOscAudioProcessor::setStateInformation (const void* data, int sizeInByt
 void ZirkOscAudioProcessor::sendOSCValues(){
     for(int iCurSrc = 0; iCurSrc <m_iNbrSources; ++iCurSrc){
         int   channel_osc   = m_oAllSources[iCurSrc].getSourceId()-1;
-        float azim_osc      = PercentToHR(m_oAllSources[iCurSrc].getAzimuth01(), ZirkOSC_Azim_Min, ZirkOSC_Azim_Max) /180.;
-        float elev_osc      = PercentToHR(m_oAllSources[iCurSrc].getElevation01(), ZirkOSC_Elev_Min, ZirkOSC_Elev_Max)/180.;
-        float azimspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getAzimuthSpan(), ZirkOSC_AzimSpan_Min,ZirkOSC_AzimSpan_Max)/180.;
-        float elevspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getElevationSpan(), ZirkOSC_ElevSpan_Min, ZirkOSC_Elev_Max)/180.;
+        float azim_osc      = PercentToHR(m_oAllSources[iCurSrc].getAzimuth01(), -1, 1);        //-1 is in the back right and +1 in the back left. 0 is forward
+        float elev_osc      = PercentToHR(m_oAllSources[iCurSrc].getElevation01(), 0, .5);      //0 is the edge of the dome, .5 is the top
+        float azimspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getAzimuthSpan(), 0, 2);       //min azim span is 0, max is 2
+        float elevspan_osc  = PercentToHR(m_oAllSources[iCurSrc].getElevationSpan(), 0, .5);    //min elev span is 0, max is .5
         float gain_osc      = m_oAllSources[iCurSrc].getGain01();
         
 //        lo_send(_OscZirkonium, "/pan/az", "ifffff", channel_osc, azim_osc, elev_osc, azimspan_osc, elevspan_osc, gain_osc);
