@@ -411,9 +411,9 @@ ZirkOscAudioProcessorEditor::ZirkOscAudioProcessorEditor (ZirkOscAudioProcessor*
     m_oTrajectoryTab = new TrajectoryTab();
     m_oInterfaceTab = new InterfaceTab();
     if (s_bUseNewGui){
-        _TabComponent.addTab("Sliders", mGrisFeel.getGrisBackgroundColor(), m_oSlidersTab, true);
-        _TabComponent.addTab("Trajectories", mGrisFeel.getGrisBackgroundColor(), m_oTrajectoryTab, true);
-        _TabComponent.addTab("Interfaces", mGrisFeel.getGrisBackgroundColor(), m_oInterfaceTab, true);
+        _TabComponent.addTab("Sliders", mGrisFeel.getBackgroundColor(), m_oSlidersTab, true);
+        _TabComponent.addTab("Trajectories", mGrisFeel.getBackgroundColor(), m_oTrajectoryTab, true);
+        _TabComponent.addTab("Interfaces", mGrisFeel.getBackgroundColor(), m_oInterfaceTab, true);
     
     } else {
         _TabComponent.addTab("Sliders", Colours::lightgrey, m_oSlidersTab, true);
@@ -876,7 +876,7 @@ void ZirkOscAudioProcessorEditor::setLabelAndTextEditorPosition(int x, int y, in
 
 void ZirkOscAudioProcessorEditor::paint (Graphics& g){
     if (s_bUseNewGui){
-        g.fillAll (mGrisFeel.getGrisBackgroundColor());
+        g.fillAll (mGrisFeel.getBackgroundColor());
     } else {
         g.fillAll (Colours::lightgrey);
     }

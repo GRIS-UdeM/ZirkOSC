@@ -12,6 +12,8 @@
 	<dict>
 		<key>E140C8D3D39EB9E2DF404438F78369D56D204062</key>
 		<string>https://github.com/GRIS-UdeM/ZirkOSC.git</string>
+		<key>EB5060301A45D5D6F316FE343F475AA86D669BAF</key>
+		<string>https://github.com/GRIS-UdeM/GrisCommonFiles.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Builds/MacOSX/ZirkOSC.xcodeproj</string>
@@ -19,6 +21,8 @@
 	<dict>
 		<key>E140C8D3D39EB9E2DF404438F78369D56D204062</key>
 		<string>../../../..</string>
+		<key>EB5060301A45D5D6F316FE343F475AA86D669BAF</key>
+		<string>../../../../../GrisCommonFiles</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/GRIS-UdeM/ZirkOSC.git</string>
@@ -28,6 +32,14 @@
 	<string>E140C8D3D39EB9E2DF404438F78369D56D204062</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>EB5060301A45D5D6F316FE343F475AA86D669BAF</string>
+			<key>IDESourceControlWCCName</key>
+			<string>GrisCommonFiles</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
